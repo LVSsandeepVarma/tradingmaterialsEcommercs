@@ -4,18 +4,37 @@ import { useSelector } from "react-redux";
 
 export default function ProductsDisplay() {
   const [megaDealTime, setMegaDealTime] = useState("2023-08-31T00:00:00");
+  const [singleProductsCount, setSingleProductsCount] = useState(0);
+  const [bundleProductCount, setBundleProductCount] = useState(0);
+  const [filteredProducts, setFilteredProducts] = useState({})
+
   const products = useSelector((state) => state?.products?.value);
+
 //   console.log(products.products[5]?.prices[0]);
-let totalCount =0;
+
 useEffect(()=>{
+  let totalCount =0;
+let bundleCount = 0;
+let productsFilter = {}
     products?.sub_categories?.forEach(element => {
         if(element?.combo ===0){
             return totalCount += element?.product_count
+        }else if(element?.combo === 1){
+          return bundleCount += element?.product_count
         }
         
     });
-          
+    setBundleProductCount(bundleCount)
+          setSingleProductsCount(totalCount)
       console.log(totalCount)
+
+    products?.sub_categories?.map((product,ind)=>{
+        productsFilter[product] = false
+    })
+    productsFilter["all"] = true;
+
+    setFilteredProducts({...productsFilter});
+    
 },[products])
 
 function getRandomNumberWithOffset(number) {
@@ -35,16 +54,42 @@ function getRandomNumberWithOffset(number) {
 
 }  
 
-function ratingStars(number) {
-    const elemetns = Array.from({length: number},(_, index) => (
-        <li key={index}>
-                                    <em className="icon ni ni-star-fill text-yellow"></em>
-                                  </li>
+  function ratingStars(number) {
+    const elemetns = Array.from({ length: number }, (_, index) => (
+      <li key={index}>
+        <em className="icon ni ni-star-fill text-yellow"></em>
+      </li>
     ))
 
-    return                               <ul className="d-flex align-items-center">{elemetns}</ul>
+    return <ul className="d-flex align-items-center">{elemetns}</ul>
 
-}
+  }
+
+  function addFilterProducts(subCategoryName){
+    console.log(subCategoryName)
+    let filterProducts = {...filteredProducts}
+    filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`] ? false : true;
+    if(Object.values(filterProducts).every(value => value === false)){
+      filterProducts["all"] = true
+    }   else if(filterProducts["all"]){
+      filterProducts["all"] = false;
+    }
+    if(subCategoryName === "all"){
+      const keys = Object.keys(filterProducts);
+
+      // Iterate through the keys and set all values to false except for the "all" key
+      keys.forEach(key => {
+        filterProducts[key] = key === "all" ? true : false;
+      });
+        
+    }
+
+    
+
+    setFilteredProducts({...filterProducts})
+
+
+  }
 
   return (
     <>
@@ -117,7 +162,9 @@ function ratingStars(number) {
                                 type="checkbox"
                                 name="category"
                                 id="all-category"
-                                checked
+                                onChange={()=>addFilterProducts("all")}
+
+                                checked={filteredProducts["all"]}
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
@@ -127,7 +174,7 @@ function ratingStars(number) {
                                   All Trading Materials
                                 </label>
                                 <span className="fs-14 text-gray-1200">
-                                  
+                                  {singleProductsCount}
                                 </span>
                               </div>
                             </div>
@@ -141,6 +188,8 @@ function ratingStars(number) {
                                 type="checkbox"
                                 name="category"
                                 id="tablet"
+                                onChange={()=>addFilterProducts(product?.name)}
+                                checked={filteredProducts[product?.name]}
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
@@ -175,9 +224,10 @@ function ratingStars(number) {
                               >
                                 {" "}
                                 All Trading Materials Pack on Shop{" "}
-                                <p>{totalCount}</p>
                               </label>
-                              
+                              {/* <span className="fs-14 text-gray-1200">
+                                  {bundleProductCount}
+                                </span> */}
                             </div>
                           </li>
                           {products?.sub_categories?.map((product, ind)=>(
