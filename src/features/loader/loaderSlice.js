@@ -23,8 +23,10 @@ export const loaderSlice = createSlice({
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
       state.value = true;
+      console.log(state,"rrrrrr")
     },
     hideLoader: (state) => {
+      console.log(state.value,"fff")
       state.value = false;
     },
 

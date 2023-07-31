@@ -11,7 +11,7 @@ export default function Footer() {
                 <div className="nk-footer-brand pb-5 pb-lg-0">
                   <div className="nk-footer-brand-info mb-4">
                     <div className="nk-footer-logo">
-                      <a href="index.php" className="logo-link">
+                      <a href="/" className="logo-link">
                         <div className="logo-wrap">
                           <img
                             className="logo-img"

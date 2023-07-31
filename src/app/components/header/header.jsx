@@ -1,6 +1,35 @@
-import React from "react";
+import React, { useEffect } from "react";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
+import { fetchAllProducts } from "../../../features/products/productsSlice";
 
 export default function Header() {
+  const dispatch = useDispatch()
+  useEffect(()=>{
+    async function fetchProducts (){
+      
+      dispatch(showLoader())
+      try {
+          const response = await axios.get("https://admin.tradingmaterials.com/api/get/products", {
+              headers: {
+                  "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+                  "Accept": "application/json"
+              }
+          })
+          if (response?.data?.status) {
+              dispatch(fetchAllProducts(response?.data?.data))
+          }
+      } catch (err) {
+          console.log("err")
+      }finally{
+        dispatch(hideLoader())
+      }
+  }
+
+  fetchProducts()
+  },[])
+
   return (
     <>
       <header className="nk-header">
@@ -8,11 +37,11 @@ export default function Header() {
           <div className="container">
             <div className="nk-header-wrap">
               <div className="nk-header-logo">
-                <a href="index.php" className="logo-link">
+                <a href="/" className="logo-link">
                   <div className="logo-wrap">
                     <img
                       className="logo-img logo-dark"
-                      src="images/tm-logo-1.png"
+                      src="/images/tm-logo-1.png"
                       alt="brand-logo"
                     />
                   </div>
@@ -22,7 +51,7 @@ export default function Header() {
                 <div>
                   <ul className="nk-nav">
                     <li className="nk-nav-item">
-                      <a href="index.php" className="nk-nav-link">
+                      <a href="/" className="nk-nav-link">
                         <span className="nk-nav-text">Home</span>
                       </a>
                     </li>
@@ -39,7 +68,7 @@ export default function Header() {
                         <li className="nk-nav-item">
                           <ul className="row mx-auto">
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="product-details.php" className="nk-nav-link">
+                              <a href="/" className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-primary me-3">
                                     <em className="icon ni ni-pie-fill"></em>
@@ -53,7 +82,7 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="product-details.php" className="nk-nav-link">
+                              <a href="/" className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-danger me-3">
                                     <em className="icon ni ni-book-fill"></em>
@@ -67,7 +96,7 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="product-details.php" className="nk-nav-link">
+                              <a href="/" className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-info me-3">
                                     <em className="icon ni ni-users-fill"></em>
@@ -81,7 +110,7 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="product-details.php" className="nk-nav-link">
+                              <a href="/" className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-warning me-3">
                                     <em className="icon ni ni-building-fill"></em>
@@ -95,7 +124,7 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="product-details.php" className="nk-nav-link">
+                              <a href="/" className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-success me-3">
                                     <em className="icon ni ni-chat-circle-fill"></em>
@@ -110,7 +139,7 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="product-details.php" className="nk-nav-link">
+                              <a href="/" className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-primary me-3">
                                     <em className="icon ni ni-db-fill"></em>
@@ -135,19 +164,19 @@ export default function Header() {
                         <li className="nk-nav-item col-lg-8">
                           <ul className="row px-3 px-lg-0 mx-auto">
                             <li className="col-lg-12 p-0">
-                              <a href="product-details.php" className="nk-nav-link">
+                              <a href="/" className="nk-nav-link">
                                 {" "}
                                 Combo Trading Bundle{" "}
                               </a>
                             </li>
                             <li className="col-lg-12 p-0">
-                              <a href="product-details.php" className="nk-nav-link">
+                              <a href="/" className="nk-nav-link">
                                 {" "}
                                 Bundle Pack 1{" "}
                               </a>
                             </li>
                             <li className="col-lg-12 p-0">
-                              <a href="product-details.php" className="nk-nav-link">
+                              <a href="/" className="nk-nav-link">
                                 {" "}
                                 Bundle Pack 2{" "}
                               </a>
@@ -171,7 +200,7 @@ export default function Header() {
                   <div className="nk-navbar-btn d-lg-none">
                     <ul className="nk-btn-group sm justify-content-center">
                       <li className="w-100">
-                        <a href="login.php" className="btn btn-primary w-100">
+                        <a href="/" className="btn btn-primary w-100">
                           <em className="icon ni ni-bag-fill"></em>
                           <span>Purchase Now</span>
                         </a>
@@ -184,7 +213,7 @@ export default function Header() {
                 <ul className="nk-btn-group sm justify-content-center">
                   <li className="d-none d-md-block">
                     <a
-                      href="login.php"
+                      href="/"
                       className="btn btn-primary text-nowrap text-nowrap"
                     >
                       <em className="icon ni ni-bag-fill"></em>

@@ -1,94 +1,241 @@
 import React, { useEffect, useState } from "react";
 import Countdown from "./countdown";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  filteredProductsByIds,
+  updatingProducts,
+} from "../../../features/products/productsSlice";
+import { useNavigate } from "react-router-dom";
+import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 
 export default function ProductsDisplay() {
   const [megaDealTime, setMegaDealTime] = useState("2023-08-31T00:00:00");
   const [singleProductsCount, setSingleProductsCount] = useState(0);
   const [bundleProductCount, setBundleProductCount] = useState(0);
-  const [filteredProducts, setFilteredProducts] = useState({})
+  const [filteredProducts, setFilteredProducts] = useState({});
+  const [subCategoryIds, setSubCategoryIds] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [subCatProducts, setSubCatProducts] = useState([]);
+  const [bundleSubCategoryIDs, setBundleSubCategoryIds] = useState([]);
+  const [filteredSubcatProducts, setFilteredSubcatproducts] = useState({});
+  const [sorting, setSorting]  =useState("default")
+  const navigate = useNavigate();
 
   const products = useSelector((state) => state?.products?.value);
-
-//   console.log(products.products[5]?.prices[0]);
-
-useEffect(()=>{
-  let totalCount =0;
-let bundleCount = 0;
-let productsFilter = {}
-    products?.sub_categories?.forEach(element => {
-        if(element?.combo ===0){
-            return totalCount += element?.product_count
-        }else if(element?.combo === 1){
-          return bundleCount += element?.product_count
-        }
-        
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(showLoader())
+    setAllProducts(products);
+    setSubCatProducts(products?.products);
+    let totalCount = 0;
+    let bundleCount = 0;
+    let productsFilter = {};
+    products?.sub_categories?.forEach((element) => {
+      if (element?.combo === 0) {
+        return (totalCount += element?.product_count);
+      } else if (element?.combo === 1) {
+        return (bundleCount += element?.product_count);
+      }
     });
-    setBundleProductCount(bundleCount)
-          setSingleProductsCount(totalCount)
-      console.log(totalCount)
+    setBundleProductCount(bundleCount);
+    setSingleProductsCount(totalCount);
+    console.log(totalCount);
 
-    products?.sub_categories?.map((product,ind)=>{
-        productsFilter[product] = false
-    })
+    products?.sub_categories?.map((product, ind) => {
+      productsFilter[product] = false;
+    });
     productsFilter["all"] = true;
 
-    setFilteredProducts({...productsFilter});
-    
-},[products])
+    setFilteredProducts({ ...productsFilter });
+    setFilteredSubcatproducts({ ...productsFilter });
+    setAllProducts(products?.products);
+    dispatch(hideLoader())
+  }, [products]);
 
-function getRandomNumberWithOffset(number) {
+  function getRandomNumberWithOffset(number) {
     // Define an array of possible offsets: 5, 10, and 20.
     const offsets = [15, 50, 80];
-  
+
     // Generate a random index within the valid range of offsets array.
     const randomIndex = Math.floor(Math.random() * offsets.length);
-  
+
     // Get the random offset based on the selected index.
     const randomOffset = offsets[randomIndex];
-  
+
     // Add the random offset to the input number.
     const result = parseInt(number) + randomOffset;
-    console.log(number, result)
     return result;
-
-}  
+  }
 
   function ratingStars(number) {
     const elemetns = Array.from({ length: number }, (_, index) => (
       <li key={index}>
         <em className="icon ni ni-star-fill text-yellow"></em>
       </li>
-    ))
+    ));
 
-    return <ul className="d-flex align-items-center">{elemetns}</ul>
-
+    return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
 
-  function addFilterProducts(subCategoryName){
-    console.log(subCategoryName)
-    let filterProducts = {...filteredProducts}
-    filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`] ? false : true;
-    if(Object.values(filterProducts).every(value => value === false)){
-      filterProducts["all"] = true
-    }   else if(filterProducts["all"]){
-      filterProducts["all"] = false;
-    }
-    if(subCategoryName === "all"){
-      const keys = Object.keys(filterProducts);
+  function addFilterProducts(subCategoryName, subCategoryId) {
+    console.log(subCategoryName, subCategoryId);
+    const subIDs = [...subCategoryIds];
+    let filterProducts = { ...filteredProducts };
+    console.log(subIDs);
+    // toggles checked or not
+    filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
+      ? false
+      : true;
 
+    const ind = subIDs.indexOf(subCategoryId);
+    if (ind !== -1) {
+      subIDs?.splice(ind, 1);
+      const fp = filteredProductsByIds(products, subIDs);
+      console.log(fp);
+
+      setAllProducts(fp);
+    }
+
+    if (filterProducts[subCategoryName]) {
+      subIDs.push(subCategoryId);
+      // if(subIDs?.includes(0)){
+      //   console.log(subIDs)
+      //   // setAllProducts(products?.products)
+      // }else{
+      console.log(subIDs);
+      const fp = filteredProductsByIds(products, subIDs);
+      console.log(fp);
+      setAllProducts(fp);
+      // }
+    } else {
+      // subIDs
+      const ind = subIDs.indexOf(subCategoryId);
+      console.log(ind);
+      if (ind !== -1) {
+        subIDs?.splice(ind, 1);
+        const fp = filteredProductsByIds(products, subIDs);
+        console.log(fp);
+
+        setAllProducts(fp);
+      }
+    }
+
+    setSubCategoryIds([...subIDs]);
+
+    // checks if all the filter options are false
+    if (Object.values(filterProducts).every((value) => value === false)) {
+      filterProducts["all"] = true;
+      setSubCategoryIds([]);
+      setAllProducts(products?.products);
+    } else if (filterProducts["all"]) {
+      filterProducts["all"] = false;
+
+      const fp = filteredProductsByIds(products, subIDs);
+      console.log(fp);
+      setSubCategoryIds(subIDs);
+      setAllProducts(fp);
+      console.log(subIDs, subCategoryId);
+    }
+    if (subCategoryName === "all") {
+      const keys = Object.keys(filterProducts);
       // Iterate through the keys and set all values to false except for the "all" key
-      keys.forEach(key => {
+      keys.forEach((key) => {
         filterProducts[key] = key === "all" ? true : false;
       });
-        
+      setSubCategoryIds([]);
+      setAllProducts(products?.products);
+
+      // const allProducts = products
+    }
+    setFilteredProducts({ ...filterProducts });
+  }
+
+  function filtersubcatProducts(subCategoryName, subCategoryId) {
+    console.log(subCategoryName, subCategoryId);
+    const subIDs = [...bundleSubCategoryIDs];
+    let filterProducts = { ...filteredSubcatProducts };
+    console.log(subIDs);
+    // toggles checked or not
+    filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
+      ? false
+      : true;
+
+    const ind = subIDs.indexOf(subCategoryId);
+    if (ind !== -1) {
+      subIDs?.splice(ind, 1);
+      const fp = filteredProductsByIds(products, subIDs);
+      console.log(fp);
+
+      setSubCatProducts(fp);
     }
 
-    
+    if (filterProducts[subCategoryName]) {
+      subIDs.push(subCategoryId);
+      // if(subIDs?.includes(0)){
+      //   console.log(subIDs)
+      //   // setAllProducts(products?.products)
+      // }else{
+      console.log(subIDs);
+      const fp = filteredProductsByIds(products, subIDs);
+      console.log(fp);
+      setSubCatProducts(fp);
+      // }
+    } else {
+      // subIDs
+      const ind = subIDs.indexOf(subCategoryId);
+      console.log(ind);
+      if (ind !== -1) {
+        subIDs?.splice(ind, 1);
+        const fp = filteredProductsByIds(products, subIDs);
+        console.log(fp);
 
-    setFilteredProducts({...filterProducts})
+        setSubCatProducts(fp);
+      }
+    }
 
+    setBundleSubCategoryIds([...subIDs]);
 
+    // checks if all the filter options are false
+    if (Object.values(filterProducts).every((value) => value === false)) {
+      filterProducts["all"] = true;
+      setBundleSubCategoryIds([]);
+      setSubCatProducts(products?.products);
+    } else if (filterProducts["all"]) {
+      filterProducts["all"] = false;
+
+      const fp = filteredProductsByIds(products, subIDs);
+      console.log(fp);
+      setBundleSubCategoryIds(subIDs);
+      setSubCatProducts(fp);
+      console.log(subIDs, subCategoryId);
+    }
+    if (subCategoryName === "all") {
+      const keys = Object.keys(filterProducts);
+      // Iterate through the keys and set all values to false except for the "all" key
+      keys.forEach((key) => {
+        filterProducts[key] = key === "all" ? true : false;
+      });
+      setBundleSubCategoryIds([]);
+      setSubCatProducts(products?.products);
+
+      // const allProducts = products
+    }
+    setFilteredSubcatproducts({ ...filterProducts });
+  }
+
+  function handleSortingProducts(value){
+    const combinedProducts = products?.products
+    console.log(combinedProducts[0], typeof(combinedProducts))
+
+    // const res = combinedProducts?.sort((a, b) => new Date(a.added_at) - new Date(b.added_at));
+
+// console.log(res);
+// Output: Sorted array in ascending order based on 'created_at'
+
+// Sort in descending order based on the 'created_at' property
+// combinedProducts?.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+// console.log(combinedProducts);
   }
 
   return (
@@ -162,8 +309,7 @@ function getRandomNumberWithOffset(number) {
                                 type="checkbox"
                                 name="category"
                                 id="all-category"
-                                onChange={()=>addFilterProducts("all")}
-
+                                onChange={() => addFilterProducts("all", 0)}
                                 checked={filteredProducts["all"]}
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
@@ -179,30 +325,39 @@ function getRandomNumberWithOffset(number) {
                               </div>
                             </div>
                           </li>
-                          {products?.sub_categories?.map((product, ind)=>(
+                          {products?.sub_categories?.map((product, ind) => (
                             <>
-                          {product?.combo == 0 && <li>
-                            <div className="form-check d-flex align-items-center">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                name="category"
-                                id="tablet"
-                                onChange={()=>addFilterProducts(product?.name)}
-                                checked={filteredProducts[product?.name]}
-                              />
-                              <div className="d-flex w-100 align-items-center justify-content-between">
-                                <label
-                                  className="form-check-label fs-14 text-gray-1200"
-                                  for="tablet"
-                                >
-                                  {product?.name}
-                                </label>
-                                <span className="fs-14 text-gray-1200">{product?.product_count}</span>
-                              </div>
-                            </div>
-                          </li>}
-                          </>
+                              {product?.combo == 0 && (
+                                <li key={`single-${ind}`}>
+                                  <div className="form-check d-flex align-items-center">
+                                    <input
+                                      className="form-check-input"
+                                      type="checkbox"
+                                      name="category"
+                                      id="tablet"
+                                      onChange={() =>
+                                        addFilterProducts(
+                                          product?.name,
+                                          product?.id
+                                        )
+                                      }
+                                      checked={filteredProducts[product?.name]}
+                                    />
+                                    <div className="d-flex w-100 align-items-center justify-content-between">
+                                      <label
+                                        className="form-check-label fs-14 text-gray-1200"
+                                        for="tablet"
+                                      >
+                                        {product?.name}
+                                      </label>
+                                      <span className="fs-14 text-gray-1200">
+                                        {product?.product_count}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </li>
+                              )}
+                            </>
                           ))}
                         </ul>
                       </div>
@@ -216,7 +371,8 @@ function getRandomNumberWithOffset(number) {
                                 type="checkbox"
                                 name="brand"
                                 id="themenio"
-                                checked
+                                onChange={() => filtersubcatProducts("all", 0)}
+                                checked={filteredSubcatProducts["all"]}
                               />
                               <label
                                 className="form-check-label fs-14 text-gray-1200"
@@ -230,30 +386,42 @@ function getRandomNumberWithOffset(number) {
                                 </span> */}
                             </div>
                           </li>
-                          {products?.sub_categories?.map((product, ind)=>(
+                          {products?.sub_categories?.map((product, ind) => (
                             <>
-                          {product?.combo == 1 && <li>
-                            <div className="form-check d-flex align-items-center">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                name="category"
-                                id="tablet"
-                              />
-                              <div className="d-flex w-100 align-items-center justify-content-between">
-                                <label
-                                  className="form-check-label fs-14 text-gray-1200"
-                                  for="tablet"
-                                >
-                                  {product?.name}
-                                </label>
-                                <span className="fs-14 text-gray-1200">{product?.product_count}</span>
-                              </div>
-                            </div>
-                          </li>}
-                          </>
+                              {product?.combo == 1 && (
+                                <li key={`combo-${ind}`}>
+                                  <div className="form-check d-flex align-items-center">
+                                    <input
+                                      className="form-check-input"
+                                      type="checkbox"
+                                      name="category"
+                                      id="tablet"
+                                      onClick={() => {
+                                        filtersubcatProducts(
+                                          product?.name,
+                                          product?.id
+                                        );
+                                      }}
+                                      checked={
+                                        filteredSubcatProducts[product?.name]
+                                      }
+                                    />
+                                    <div className="d-flex w-100 align-items-center justify-content-between">
+                                      <label
+                                        className="form-check-label fs-14 text-gray-1200"
+                                        for="tablet"
+                                      >
+                                        {product?.name}
+                                      </label>
+                                      <span className="fs-14 text-gray-1200">
+                                        {product?.product_count}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </li>
+                              )}
+                            </>
                           ))}
-
                         </ul>
                       </div>
                       <div>
@@ -275,7 +443,9 @@ function getRandomNumberWithOffset(number) {
                                 >
                                   In Stock
                                 </label>
-                                <span className="fs-14 text-gray-1200">{products?.inStock}</span>
+                                <span className="fs-14 text-gray-1200">
+                                  {products?.inStock}
+                                </span>
                               </div>
                             </div>
                           </li>
@@ -294,7 +464,9 @@ function getRandomNumberWithOffset(number) {
                                 >
                                   Out Of Stock
                                 </label>
-                                <span className="fs-14 text-gray-1200">{products?.outStock}</span>
+                                <span className="fs-14 text-gray-1200">
+                                  {products?.outStock}
+                                </span>
                               </div>
                             </div>
                           </li>
@@ -339,7 +511,7 @@ function getRandomNumberWithOffset(number) {
                                     className="nk-dropdown-select-option py-2"
                                     role="option"
                                   >
-                                    <span className="fs-14 text-gray-1200">
+                                    <span className="fs-14 text-gray-1200" onClick={()=>{handleSortingProducts("Popular")}}>
                                       Popular
                                     </span>
                                   </li>
@@ -347,7 +519,7 @@ function getRandomNumberWithOffset(number) {
                                     className="nk-dropdown-select-option py-2"
                                     role="option"
                                   >
-                                    <span className="fs-14 text-gray-1200">
+                                    <span className="fs-14 text-gray-1200" onClick={()=>{handleSortingProducts("Popular")}}>
                                       Newest
                                     </span>
                                   </li>
@@ -355,7 +527,7 @@ function getRandomNumberWithOffset(number) {
                                     className="nk-dropdown-select-option py-2"
                                     role="option"
                                   >
-                                    <span className="fs-14 text-gray-1200">
+                                    <span className="fs-14 text-gray-1200" onClick={()=>{handleSortingProducts("Popular")}}>
                                       Oldest
                                     </span>
                                   </li>
@@ -367,49 +539,83 @@ function getRandomNumberWithOffset(number) {
                       </div>
                     </div>
                     <div className="row gy-5">
-                        {products !== {} && products?.products?.map((product,ind)=>(
-                      <div className="col-md-6 col-xl-4">
-                        <div className="nk-card overflow-hidden rounded-3 h-100 border">
-                          <div className="nk-card-img">
-                            <a href="product-details.php">
-                              <img
-                                src={product?.img_1}
-                                alt="product-image"
-                                className="w-100"
-                              />
-                            </a>
-                          </div>
-                          <div className="nk-card-info bg-white p-4">
-                            <a
-                              href="product-details.php"
+                      {products !== {} &&
+                        allProducts?.map((product, ind) => {
+                          if (product?.combo === 0) {
+                            return (
+                              <div className="col-md-6 col-xl-4">
+                                <div className="nk-card overflow-hidden rounded-3 h-100 border" onClick={()=>{
+                                  navigate(`/product-detail/${product?.id}`);
+                                  dispatch(showLoader())}}>
+                                  <div className="nk-card-img">
+                                    <a href={`/product-detail/${product?.id}`}>
+                                      <img
+                                        src={product?.img_1}
+                                        alt="product-image"
+                                        className="w-100"
+                                      />
+                                    </a>
+                                  </div>
+                                  <div className="nk-card-info bg-white p-4">
+                                    {/* <a
+                              href="/"
                               className="d-inline-block mb-1 line-clamp-1 h5"
                             >
                                {product?.name}
-                            </a>
-                            <div className="d-flex align-items-center mb-2 gap-1">
-                                {ratingStars(product?.rating)}
-                              
-                              <span className="fs-14 text-gray-800">
-                                {" "}
-                                (7 Reviews){" "}
-                              </span>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-start">
-                            {product?.prices?.map((price,ind)=>(
-                              <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                              {price?.USD && Number.parseFloat(price?.USD).toFixed(2)}
-                              {price?.USD && <del className="text-gray-800 !ml-2">${getRandomNumberWithOffset(Number.parseFloat(price?.USD).toFixed(2))}</del>}
-                              </p>
-                              ))}
-                              
-                              <button className="p-0 border-0 outline-none bg-transparent text-primary">
-                                <em className="icon ni ni-cart"></em>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      ))}
+                            </a> */}
+                                    <a
+                                      href="/"
+                                      className="d-inline-block mb-1 line-clamp-1 h5"
+                                    >
+                                      {product?.name}
+                                      <br />
+                                      <span className="text-xs !mt-1">
+                                        <p
+                                          className="!mt-5 text-gray-700"
+                                          dangerouslySetInnerHTML={{
+                                            __html: product?.description,
+                                          }}
+                                        />
+                                      </span>
+                                    </a>
+                                    <div className="d-flex align-items-center mb-2 gap-1">
+                                      {ratingStars(product?.rating)}
+
+                                      <span className="fs-14 text-gray-800">
+                                        {" "}
+                                        (7 Reviews){" "}
+                                      </span>
+                                    </div>
+                                    <div className="d-flex align-items-center justify-content-start">
+                                      {product?.prices?.map((price, ind) => (
+                                        <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                          {price?.USD &&
+                                            Number.parseFloat(
+                                              price?.USD
+                                            ).toFixed(2)}
+                                          {price?.USD && (
+                                            <del className="text-gray-800 !ml-2">
+                                              $
+                                              {getRandomNumberWithOffset(
+                                                Number.parseFloat(
+                                                  price?.USD
+                                                ).toFixed(2)
+                                              )}
+                                            </del>
+                                          )}
+                                        </p>
+                                      ))}
+
+                                      <button className="p-0 border-0 outline-none bg-transparent text-primary">
+                                        <em className="icon ni ni-cart"></em>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          }
+                        })}
                     </div>
                   </div>
                 </div>
@@ -427,60 +633,74 @@ function getRandomNumberWithOffset(number) {
               </div>
             </div>
             <div className="row gy-5 justify-center">
-              
-                {products !== {} && products?.products?.map((product,indx)=>{
-                    if(product?.combo){
-                        return (
-                        // product?.getproducts?.map((comboProduct, n)=>(
-                            <div
-                className="col-xl-4 col-lg-4 col-md-6"
-                data-aos="fade-up"
-                data-aos-delay="0"
-              >
-                            <div className= "nk-card overflow-hidden rounded-3 border h-100">
-                  <div className="nk-card-img">
-                    <a href="product-details.php">
-                      <img
-                        src={product?.img_1}
-                        alt="product-image"
-                        className="w-100"
-                      />
-                    </a>
-                  </div>
-                  <div className="nk-card-info bg-white p-4">
-                    <a
-                      href="product-details.php"
-                      className="d-inline-block mb-1 line-clamp-1 h5"
-                    >
-                     {product?.name}
-                      <br />
-                      <span className="text-xs">
-                        <p dangerouslySetInnerHTML={{__html: product?.description}} />
-                      </span>
-                    </a>
-                    <div className="d-flex align-items-center mb-2 gap-1">
-                      {ratingStars(product?.rating)}
-                      <span className="fs-14 text-gray-800"> (7 Reviews) </span>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-between">
-                    {product?.prices?.map((price,ind)=>(
-                              <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                              {price?.USD && Number.parseFloat(price?.USD).toFixed(2)}
-                              {price?.USD && <del className="text-gray-800 !ml-2">${getRandomNumberWithOffset(Number.parseFloat(price?.USD).toFixed(2))}</del>}
-                              </p>
+              {subCatProducts?.length !== 0 &&
+                subCatProducts?.map((product, indx) => {
+                  if (product?.combo) {
+                    return (
+                      // product?.getproducts?.map((comboProduct, n)=>(
+                      <div
+                        className="col-xl-4 col-lg-4 col-md-6"
+                        data-aos="fade-up"
+                        data-aos-delay="0"
+                      >
+                        <div className="nk-card overflow-hidden rounded-3 border h-100">
+                          <div className="nk-card-img">
+                            <a href="/">
+                              <img
+                                src={product?.img_1}
+                                alt="product-image"
+                                className="w-100"
+                              />
+                            </a>
+                          </div>
+                          <div className="nk-card-info bg-white p-4">
+                            <a
+                              href="/"
+                              className="d-inline-block mb-1 line-clamp-1 h5"
+                            >
+                              {product?.name}
+                              <br />
+                              <span className="text-xs">
+                                <p
+                                  dangerouslySetInnerHTML={{
+                                    __html: product?.description,
+                                  }}
+                                />
+                              </span>
+                            </a>
+                            <div className="d-flex align-items-center mb-2 gap-1">
+                              {ratingStars(product?.rating)}
+                              <span className="fs-14 text-gray-800">
+                                {" "}
+                                (7 Reviews){" "}
+                              </span>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between">
+                              {product?.prices?.map((price, ind) => (
+                                <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                  {price?.USD &&
+                                    Number.parseFloat(price?.USD).toFixed(2)}
+                                  {price?.USD && (
+                                    <del className="text-gray-800 !ml-2">
+                                      $
+                                      {getRandomNumberWithOffset(
+                                        Number.parseFloat(price?.USD).toFixed(2)
+                                      )}
+                                    </del>
+                                  )}
+                                </p>
                               ))}
-                      <button className="p-0 border-0 outline-none bg-transparent text-primary">
-                        <em className="icon ni ni-cart"></em>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                </div>
-                        // ))
-                )}
+                              <button className="p-0 border-0 outline-none bg-transparent text-primary">
+                                <em className="icon ni ni-cart"></em>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      // ))
+                    );
+                  }
                 })}
-                
-              
             </div>
           </div>
         </section>
@@ -510,10 +730,7 @@ function getRandomNumberWithOffset(number) {
                   </div>
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
-                  <a
-                    href="contact-us.php"
-                    className="btn btn-white fw-semiBold"
-                  >
+                  <a href="/" className="btn btn-white fw-semiBold">
                     Contact Support
                   </a>
                 </div>

@@ -15,7 +15,7 @@ export default function Home() {
     
     useEffect(() => {
         const fetchProducts = async () => {
-            dispatch(showLoader)
+            dispatch(showLoader())
             console.log("fetching products")
             try {
                 const response = await axios.get("https://admin.tradingmaterials.com/api/get/products", {
@@ -29,6 +29,8 @@ export default function Home() {
                 }
             } catch (err) {
                 console.log("err")
+            }finally{
+              dispatch(hideLoader())
             }
             
         }

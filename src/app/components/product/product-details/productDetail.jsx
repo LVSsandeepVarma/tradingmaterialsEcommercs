@@ -1,41 +1,116 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Footer from "../../footer/footer";
-import { hideLoader } from "../../../../features/loader/loaderSlice";
+import { hideLoader, showLoader } from "../../../../features/loader/loaderSlice";
 import Header from "../../header/header";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 import { fetchAllProducts } from "../../../../features/products/productsSlice";
+
+
 
 export default function ProductDetails() {
   const dispatch = useDispatch();
   const products = useSelector((state) => state?.products?.value);
-  const loaderState = useSelector((state) => state?.loader?.value);
+  const loaderState = useSelector(state => state?.loader?.value);
+  const [product, setProduct] = useState({});
+
+  const [subCatProducts, setSubCatProducts] = useState([]);
+
+
+
+  function getRandomNumberWithOffset(number) {
+    // Define an array of possible offsets: 5, 10, and 20.
+    const offsets = [15, 50, 80];
+
+    // Generate a random index within the valid range of offsets array.
+    const randomIndex = Math.floor(Math.random() * offsets.length);
+
+    // Get the random offset based on the selected index.
+    const randomOffset = offsets[randomIndex];
+
+    // Add the random offset to the input number.
+    const result = parseInt(number) + randomOffset;
+    return result;
+  }
+
+  function ratingStars(number) {
+    const elemetns = Array.from({ length: number }, (_, index) => (
+      <li key={index}>
+        <em className="icon ni ni-star-fill text-yellow"></em>
+      </li>
+    ));
+
+    return <ul className="d-flex align-items-center">{elemetns}</ul>;
+  }
+
   console.log(products);
 
-//   const fetchProducts = async () => {
-//     console.log("fetching products");
-//     try {
-//       const response = await axios.get(
-//         "https://admin.tradingmaterials.com/api/get/products",
-//         {
-//           headers: {
-//             "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-//             Accept: "application/json",
-//           },
-//         }
-//       );
-//       if (response?.data?.status) {
-//         dispatch(fetchAllProducts(response?.data?.data?.products));
-//       }
-//     } catch (err) {
-//       console.log("err");
-//     }
-//   };
+  const {id}  =useParams()
 
+  async function fetchProductdetails(){
+    
+    console.log(id)
+    try{
+      dispatch(showLoader())
+      const response = await axios.get(`https://admin.tradingmaterials.com/api/get/products-details?product_id=${id}`,{ headers:{
+        "x-api-secret":"XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+        "Accept":"application/json"
+      }})
+      if(response?.data?.status){
+        setProduct(response?.data?.data)
+      }
+    }catch(err){
+      console.log(err)
+    }finally{
+      dispatch(hideLoader());
+    }
+      
+      
+  }
   useEffect(() => {
     // fetchProducts();
-    dispatch(hideLoader);
+    
+    setSubCatProducts(products?.products);
+    fetchProductdetails()
   }, []);
+
+  useEffect(()=>{
+    async function fetchProducts (){
+      
+      dispatch(showLoader())
+      try {
+          const response = await axios.get("https://admin.tradingmaterials.com/api/get/products", {
+              headers: {
+                  "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+                  "Accept": "application/json"
+              }
+          })
+          if (response?.data?.status) {
+              dispatch(fetchAllProducts(response?.data?.data))
+              setSubCatProducts(response?.data?.data?.products)
+
+          }
+      } catch (err) {
+          console.log("err")
+      }finally{
+        dispatch(hideLoader())
+      }
+  }
+
+  fetchProducts()
+  },[])
+
+  // function ratingStars(number) {
+  //   const elemetns = Array.from({ length: number }, (_, index) => (
+  //     <li key={index}>
+  //       <em className="icon ni ni-star-fill text-yellow"></em>
+  //     </li>
+  //   ));
+
+  //   return <ul className="d-flex align-items-center">{elemetns}</ul>;
+  // }
+
   return (
     <>
       <div className="nk-body">
@@ -57,31 +132,31 @@ export default function ProductDetails() {
                         <div className="swiper-wrapper">
                           <div className="swiper-slide">
                             <img
-                              src="images/shop/slider-cover-1.jpg"
+                              src={product?.product?.img_1 === null ? "/images/shop/slider-cover-1.jpg" : product?.product?.img_1}
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src="images/shop/slider-cover-2.jpg"
+                              src={product?.product?.img_2 === null ? "/images/shop/slider-cover-2.jpg" : product?.product?.img_2}
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src="images/shop/slider-cover-3.jpg"
+                              src={product?.product?.img_3 === null ? "/images/shop/slider-cover-3.jpg" : product?.product?.img_3}
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src="images/shop/slider-cover-4.jpg"
+                              src={product?.product?.img_4 === null ? product?.product?.img_1 : product?.product?.img_4}
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src="images/shop/slider-cover-5.jpg"
+                              src={product?.product?.img_5 === null ? product?.product?.img_2 : product?.product?.img_5}
                               className="w-100"
                             />
                           </div>
@@ -91,31 +166,31 @@ export default function ProductDetails() {
                         <div className="swiper-wrapper">
                           <div className="swiper-slide">
                             <img
-                              src="images/shop/slider-cover-1.jpg"
+                              src={product?.product?.img_1 === null ? "/images/shop/slider-cover-1.jpg" : product?.product?.img_1}
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src="images/shop/slider-cover-2.jpg"
+                              src={product?.product?.img_2 === null ? "/images/shop/slider-cover-2.jpg" : product?.product?.img_2}
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src="images/shop/slider-cover-3.jpg"
+                              src={product?.product?.img_3 === null ? "/images/shop/slider-cover-3.jpg" : product?.product?.img_3}
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src="images/shop/slider-cover-4.jpg"
+                              src={product?.product?.img_4 === null ? product?.product?.img_1 : product?.product?.img_4}
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src="images/shop/slider-cover-5.jpg"
+                              src={product?.product?.img_5 === null ? product?.product?.img_2 : product?.product?.img_5}
                               className="w-100"
                             />
                           </div>
@@ -129,29 +204,15 @@ export default function ProductDetails() {
                         <div>
                           <div className="pb-3 border-bottom">
                             <span className="fs-14 text-gray-1200 text-uppercase fw-semibold">
-                              Desk Mat
+                              {product?.product?.name}
                             </span>
-                            <h3>Trading Desk Mat</h3>
+                            <h3 className="text-sm" dangerouslySetInnerHTML={{
+                                            __html: product?.product?.description,
+                                          }} />
                           </div>
                           <div className="d-flex gap-4 align-items-center pt-1">
                             <div className="d-flex gap-1 align-items-center">
-                              <ul className="d-flex align-items-center">
-                                <li>
-                                  <em className="icon ni ni-star-fill text-yellow"></em>
-                                </li>
-                                <li>
-                                  <em className="icon ni ni-star-fill text-yellow"></em>
-                                </li>
-                                <li>
-                                  <em className="icon ni ni-star-fill text-yellow"></em>
-                                </li>
-                                <li>
-                                  <em className="icon ni ni-star-fill text-yellow"></em>
-                                </li>
-                                <li>
-                                  <em className="icon ni ni-star-fill text-gray-600"></em>
-                                </li>
-                              </ul>
+                            {ratingStars(product?.product?.rating)}
                               <p className="fs-14">(7 Reviews)</p>
                             </div>
                             <a
@@ -166,7 +227,7 @@ export default function ProductDetails() {
                         <div className="nk-product-specification py-5">
                           <div className="nk-product-specification-content">
                             <h6 className="fs-16 m-0 w-50">Availability:</h6>
-                            <p className="fs-16 text-gray-800 w-50">In Stock</p>
+                            <p className="fs-16 text-gray-800 w-50">{product?.stock}</p>
                           </div>
                           <div className="nk-product-specification-content">
                             <h6 className="fs-16 m-0 w-50">Brand:</h6>
@@ -356,19 +417,10 @@ export default function ProductDetails() {
                       >
                         <div className="mb-5">
                           <h5 className="mb-2">Product Description</h5>
-                          <p className="fs-16 text-gray-1200">
-                            {" "}
-                            Contrary to popular belief, Lorem Ipsum is not
-                            simply random text. It has roots in a piece of
-                            classical Latin literature from 45 BC, making it
-                            over 2000 years old. Vivamus bibendum magna Lorem
-                            ipsum dolor sit amet, consectetur adipiscing elit.
-                            Contrary to popular roots in a piece of classical.
-                            Must explain to you how all this mistaken idea of
-                            denouncing pleasure and praising pain was born and I
-                            will give you a complete account of the system, and
-                            expound.{" "}
-                          </p>
+                          <p className="fs-16 text-gray-1200"  dangerouslySetInnerHTML={{
+                                            __html: product?.product?.long_desc,
+                                          }}/>
+                            
                         </div>
                         <div className="row">
                           <div className="col-lg-10 col-xl-8">
@@ -459,182 +511,76 @@ export default function ProductDetails() {
                     </div>
                   </div>
                 </div>
-                <div className="row gy-5">
-                  <div
-                    className="col-xl-4 col-lg-4 col-md-6"
-                    data-aos="fade-up"
-                    data-aos-delay="0"
-                  >
-                    <div className="nk-card h-100 border rounded-2 overflow-hidden">
-                      <div className="nk-card-img">
-                        <a href="product-details.html">
-                          <img
-                            src="images/shop/product-cover-7.jpg"
-                            alt="product-image"
-                            className="w-100"
-                          />
-                        </a>
-                      </div>
-                      <div className="nk-card-info bg-white p-4">
-                        <a
-                          href="#"
-                          className="d-inline-block mb-1 line-clamp-1 h5"
-                        >
-                          Combo Trading Bundle
-                        </a>
-                        <div className="d-flex align-items-center mb-2 gap-1">
-                          <ul className="d-flex align-items-center">
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                          </ul>
-                          <span className="fs-14 text-gray-800">
-                            {" "}
-                            (7 Reviews){" "}
-                          </span>
-                        </div>
-                        <div className="d-flex align-items-center justify-content-between">
-                          <p className="fs-18 m-0 text-gray-1200 fw-bold">
-                            {" "}
-                            $44.00 - <del className="text-gray-800">$85.00</del>
-                          </p>
-                          <button className="p-0 border-0 outline-none bg-transparent text-primary">
-                            <em className="icon ni ni-cart"></em>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className="col-xl-4 col-lg-4 col-md-6"
-                    data-aos="fade-up"
-                    data-aos-delay="50"
-                  >
-                    <div className="nk-card h-100 border rounded-2 overflow-hidden">
-                      <div className="nk-card-img">
-                        <a href="product-details.html">
-                          <img
-                            src="images/shop/product-cover-8.jpg"
-                            alt="product-image"
-                            className="w-100"
-                          />
-                        </a>
-                      </div>
-                      <div className="nk-card-info bg-white p-4">
-                        <a
-                          href="#"
-                          className="d-inline-block mb-1 line-clamp-1 h5"
-                        >
-                          Pack of 2: Candlestick Chart Patterns Posters &
-                          Trading Desk Mat
-                        </a>
-                        <div className="d-flex align-items-center mb-2 gap-1">
-                          <ul className="d-flex align-items-center">
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                          </ul>
-                          <span className="fs-14 text-gray-800">
-                            {" "}
-                            (7 Reviews){" "}
-                          </span>
-                        </div>
-                        <div className="d-flex align-items-center justify-content-between">
-                          <p className="fs-18 m-0 text-gray-1200 fw-bold">
-                            {" "}
-                            $45.00 - <del className="text-gray-800">$95.00</del>
-                          </p>
-                          <button className="p-0 border-0 outline-none bg-transparent text-primary">
-                            <em className="icon ni ni-cart"></em>
-                          </button>
+                <div className="row gy-5 justify-center">
+              {subCatProducts?.length !== 0 &&
+                subCatProducts?.map((product, indx) => {
+                  if (product?.combo) {
+                    return (
+                      // product?.getproducts?.map((comboProduct, n)=>(
+                      <div
+                        className="col-xl-4 col-lg-4 col-md-6"
+                        data-aos="fade-up"
+                        data-aos-delay="0"
+                      >
+                        <div className="nk-card overflow-hidden rounded-3 border h-100">
+                          <div className="nk-card-img">
+                            <a href="/">
+                              <img
+                                src={product?.img_1}
+                                alt="product-image"
+                                className="w-100"
+                              />
+                            </a>
+                          </div>
+                          <div className="nk-card-info bg-white p-4">
+                            <a
+                              href="/"
+                              className="d-inline-block mb-1 line-clamp-1 h5"
+                            >
+                              {product?.name}
+                              <br />
+                              <span className="text-xs">
+                                <p
+                                  dangerouslySetInnerHTML={{
+                                    __html: product?.description,
+                                  }}
+                                />
+                              </span>
+                            </a>
+                            <div className="d-flex align-items-center mb-2 gap-1">
+                              {ratingStars(5)}
+                              <span className="fs-14 text-gray-800">
+                                {" "}
+                                (7 Reviews){" "}
+                              </span>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between">
+                              {product?.prices?.map((price, ind) => (
+                                <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                  {price?.USD &&
+                                    Number.parseFloat(price?.USD).toFixed(2)}
+                                  {price?.USD && (
+                                    <del className="text-gray-800 !ml-2">
+                                      $
+                                      {getRandomNumberWithOffset(
+                                        Number.parseFloat(price?.USD).toFixed(2)
+                                      )}
+                                    </del>
+                                  )}
+                                </p>
+                              ))}
+                              <button className="p-0 border-0 outline-none bg-transparent text-primary">
+                                <em className="icon ni ni-cart"></em>
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div
-                    className="col-xl-4 col-lg-4 col-md-6"
-                    data-aos="fade-up"
-                    data-aos-delay="100"
-                  >
-                    <div className="nk-card h-100 border rounded-2 overflow-hidden">
-                      <div className="nk-card-img">
-                        <a href="product-details.html">
-                          <img
-                            src="images/shop/product-cover-10.jpg"
-                            alt="product-image"
-                            className="w-100"
-                          />
-                        </a>
-                      </div>
-                      <div className="nk-card-info bg-white p-4">
-                        <a
-                          href="#"
-                          className="d-inline-block mb-1 line-clamp-1 h5"
-                        >
-                          Pack of 4: Book & Journal & Trading Cards and Mouse
-                          Pad
-                        </a>
-                        <div className="d-flex align-items-center mb-2 gap-1">
-                          <ul className="d-flex align-items-center">
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                            <li>
-                              <em className="icon ni ni-star-fill text-yellow"></em>
-                            </li>
-                          </ul>
-                          <span className="fs-14 text-gray-800">
-                            {" "}
-                            (7 Reviews){" "}
-                          </span>
-                        </div>
-                        <div className="d-flex align-items-center justify-content-between">
-                          <p className="fs-18 m-0 text-gray-1200 fw-bold">
-                            {" "}
-                            $145.00 -{" "}
-                            <del className="text-gray-800">$495.00</del>
-                          </p>
-                          <button className="p-0 border-0 outline-none bg-transparent text-primary">
-                            <em className="icon ni ni-cart"></em>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                      // ))
+                    );
+                  }
+                })}
+            </div>
               </div>
             </section>
           </main>
