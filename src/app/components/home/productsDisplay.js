@@ -224,12 +224,11 @@ export default function ProductsDisplay() {
   }
 
   function handleSortingProducts(value){
-    const combinedProducts = products?.products
+    const combinedProducts = [...products?.products]
     console.log(combinedProducts[0], typeof(combinedProducts))
-
-    // const res = combinedProducts?.sort((a, b) => new Date(a.added_at) - new Date(b.added_at));
-
-// console.log(res);
+    const res = combinedProducts?.sort((b, a) => new Date(a.added_at) - new Date(b.added_at));
+    setAllProducts(res)
+console.log(res);
 // Output: Sorted array in ascending order based on 'created_at'
 
 // Sort in descending order based on the 'created_at' property
@@ -541,7 +540,7 @@ export default function ProductsDisplay() {
                     <div className="row gy-5">
                       {products !== {} &&
                         allProducts?.map((product, ind) => {
-                          if (product?.combo === 0) {
+                          // if (product?.combo === 0) {
                             return (
                               <div className="col-md-6 col-xl-4">
                                 <div className="nk-card overflow-hidden rounded-3 h-100 border" onClick={()=>{
@@ -614,7 +613,7 @@ export default function ProductsDisplay() {
                                 </div>
                               </div>
                             );
-                          }
+                          // }
                         })}
                     </div>
                   </div>
