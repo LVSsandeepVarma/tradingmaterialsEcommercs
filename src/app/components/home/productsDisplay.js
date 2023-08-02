@@ -5,10 +5,17 @@ import {
   filteredProductsByIds,
   updatingProducts,
 } from "../../../features/products/productsSlice";
-import { useNavigate } from "react-router-dom";
+import styled, { keyframes } from 'styled-components';
+import {AiFillCloseCircle} from "react-icons/ai"
+import { Link, useNavigate } from "react-router-dom";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
+import { loginUser, logoutUser } from "../../../features/login/loginSlice";
+import { updatePositions } from "../../../features/positions/positionsSlice";
 
 export default function ProductsDisplay() {
+  const products = useSelector((state) => state?.products?.value);
+  const loaderState = useSelector(state => state?.loader?.value);
+  const isLoggedIn = useSelector(state => state?.login?.value)
   const [megaDealTime, setMegaDealTime] = useState("2023-08-31T00:00:00");
   const [singleProductsCount, setSingleProductsCount] = useState(0);
   const [bundleProductCount, setBundleProductCount] = useState(0);
@@ -19,9 +26,19 @@ export default function ProductsDisplay() {
   const [bundleSubCategoryIDs, setBundleSubCategoryIds] = useState([]);
   const [filteredSubcatProducts, setFilteredSubcatproducts] = useState({});
   const [sorting, setSorting]  =useState("default")
-  const navigate = useNavigate();
+  const [stockCount, setStockCount] = useState("inStock");
+  const [isSearchResult, setIsSearchResult] = useState(false);
+  const [resultsCount, setResultsCount] = useState(0);
+  const [isNoProducts, setIsNoProducts] = useState(false)
+  const [showPopup, setShowPopup] = useState(false)
+  const [animateProductId, setAnimateProductId] = useState("");
+  const [cartPosition, setCartPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  const products = useSelector((state) => state?.products?.value);
+  const navigate = useNavigate();
+  const positions = useSelector(state => state?.position?.value)
+  console.log(positions, positions?.cartTop, positions?.cartRight)
+
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(showLoader())
@@ -50,8 +67,16 @@ export default function ProductsDisplay() {
     setFilteredSubcatproducts({ ...productsFilter });
     setAllProducts(products?.products);
     dispatch(hideLoader())
+    if(localStorage?.getItem("client_token")){
+      dispatch(loginUser())
+    }else{
+      dispatch(logoutUser())
+    }
   }, [products]);
 
+
+
+  //function for generating random discounted price
   function getRandomNumberWithOffset(number) {
     // Define an array of possible offsets: 5, 10, and 20.
     const offsets = [15, 50, 80];
@@ -67,6 +92,8 @@ export default function ProductsDisplay() {
     return result;
   }
 
+
+  //function for review stars
   function ratingStars(number) {
     const elemetns = Array.from({ length: number }, (_, index) => (
       <li key={index}>
@@ -77,6 +104,8 @@ export default function ProductsDisplay() {
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
 
+
+  // function for filtering single products
   function addFilterProducts(subCategoryName, subCategoryId) {
     console.log(subCategoryName, subCategoryId);
     const subIDs = [...subCategoryIds];
@@ -150,6 +179,7 @@ export default function ProductsDisplay() {
     setFilteredProducts({ ...filterProducts });
   }
 
+  // filtering buldle products
   function filtersubcatProducts(subCategoryName, subCategoryId) {
     console.log(subCategoryName, subCategoryId);
     const subIDs = [...bundleSubCategoryIDs];
@@ -223,6 +253,55 @@ export default function ProductsDisplay() {
     setFilteredSubcatproducts({ ...filterProducts });
   }
 
+
+//function for handling filtering based on in stock or out stock
+  function filterstockProducts(){
+    let currentActiveCheckbox
+    if(stockCount === "inStock"){
+      setStockCount("outStock")
+      currentActiveCheckbox= "outStock"
+    }else{
+      setStockCount("inStock")
+      currentActiveCheckbox = "inStock"
+    }
+
+    const completeProducts = products?.products
+    console.log(completeProducts, typeof(completeProducts))
+    const res = currentActiveCheckbox === "inStock" ?  completeProducts?.filter(product => product?.stock?.stock > 0): completeProducts?.filter(product => product?.stock?.stock === 0)
+    setAllProducts(res)
+    console.log(res)
+
+  }
+// function for handling products search
+  function handlesearchProducts(e){
+    
+      const searchText = e.target.value
+      if(searchText?.length >0){
+        setIsSearchResult(true)
+      }else{
+        setIsSearchResult(false)
+      }
+      const completeProducts = products?.products
+      const timeInterval = setTimeout(()=>{
+        dispatch(showLoader())
+        const res  = completeProducts?.filter(product => product?.name?.toLowerCase()?.includes(searchText?.toLowerCase()))
+        console.log(res)
+        setResultsCount(res?.length)
+        setAllProducts(res)
+        if(res?.length ===0){
+          setIsNoProducts(true)
+        }else{
+          setIsNoProducts(false)
+        }
+        dispatch(hideLoader())
+      }, 1000)
+
+      // return clearInterval(timeInterval)
+  }
+
+
+  //pending 
+
   function handleSortingProducts(value){
     const combinedProducts = products?.products
     console.log(combinedProducts[0], typeof(combinedProducts))
@@ -238,8 +317,57 @@ export default function ProductsDisplay() {
 // console.log(combinedProducts);
   }
 
+  const dynamicAnimation = keyframes`
+  from {
+    position: absolute;
+    transform: translate(587px , -676px) scale(5);
+  },
+  to {
+   
+    transform: translate(1547px, 18px) scale(1);
+  }
+`;
+
+const AnimatedDiv = styled.div`
+animation: ${dynamicAnimation} 4s ease-in-out infinite `
+
+
+  // function for handling add to cart animation 
+  function handleAddToCart(productId){
+    setAnimateProductId(productId)
+  }
+
+  const handleCartPosition = (event) => {
+    const cartButtonRect = document?.getElementById(`img-4`)?.getBoundingClientRect();
+
+    const top = cartButtonRect?.top ;
+    const right = cartButtonRect?.left;
+    dispatch(updatePositions({cartTop: positions?.cartTop, cartRight: positions?.cartRight, productTop : top, productRight: right}))
+
+    // Animate the product's movement towards the cart button
+    setCartPosition({ top: `${top}px`, right: `${right}px` });
+  };
+
   return (
     <>
+    {loaderState && (
+            <div className="preloader !bg-[rgba(0,0,0,0.5)]">
+              <div className="loader" ></div>
+            </div>
+          )}
+          {showPopup && (
+        <div className="com">
+          <span className="  fixed  top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  z-[100] ">
+            <AiFillCloseCircle
+              className="text-red-500 text-3xl cursor-pointer"
+              onClick={() => setShowPopup(false)}
+            />
+            <a href="/login">
+              <img onClick={()=>navigate("/login")} src="/assets/images/banner-cart.jpg" alt="" />
+            </a>
+          </span>
+        </div>
+      )}
       <div className="nk-pages">
         <section className="nk-banner nk-banner-shop">
           <div className="container">
@@ -288,11 +416,12 @@ export default function ProductsDisplay() {
                               <em className="icon ni ni-search"></em>
                             </div>
                             <input
-                              type="email"
-                              name="email"
+                              type="search"
+                              name="search"
                               className="form-control py-2 ps-7 border"
-                              placeholder="Enter Your Email"
+                              placeholder="search for trading products"
                               required
+                              onChange={handlesearchProducts}
                             />
                           </div>
                         </div>
@@ -434,7 +563,9 @@ export default function ProductsDisplay() {
                                 type="checkbox"
                                 name="stock"
                                 id="in-stock"
-                                checked
+                                onChange={filterstockProducts}
+                                
+                                checked = {stockCount === "inStock" ? true : false}
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
@@ -456,6 +587,8 @@ export default function ProductsDisplay() {
                                 type="checkbox"
                                 name="stock"
                                 id="out-stock"
+                                onChange={filterstockProducts}
+                                checked = {stockCount === "outStock" ? true : false}
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
@@ -479,9 +612,9 @@ export default function ProductsDisplay() {
                   <div className="nk-section-content-products">
                     <div className="row justify-content-between align-items-center pb-5">
                       <div className="col-sm-6">
-                        <h6 className="fs-16 fw-normal">
-                          Showing all 6 results
-                        </h6>
+                        {isSearchResult && <h6 className="fs-16 fw-normal">
+                          Showing  {resultsCount} results
+                        </h6>}
                       </div>
                       <div className="col-sm-4 col-md-3 col-xl-2">
                         <div className="nk-dropdown py-1 ps-2 pe-1 border rounded">
@@ -539,17 +672,17 @@ export default function ProductsDisplay() {
                       </div>
                     </div>
                     <div className="row gy-5">
-                      {products !== {} &&
+                      {isNoProducts && <p className="font-bold">No products to Display</p>}
+                      {(products !== {} && !isNoProducts)&&
                         allProducts?.map((product, ind) => {
-                          if (product?.combo === 0) {
+                          if (product?.combo === 0 || isSearchResult) {
                             return (
-                              <div className="col-md-6 col-xl-4">
-                                <div className="nk-card overflow-hidden rounded-3 h-100 border" onClick={()=>{
-                                  navigate(`/product-detail/${product?.id}`);
-                                  dispatch(showLoader())}}>
+                              <div className="col-md-6 col-xl-4" id={`img-${product?.id}`}>
+                                <div className="nk-card overflow-hidden rounded-3 h-100 border" >
                                   <div className="nk-card-img">
                                     <a href={`/product-detail/${product?.id}`}>
                                       <img
+                                      
                                         src={product?.img_1}
                                         alt="product-image"
                                         className="w-100"
@@ -564,13 +697,16 @@ export default function ProductsDisplay() {
                                {product?.name}
                             </a> */}
                                     <a
-                                      href="/"
+                                      href={`/product-detail/${product?.id}`}
                                       className="d-inline-block mb-1 line-clamp-1 h5"
                                     >
                                       {product?.name}
                                       <br />
                                       <span className="text-xs !mt-1">
                                         <p
+                                        onClick={()=>{
+                                          navigate(`/product-detail/${product?.id}`);
+                                          dispatch(showLoader())}}
                                           className="!mt-5 text-gray-700"
                                           dangerouslySetInnerHTML={{
                                             __html: product?.description,
@@ -589,10 +725,10 @@ export default function ProductsDisplay() {
                                     <div className="d-flex align-items-center justify-content-start">
                                       {product?.prices?.map((price, ind) => (
                                         <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                          {price?.USD &&
-                                            Number.parseFloat(
+                                          {price?.USD && 
+                                            `$${Number.parseFloat(
                                               price?.USD
-                                            ).toFixed(2)}
+                                            ).toFixed(2)}`}
                                           {price?.USD && (
                                             <del className="text-gray-800 !ml-2">
                                               $
@@ -606,8 +742,28 @@ export default function ProductsDisplay() {
                                         </p>
                                       ))}
 
-                                      <button className="p-0 border-0 outline-none bg-transparent text-primary">
-                                        <em className="icon ni ni-cart"></em>
+                                      {/* product animation starts */}
+                                      {/* {animateProductId === product?.id && (
+                                        <AnimatedDiv>
+
+  {/* Render the animated product image */}
+  {/* <img
+    src={product?.img_1}
+    alt="Animated Product"
+    className="w-24 h-24 object-contain"
+    // style={{transition: "transform 0.3s ease-out infinite"}}
+  /> */}
+{/* </AnimatedDiv> */}
+
+      {/* )} */}
+                                      {/* product animation ends */}
+
+                                      <button className="p-0 border-0 outline-none bg-transparent text-primary !content-right w-full text-right" onClick={(event)=>{
+                                        return isLoggedIn ? (handleAddToCart(product?.id),handleCartPosition(event)) : setShowPopup(true)
+                                      }}>
+                                        <em className="icon ni ni-cart text-3xl" onClick={(event)=>{
+                                        return isLoggedIn ? (handleAddToCart(product?.id),handleCartPosition(event)) : setShowPopup(true)
+                                      }} ></em>
                                       </button>
                                     </div>
                                   </div>
@@ -643,9 +799,9 @@ export default function ProductsDisplay() {
                         data-aos="fade-up"
                         data-aos-delay="0"
                       >
-                        <div className="nk-card overflow-hidden rounded-3 border h-100">
+                        <div className="nk-card overflow-hidden rounded-3 border h-100" >
                           <div className="nk-card-img">
-                            <a href="/">
+                            <a href={`/product-detail/${product?.id}`}>
                               <img
                                 src={product?.img_1}
                                 alt="product-image"
@@ -655,13 +811,15 @@ export default function ProductsDisplay() {
                           </div>
                           <div className="nk-card-info bg-white p-4">
                             <a
-                              href="/"
+                               href={`/product-detail/${product?.id}`}
                               className="d-inline-block mb-1 line-clamp-1 h5"
                             >
                               {product?.name}
                               <br />
                               <span className="text-xs">
-                                <p
+                                <p onClick={()=>{
+                                  navigate(`/product-detail/${product?.id}`);
+                                  dispatch(showLoader())}}
                                   dangerouslySetInnerHTML={{
                                     __html: product?.description,
                                   }}
@@ -669,30 +827,38 @@ export default function ProductsDisplay() {
                               </span>
                             </a>
                             <div className="d-flex align-items-center mb-2 gap-1">
-                              {ratingStars(product?.rating)}
+                              {ratingStars(5)}
                               <span className="fs-14 text-gray-800">
                                 {" "}
                                 (7 Reviews){" "}
                               </span>
                             </div>
                             <div className="d-flex align-items-center justify-content-between">
-                              {product?.prices?.map((price, ind) => (
-                                <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                  {price?.USD &&
-                                    Number.parseFloat(price?.USD).toFixed(2)}
-                                  {price?.USD && (
-                                    <del className="text-gray-800 !ml-2">
-                                      $
-                                      {getRandomNumberWithOffset(
-                                        Number.parseFloat(price?.USD).toFixed(2)
-                                      )}
-                                    </del>
-                                  )}
-                                </p>
-                              ))}
-                              <button className="p-0 border-0 outline-none bg-transparent text-primary">
-                                <em className="icon ni ni-cart"></em>
-                              </button>
+                            {product?.prices?.map((price, ind) => (
+                                        <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                          {price?.USD && 
+                                            `$${Number.parseFloat(
+                                              price?.USD
+                                            ).toFixed(2)}`}
+                                          {price?.USD && (
+                                            <del className="text-gray-800 !ml-2">
+                                              $
+                                              {getRandomNumberWithOffset(
+                                                Number.parseFloat(
+                                                  price?.USD
+                                                ).toFixed(2)
+                                              )}
+                                            </del>
+                                          )}
+                                        </p>
+                                      ))}
+                              <button className="p-0 border-0 outline-none bg-transparent text-primary !content-right w-full text-right" onClick={()=>{
+                                        return isLoggedIn ? navigate("/cart") : setShowPopup(true)
+                                      }}>
+                                        <em className="icon ni ni-cart text-3xl" onClick={()=>{
+                                        return isLoggedIn ? navigate("/cart") : setShowPopup(true)
+                                      }} ></em>
+                                      </button>
                             </div>
                           </div>
                         </div>
@@ -739,6 +905,12 @@ export default function ProductsDisplay() {
           </div>
         </section>
       </div>
+      <div class="nk-sticky-badge">
+        <ul>
+            <li><a href="/" className="nk-sticky-badge-icon nk-sticky-badge-home" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="nk-tooltip" data-bs-title="View Demo"><em class="icon ni ni-home-fill"></em></a></li>
+            <li><a href="/cart" className="nk-sticky-badge-icon nk-sticky-badge-purchase" id="cart-button"  data-bs-toggle="tooltip" data-bs-custom-class="nk-tooltip" data-bs-title="Purchase Now" aria-label="Purchase Now"><em class="icon ni ni-cart-fill"></em></a></li>
+        </ul>
+    </div>
     </>
   );
 }

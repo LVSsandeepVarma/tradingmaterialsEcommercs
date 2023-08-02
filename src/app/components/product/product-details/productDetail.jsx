@@ -206,7 +206,7 @@ export default function ProductDetails() {
                             <span className="fs-14 text-gray-1200 text-uppercase fw-semibold">
                               {product?.product?.name}
                             </span>
-                            <h3 className="text-sm" dangerouslySetInnerHTML={{
+                            <div className="text-sm" dangerouslySetInnerHTML={{
                                             __html: product?.product?.description,
                                           }} />
                           </div>
@@ -417,7 +417,7 @@ export default function ProductDetails() {
                       >
                         <div className="mb-5">
                           <h5 className="mb-2">Product Description</h5>
-                          <p className="fs-16 text-gray-1200"  dangerouslySetInnerHTML={{
+                          <p className="fs-16 text-gray-1200 text-left"  dangerouslySetInnerHTML={{
                                             __html: product?.product?.long_desc,
                                           }}/>
                             
@@ -584,6 +584,7 @@ export default function ProductDetails() {
               </div>
             </section>
           </main>
+          
           <Footer />
         </div>
       </div>
