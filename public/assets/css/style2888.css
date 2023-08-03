@@ -47390,7 +47390,8 @@ h6,
     z-index: 99999;
     position: fixed;
     transition: all .5s ease;
-    background-color: #d5deff
+    /* background-color: #d5deff */
+    overflow: hidden;
 }
 
 .preloader.hide {

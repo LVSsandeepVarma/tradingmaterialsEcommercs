@@ -35,16 +35,12 @@ export default function Home() {
             
         }
     
-        fetchProducts().then(()=>{
-            
-        });
+        fetchProducts()
     }, []);
 
   return (
     <>
-      {loaderState && <div className="preloader">
-        <div class="loader"></div>
-      </div>}
+      
       <Header/>
       <ProductsDisplay/>
       <Footer/>

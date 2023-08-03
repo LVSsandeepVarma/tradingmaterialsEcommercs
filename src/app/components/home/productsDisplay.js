@@ -5,17 +5,25 @@ import {
   filteredProductsByIds,
   updatingProducts,
 } from "../../../features/products/productsSlice";
-import styled, { keyframes } from 'styled-components';
-import {AiFillCloseCircle} from "react-icons/ai"
+import styled, { keyframes } from "styled-components";
+import { AiFillCloseCircle } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { loginUser, logoutUser } from "../../../features/login/loginSlice";
 import { updatePositions } from "../../../features/positions/positionsSlice";
+import axios from "axios";
+import { updateUsers } from "../../../features/users/userSlice";
+import { updateCart } from "../../../features/cartItems/cartSlice";
+import { updateNotifications } from "../../../features/notifications/notificationSlice";
+import { updateCartCount } from "../../../features/cartWish/focusedCount";
+import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
 
 export default function ProductsDisplay() {
   const products = useSelector((state) => state?.products?.value);
-  const loaderState = useSelector(state => state?.loader?.value);
-  const isLoggedIn = useSelector(state => state?.login?.value)
+  const loaderState = useSelector((state) => state?.loader?.value);
+  const isLoggedIn = useSelector((state) => state?.login?.value);
+  const popup = useSelector(state => state?.popup?.value)
+
   const [megaDealTime, setMegaDealTime] = useState("2023-08-31T00:00:00");
   const [singleProductsCount, setSingleProductsCount] = useState(0);
   const [bundleProductCount, setBundleProductCount] = useState(0);
@@ -25,23 +33,56 @@ export default function ProductsDisplay() {
   const [subCatProducts, setSubCatProducts] = useState([]);
   const [bundleSubCategoryIDs, setBundleSubCategoryIds] = useState([]);
   const [filteredSubcatProducts, setFilteredSubcatproducts] = useState({});
-  const [sorting, setSorting]  =useState("default")
+  const [sorting, setSorting] = useState("default");
   const [stockCount, setStockCount] = useState("inStock");
   const [isSearchResult, setIsSearchResult] = useState(false);
   const [resultsCount, setResultsCount] = useState(0);
-  const [isNoProducts, setIsNoProducts] = useState(false)
-  const [showPopup, setShowPopup] = useState(false)
+  const [isNoProducts, setIsNoProducts] = useState(false);
+  // const [showPopup, setShowPopup] = useState(false);
   const [animateProductId, setAnimateProductId] = useState("");
   const [cartPosition, setCartPosition] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const navigate = useNavigate();
-  const positions = useSelector(state => state?.position?.value)
-  console.log(positions, positions?.cartTop, positions?.cartRight)
+  const positions = useSelector((state) => state?.position?.value);
+  console.log(positions, positions?.cartTop, positions?.cartRight);
+
+  const getUserInfo = async () => {
+    try {
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/lead/get-user-info",
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
+      if (response?.data?.status) {
+        console.log(response?.data);
+        dispatch(updateUsers(response?.data?.data));
+        dispatch(updateCart(response?.data?.data?.client?.cart));
+      } else {
+        console.log(response?.data);
+        dispatch(
+          updateNotifications({
+            type: "warning",
+            message: response?.data?.message,
+          })
+        );
+        // navigate("/login")
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
+    }
+  };
 
   const dispatch = useDispatch();
+
   useEffect(() => {
-    dispatch(showLoader())
+    dispatch(showLoader());
     setAllProducts(products);
     setSubCatProducts(products?.products);
     let totalCount = 0;
@@ -66,15 +107,13 @@ export default function ProductsDisplay() {
     setFilteredProducts({ ...productsFilter });
     setFilteredSubcatproducts({ ...productsFilter });
     setAllProducts(products?.products);
-    dispatch(hideLoader())
-    if(localStorage?.getItem("client_token")){
-      dispatch(loginUser())
-    }else{
-      dispatch(logoutUser())
+    dispatch(hideLoader());
+    if (localStorage?.getItem("client_token")) {
+      dispatch(loginUser());
+    } else {
+      dispatch(logoutUser());
     }
   }, [products]);
-
-
 
   //function for generating random discounted price
   function getRandomNumberWithOffset(number) {
@@ -92,7 +131,6 @@ export default function ProductsDisplay() {
     return result;
   }
 
-
   //function for review stars
   function ratingStars(number) {
     const elemetns = Array.from({ length: number }, (_, index) => (
@@ -103,7 +141,6 @@ export default function ProductsDisplay() {
 
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
-
 
   // function for filtering single products
   function addFilterProducts(subCategoryName, subCategoryId) {
@@ -253,68 +290,71 @@ export default function ProductsDisplay() {
     setFilteredSubcatproducts({ ...filterProducts });
   }
 
-
-//function for handling filtering based on in stock or out stock
-  function filterstockProducts(){
-    let currentActiveCheckbox
-    if(stockCount === "inStock"){
-      setStockCount("outStock")
-      currentActiveCheckbox= "outStock"
-    }else{
-      setStockCount("inStock")
-      currentActiveCheckbox = "inStock"
+  //function for handling filtering based on in stock or out stock
+  function filterstockProducts() {
+    let currentActiveCheckbox;
+    if (stockCount === "inStock") {
+      setStockCount("outStock");
+      currentActiveCheckbox = "outStock";
+    } else {
+      setStockCount("inStock");
+      currentActiveCheckbox = "inStock";
     }
 
-    const completeProducts = products?.products
-    console.log(completeProducts, typeof(completeProducts))
-    const res = currentActiveCheckbox === "inStock" ?  completeProducts?.filter(product => product?.stock?.stock > 0): completeProducts?.filter(product => product?.stock?.stock === 0)
-    setAllProducts(res)
-    console.log(res)
-
+    const completeProducts = products?.products;
+    console.log(completeProducts, typeof completeProducts);
+    const res =
+      currentActiveCheckbox === "inStock"
+        ? completeProducts?.filter((product) => product?.stock?.stock > 0)
+        : completeProducts?.filter((product) => product?.stock?.stock === 0);
+    setAllProducts(res);
+    console.log(res);
   }
-// function for handling products search
-  function handlesearchProducts(e){
-    
-      const searchText = e.target.value
-      if(searchText?.length >0){
-        setIsSearchResult(true)
-      }else{
-        setIsSearchResult(false)
+  // function for handling products search
+  function handlesearchProducts(e) {
+    const searchText = e.target.value;
+    if (searchText?.length > 0) {
+      setIsSearchResult(true);
+    } else {
+      setIsSearchResult(false);
+    }
+    const completeProducts = products?.products;
+    const timeInterval = setTimeout(() => {
+      dispatch(showLoader());
+      const res = completeProducts?.filter((product) =>
+        product?.name?.toLowerCase()?.includes(searchText?.toLowerCase())
+      );
+      console.log(res);
+      setResultsCount(res?.length);
+      setAllProducts(res);
+      if (res?.length === 0) {
+        setIsNoProducts(true);
+      } else {
+        setIsNoProducts(false);
       }
-      const completeProducts = products?.products
-      const timeInterval = setTimeout(()=>{
-        dispatch(showLoader())
-        const res  = completeProducts?.filter(product => product?.name?.toLowerCase()?.includes(searchText?.toLowerCase()))
-        console.log(res)
-        setResultsCount(res?.length)
-        setAllProducts(res)
-        if(res?.length ===0){
-          setIsNoProducts(true)
-        }else{
-          setIsNoProducts(false)
-        }
-        dispatch(hideLoader())
-      }, 1000)
+      dispatch(hideLoader());
+    }, 1000);
 
-      // return clearInterval(timeInterval)
+    // return clearInterval(timeInterval)
   }
 
+  //pending
 
-  //pending 
-
-  function handleSortingProducts(value){
-    const combinedProducts = [...products?.products]
-    console.log(combinedProducts[0], typeof(combinedProducts))
+  function handleSortingProducts(value) {
+    const combinedProducts = [...products?.products];
+    console.log(combinedProducts[0], typeof combinedProducts);
 
     // const res = combinedProducts?.sort((a, b) => new Date(a.added_at) - new Date(b.added_at));
 
-// console.log(res);
-// Output: Sorted array in ascending order based on 'created_at'
+    // console.log(res);
+    // Output: Sorted array in ascending order based on 'created_at'
 
-// Sort in descending order based on the 'created_at' property
-const res = combinedProducts?.sort((b, a) => new Date(a.added_at) - new Date(b.added_at));
-setAllProducts(res)
-console.log(res);
+    // Sort in descending order based on the 'created_at' property
+    const res = combinedProducts?.sort(
+      (b, a) => new Date(a.added_at) - new Date(b.added_at)
+    );
+    setAllProducts(res);
+    console.log(res);
   }
 
   const dynamicAnimation = keyframes`
@@ -328,21 +368,60 @@ console.log(res);
   }
 `;
 
-const AnimatedDiv = styled.div`
-animation: ${dynamicAnimation} 4s ease-in-out infinite `
+  const AnimatedDiv = styled.div`
+    animation: ${dynamicAnimation} 4s ease-in-out infinite;
+  `;
 
-
-  // function for handling add to cart animation 
-  function handleAddToCart(productId){
-    setAnimateProductId(productId)
+  // function for handling add to cart animation
+  async function handleAddToCart(productId) {
+    // setAnimateProductId(productId)
+    try {
+      // dispatch(showLoader());
+      const response = await axios?.post(
+        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+        {
+          product_id: productId,
+          qty: 1,
+        },
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+      if (response?.data?.status) {
+        dispatch(
+          updateNotifications({
+            type: "success",
+            message: "added to cart successfully",
+          })
+        );
+        dispatch(updateCart(response?.data?.data?.cart_details))
+        dispatch(updateCartCount(response?.data?.data?.cart_count))
+        // getUserInfo();
+      }
+    } catch (err) {
+      console.log(err);
+    } 
+    // finally {
+      // dispatch(hideLoader());
+    // }
   }
 
   const handleCartPosition = (event) => {
-    const cartButtonRect = document?.getElementById(`img-4`)?.getBoundingClientRect();
-
-    const top = cartButtonRect?.top ;
+    const cartButtonRect = document
+      ?.getElementById(`img-4`)
+      ?.getBoundingClientRect();
+    const top = cartButtonRect?.top;
     const right = cartButtonRect?.left;
-    dispatch(updatePositions({cartTop: positions?.cartTop, cartRight: positions?.cartRight, productTop : top, productRight: right}))
+    dispatch(
+      updatePositions({
+        cartTop: positions?.cartTop,
+        cartRight: positions?.cartRight,
+        productTop: top,
+        productRight: right,
+      })
+    );
 
     // Animate the product's movement towards the cart button
     setCartPosition({ top: `${top}px`, right: `${right}px` });
@@ -350,24 +429,31 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
 
   return (
     <>
-    {loaderState && (
-            <div className="preloader !bg-[rgba(0,0,0,0.5)]">
-              <div className="loader" ></div>
-            </div>
-          )}
-          {showPopup && (
+    {loaderState && <div className="preloader !backdrop-blur-[1px] ">
+        <div class="loader"></div>
+      </div>}
+      {/* {loaderState && (
+        <div className="preloader !bg-[rgba(0,0,0,0.5)]">
+          <div className="loader"></div>
+        </div>
+      )} */}
+      {/* {popup && (
         <div className="com">
           <span className="  fixed  top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  z-[100] ">
             <AiFillCloseCircle
               className="text-red-500 text-3xl cursor-pointer"
-              onClick={() => setShowPopup(false)}
+              onClick={() => dispatch(hidePopup())}
             />
             <a href="/login">
-              <img onClick={()=>navigate("/login")} src="/assets/images/banner-cart.jpg" alt="" />
+              <img
+                onClick={() => navigate("/login")}
+                src="/assets/images/banner-cart.jpg"
+                alt=""
+              />
             </a>
           </span>
         </div>
-      )}
+      )} */}
       <div className="nk-pages">
         <section className="nk-banner nk-banner-shop">
           <div className="container">
@@ -564,8 +650,9 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                                 name="stock"
                                 id="in-stock"
                                 onChange={filterstockProducts}
-                                
-                                checked = {stockCount === "inStock" ? true : false}
+                                checked={
+                                  stockCount === "inStock" ? true : false
+                                }
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
@@ -588,7 +675,9 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                                 name="stock"
                                 id="out-stock"
                                 onChange={filterstockProducts}
-                                checked = {stockCount === "outStock" ? true : false}
+                                checked={
+                                  stockCount === "outStock" ? true : false
+                                }
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
@@ -612,9 +701,11 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                   <div className="nk-section-content-products">
                     <div className="row justify-content-between align-items-center pb-5">
                       <div className="col-sm-6">
-                        {isSearchResult && <h6 className="fs-16 fw-normal">
-                          Showing  {resultsCount} results
-                        </h6>}
+                        {isSearchResult && (
+                          <h6 className="fs-16 fw-normal">
+                            Showing {resultsCount} results
+                          </h6>
+                        )}
                       </div>
                       <div className="col-sm-4 col-md-3 col-xl-2">
                         <div className="nk-dropdown py-1 ps-2 pe-1 border rounded">
@@ -644,7 +735,12 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                                     className="nk-dropdown-select-option py-2"
                                     role="option"
                                   >
-                                    <span className="fs-14 text-gray-1200" onClick={()=>{handleSortingProducts("Popular")}}>
+                                    <span
+                                      className="fs-14 text-gray-1200"
+                                      onClick={() => {
+                                        handleSortingProducts("Popular");
+                                      }}
+                                    >
                                       Popular
                                     </span>
                                   </li>
@@ -652,7 +748,12 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                                     className="nk-dropdown-select-option py-2"
                                     role="option"
                                   >
-                                    <span className="fs-14 text-gray-1200" onClick={()=>{handleSortingProducts("Popular")}}>
+                                    <span
+                                      className="fs-14 text-gray-1200"
+                                      onClick={() => {
+                                        handleSortingProducts("Popular");
+                                      }}
+                                    >
                                       Newest
                                     </span>
                                   </li>
@@ -660,7 +761,12 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                                     className="nk-dropdown-select-option py-2"
                                     role="option"
                                   >
-                                    <span className="fs-14 text-gray-1200" onClick={()=>{handleSortingProducts("Popular")}}>
+                                    <span
+                                      className="fs-14 text-gray-1200"
+                                      onClick={() => {
+                                        handleSortingProducts("Popular");
+                                      }}
+                                    >
                                       Oldest
                                     </span>
                                   </li>
@@ -672,20 +778,29 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                       </div>
                     </div>
                     <div className="row gy-5">
-                      {isNoProducts && <p className="font-bold">No products to Display</p>}
-                      {(products !== {} && !isNoProducts)&&
+                      {isNoProducts && (
+                        <p className="font-bold">No products to Display</p>
+                      )}
+                      {products !== {} &&
+                        !isNoProducts &&
                         allProducts?.map((product, ind) => {
-                          if (product?.combo === 0 || product?.combo === 1 || isSearchResult) {
+                          if (
+                            product?.combo === 0 ||
+                            product?.combo === 1 ||
+                            isSearchResult
+                          ) {
                             return (
-                              <div className="col-md-6 col-xl-4" id={`img-${product?.id}`}>
-                                <div className="nk-card overflow-hidden rounded-3 h-100 border" >
-                                  <div className="nk-card-img">
+                              <div
+                                className="col-md-6 col-xl-4 !gap-x-[5px]"
+                                id={`img-${product?.id}`}
+                              >
+                                <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                  <div className="nk-card-img ">
                                     <a href={`/product-detail/${product?.id}`}>
                                       <img
-                                      
                                         src={product?.img_1}
                                         alt="product-image"
-                                        className="w-100"
+                                        className="w-100 h-100 sm:!h-[350px] "
                                       />
                                     </a>
                                   </div>
@@ -704,9 +819,12 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                                       <br />
                                       <span className="text-xs !mt-1">
                                         <p
-                                        onClick={()=>{
-                                          navigate(`/product-detail/${product?.id}`);
-                                          dispatch(showLoader())}}
+                                          onClick={() => {
+                                            navigate(
+                                              `/product-detail/${product?.id}`
+                                            );
+                                            dispatch(showLoader());
+                                          }}
                                           className="!mt-5 text-gray-700"
                                           dangerouslySetInnerHTML={{
                                             __html: product?.description,
@@ -725,7 +843,7 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                                     <div className="d-flex align-items-center justify-content-start">
                                       {product?.prices?.map((price, ind) => (
                                         <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                          {price?.USD && 
+                                          {price?.USD &&
                                             `$${Number.parseFloat(
                                               price?.USD
                                             ).toFixed(2)}`}
@@ -747,23 +865,27 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                                         <AnimatedDiv>
 
   {/* Render the animated product image */}
-  {/* <img
+                                      {/* <img
     src={product?.img_1}
     alt="Animated Product"
     className="w-24 h-24 object-contain"
     // style={{transition: "transform 0.3s ease-out infinite"}}
   /> */}
-{/* </AnimatedDiv> */}
+                                      {/* </AnimatedDiv> */}
 
-      {/* )} */}
+                                      {/* )} */}
                                       {/* product animation ends */}
 
-                                      <button className="p-0 border-0 outline-none bg-transparent text-primary !content-right w-full text-right" onClick={(event)=>{
-                                        return isLoggedIn ? (handleAddToCart(product?.id),handleCartPosition(event)) : setShowPopup(true)
-                                      }}>
-                                        <em className="icon ni ni-cart text-3xl" onClick={(event)=>{
-                                        return isLoggedIn ? (handleAddToCart(product?.id),handleCartPosition(event)) : setShowPopup(true)
-                                      }} ></em>
+                                      <button
+                                        className="p-0 border-0 outline-none bg-transparent text-primary !content-right w-full text-right"
+                                        onClick={(event) => {
+                                          return isLoggedIn
+                                            ? (handleAddToCart(product?.id),
+                                              handleCartPosition(event))
+                                            : dispatch(showPopup());
+                                        }}
+                                      >
+                                        <em className="icon ni ni-cart text-3xl"></em>
                                       </button>
                                     </div>
                                   </div>
@@ -799,7 +921,7 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                         data-aos="fade-up"
                         data-aos-delay="0"
                       >
-                        <div className="nk-card overflow-hidden rounded-3 border h-100" >
+                        <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
                           <div className="nk-card-img">
                             <a href={`/product-detail/${product?.id}`}>
                               <img
@@ -811,15 +933,18 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                           </div>
                           <div className="nk-card-info bg-white p-4">
                             <a
-                               href={`/product-detail/${product?.id}`}
+                              href={`/product-detail/${product?.id}`}
                               className="d-inline-block mb-1 line-clamp-1 h5"
                             >
                               {product?.name}
                               <br />
                               <span className="text-xs">
-                                <p onClick={()=>{
-                                  navigate(`/product-detail/${product?.id}`);
-                                  dispatch(showLoader())}}
+                                <p
+                                  className="!mt-5 text-gray-700"
+                                  onClick={() => {
+                                    navigate(`/product-detail/${product?.id}`);
+                                    dispatch(showLoader());
+                                  }}
                                   dangerouslySetInnerHTML={{
                                     __html: product?.description,
                                   }}
@@ -834,31 +959,32 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
                               </span>
                             </div>
                             <div className="d-flex align-items-center justify-content-between">
-                            {product?.prices?.map((price, ind) => (
-                                        <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                          {price?.USD && 
-                                            `$${Number.parseFloat(
-                                              price?.USD
-                                            ).toFixed(2)}`}
-                                          {price?.USD && (
-                                            <del className="text-gray-800 !ml-2">
-                                              $
-                                              {getRandomNumberWithOffset(
-                                                Number.parseFloat(
-                                                  price?.USD
-                                                ).toFixed(2)
-                                              )}
-                                            </del>
-                                          )}
-                                        </p>
-                                      ))}
-                              <button className="p-0 border-0 outline-none bg-transparent text-primary !content-right w-full text-right" onClick={()=>{
-                                        return isLoggedIn ? navigate("/cart") : setShowPopup(true)
-                                      }}>
-                                        <em className="icon ni ni-cart text-3xl" onClick={()=>{
-                                        return isLoggedIn ? navigate("/cart") : setShowPopup(true)
-                                      }} ></em>
-                                      </button>
+                              {product?.prices?.map((price, ind) => (
+                                <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                  {price?.USD &&
+                                    `$${Number.parseFloat(price?.USD).toFixed(
+                                      2
+                                    )}`}
+                                  {price?.USD && (
+                                    <del className="text-gray-800 !ml-2">
+                                      $
+                                      {getRandomNumberWithOffset(
+                                        Number.parseFloat(price?.USD).toFixed(2)
+                                      )}
+                                    </del>
+                                  )}
+                                </p>
+                              ))}
+                              <button
+                                className="p-0 border-0 outline-none bg-transparent text-primary !content-right w-full text-right"
+                                onClick={(event) => {
+                                  return isLoggedIn
+                                    ? handleAddToCart(product?.id)
+                                    : dispatch(showPopup());
+                                }}
+                              >
+                                <em className="icon ni ni-cart text-3xl"></em>
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -907,10 +1033,33 @@ animation: ${dynamicAnimation} 4s ease-in-out infinite `
       </div>
       <div class="nk-sticky-badge">
         <ul>
-            <li><a href="/" className="nk-sticky-badge-icon nk-sticky-badge-home" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="nk-tooltip" data-bs-title="View Demo"><em class="icon ni ni-home-fill"></em></a></li>
-            <li><a onClick={()=>navigate("/cart")} className="nk-sticky-badge-icon nk-sticky-badge-purchase" id="cart-button"  data-bs-toggle="tooltip" data-bs-custom-class="nk-tooltip" data-bs-title="Purchase Now" aria-label="Purchase Now"><em class="icon ni ni-cart-fill"></em></a></li>
+          <li>
+            <a
+              href="/"
+              className="nk-sticky-badge-icon nk-sticky-badge-home"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="View Demo"
+            >
+              <em class="icon ni ni-home-fill"></em>
+            </a>
+          </li>
+          <li>
+            <a
+              onClick={() => navigate("/cart")}
+              className="nk-sticky-badge-icon nk-sticky-badge-purchase"
+              id="cart-button"
+              data-bs-toggle="tooltip"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="Purchase Now"
+              aria-label="Purchase Now"
+            >
+              <em class="icon ni ni-cart-fill"></em>
+            </a>
+          </li>
         </ul>
-    </div>
+      </div>
     </>
   );
 }

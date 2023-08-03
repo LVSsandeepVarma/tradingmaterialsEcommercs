@@ -1,104 +1,120 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../../features/login/loginSlice";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { updateUsers } from "../../../features/users/userSlice";
+import { updateNotifications } from "../../../features/notifications/notificationSlice";
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [apiError, setApiError] = useState([]);
+  const [loginSuccessMsg, setLoginsuccessMsg] = useState("");
+  const loginStatus = useSelector((state) => state?.login?.value);
+  const loaderState = useSelector((state) => state.loader?.value);
+  const [showPassword, setShowPassword] = useState(false);
+  console.log(loginStatus);
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [emailError, setEmailError] = useState("");
-    const [passwordError, setPasswordError] = useState("");
-    const [apiError, setApiError] = useState([])
-    const [loginSuccessMsg, setLoginsuccessMsg] = useState("")
-    const loginStatus = useSelector(state => state?.login?.value)
-    const loaderState = useSelector(state => state.loader?.value);
-    const [showPassword, setShowPassword] = useState(false);
-    console.log(loginStatus)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
+  // useEffect(()=>{
+  //   dispatch(updateNotifications(""))
+  // },[])
 
-
-    function emailValidaiton(email){
-        const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
-        if(email === ""){
-            setEmailError("E?mail is required")
-        }else if (!emailRegex.test(email)){
-            setEmailError("invalid email")
-        }else{
-            setEmailError("")
-        }
+  function emailValidaiton(email) {
+    const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    if (email === "") {
+      setEmailError("E?mail is required");
+    } else if (!emailRegex.test(email)) {
+      setEmailError("invalid email");
+    } else {
+      setEmailError("");
     }
+  }
 
-    function passwordValidation(password){
-        if(password?.length === 0){
-            setPasswordError("password is required")
-        }else if(password?.length <=5){
-            setPasswordError("password should be atleast 6 digits")
-        }else{
-            setPasswordError("")
-        }
+  function passwordValidation(password) {
+    if (password?.length === 0) {
+      setPasswordError("password is required");
+    } else if (password?.length <= 5) {
+      setPasswordError("password should be atleast 6 digits");
+    } else {
+      setPasswordError("");
     }
+  }
 
-    function handleEmailChange(e){
-        setEmail(e?.target?.value)
-        emailValidaiton(e?.target?.value)
-    }
+  function handleEmailChange(e) {
+    setEmail(e?.target?.value);
+    emailValidaiton(e?.target?.value);
+  }
 
-    function handlePasswordChange(e){
-        setPassword(e?.target?.value)
-        passwordValidation(e?.target?.value)
-    }
+  function handlePasswordChange(e) {
+    setPassword(e?.target?.value);
+    passwordValidation(e?.target?.value);
+  }
 
-    async function handleFormSubmission(){
-        dispatch(showLoader())
-        setApiError([]);
-        setLoginsuccessMsg("")
-        console.log(email, password)
-        emailValidaiton(email)
-        passwordValidation(password)
-        if(emailError === "" && passwordError === ""){
-            try{
-                const response = await axios.post("https://admin.tradingmaterials.com/api/auth/login", {
-                email: email, password: password
+  async function handleFormSubmission() {
+    dispatch(showLoader());
+    setApiError([]);
+    setLoginsuccessMsg("");
+    console.log(email, password);
+    emailValidaiton(email);
+    passwordValidation(password);
+    if (emailError === "" && passwordError === "") {
+      try {
+        const response = await axios.post(
+          "https://admin.tradingmaterials.com/api/auth/login",
+          {
+            email: email,
+            password: password,
+          }
+        );
+        if (response?.data?.status) {
+          setLoginsuccessMsg(response?.data?.message);
+          localStorage.setItem("client_token", response?.data?.token);
+          console.log(response?.data?.first_name);
+          dispatch(
+            updateUsers({
+              first_name: response?.data?.first_name,
+              last_name: response?.data?.last_name,
+              cart_count: response?.data?.cart_count,
+              wish_count: response?.data?.wish_count,
             })
-            if(response?.data?.status){
-                setLoginsuccessMsg(response?.data?.message)
-                localStorage.setItem("client_token", response?.data?.token)
-                console.log(response?.data?.first_name)
-                dispatch(updateUsers({
-                  first_name: response?.data?.first_name,
-                  last_name : response?.data?.last_name,
-                  cart_count : response?.data?.cart_count,
-                  wish_count : response?.data?.wish_count
-                }))
-                dispatch(loginUser())
-                navigate("/")
-            }
-            }catch(err){
-                console.log("err", err);
-                if(err?.response?.data?.errors){
-                    setApiError([...Object?.values(err?.response?.data?.errors)])
-                }else{
-                    setApiError([err?.response?.data?.message])
-                }
-                
-            }finally{
-                dispatch(hideLoader())
-            }
+          );
+          dispatch(loginUser());
+          navigate("/");
+          setTimeout(() => {
+            localStorage.removeItem("token");
+            dispatch(
+              updateNotifications({
+                type: "warning",
+                message: "token expired, please login again",
+              })
+            );
+            navigate("/login");
+          }, 3600000);
         }
+      } catch (err) {
+        console.log("err", err);
+        if (err?.response?.data?.errors) {
+          setApiError([...Object?.values(err?.response?.data?.errors)]);
+        } else {
+          setApiError([err?.response?.data?.message]);
+        }
+      } finally {
+        dispatch(hideLoader());
+      }
     }
-
-
+  }
 
   return (
     <>
-    {loaderState && (
+      {loaderState && (
         <div className="preloader !bg-[rgba(0,0,0,0.5)]">
           <div className="loader"></div>
         </div>
@@ -136,7 +152,7 @@ export default function Login() {
                       .
                     </p>
                   </div>
-                  <Form  >
+                  <Form>
                     <div className="row gy-4 !text-left">
                       <div className="col-12">
                         <div className="form-group">
@@ -148,7 +164,11 @@ export default function Login() {
                               placeholder="Enter your email"
                               onChange={handleEmailChange}
                             />
-                            {emailError && <p className="text-red-600 font-semibold">{emailError}</p>}
+                            {emailError && (
+                              <p className="text-red-600 font-semibold">
+                                {emailError}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -161,17 +181,28 @@ export default function Login() {
                               className="form-control-icon end password-toggle"
                               title="Toggle show/hide password"
                             >
-                              <em className={`on icon ni ${showPassword ? "ni-eye-off-fill" : "ni-eye-fill"} text-primary`} onClick={()=>setShowPassword(!showPassword)}></em>
+                              <em
+                                className={`on icon ni ${
+                                  showPassword
+                                    ? "ni-eye-off-fill"
+                                    : "ni-eye-fill"
+                                } text-primary`}
+                                onClick={() => setShowPassword(!showPassword)}
+                              ></em>
                               <em className="off icon ni ni-eye-off-fill text-primary"></em>
                             </a>
                             <input
                               id="show-hide-password"
-                              type = {showPassword ? "text": "password"}
+                              type={showPassword ? "text" : "password"}
                               className="form-control"
                               placeholder="Enter your password"
                               onChange={handlePasswordChange}
                             />
-                            {passwordError && <p className="text-red-700 font-semibold">{passwordError}</p>}
+                            {passwordError && (
+                              <p className="text-red-700 font-semibold">
+                                {passwordError}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -209,11 +240,23 @@ export default function Login() {
                           >
                             Login to Your Account
                           </button>
-                          {loginSuccessMsg && <p className="text-green-600 font-semibold">{loginSuccessMsg}</p>}
+                          {loginSuccessMsg && (
+                            <p className="text-green-600 font-semibold">
+                              {loginSuccessMsg}
+                            </p>
+                          )}
 
-                          {apiError?.length>0 && apiError?.map((err,ind)=>{
-                            return <p key={ind} className="text-red-700 font-semibold">{err}</p>
-                          })}
+                          {apiError?.length > 0 &&
+                            apiError?.map((err, ind) => {
+                              return (
+                                <p
+                                  key={ind}
+                                  className="text-red-700 font-semibold"
+                                >
+                                  {err}
+                                </p>
+                              );
+                            })}
                         </div>
                       </div>
                     </div>

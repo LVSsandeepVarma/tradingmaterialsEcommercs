@@ -1,23 +1,71 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Footer from "../../footer/footer";
-import { hideLoader, showLoader } from "../../../../features/loader/loaderSlice";
+import {
+  hideLoader,
+  showLoader,
+} from "../../../../features/loader/loaderSlice";
 import Header from "../../header/header";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { fetchAllProducts } from "../../../../features/products/productsSlice";
-
-
+import { updateUsers } from "../../../../features/users/userSlice";
+import { updateCart } from "../../../../features/cartItems/cartSlice";
+import { notifications, updateNotifications } from "../../../../features/notifications/notificationSlice";
+import { updateCartCount } from "../../../../features/cartWish/focusedCount";
+import { showPopup } from "../../../../features/popups/popusSlice";
 
 export default function ProductDetails() {
+  const params = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const products = useSelector((state) => state?.products?.value);
-  const loaderState = useSelector(state => state?.loader?.value);
+  const cartProducts = useSelector((state) => state?.cart?.value);
+
+  const loaderState = useSelector((state) => state?.loader?.value);
   const [product, setProduct] = useState({});
 
   const [subCatProducts, setSubCatProducts] = useState([]);
+  const [qunatity, setQuantity] = useState(1);
+  console.log(cartProducts, params);
 
-
+  const getUserInfo = async () => {
+    try {
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/lead/get-user-info",
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
+      if (response?.data?.status) {
+        console.log(response?.data);
+        dispatch(updateUsers(response?.data?.data));
+        dispatch(updateCart(response?.data?.data?.client?.cart));
+        navigate("/cart");
+      } else {
+        console.log(response?.data);
+        if(localStorage.getItem("client_token")){
+          dispatch(
+            updateNotifications({
+              type: "warning",
+              message: response?.data?.message,
+            })
+          );
+        }else{
+          dispatch(showPopup())
+        }
+        
+        // navigate("/login")
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
+    }
+  };
 
   function getRandomNumberWithOffset(number) {
     // Define an array of possible offsets: 5, 10, and 20.
@@ -46,60 +94,96 @@ export default function ProductDetails() {
 
   console.log(products);
 
-  const {id}  =useParams()
+  const { id } = useParams();
 
-  async function fetchProductdetails(){
-    
-    console.log(id)
-    try{
-      dispatch(showLoader())
-      const response = await axios.get(`https://admin.tradingmaterials.com/api/get/products-details?product_id=${id}`,{ headers:{
-        "x-api-secret":"XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-        "Accept":"application/json"
-      }})
-      if(response?.data?.status){
-        setProduct(response?.data?.data)
+  async function fetchProductdetails() {
+    console.log(id);
+    try {
+      dispatch(showLoader());
+      const response = await axios.get(
+        `https://admin.tradingmaterials.com/api/get/products-details?product_id=${id}`,
+        {
+          headers: {
+            "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+            Accept: "application/json",
+          },
+        }
+      );
+      if (response?.data?.status) {
+        setProduct(response?.data?.data);
       }
-    }catch(err){
-      console.log(err)
-    }finally{
+    } catch (err) {
+      console.log(err);
+    } finally {
       dispatch(hideLoader());
     }
-      
-      
   }
   useEffect(() => {
     // fetchProducts();
-    
+
     setSubCatProducts(products?.products);
-    fetchProductdetails()
+    fetchProductdetails();
   }, []);
 
-  useEffect(()=>{
-    async function fetchProducts (){
-      
-      dispatch(showLoader())
+  useEffect(() => {
+    async function fetchProducts() {
+      dispatch(showLoader());
       try {
-          const response = await axios.get("https://admin.tradingmaterials.com/api/get/products", {
-              headers: {
-                  "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-                  "Accept": "application/json"
-              }
-          })
-          if (response?.data?.status) {
-              dispatch(fetchAllProducts(response?.data?.data))
-              setSubCatProducts(response?.data?.data?.products)
-
+        const response = await axios.get(
+          "https://admin.tradingmaterials.com/api/get/products",
+          {
+            headers: {
+              "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+              Accept: "application/json",
+            },
           }
+        );
+        if (response?.data?.status) {
+          dispatch(fetchAllProducts(response?.data?.data));
+          setSubCatProducts(response?.data?.data?.products);
+        }
       } catch (err) {
-          console.log("err")
-      }finally{
-        dispatch(hideLoader())
+        console.log("err");
+      } finally {
+        dispatch(hideLoader());
       }
-  }
+    }
 
-  fetchProducts()
-  },[])
+    fetchProducts();
+  }, []);
+
+  // function for handling add to cart animation
+  async function handleAddToCart(productId) {
+    // setAnimateProductId(productId)
+    try {
+      dispatch(showLoader());
+      const response = await axios?.post(
+        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+        {
+          product_id: productId,
+          qty: qunatity,
+        },
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+      console.log(response?.data?.status)
+      if (response?.data?.status) {
+        dispatch(updateCart(response?.data?.data?.cart_details));
+        dispatch(updateCartCount(response?.data?.data?.cart_count))
+        dispatch(notifications({type:"success", message:response?.data?.data?.message}))
+      }else{
+        dispatch(showPopup())
+      }
+    } catch (err) {
+      console.log(err);
+      dispatch(showPopup())
+    } finally {
+      dispatch(hideLoader());
+    }
+  }
 
   // function ratingStars(number) {
   //   const elemetns = Array.from({ length: number }, (_, index) => (
@@ -132,31 +216,51 @@ export default function ProductDetails() {
                         <div className="swiper-wrapper">
                           <div className="swiper-slide">
                             <img
-                              src={product?.product?.img_1 === null ? "/images/shop/slider-cover-1.jpg" : product?.product?.img_1}
+                              src={
+                                product?.product?.img_1 === null
+                                  ? "/images/shop/slider-cover-1.jpg"
+                                  : product?.product?.img_1
+                              }
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src={product?.product?.img_2 === null ? "/images/shop/slider-cover-2.jpg" : product?.product?.img_2}
+                              src={
+                                product?.product?.img_2 === null
+                                  ? "/images/shop/slider-cover-2.jpg"
+                                  : product?.product?.img_2
+                              }
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src={product?.product?.img_3 === null ? "/images/shop/slider-cover-3.jpg" : product?.product?.img_3}
+                              src={
+                                product?.product?.img_3 === null
+                                  ? "/images/shop/slider-cover-3.jpg"
+                                  : product?.product?.img_3
+                              }
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src={product?.product?.img_4 === null ? product?.product?.img_1 : product?.product?.img_4}
+                              src={
+                                product?.product?.img_4 === null
+                                  ? product?.product?.img_1
+                                  : product?.product?.img_4
+                              }
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src={product?.product?.img_5 === null ? product?.product?.img_2 : product?.product?.img_5}
+                              src={
+                                product?.product?.img_5 === null
+                                  ? product?.product?.img_2
+                                  : product?.product?.img_5
+                              }
                               className="w-100"
                             />
                           </div>
@@ -166,31 +270,51 @@ export default function ProductDetails() {
                         <div className="swiper-wrapper">
                           <div className="swiper-slide">
                             <img
-                              src={product?.product?.img_1 === null ? "/images/shop/slider-cover-1.jpg" : product?.product?.img_1}
+                              src={
+                                product?.product?.img_1 === null
+                                  ? "/images/shop/slider-cover-1.jpg"
+                                  : product?.product?.img_1
+                              }
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src={product?.product?.img_2 === null ? "/images/shop/slider-cover-2.jpg" : product?.product?.img_2}
+                              src={
+                                product?.product?.img_2 === null
+                                  ? "/images/shop/slider-cover-2.jpg"
+                                  : product?.product?.img_2
+                              }
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src={product?.product?.img_3 === null ? "/images/shop/slider-cover-3.jpg" : product?.product?.img_3}
+                              src={
+                                product?.product?.img_3 === null
+                                  ? "/images/shop/slider-cover-3.jpg"
+                                  : product?.product?.img_3
+                              }
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src={product?.product?.img_4 === null ? product?.product?.img_1 : product?.product?.img_4}
+                              src={
+                                product?.product?.img_4 === null
+                                  ? product?.product?.img_1
+                                  : product?.product?.img_4
+                              }
                               className="w-100"
                             />
                           </div>
                           <div className="swiper-slide">
                             <img
-                              src={product?.product?.img_5 === null ? product?.product?.img_2 : product?.product?.img_5}
+                              src={
+                                product?.product?.img_5 === null
+                                  ? product?.product?.img_2
+                                  : product?.product?.img_5
+                              }
                               className="w-100"
                             />
                           </div>
@@ -206,13 +330,16 @@ export default function ProductDetails() {
                             <span className="fs-14 text-gray-1200 text-uppercase fw-semibold">
                               {product?.product?.name}
                             </span>
-                            <div className="text-sm" dangerouslySetInnerHTML={{
-                                            __html: product?.product?.description,
-                                          }} />
+                            <div
+                              className="text-sm"
+                              dangerouslySetInnerHTML={{
+                                __html: product?.product?.description,
+                              }}
+                            />
                           </div>
                           <div className="d-flex gap-4 align-items-center pt-1">
                             <div className="d-flex gap-1 align-items-center">
-                            {ratingStars(product?.product?.rating)}
+                              {ratingStars(product?.product?.rating)}
                               <p className="fs-14">(7 Reviews)</p>
                             </div>
                             <a
@@ -227,7 +354,9 @@ export default function ProductDetails() {
                         <div className="nk-product-specification py-5">
                           <div className="nk-product-specification-content">
                             <h6 className="fs-16 m-0 w-50">Availability:</h6>
-                            <p className="fs-16 text-gray-800 w-50">{product?.stock}</p>
+                            <p className="fs-16 text-gray-800 w-50">
+                              {product?.stock}
+                            </p>
                           </div>
                           <div className="nk-product-specification-content">
                             <h6 className="fs-16 m-0 w-50">Brand:</h6>
@@ -274,9 +403,23 @@ export default function ProductDetails() {
                             <h6 className="fs-16 m-0 w-50">Quantity:</h6>
                             <div className="w-50">
                               <div id="counter" className="nk-counter">
-                                <button id="decrement">-</button>
-                                <span id="count">0</span>
-                                <button id="increment">+</button>
+                                <button
+                                  id="decrement"
+                                  onClick={() => {
+                                    setQuantity(qunatity - 1);
+                                  }}
+                                >
+                                  -
+                                </button>
+                                <span id="count">{qunatity}</span>
+                                <button
+                                  id="increment"
+                                  onClick={() => {
+                                    setQuantity(qunatity + 1);
+                                  }}
+                                >
+                                  +
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -294,7 +437,12 @@ export default function ProductDetails() {
                               </button>
                             </li>
                             <li>
-                              <button className="btn btn-white text-primary">
+                              <button
+                                className="btn btn-white text-primary"
+                                onClick={() =>
+                                  handleAddToCart(product?.product_id)
+                                }
+                              >
                                 Add To Cart
                               </button>
                             </li>
@@ -417,10 +565,12 @@ export default function ProductDetails() {
                       >
                         <div className="mb-5">
                           <h5 className="mb-2">Product Description</h5>
-                          <p className="fs-16 text-gray-1200 text-left"  dangerouslySetInnerHTML={{
-                                            __html: product?.product?.long_desc,
-                                          }}/>
-                            
+                          <p
+                            className="fs-16 text-gray-1200 text-left"
+                            dangerouslySetInnerHTML={{
+                              __html: product?.product?.long_desc,
+                            }}
+                          />
                         </div>
                         <div className="row">
                           <div className="col-lg-10 col-xl-8">
@@ -512,81 +662,114 @@ export default function ProductDetails() {
                   </div>
                 </div>
                 <div className="row gy-5 justify-center">
-              {subCatProducts?.length !== 0 &&
-                subCatProducts?.map((product, indx) => {
-                  if (product?.combo) {
-                    return (
-                      // product?.getproducts?.map((comboProduct, n)=>(
-                      <div
-                        className="col-xl-4 col-lg-4 col-md-6"
-                        data-aos="fade-up"
-                        data-aos-delay="0"
-                      >
-                        <div className="nk-card overflow-hidden rounded-3 border h-100">
-                          <div className="nk-card-img">
-                            <a href="/">
-                              <img
-                                src={product?.img_1}
-                                alt="product-image"
-                                className="w-100"
-                              />
-                            </a>
-                          </div>
-                          <div className="nk-card-info bg-white p-4">
-                            <a
-                              href="/"
-                              className="d-inline-block mb-1 line-clamp-1 h5"
-                            >
-                              {product?.name}
-                              <br />
-                              <span className="text-xs">
-                                <p
-                                  dangerouslySetInnerHTML={{
-                                    __html: product?.description,
-                                  }}
-                                />
-                              </span>
-                            </a>
-                            <div className="d-flex align-items-center mb-2 gap-1">
-                              {ratingStars(5)}
-                              <span className="fs-14 text-gray-800">
-                                {" "}
-                                (7 Reviews){" "}
-                              </span>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between">
-                              {product?.prices?.map((price, ind) => (
-                                <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                  {price?.USD &&
-                                    Number.parseFloat(price?.USD).toFixed(2)}
-                                  {price?.USD && (
-                                    <del className="text-gray-800 !ml-2">
-                                      $
-                                      {getRandomNumberWithOffset(
-                                        Number.parseFloat(price?.USD).toFixed(2)
+                  {subCatProducts?.length !== 0 &&
+                    subCatProducts?.map((product, indx) => {
+                      if (product?.combo) {
+                        return (
+                          // product?.getproducts?.map((comboProduct, n)=>(
+                          <div
+                            className="col-xl-4 col-lg-4 col-md-6"
+                            data-aos="fade-up"
+                            data-aos-delay="0"
+                          >
+                            <div className="nk-card overflow-hidden rounded-3 border h-100">
+                              <div className="nk-card-img">
+                                <a href="/">
+                                  <img
+                                    src={product?.img_1}
+                                    alt="product-image"
+                                    className="w-100"
+                                  />
+                                </a>
+                              </div>
+                              <div className="nk-card-info bg-white p-4">
+                                <a
+                                  href="/"
+                                  className="d-inline-block mb-1 line-clamp-1 h5"
+                                >
+                                  {product?.name}
+                                  <br />
+                                  <span className="text-xs">
+                                    <p
+                                      dangerouslySetInnerHTML={{
+                                        __html: product?.description,
+                                      }}
+                                    />
+                                  </span>
+                                </a>
+                                <div className="d-flex align-items-center mb-2 gap-1">
+                                  {ratingStars(5)}
+                                  <span className="fs-14 text-gray-800">
+                                    {" "}
+                                    (7 Reviews){" "}
+                                  </span>
+                                </div>
+                                <div className="d-flex align-items-center justify-content-between">
+                                  {product?.prices?.map((price, ind) => (
+                                    <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                      {price?.USD &&
+                                        Number.parseFloat(price?.USD).toFixed(
+                                          2
+                                        )}
+                                      {price?.USD && (
+                                        <del className="text-gray-800 !ml-2">
+                                          $
+                                          {getRandomNumberWithOffset(
+                                            Number.parseFloat(
+                                              price?.USD
+                                            ).toFixed(2)
+                                          )}
+                                        </del>
                                       )}
-                                    </del>
-                                  )}
-                                </p>
-                              ))}
-                              <button className="p-0 border-0 outline-none bg-transparent text-primary">
-                                <em className="icon ni ni-cart"></em>
-                              </button>
+                                    </p>
+                                  ))}
+                                  <button className="p-0 border-0 outline-none bg-transparent text-primary">
+                                    <em className="icon ni ni-cart"></em>
+                                  </button>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                      // ))
-                    );
-                  }
-                })}
-            </div>
+                          // ))
+                        );
+                      }
+                    })}
+                </div>
               </div>
             </section>
           </main>
-          
+
           <Footer />
         </div>
+      </div>
+      <div class="nk-sticky-badge">
+        <ul>
+          <li>
+            <a
+              href="/"
+              className="nk-sticky-badge-icon nk-sticky-badge-home"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="View Demo"
+            >
+              <em class="icon ni ni-home-fill"></em>
+            </a>
+          </li>
+          <li>
+            <a
+              onClick={() => navigate("/cart")}
+              className="nk-sticky-badge-icon nk-sticky-badge-purchase"
+              id="cart-button"
+              data-bs-toggle="tooltip"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="Purchase Now"
+              aria-label="Purchase Now"
+            >
+              <em class="icon ni ni-cart-fill"></em>
+            </a>
+          </li>
+        </ul>
       </div>
     </>
   );

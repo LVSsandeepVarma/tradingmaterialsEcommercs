@@ -4,34 +4,65 @@ import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { fetchAllProducts } from "../../../features/products/productsSlice";
 import { updatePositions } from "../../../features/positions/positionsSlice";
-import { logoutUser } from "../../../features/login/loginSlice";
+import { loginUser, logoutUser } from "../../../features/login/loginSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { useNavigate } from "react-router-dom";
+import { Alert, Fade } from "react-bootstrap";
+import { CSSTransition } from "react-transition-group";
+import { updateNotifications } from "../../../features/notifications/notificationSlice";
+import { cart, updateCart } from "../../../features/cartItems/cartSlice";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import 'animate.css';
+import { updateCartCount } from "../../../features/cartWish/focusedCount";
+import { hidePopup } from "../../../features/popups/popusSlice";
+import { AiFillCloseCircle } from "react-icons/ai";
 
 export default function Header() {
   const dispatch = useDispatch();
   const positions = useSelector((state) => state?.position?.value);
-  const isLoggedIn = useSelector( state => state.login?.value);
-  const userData = useSelector(state => state?.user?.value);
+  const isLoggedIn = useSelector((state) => state.login?.value);
+  const userData = useSelector((state) => state?.user?.value);
+  const notifications = useSelector((state) => state?.notification?.value);
+  const cartCounts = useSelector(state=> state?.saved?.value);
+  const popup = useSelector(state => state?.popup?.value)
 
-  const navigate = useNavigate()
+  console.log(notifications);
 
-  console.log(userData)
-  console.log(isLoggedIn)
+  const navigate = useNavigate();
+
+  console.log(userData);
+  console.log(isLoggedIn);
   console.log(positions);
+
   useEffect(() => {
-    const cartButtonRect = document
-      ?.getElementById("cart")
-      ?.getBoundingClientRect();
-    dispatch(
-      updatePositions({
-        cartTop: cartButtonRect?.top,
-        cartRight: cartButtonRect?.left,
-        productTop: positions?.productTop ? positions?.productTop : "",
-        productRight: positions?.productRight ? positions?.productRight : "",
-      })
-    );
-  }, [window?.scroll]);
+    if (localStorage.getItem("client_token")) {
+      dispatch(loginUser());
+    }
+  }, []);
+
+  useEffect(()=>{
+    if(popup){
+      document.body.style.overflow = "hidden"
+    }
+    else{
+      document.body.style.overflow = "auto"
+    }
+  },[popup])
+
+  // useEffect(() => {
+  //   const cartButtonRect = document
+  //     ?.getElementById("cart")
+  //     ?.getBoundingClientRect();
+  //   dispatch(
+  //     updatePositions({
+  //       cartTop: cartButtonRect?.top,
+  //       cartRight: cartButtonRect?.left,
+  //       productTop: positions?.productTop ? positions?.productTop : "",
+  //       productRight: positions?.productRight ? positions?.productRight : "",
+  //     })
+  //   );
+  // }, [window?.scroll]);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -56,38 +87,161 @@ export default function Header() {
       }
     }
 
-    fetchProducts();
+    // fetchProducts();
   }, []);
 
-  async function handleLogout(){
-    try{
-      dispatch(showLoader())
+  const getUserInfo = async () => {
+    try {
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/lead/get-user-info",
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
+      if (response?.data?.status) {
+        console.log(response?.data);
+        dispatch(updateUsers(response?.data?.data));
+        dispatch(updateCart(response?.data?.data?.client?.cart));
+        dispatch(updateCartCount(response?.data?.data?.client?.cart_count))
+      } else {
+        console.log(response?.data);
+        dispatch(
+          updateNotifications({
+            type: "warning",
+            message: response?.data?.message,
+          })
+        );
+        // navigate("/login")
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
+    }
+  };
+
+  useEffect(() => {
+    // dispatch(showLoader());
+    if(isLoggedIn){
+      getUserInfo();
+    }
+    
+  }, [isLoggedIn, userData]);
+
+  async function handleLogout() {
+    try {
+      dispatch(showLoader());
       const response = await axios.post(
         "https://admin.tradingmaterials.com/api/lead/auth/logout",
         {},
         {
           headers: {
-            "access-token": localStorage.getItem("token"),
+            "access-token": localStorage.getItem("client_token"),
           },
         }
       );
 
-      if(response?.status){
-        dispatch(logoutUser())
-        localStorage.removeItem("token");
+      if (response?.status) {
+        dispatch(logoutUser());
+        localStorage.removeItem("client_token");
+        dispatch(updateNotifications({ type: "", message: "" }));
+
         // window.location.reload();
-        navigate("/login")
-        
+        navigate("/login");
       }
-    }catch(err){
-      console.log("err", err)
-    }finally{
-      dispatch(hideLoader())
+    } catch (err) {
+      console.log("err", err);
+    } finally {
+      dispatch(hideLoader());
     }
   }
 
+  useEffect(() => {
+    if (notifications?.message !== "") {
+      showAlert();
+    }
+  }, [notifications]);
+
+  const showAlert = () => {
+    if(notifications?.type === "warning"){
+    Swal.fire({title: notifications?.message,
+      showCloseButton: true,
+      // timer: 1000,
+      timerProgressBar: true,
+      icon: notifications?.type,
+      footer: '<a className="font-bold" style="font-weight:bold;cursor: pointer" href="/login">Clcik here to login</a>',
+      showConfirmButton: false,
+    showClass: {
+      popup: 'animate__animated animate__fadeInDown'
+    },
+    hideClass: {
+      popup: 'animate__animated animate__fadeOutUp'
+    },
+    willClose: () =>{
+      dispatch(updateNotifications({message: "", type: ""}))
+    }
+  });
+  }else{
+    Swal.fire({title: notifications?.message,
+      showCloseButton: true,
+      // timer: 1000,
+      timerProgressBar: true,
+      icon: notifications?.type,
+      // footer: '<a className="font-bold" style="font-weight:bold;cursor: pointer" href="/login">Clcik here to login</a>',
+      // showConfirmButton: false,
+    showClass: {
+      popup: 'animate__animated animate__fadeInDown'
+    },
+    hideClass: {
+      popup: 'animate__animated animate__fadeOutUp'
+    },
+    willClose: () =>{
+      dispatch(updateNotifications({message: "", type: ""}))
+    }
+  })
+  }
+  };
+
   return (
     <>
+          {popup && (
+        <div className="absolute w-full !h-[1000%] z-[99999] !bg-[rgba(0,0,0,0.5)]">
+          <span className="  fixed  top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  z-[10000] ">
+            <AiFillCloseCircle
+              className="text-red-500 text-3xl cursor-pointer"
+              onClick={() => dispatch(hidePopup())}
+            />
+            <a href="/login">
+              <img
+                onClick={() => navigate("/login")}
+                src="/assets/images/banner-cart.jpg"
+                alt=""
+              />
+            </a>
+          </span>
+        </div>
+      )}
+      {/* {<CSSTransition classNames={Fade} timeout={1000} >  */}
+      {/* {notifications?.message && (
+        <div className="absolute fixed right-10 !mt-[8%] text-left !w-fit z-[9999]  ">
+          <CSSTransition in={true} classNames="alert">
+            <Alert
+              variant="warning"
+              closeVariant="black"
+              dismissible
+              onClick={() => dispatch(notifications(""))}
+            >
+              <p>{notifications?.message}</p>
+              <Alert.Link href="/login" onClick={() => navigate("/login")}>
+                login again
+              </Alert.Link>
+            </Alert>
+          </CSSTransition>
+        </div>
+      )} */}
       <header className="nk-header">
         <div className="nk-header-main nk-navbar-main">
           <div className="container">
@@ -272,7 +426,7 @@ export default function Header() {
                       type="button"
                       class="relative inline-flex items-center text-lg font-medium text-center rounded-lg  focus:outline-none "
                     >
-                     <svg
+                      <svg
                         width="24"
                         height="24"
                         viewBox="0 0 22 20"
@@ -298,7 +452,7 @@ export default function Header() {
                       </svg>
                       <span class="sr-only">Notifications</span>
                       <div class="absolute inline-flex items-center justify-center w-6 h-6 !text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -right-3 dark:border-gray-900">
-                        {userData?.wish_count}
+                        {userData?.client?.wishlist_count}
                       </div>
                     </button>
                   </li>
@@ -307,54 +461,58 @@ export default function Header() {
                     <button
                       type="button"
                       class="relative inline-flex items-center text-lg font-medium text-center rounded-lg focus:outline-none "
+                      onClick={() => navigate("/cart")}
                     >
                       <svg
-                          width="21"
-                          height="22"
-                          viewBox="0 0 21 22"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M6.48626 20.5H14.8341C17.9004 20.5 20.2528 19.3924 19.5847 14.9348L18.8066 8.89359C18.3947 6.66934 16.976 5.81808 15.7311 5.81808H5.55262C4.28946 5.81808 2.95308 6.73341 2.4771 8.89359L1.69907 14.9348C1.13157 18.889 3.4199 20.5 6.48626 20.5Z"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          ></path>
-                          <path
-                            d="M6.34902 5.5984C6.34902 3.21232 8.28331 1.27803 10.6694 1.27803V1.27803C11.8184 1.27316 12.922 1.72619 13.7362 2.53695C14.5504 3.3477 15.0081 4.44939 15.0081 5.5984V5.5984"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          ></path>
-                          <path
-                            d="M7.70365 10.1018H7.74942"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          ></path>
-                          <path
-                            d="M13.5343 10.1018H13.5801"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          ></path>
-                        </svg>
+                        width="21"
+                        height="22"
+                        viewBox="0 0 21 22"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M6.48626 20.5H14.8341C17.9004 20.5 20.2528 19.3924 19.5847 14.9348L18.8066 8.89359C18.3947 6.66934 16.976 5.81808 15.7311 5.81808H5.55262C4.28946 5.81808 2.95308 6.73341 2.4771 8.89359L1.69907 14.9348C1.13157 18.889 3.4199 20.5 6.48626 20.5Z"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></path>
+                        <path
+                          d="M6.34902 5.5984C6.34902 3.21232 8.28331 1.27803 10.6694 1.27803V1.27803C11.8184 1.27316 12.922 1.72619 13.7362 2.53695C14.5504 3.3477 15.0081 4.44939 15.0081 5.5984V5.5984"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></path>
+                        <path
+                          d="M7.70365 10.1018H7.74942"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></path>
+                        <path
+                          d="M13.5343 10.1018H13.5801"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></path>
+                      </svg>
                       <span class="sr-only">Notifications</span>
                       <div class="absolute inline-flex items-center justify-center w-6 h-6 text-sm font-bold text-white bg-black border-2 border-white rounded-full -top-2 -right-3 dark:border-gray-900">
-                      {userData?.cart_count}
+                        {cartCounts?.cartCount}
                       </div>
                     </button>
                   </li>
-                  {isLoggedIn &&  <li className="nk-nav-item has-sub">
+                  {isLoggedIn && (
+                    <li className="nk-nav-item has-sub">
                       <a className="nk-nav-link nk-nav-toggle">
-                        <span className="nk-nav-text">{userData?.first_name}</span>
+                        <span className="nk-nav-text">
+                          {userData?.client?.first_name}
+                        </span>
                       </a>
                       <ul className="nk-nav-sub">
                         <li className="nk-nav-item col-lg-12">
@@ -370,21 +528,23 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-12 p-0">
-                              <a  className="nk-nav-link" onClick={handleLogout}>
+                              <a className="nk-nav-link" onClick={handleLogout}>
                                 logout
                               </a>
                             </li>
                           </ul>
                         </li>
                       </ul>
-                    </li>}
+                    </li>
+                  )}
 
-                    {!isLoggedIn && <li className="flex items-center">
-                    <a href="/login" >
+                  {!isLoggedIn && (
+                    <li className="flex items-center">
+                      <a href="/login">
                         <span className="nk-nav-text">Login</span>
                       </a>
-                      </li>}
-                    
+                    </li>
+                  )}
 
                   <li className="nk-navbar-toggle">
                     <button className="btn btn-outline-primary navbar-toggle rounded-1 p-2 h-100">
