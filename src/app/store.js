@@ -8,6 +8,7 @@ import userReducer from '../features/users/userSlice';
 import notificationRefucer from '../features/notifications/notificationSlice';
 import cartReducer from '../features/cartItems/cartSlice';
 import popupReducer from '../features/popups/popusSlice';
+import langReducer  from '../features/userLang/userLang';
 
 export const store = configureStore({
   reducer: {
@@ -20,5 +21,6 @@ export const store = configureStore({
     notification: notificationRefucer,
     cart: cartReducer,
     popup: popupReducer,
+    lang: langReducer,
   },
 });

@@ -1,27 +1,31 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Form } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { loginUser } from "../../../features/login/loginSlice";
+import { userLanguage } from "../../../features/userLang/userLang";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
+import axios from "axios";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
-import { useTranslation } from "react-i18next";
-import { userLanguage } from "../../../features/userLang/userLang";
+import { loginUser } from "../../../features/login/loginSlice";
+import { Form } from "react-bootstrap";
 
-export default function Login() {
+export default function Register() {
   const { t } = useTranslation();
-
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [firstNameError, setFirstNameError] = useState("");
+  const [lastNameError, setLastNameError] = useState("")
   const [apiError, setApiError] = useState([]);
-  const [loginSuccessMsg, setLoginsuccessMsg] = useState("");
+  const [signupSuccessMsg, setSignupSuccessMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const loginStatus = useSelector((state) => state?.login?.value);
   const loaderState = useSelector((state) => state.loader?.value);
-  const [showPassword, setShowPassword] = useState(false);
   console.log(loginStatus);
 
   const dispatch = useDispatch();
@@ -46,7 +50,7 @@ export default function Login() {
   function emailValidaiton(email) {
     const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (email === "") {
-      setEmailError("Email is required");
+      setEmailError("E?mail is required");
     } else if (!emailRegex.test(email)) {
       setEmailError("invalid email");
     } else {
@@ -54,14 +58,36 @@ export default function Login() {
     }
   }
 
-  function passwordValidation(password) {
-    if (password?.length === 0) {
-      setPasswordError("Phone is required");
-    } else if (password?.length <= 5) {
-      setPasswordError("password should be atleast 6 digits");
+  function phoneValidation(phone) {
+    if (phone?.length === 0) {
+      setPhoneError("password is required");
+    } else if (phone?.length <= 5) {
+      setPhoneError("password should be atleast 6 digits");
     } else {
-      setPasswordError("");
+      setPhoneError("");
     }
+  }
+
+  function firstNameVerification(name) {
+    const nameRegex = /^[a-zA-Z. ]+$/
+    if (name === "") {
+        setFirstNameError("First name is required");
+      } else if (!nameRegex.test(name)) {
+        setFirstNameError("Invalid first name, only charecters are allowed");
+      } else {
+        setFirstNameError("");
+      }
+  }
+
+  function lastNameVerification(name) {
+    const nameRegex = /^[a-zA-Z. ]+$/
+    if (name === "") {
+        setLastNameError("Last name is required");
+      } else if (!nameRegex.test(name)) {
+        setLastNameError("Invalid last name, only charecters are allowed");
+      } else {
+        setLastNameError("");
+      }
   }
 
   function handleEmailChange(e) {
@@ -69,31 +95,48 @@ export default function Login() {
     emailValidaiton(e?.target?.value);
   }
 
-  function handlePasswordChange(e) {
-    setPassword(e?.target?.value);
-    passwordValidation(e?.target?.value);
+  function handlePhoneChange(e) {
+    setPhone(e?.target?.value);
+    phoneValidation(e?.target?.value);
   }
 
+  function handleFirstNamechange(e){
+    setFirstName(e?.target?.value)
+    firstNameVerification(e?.target?.value)
+  }
 
+  function handleLastNameChange(e){
+    setLastName(e?.target?.value)
+    lastNameVerification(e?.target?.value)
+  }
 
   async function handleFormSubmission() {
     dispatch(showLoader());
     setApiError([]);
-    setLoginsuccessMsg("");
-    console.log(email, password);
+    setSignupSuccessMsg("");
+    console.log(email, firstName, lastName,phone);
+    firstNameVerification(firstName)
+    lastNameVerification(lastName)
     emailValidaiton(email);
-    passwordValidation(password);
-    if (emailError === "" && passwordError === "") {
+    phoneValidation(phone);
+    // console.log(emailError, phoneError, firstNameError)
+    if (emailError === "" && phoneError === "" && firstNameError === "" && lastNameError === "") {
       try {
         const response = await axios.post(
-          "https://admin.tradingmaterials.com/api/auth/login",
+          "https://admin.tradingmaterials.com/api/client/store",
           {
+            first_name: firstName,
+            last_name: lastName,
             email: email,
-            password: password,
-          }
+            phone: phone,
+          }, {
+            headers: {
+            "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+            "Accept": "application/json"
+        }}
         );
         if (response?.data?.status) {
-          setLoginsuccessMsg(response?.data?.message);
+          setSignupSuccessMsg(response?.data?.message);
           localStorage.setItem("client_token", response?.data?.token);
           console.log(response?.data?.first_name);
           dispatch(
@@ -132,13 +175,8 @@ export default function Login() {
 
   return (
     <>
-      {loaderState && (
-        <div className="preloader !bg-[rgba(0,0,0,0.5)]">
-          <div className="loader"></div>
-        </div>
-      )}
-      <div className="nk-body">
-        <div className="nk-body-root">
+      <div className="nk-app-root ">
+        <main className="nk-pages">
           <div className="nk-split-page flex-column flex-xl-row">
             <div className="nk-split-col nk-auth-col">
               <div
@@ -147,25 +185,20 @@ export default function Login() {
               >
                 <div className="card-body p-5">
                   <div className="nk-form-card-head text-center pb-5">
-                    <div className="flex w-full form-logo mb-3">
-                      <a
-                        className="w-full flex content-center"
-                        href={`${userLang}/`}
-                      >
+                    <div className="form-logo mb-3">
+                      <a href={`${userLang}/`}>
                         <img
-                          className="logo-img content-center"
-                          src="/images/tm-logo-1.png"
+                          className="logo-img"
+                          src="images/tm-logo-1.png"
                           alt="logo"
                         />
                       </a>
                     </div>
-                    <h3 className="title mb-2 text-4xl font-semibold">
-                      Login to your account
-                    </h3>
+                    <h3 className="title mb-2 text-4xl font-semibold">Sign up to your account</h3>
                     <p className="text">
-                      Not a member yet?{" "}
-                      <a href={`${userLang}/signup`} className="btn-link text-primary">
-                        Sign Up
+                      Already a member?{" "}
+                      <a href={`${userLang}/login`} className="btn-link text-primary">
+                        Login
                       </a>
                       .
                     </p>
@@ -174,10 +207,46 @@ export default function Login() {
                     <div className="row gy-4 !text-left">
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label ">Email</label>
+                          <label className="form-label">First Name</label>
                           <div className="form-control-wrap">
                             <input
-                              type="email"
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter your first name"
+                              onChange={handleFirstNamechange}
+                            />
+                            {firstNameError && (
+                              <p className="text-red-600 font-semibold">
+                                {firstNameError}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-12">
+                        <div className="form-group">
+                          <label className="form-label">Last Name</label>
+                          <div className="form-control-wrap">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter your first name"
+                              onChange={handleLastNameChange}
+                            />
+                            {lastNameError && (
+                              <p className="text-red-600 font-semibold">
+                                {lastNameError}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-12">
+                        <div className="form-group">
+                          <label className="form-label">Email</label>
+                          <div className="form-control-wrap">
+                            <input
+                              type="text"
                               className="form-control"
                               placeholder="Enter your email"
                               onChange={handleEmailChange}
@@ -192,61 +261,34 @@ export default function Login() {
                       </div>
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">Password</label>
+                          <label className="form-label">Phone</label>
                           <div className="form-control-wrap">
-                            <a
-                              // href="show-hide-password.html"
+                            {/* <a
+                              href="show-hide-password.html"
                               className="form-control-icon end password-toggle"
                               title="Toggle show/hide password"
                             >
-                              <em
-                                className={`on icon ni ${
+                              <em className={`on icon ni ${
                                   showPassword
                                     ? "ni-eye-off-fill"
                                     : "ni-eye-fill"
                                 } text-primary`}
-                                onClick={() => setShowPassword(!showPassword)}
-                              ></em>
+                                onClick={() => setShowPassword(!showPassword)}></em>
                               <em className="off icon ni ni-eye-off-fill text-primary"></em>
-                            </a>
+                            </a> */}
                             <input
                               id="show-hide-password"
-                              type={showPassword ? "text" : "password"}
+                              type="text"
                               className="form-control"
-                              placeholder="Enter your password"
-                              onChange={handlePasswordChange}
+                              placeholder="Enter your number"
+                              onChange={handlePhoneChange}
                             />
-                            {passwordError && (
+                            {phoneError && (
                               <p className="text-red-700 font-semibold">
-                                {passwordError}
+                                {phoneError}
                               </p>
                             )}
                           </div>
-                        </div>
-                      </div>
-                      <div className="col-12">
-                        <div className="d-flex flex-wrap align-items-center  justify-content-between text-center">
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              value=""
-                              id="rememberMe"
-                            />
-                            <label
-                              className="form-check-label"
-                              for="rememberMe"
-                            >
-                              {" "}
-                              Remember Me{" "}
-                            </label>
-                          </div>
-                          <a
-                            href="forgot-password.php"
-                            className="d-inline-block fs-16"
-                          >
-                            Forgot Password?
-                          </a>
                         </div>
                       </div>
                       <div className="col-12">
@@ -256,11 +298,11 @@ export default function Login() {
                             type="button"
                             onClick={handleFormSubmission}
                           >
-                            Login to Your Account
+                            Sign Up to Your Account
                           </button>
-                          {loginSuccessMsg && (
+                          {signupSuccessMsg && (
                             <p className="text-green-600 font-semibold">
-                              {loginSuccessMsg}
+                              {signupSuccessMsg}
                             </p>
                           )}
 
@@ -278,28 +320,22 @@ export default function Login() {
                         </div>
                       </div>
                     </div>
-                  </Form>
+                    </Form>
                   {/* <!--<div className="pt-4 text-center">
-                                <div className="small overline-title-sep"><span className="bg-white px-2 text-base">or login with</span></div>
+                                <div className="small overline-title-sep"><span className="bg-white px-2 text-base">or register with</span></div>
                             </div>
-                            <div className="pt-4"><a href="#" className="btn btn-outline-gray-50 text-dark w-100"><img src="/images/icon/a.png" alt="" className="icon"/><span>Login with Google</span></a></div>--> */}
+                            <div className="pt-4"><a href="#" className="btn btn-outline-gray-50 text-dark w-100"><img src="images/icon/a.png" alt="" className="icon"><span>Sign Up with Google</span></a></div>--> */}
                 </div>
               </div>
             </div>
             <div className="nk-split-col nk-auth-col nk-auth-col-content  bg-primary-gradient is-theme">
-              <div
-                className="nk-mask shape-33"
-                data-aos="fade-in"
-                data-aos-delay="0"
-              ></div>
+              <div className="nk-mask shape-33"></div>
               <div className="nk-auth-content mx-md-9 mx-xl-auto">
                 <div className="nk-auth-content-inner">
                   <div className="media media-lg media-circle media-middle text-bg-cyan-200 mb-5">
                     <em className="icon ni ni-quote-left text-white"></em>
                   </div>
-                  <h1 className="mb-5">
-                    We’re building a better application now
-                  </h1>
+                  <h1 className="mb-5">We’re building a better application now</h1>
                   <div className="nk-auth-quote ms-sm-5">
                     <div className="nk-auth-quote-inner">
                       <p className="small">
@@ -310,7 +346,7 @@ export default function Login() {
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
-                          <img src="/images/avatar/a.jpg" alt="avatar" />
+                          <img src="images/avatar/a.jpg" alt="avatar" />
                         </div>
                         <div className="media-text">
                           <div className="h5 mb-0">Wade Warren</div>
@@ -323,6 +359,40 @@ export default function Login() {
               </div>
             </div>
           </div>
+        </main>
+        <a
+          href="#"
+          className="scroll-top shadow animate animate-infinite animate-pulse animate-duration-2"
+        >
+          <em className="icon ni ni-chevrons-up"></em>
+        </a>
+        <div className="nk-sticky-badge">
+          <ul>
+            <li>
+              <a
+                href={`${userLang}/`}
+                className="nk-sticky-badge-icon nk-sticky-badge-home"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                data-bs-custom-className="nk-tooltip"
+                data-bs-title="View Demo"
+              >
+                <em className="icon ni ni-home-fill"></em>
+              </a>
+            </li>
+            <li>
+              <a
+                href="product-details.php"
+                className="nk-sticky-badge-icon nk-sticky-badge-purchase"
+                data-bs-toggle="tooltip"
+                data-bs-custom-className="nk-tooltip"
+                data-bs-title="Purchase Now"
+                aria-label="Purchase Now"
+              >
+                <em className="icon ni ni-cart-fill"></em>
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
     </>

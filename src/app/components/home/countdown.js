@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const Countdown = ({ targetDate }) => {
+  const {t} = useTranslation()
+
+
   const calculateTimeLeft = () => {
     const difference = +new Date(targetDate) - +new Date();
     let timeLeft = {};
@@ -31,22 +35,22 @@ const Countdown = ({ targetDate }) => {
     <ul className="nk-countdown" data-date="6-9-2023" data-time="12:00">
                                             <li>
                                                 <div className="nk-countdown-content day"><span className="num m-0 h3 d-inline-block text-primary">{timeLeft?.days}</span>
-                                                    <p className="word text-uppercase text-gray-800">days</p>
+                                                    <p className="word text-uppercase text-gray-800">{t("days")}</p>
                                                 </div>
                                             </li>
                                             <li>
                                                 <div className="nk-countdown-content hour"><span className="num m-0 h3 d-inline-block text-primary">{timeLeft?.hours}</span>
-                                                    <p className="word text-uppercase text-gray-800">hours</p>
+                                                    <p className="word text-uppercase text-gray-800">{t("hours")}</p>
                                                 </div>
                                             </li>
                                             <li>
                                                 <div className="nk-countdown-content min"><span className="num m-0 h3 d-inline-block text-primary">{timeLeft?.minutes}</span>
-                                                    <p className="word text-uppercase text-gray-800">minutes</p>
+                                                    <p className="word text-uppercase text-gray-800">{t("minutes")}</p>
                                                 </div>
                                             </li>
                                             <li>
                                                 <div className="nk-countdown-content sec"><span className="num m-0 h3 d-inline-block text-primary">{timeLeft?.seconds}</span>
-                                                    <p className="word text-uppercase text-gray-800">seconds</p>
+                                                    <p className="word text-uppercase text-gray-800">{t("seconds")}</p>
                                                 </div>
                                             </li>
                                         </ul>

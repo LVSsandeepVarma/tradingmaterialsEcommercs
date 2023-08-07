@@ -428,10 +428,10 @@ h2,
 .h2,
 h1,
 .h1 {
-    margin-top: 0;
-    margin-bottom: .5rem;
-    font-weight: 500;
-    line-height: 1.2;
+    margin-top: 0 ;
+    margin-bottom: .5rem !important;
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
     color: var(--bs-heading-color)
 }
 
@@ -984,7 +984,7 @@ progress {
 @media(min-width: 576px) {
     .container-sm,
     .container {
-        max-width: 540px
+        max-width: 540px !important;
     }
 }
 
@@ -992,7 +992,7 @@ progress {
     .container-md,
     .container-sm,
     .container {
-        max-width: 720px
+        max-width: 720px !important;
     }
 }
 
@@ -1001,7 +1001,7 @@ progress {
     .container-md,
     .container-sm,
     .container {
-        max-width: 960px
+        max-width: 960px !important;
     }
 }
 
@@ -1011,7 +1011,7 @@ progress {
     .container-md,
     .container-sm,
     .container {
-        max-width: 1140px
+        max-width: 1140px !important;
     }
 }
 
@@ -1022,7 +1022,7 @@ progress {
     .container-md,
     .container-sm,
     .container {
-        max-width: 1350px
+        max-width: 1350px !important
     }
 }
 
@@ -3431,6 +3431,22 @@ textarea.form-control.is-valid {
     margin-top: .25rem;
     font-size: 0.875em;
     color: #fa5b68
+}
+
+.nk-testimonial-card-2 {
+    padding: 1.5rem;
+    background-color: #f0f4f7;
+    border-radius: .75rem;
+    box-shadow: -4px -4px 36px rgba(192,192,192,.12),4px 4px 36px rgba(192,192,192,.16);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    border: 0px solid #e5e7eb
+}
+
+.nk-testimonial-card-s1 {
+    padding: 0px
 }
 
 .invalid-tooltip {
@@ -19058,6 +19074,14 @@ fieldset:disabled .btn {
     color: rgba(var(--bs-red-50-rgb), var(--bs-text-opacity)) !important
 }
 
+.text-green-2 {
+    margin: 0px;
+    color: #fff;
+    background-color: #00b67a;
+    padding: 3px;
+    font-size: 12px;
+}
+
 .text-yellow {
     --bs-text-opacity: 1;
     color: rgba(var(--bs-yellow-rgb), var(--bs-text-opacity)) !important
@@ -33416,21 +33440,21 @@ body[data-aos-easing=ease-in-out-quart] [data-aos],
 
 .swiper-button-prev,
 .swiper-button-next {
-    position: absolute;
-    top: 50%;
-    width: 3.375rem;
-    height: 3.375rem;
+    position: absolute !important;
+    top: 62% !important;
+    width: 3.375rem !important;
+    height: 3.375rem !important;
     margin-top: calc(0px - (3.375rem / 2));
-    border-radius: 50rem;
-    z-index: 10;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #0a1425;
-    background-color: #fff;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
-    transition: .2s
+    border-radius: 50rem !important;
+    z-index: 10 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #0a1425 !important;
+    background-color: #fff !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .1) !important;
+    transition: .2s !important
 }
 
 .swiper-button-prev:hover,
@@ -37428,17 +37452,27 @@ button.swiper-pagination-bullet {
 }
 
 .nk-footer {
-    background-color: #fff
+    background-color: #0a1425;
 }
 
 .nk-footer-top .nk-footer-content {
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid rgb(255 255 255 / 40%);
     padding: 3.125rem 0px
+}
+
+.nk-footer-top .nk-footer-content-2 {
+    border-top: 0px solid rgb(255 255 255 / 68%);
+    padding: 3.0rem 0px
+}
+
+.nk-footer-bottom .nk-footer-content-2 {
+    border-top: 1px solid rgb(255 255 255 / 40%);
+    padding: 2.0rem 0px
 }
 
 @media(min-width: 768px) {
     .nk-footer-top .nk-footer-content {
-        padding: 3.75rem 0px
+        padding: 2.0rem 0px
     }
 }
 
@@ -37494,7 +37528,7 @@ button.swiper-pagination-bullet {
 }
 
 .nk-footer-text {
-    color: #0a1425;
+    color: #fff;
     font-size: 1rem;
     line-height: 1.5;
     font-weight: 500;
@@ -37541,6 +37575,10 @@ button.swiper-pagination-bullet {
     background-color: #2b5cfd
 }
 
+.nk-section-content-1{
+	margin-bottom:-135px;
+}
+
 @media(max-width: 575.98px) {
     .nk-footer-info {
         margin-bottom: 24px
@@ -37549,7 +37587,7 @@ button.swiper-pagination-bullet {
 
 .nk-footer-info .title {
     margin-bottom: 24px;
-    color: #0a1425;
+    color: #fff;
     font-size: 20px;
     line-height: 1.6;
     font-weight: 700;
@@ -37562,9 +37600,17 @@ button.swiper-pagination-bullet {
     }
 }
 
+.nk-footer-info ul li {
+    transition: all .3s linear;
+    color: #fff;
+    font-size: 1rem;
+    text-transform: capitalize;
+    line-height: 1.5
+}
+
 .nk-footer-info ul li a {
     transition: all .3s linear;
-    color: #64728f;
+    color: #fff;
     font-size: 1rem;
     text-transform: capitalize;
     line-height: 1.5
@@ -37597,7 +37643,7 @@ button.swiper-pagination-bullet {
     position: absolute;
     top: calc(50% + 3px);
     height: calc(100% - 12px);
-    background-color: #0a1425;
+    background-color: #fff;
     transform: translateY(-50%)
 }
 
@@ -37612,7 +37658,7 @@ button.swiper-pagination-bullet {
 }
 
 .nk-footer-copyright li a {
-    white-space: nowrap
+    white-space: pre-wrap
 }
 
 .nk-footer-landing-copyright {
@@ -44003,7 +44049,7 @@ h6,
 }
 
 .swiper-wrapper.has-pagination {
-    padding-bottom: 60px
+    padding-bottom: 0px
 }
 
 .swiper-wrapper.has-pagination-and-navigation {
@@ -47390,8 +47436,7 @@ h6,
     z-index: 99999;
     position: fixed;
     transition: all .5s ease;
-    /* background-color: #d5deff */
-    overflow: hidden;
+    background-color: #d5deff
 }
 
 .preloader.hide {

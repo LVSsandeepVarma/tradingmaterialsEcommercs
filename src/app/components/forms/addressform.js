@@ -10,31 +10,49 @@ const AddressSchema = Yup.object().shape({
   country: Yup.string().required('Country is required'),
   add_1: Yup.string().required('Street Address 1 is required'),
   add_2: Yup.string(),
-  zip: Yup.string().required('zip is required'),
+  zip: Yup.string().required('Zipcode is required'),
 });
 
 
 
-const AddressForm = () => {
+const AddressForm = ({type, data,closeModal}) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
+  console.log(type, data)
 
 
-  const handleFormSubmit = async(values, actions) => {
+  const handleSubmit = async(values) => {
     // setIsSuccess(false);
-    //   setIsFailure(false);
-  
+    //   setIsFailure(false);  
     try{
       setIsFailure(false);
       setIsSuccess(false)
       const token = localStorage.getItem("client_token")
-      const response = await axios.post("https://admin.tradingmaterials.com/api/lead/add-new/address", values, {
+      const formData = type==="add"? {
+        city: values?.city,
+        state: values?.state,
+        country: values?.country,
+        add_1: values?.add_1,
+        add_2: values?.add_2,
+        zip: values?.zip,
+      } :{
+        id: data?.id,
+        city: values?.city,
+        state: values?.state,
+        country: values?.country,
+        add_1: values?.add_1,
+        add_2: values?.add_2,
+        zip: values?.zip,
+      }
+      const url = type==="add"? "https://admin.tradingmaterials.com/api/lead/add-new/address": "https://admin.tradingmaterials.com/api/lead/update/address"
+      const response = await axios.post(url, formData, {
         headers: {
           "access-token": token,
         },
       })
       if(response?.data?.status){
         setIsSuccess(true)
+        closeModal()
       }
     }catch(err){
       setIsFailure(true)
@@ -59,7 +77,7 @@ const AddressForm = () => {
             animationFillMode: 'forwards',
           }}
         >
-          Address added successfully!
+          {type === "add" ? "Address added successfully!" : "Address updated successfully"}
         </div>
       )}
 
@@ -76,34 +94,31 @@ const AddressForm = () => {
         </div>
       )}
     <Formik
-      initialValues={{
+      initialValues={
+        type=== "add" ?{
         city: '',
         state: '',
         country: '',
         add_1: '',
         add_2: '',
         zip: '',
+      }: {
+        city: data?.city,
+        state: data?.state,
+        country: data?.country,
+        add_1: data?.add_1,
+        add_2: data?.add_2=== null ? '' : data?.add_2,
+        zip: data?.zip,
       }}
       validationSchema={AddressSchema}
-      onSubmit={handleFormSubmit}
+      onSubmit={handleSubmit}
+      
     >
-      <Form>
-        <div className="form-group mt-3 ">
-          <label className='font-semibold' htmlFor="city">City</label>
-          <Field type="text" name="city" className="form-control" placeholder="City" />
-          <ErrorMessage name="city" component="div" className="text-red-500" />
-        </div>
-        <div className="form-group mt-3 ">
-          <label className='font-semibold' htmlFor="state">State</label>
-          <Field type="text" name="state" className="form-control" placeholder="State" />
-          <ErrorMessage name="state" component="div" className="text-red-500" />
-        </div>
-        <div className="form-group mt-3 ">
-          <label className='font-semibold' htmlFor="country">Country</label>
-          <Field type="text" name="country" className="form-control" placeholder="United States (US)" />
-          <ErrorMessage name="country" component="div" className="text-red-500" />
-        </div>
-        <div className="form-group mt-3 ">
+      {({handleSubmit}) => (
+        
+      <Form  onSubmit={handleSubmit}>
+        <div className='grid'>
+      <div className="form-group mt-3 ">
           <label className='font-semibold' htmlFor="add_1">Street Address 1</label>
           <Field  type="text" name="add_1" className="form-control"  placeholder="House number and street name"/>
           <ErrorMessage
@@ -114,17 +129,39 @@ const AddressForm = () => {
         </div>
         <div className="form-group mt-3 ">
           <label className='font-semibold' htmlFor="add_2">Street Address 2</label>
-          <Field type="text" name="add_2" className="form-control" placeholder="Apartment, suite, unit...." />
+          <Field type="text"  name="add_2" className="form-control" placeholder="Apartment, suite, unit...." />
+        </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className="form-group mt-3 ">
+          <label className='font-semibold' htmlFor="city">City</label>
+          <Field type="text" name="city" className="form-control" placeholder="City" />
+          <ErrorMessage name="city" component="div" className="text-red-500" />
+        </div>
+        <div className="form-group mt-3 ">
+          <label className='font-semibold' htmlFor="state">State</label>
+          <Field type="text" name="state" className="form-control" placeholder="State" />
+          <ErrorMessage name="state" component="div" className="text-red-500" />
+        </div>
+        </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className="form-group mt-3 ">
+          <label className='font-semibold' htmlFor="country">Country</label>
+          <Field type="text" name="country" className="form-control" placeholder="United States (US)" />
+          <ErrorMessage name="country" component="div" className="text-red-500" />
         </div>
         <div className="form-group mt-3 ">
           <label className='font-semibold'  htmlFor="zip">Postcode Zip</label>
           <Field type="text" name="zip" className="form-control" placeholder="postal zip" />
           <ErrorMessage name="zip" component="div" className="text-red-500"  />
         </div>
-        <button type="submit" className="btn btn-primary mt-3">
+        </div>
+        <button type='submit'  className="btn btn-primary mt-3">
           Submit
         </button>
+        </div>
       </Form>
+      
+      )}
     </Formik>
     </>
   );

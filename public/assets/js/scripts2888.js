@@ -39,6 +39,8 @@
   }),
     (NioApp.Dropdown.header = function (selector) {
       const elm = document.querySelectorAll(selector);
+
+      console.log("click", selector, elm)
       let active = nav.classes.active,
         subparent = nav.classes.subparent,
         submenu = nav.classes.sub,
@@ -47,9 +49,11 @@
           : NioApp.Break.lg;
       elm.forEach((item) => {
         NioApp.Dropdown.load(item, subparent),
+        console.log('click',item )
           item.addEventListener("click", function (e) {
             e.preventDefault(),
-              // NioApp.Win.width < eval("NioApp.Break." + navbarCollapse) &&
+            console.log("clicked")
+              NioApp.Win.width < eval("NioApp.Break." + navbarCollapse) &&
                 (NioApp.Dropdown.toggle(item, active),
                 NioApp.Dropdown.closeSiblings(
                   item,
@@ -291,19 +295,19 @@
       };
       null !== s && s.addEventListener("input", c);
     }),
-    // (NioApp.Custom.showHidePassword = function (e) {
-    //   let t = document.querySelectorAll(e);
-      // t &&
-      //   t.forEach((e) => {
-      //     e.addEventListener("click", function (t) {
-      //       t.preventDefault();
-      //       let o = document.getElementById(e.getAttribute("href"));
-      //       "password" == o.type
-      //         ? ((o.type = "text"), e.classList.add("is-shown"))
-      //         : ((o.type = "password"), e.classList.remove("is-shown"));
-      //     });
-      //   });
-    // }),
+    (NioApp.Custom.showHidePassword = function (e) {
+      let t = document.querySelectorAll(e);
+      t &&
+        t.forEach((e) => {
+          e.addEventListener("click", function (t) {
+            t.preventDefault();
+            let o = document.getElementById(e.getAttribute("href"));
+            "password" == o.type
+              ? ((o.type = "text"), e.classList.add("is-shown"))
+              : ((o.type = "password"), e.classList.remove("is-shown"));
+          });
+        });
+    }),
     (NioApp.Custom.backToTop = function (e) {
       let t = document.querySelector(e);
       window.addEventListener("scroll", () => {
@@ -465,48 +469,48 @@
         });
       }
     }),
-    // (NioApp.Addons.countDown = function () {
-    //   if (document.querySelector(".nk-countdown")) {
-    //     new countdown({
-    //       target: ".nk-countdown",
-    //       dayWord: "Days",
-    //       hourWord: "Hours",
-    //       minWord: "Min",
-    //       secWord: "Sec",
-    //     });
-    //   }
-    // }),
-    // (NioApp.Custom.submitForm = function (e) {
-    //   let t = document.querySelectorAll(e);
-    //   t &&
-    //     t.forEach((e) => {
-    //       const t = e.dataset.action;
-    //       let o = NioApp.Addons.pristine(e, !1);
-    //       e.addEventListener("submit", function (n) {
-    //         if ((n.preventDefault(), o.validate())) {
-    //           let o = new FormData(e);
-    //           const n = new XMLHttpRequest();
-    //           (n.onreadystatechange = function () {
-    //             if (4 == this.readyState && 200 == this.status) {
-    //               let e = null;
-    //               try {
-    //                 e = JSON.parse(n.responseText);
-    //               } catch (e) {}
-    //               e
-    //                 ? NioApp.Addons.toast(e.result, e.message)
-    //                 : NioApp.Addons.toast(
-    //                     "error",
-    //                     "Oops! There was something went wrong."
-    //                   );
-    //             }
-    //           }),
-    //             n.open("POST", t, !0),
-    //             n.send(o),
-    //             e.reset();
-    //         }
-    //       });
-    //     });
-    // }),
+    (NioApp.Addons.countDown = function () {
+      if (document.querySelector(".nk-countdown")) {
+        new countdown({
+          target: ".nk-countdown",
+          dayWord: "Days",
+          hourWord: "Hours",
+          minWord: "Min",
+          secWord: "Sec",
+        });
+      }
+    }),
+    (NioApp.Custom.submitForm = function (e) {
+      let t = document.querySelectorAll(e);
+      t &&
+        t.forEach((e) => {
+          const t = e.dataset.action;
+          let o = NioApp.Addons.pristine(e, !1);
+          e.addEventListener("submit", function (n) {
+            if ((n.preventDefault(), o.validate())) {
+              let o = new FormData(e);
+              const n = new XMLHttpRequest();
+              (n.onreadystatechange = function () {
+                if (4 == this.readyState && 200 == this.status) {
+                  let e = null;
+                  try {
+                    e = JSON.parse(n.responseText);
+                  } catch (e) {}
+                  e
+                    ? NioApp.Addons.toast(e.result, e.message)
+                    : NioApp.Addons.toast(
+                        "error",
+                        "Oops! There was something went wrong."
+                      );
+                }
+              }),
+                n.open("POST", t, !0),
+                n.send(o),
+                e.reset();
+            }
+          });
+        });
+    }),
     (NioApp.Custom.tooltip = function (e) {
       [...document.querySelectorAll(e)].map((e) => new bootstrap.Tooltip(e));
     }),
@@ -544,8 +548,8 @@
         NioApp.Custom.preLoader(".preloader"),
         NioApp.Custom.backToTop(".scroll-top"),
         NioApp.Custom.currentYear("#currentYear"),
-        // NioApp.Custom.submitForm(".form-submit-initi"),
-        // NioApp.Custom.showHidePassword(".password-toggle"),
+        NioApp.Custom.submitForm(".form-submit-init"),
+        NioApp.Custom.showHidePassword(".password-toggle"),
         NioApp.Custom.Clipboard(".js-copy"),
         NioApp.Custom.counterButton(),
         NioApp.Custom.setbgImage("data-bg-image"),
@@ -559,7 +563,7 @@
           NioApp.Addons.aos();
         }, 300),
         NioApp.Addons.filterTab(),
-        // NioApp.Addons.countDown(),
+        NioApp.Addons.countDown(),
         NioApp.Custom.priceToggle(".price-toggle-input", ".nk-pricing"),
         NioApp.Custom.characterCounter(
           "textarea-box",

@@ -17,12 +17,28 @@ import { updateCart } from "../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../features/cartWish/focusedCount";
 import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Navigation, Autoplay } from 'swiper/modules';
+import { useSpring, animated } from 'react-spring';
+
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
+import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 export default function ProductsDisplay() {
+
+  const {t} = useTranslation()
+
+
   const products = useSelector((state) => state?.products?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const isLoggedIn = useSelector((state) => state?.login?.value);
   const popup = useSelector(state => state?.popup?.value)
+  const userLang = useSelector( state => state?.lang?.value)
 
   const [megaDealTime, setMegaDealTime] = useState("2023-08-31T00:00:00");
   const [singleProductsCount, setSingleProductsCount] = useState(0);
@@ -359,23 +375,25 @@ export default function ProductsDisplay() {
 
   const dynamicAnimation = keyframes`
   from {
-    position: absolute;
-    transform: translate(587px , -676px) scale(5);
+    transform:  translate(0%,0%) scale(1);
   },
   to {
-   
-    transform: translate(1547px, 18px) scale(1);
+   transform: translate(45%,80%) scale(0)
   }
+
 `;
 
   const AnimatedDiv = styled.div`
-    animation: ${dynamicAnimation} 4s ease-in-out infinite;
+    animation: ${dynamicAnimation} 2s forwards;
   `;
+
+
 
   // function for handling add to cart animation
   async function handleAddToCart(productId) {
     // setAnimateProductId(productId)
     try {
+      setAnimateProductId(productId)
       // dispatch(showLoader());
       const response = await axios?.post(
         "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
@@ -393,7 +411,7 @@ export default function ProductsDisplay() {
         dispatch(
           updateNotifications({
             type: "success",
-            message: "added to cart successfully",
+            message: "Added to cart successfully",
           })
         );
         dispatch(updateCart(response?.data?.data?.cart_details))
@@ -463,7 +481,7 @@ export default function ProductsDisplay() {
                   <div className="col-xl-5">
                     <div className="nk-frame text-center mb-7 mb-xl-0">
                       <img
-                        src="images/shop/banner-cover.png"
+                        src="/images/shop/banner-cover.png"
                         alt="banner-cover"
                         data-aos="zoom-in"
                       />
@@ -473,11 +491,12 @@ export default function ProductsDisplay() {
                     <div className="text-center text-xl-start">
                       <div className="mb-5">
                         <h1 className="text-capitalize display-6 mb-2">
-                          MEGA DEAL
+                          {t("Mega_Deal")}
                         </h1>
                         <p className="m-0 text-gray-800">
                           {" "}
-                          Hurry and get discounts on selected products up to 60%{" "}
+                          {t("Mega_Deal_desc")}
+                          {" "}
                         </p>
                       </div>
                       <Countdown targetDate={megaDealTime} />
@@ -505,7 +524,7 @@ export default function ProductsDisplay() {
                               type="search"
                               name="search"
                               className="form-control py-2 ps-7 border"
-                              placeholder="search for trading products"
+                              placeholder={t("product_search")}
                               required
                               onChange={handlesearchProducts}
                             />
@@ -515,7 +534,7 @@ export default function ProductsDisplay() {
                     </div>
                     <div className="d-flex flex-column gap-5">
                       <div>
-                        <h6 className="mb-3">Trading Materials</h6>
+                        <h6 className="mb-3">{t("Trading_Materials")}</h6>
                         <ul className="d-flex gy-4 flex-column">
                           <li>
                             <div className="form-check d-flex align-items-center">
@@ -532,7 +551,7 @@ export default function ProductsDisplay() {
                                   className="form-check-label fs-14 text-gray-1200"
                                   for="all-category"
                                 >
-                                  All Trading Materials
+                                  {t("All_Trading_Materials")}
                                 </label>
                                 <span className="fs-14 text-gray-1200">
                                   {singleProductsCount}
@@ -577,7 +596,7 @@ export default function ProductsDisplay() {
                         </ul>
                       </div>
                       <div>
-                        <h6 className="mb-3">Bundles</h6>
+                        <h6 className="mb-3">{t("Bundles")}</h6>
                         <ul className="d-flex gy-4 flex-column">
                           <li>
                             <div className="form-check d-flex align-items-center">
@@ -640,7 +659,7 @@ export default function ProductsDisplay() {
                         </ul>
                       </div>
                       <div>
-                        <h6 className="mb-3">Stock Status</h6>
+                        <h6 className="mb-3">{t("stock_status")}</h6>
                         <ul className="d-flex gy-4 flex-column">
                           <li>
                             <div className="form-check d-flex align-items-center">
@@ -786,7 +805,7 @@ export default function ProductsDisplay() {
                         allProducts?.map((product, ind) => {
                           if (
                             product?.combo === 0 ||
-                            product?.combo === 1 ||
+                            // product?.combo === 1 ||
                             isSearchResult
                           ) {
                             return (
@@ -796,7 +815,7 @@ export default function ProductsDisplay() {
                               >
                                 <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
                                   <div className="nk-card-img ">
-                                    <a href={`/product-detail/${product?.id}`}>
+                                    <a href={`${userLang}/product-detail/${product?.id}`}>
                                       <img
                                         src={product?.img_1}
                                         alt="product-image"
@@ -812,7 +831,7 @@ export default function ProductsDisplay() {
                                {product?.name}
                             </a> */}
                                     <a
-                                      href={`/product-detail/${product?.id}`}
+                                      href={`${userLang}/product-detail/${product?.id}`}
                                       className="d-inline-block mb-1 line-clamp-1 h5"
                                     >
                                       {product?.name}
@@ -821,13 +840,13 @@ export default function ProductsDisplay() {
                                         <p
                                           onClick={() => {
                                             navigate(
-                                              `/product-detail/${product?.id}`
+                                              `${userLang}/product-detail/${product?.id}`
                                             );
                                             dispatch(showLoader());
                                           }}
-                                          className="!mt-5 text-gray-700"
+                                          className="!mt-5 text-gray-700  truncate"
                                           dangerouslySetInnerHTML={{
-                                            __html: product?.description,
+                                            __html: product?.description?.length > 55 ? `${product?.description?.slice(0,55)}...` :  product?.description ,
                                           }}
                                         />
                                       </span>
@@ -860,22 +879,6 @@ export default function ProductsDisplay() {
                                         </p>
                                       ))}
 
-                                      {/* product animation starts */}
-                                      {/* {animateProductId === product?.id && (
-                                        <AnimatedDiv>
-
-  {/* Render the animated product image */}
-                                      {/* <img
-    src={product?.img_1}
-    alt="Animated Product"
-    className="w-24 h-24 object-contain"
-    // style={{transition: "transform 0.3s ease-out infinite"}}
-  /> */}
-                                      {/* </AnimatedDiv> */}
-
-                                      {/* )} */}
-                                      {/* product animation ends */}
-
                                       <button
                                         className="p-0 border-0 outline-none bg-transparent text-primary !content-right w-full text-right"
                                         onClick={(event) => {
@@ -885,7 +888,21 @@ export default function ProductsDisplay() {
                                             : dispatch(showPopup());
                                         }}
                                       >
+                                                                              {/* product animation starts */}
+                                      {animateProductId === product?.id && (
+                                        <AnimatedDiv className="">
+
+                                      <img
+    src={product?.img_1}
+    alt="Animated Product"
+    // className="w-25 h-25 object-contain"
+  />
+                                      </AnimatedDiv>
+
+                                      )}
+                                      {/* product animation ends */}
                                         <em className="icon ni ni-cart text-3xl"></em>
+                                        
                                       </button>
                                     </div>
                                   </div>
@@ -906,7 +923,7 @@ export default function ProductsDisplay() {
             <div className="row">
               <div className="col-12">
                 <div className="nk-section-head">
-                  <h2 className="nk-section-title">Trading Bundles</h2>
+                  <h2 className="nk-section-title">{t("trading_bundles")}</h2>
                 </div>
               </div>
             </div>
@@ -923,7 +940,7 @@ export default function ProductsDisplay() {
                       >
                         <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
                           <div className="nk-card-img">
-                            <a href={`/product-detail/${product?.id}`}>
+                            <a href={`${userLang}/product-detail/${product?.id}`}>
                               <img
                                 src={product?.img_1}
                                 alt="product-image"
@@ -933,7 +950,7 @@ export default function ProductsDisplay() {
                           </div>
                           <div className="nk-card-info bg-white p-4">
                             <a
-                              href={`/product-detail/${product?.id}`}
+                              href={`${userLang}/product-detail/${product?.id}`}
                               className="d-inline-block mb-1 line-clamp-1 h5"
                             >
                               {product?.name}
@@ -942,11 +959,11 @@ export default function ProductsDisplay() {
                                 <p
                                   className="!mt-5 text-gray-700"
                                   onClick={() => {
-                                    navigate(`/product-detail/${product?.id}`);
+                                    navigate(`${userLang}/product-detail/${product?.id}`);
                                     dispatch(showLoader());
                                   }}
                                   dangerouslySetInnerHTML={{
-                                    __html: product?.description,
+                                    __html: product?.description?.length > 55 ? `${product?.description?.slice(0,55)}...` :  product?.description,
                                   }}
                                 />
                               </span>
@@ -983,6 +1000,19 @@ export default function ProductsDisplay() {
                                     : dispatch(showPopup());
                                 }}
                               >
+                                {/* product animation starts */}
+                                {animateProductId === product?.id && (
+                                        <AnimatedDiv className="">
+
+                                      <img
+    src={product?.img_1}
+    alt="Animated Product"
+    // className="w-25 h-25 object-contain"
+  />
+                                      </AnimatedDiv>
+
+                                      )}
+                                      {/* product animation ends */}
                                 <em className="icon ni ni-cart text-3xl"></em>
                               </button>
                             </div>
@@ -996,46 +1026,167 @@ export default function ProductsDisplay() {
             </div>
           </div>
         </section>
+        <section class="nk-section-testimonials pt-lg-3 pb-lg-6">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6">
+                            <div class="nk-section-head text-center">
+                                <h2 class="nk-section-title">{t("Stories_From_Our_Customers")}</h2>
+                                <p class="nk-section-text">{t("stories_desc")}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {/* <div class="swiper swiper-init nk-swiper nk-swiper-s4 pt-5 pt-lg-0" data-autoplay="true" data-space-between="30" data-breakpoints='{                    "0":{"slidesPerView":1,"slidesPerGroup":1 },                    "991":{"slidesPerView":2,"slidesPerGroup":1}                 }'>
+                        <div class="swiper-wrapper has-pagination"> */}
+                        <Swiper
+        slidesPerView={2}
+        spaceBetween={30}
+        dots={false}
+        speed={1500}
+        loop={true}
+        autoplay= {true}
+        // pagination={{
+        //   clickable: true,
+        // }}
+        navigation={true}
+        breakpoints={{
+          0: {
+            
+            slidesPerView: 1,
+            spaceBetween: 10,
+          },
+          720: {
+            slidesPerView: 1,
+            spaceBetween: 20,
+          },
+          1024: {
+            slidesPerView: 2,
+            spaceBetween: 40,
+          },
+          2048: {
+            slidesPerView: 2,
+            spaceBetween: 50,
+          },
+        }}
+        modules={[Pagination, Navigation, Autoplay]}
+        className="swiper swiper-init nk-swiper nk-swiper-s4 pt-5 pt-lg-0" data-autoplay="true" data-space-between="30"
+      >
+                            <SwiperSlide class="swiper-slide h-auto">
+                            
 
-        <section className="nk-section nk-cta-section">
-          <div className="container">
-            <div
-              className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
-              data-aos="fade-up"
-              data-aos-delay="100"
-            >
-              <div className="row g-gs align-items-center">
-                <div className="col-lg-8">
-                  <div className="media-group flex-column flex-lg-row align-items-center">
-                    <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
-                      <em className="icon ni ni-chat-fill"></em>
-                    </div>
-                    <div className="text-center text-lg-start">
-                      <h3 className="text-capitalize m-0">
-                        Chat with our support team!
-                      </h3>
-                      <p className="fs-16 opacity-75">
-                        Get in touch with our support team if you still can’t
-                        find your answer.
-                      </p>
-                    </div>
-                  </div>
+                                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                                    <div class="nk-testimonial-content">
+										<div>
+											<ul class="d-flex aling-items-center gap-1 mb-2">
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+											</ul>
+										</div>
+                                        <div>
+                                            <h5 class="mb-2">Chadha Acharya</h5>
+                                            <p class="fs-14 line-clamp-3">"Thank you for your kind words! We strive to provide brilliant solutions for our customers. If there's anything else we can assist you with, please let us know."</p>
+                                        </div>
+                                        {/* <!--<div class="media-group align-items-center pt-4">
+                                            <div class="media media-circle"><img src="images/avatar/a.jpg" alt="avatar"/></div>
+                                            <div class="media-text">
+                                                <h5 class="mb-0">John Carter</h5><span class="small text fw-medium">Financial Analyst</span></div>
+                                        </div>--> */}
+                                    </div>
+                                </div>
+                            </SwiperSlide>
+                            <SwiperSlide class="swiper-slide h-auto">
+                                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                                    <div class="nk-testimonial-content">
+										<div>
+											<ul class="d-flex aling-items-center gap-1 mb-2">
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+											</ul>
+										</div>
+										
+                                        <div>
+                                            <h5 class="mb-2">Barman Agarwal</h5>
+                                            <p class="fs-14 line-clamp-3">"Thank you for your kind words! We strive to provide brilliant solutions for our customers. If there's anything else we can assist you with, please let us know."</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </SwiperSlide>
+                            <SwiperSlide class="swiper-slide h-auto">
+                                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                                    <div class="nk-testimonial-content">
+										<div>
+											<ul class="d-flex aling-items-center gap-1 mb-2">
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+											</ul>
+										</div>
+										
+                                        <h5 class="mb-2">Aadarsh Chopra</h5>
+                                        <p class="fs-14 line-clamp-3">"Thank you for your feedback! We're glad to hear that you find our platform to be the best for learning. We are committed to providing high-quality educational resources and a user-friendly experience.</p>
+                                    </div>
+                                </div>
+                            </SwiperSlide>
+                            <SwiperSlide class="swiper-slide h-auto">
+                                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                                    <div class="nk-testimonial-content">
+										<div>
+											<ul class="d-flex aling-items-center gap-1 mb-2">
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
+											</ul>
+										</div>
+                                        <h5 class="mb-2">Farhan Aktar</h5>
+                                        <p class="fs-14">Thanks to Trading Materials, our application is undergoing significant improvements, resulting in a better user experience and enhanced features.</p>
+                                    </div>
+                                </div>
+                            </SwiperSlide>
+                            </Swiper>
+                        {/* </div>
+                        <div class="swiper-pagination d-block d-lg-none"></div>
+                        <div class="swiper-button-group d-none d-lg-block">
+                            <div class="swiper-button-prev"></div>
+                            <div class="swiper-button-next"></div>
+                        </div> */}
+                    {/* </div> */}
                 </div>
-                <div className="col-lg-4 text-center text-lg-end">
-                  <a href="/" className="btn btn-white fw-semiBold">
-                    Contact Support
-                  </a>
+            </section>
+			
+			<section class="nk-section nk-cta-section nk-section-content-1">
+                <div class="container">
+                    <div class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7" data-aos="fade-up" data-aos-delay="100">
+                        <div class="row g-gs align-items-center">
+                            <div class="col-lg-8">
+                                <div class="media-group flex-column flex-lg-row align-items-center">
+                                    <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2"><em class="icon ni ni-chat-fill"></em></div>
+                                    <div class="text-center text-lg-start">
+                                        <h3 class="text-capitalize m-0 !text-2xl">{t("Chat_With_Our_Support_Team")}</h3>
+                                        <p class="fs-16 opacity-75">{t("chat_team_desc")}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 text-center text-lg-end"><a href={`${userLang}/contact`} class="btn btn-white fw-semiBold">{t("Contact_support")}</a></div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
+            </section>
       </div>
       <div class="nk-sticky-badge">
         <ul>
           <li>
             <a
-              href="/"
+              href={`${userLang}/`}
               className="nk-sticky-badge-icon nk-sticky-badge-home"
               data-bs-toggle="tooltip"
               data-bs-placement="right"
@@ -1047,7 +1198,7 @@ export default function ProductsDisplay() {
           </li>
           <li>
             <a
-              onClick={() => navigate("/cart")}
+              onClick={() => navigate(`${userLang}/cart`)}
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               id="cart-button"
               data-bs-toggle="tooltip"

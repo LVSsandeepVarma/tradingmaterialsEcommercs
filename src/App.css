@@ -1,3 +1,60 @@
+/* CustomScrollbar.css */
+
+/* WebKit-based browsers (Chrome, Safari) */
+/* Customize the scrollbar track */
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+/* Customize the scrollbar thumb */
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+
+/* Firefox */
+/* Customize the scrollbar track and thumb */
+/* For Firefox, we use scrollbar-width */
+/* Set width and background-color for the scrollbar track */
+/* Set width and background-color for the scrollbar thumb */
+/* Set border-radius for the scrollbar thumb */
+/* Add any other desired styles */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #f1f1f1 #888;
+}
+
+/* For a better cross-browser experience, you can add the following */
+/* Hide the scrollbar in IE and Edge */
+/* Show a thin scrollbar in Firefox */
+/* Show a normal scrollbar in WebKit-based browsers */
+/* Adjust the colors and other properties as needed */
+/* This is just an example and may require further tweaking based on your specific design */
+/* This may not be supported in the future, so always test thoroughly */
+/* For best results, consider using a library or plugin that provides better cross-browser support */
+::-webkit-scrollbar {
+  width: 8px;
+  background-color: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+
+/* If you want to hide the scrollbar when it's not in use */
+/* You can add the following to hide the scrollbar when the user is not actively scrolling */
+/* Note that this might not work on all browsers, and it's purely for cosmetic purposes */
+/* Adjust as needed based on your specific design */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  opacity: 0.8;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+
 .App {
   text-align: center;
 }

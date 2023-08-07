@@ -1,0 +1,24 @@
+{
+    "Home" : "Home",
+    "About_Us" : "About Us",
+    "Service" : "Service",
+    "Trading_Materials" : "Trading Materials",
+    "Bundles" : "Bundles",
+    "Order_Tracking":"Order Tracking",
+    "Contact_Us" : "Contact Us",
+    "Mega_Deal" : "MEGA DEAL",
+    "Mega_Deal_desc":"Hurry and get discounts on selected products up to 60%",
+    "days": "DAYS",
+    "hours": "HOURS",
+    "MINUTES": "MINUTES",
+    "SECONFS":"SECONDS",
+    "product_search":"search for trading products",
+    "stock_status":"Stock Status",
+    "Stories_From_Our_Customers":"Stories From Our Customers",
+    "stories_desc":"Hear inspiring stories from our satisfied customers who have achieved remarkable success with our materials.",
+    "Chat_With_Our_Support_Team":"Chat With Our Support Team!",
+    "chat_team_desc":"Get in touch with our support team if you still can’t find your answer.",
+    "Contact_support": "Contact Support",
+    "trading_bundles":"Trading Bundles"
+
+}

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
@@ -6,7 +6,7 @@ import { fetchAllProducts } from "../../../features/products/productsSlice";
 import { updatePositions } from "../../../features/positions/positionsSlice";
 import { loginUser, logoutUser } from "../../../features/login/loginSlice";
 import { updateUsers } from "../../../features/users/userSlice";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Alert, Fade } from "react-bootstrap";
 import { CSSTransition } from "react-transition-group";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
@@ -17,6 +17,9 @@ import 'animate.css';
 import { updateCartCount } from "../../../features/cartWish/focusedCount";
 import { hidePopup } from "../../../features/popups/popusSlice";
 import { AiFillCloseCircle } from "react-icons/ai";
+import { useTranslation } from "react-i18next";
+import { userLanguage } from "../../../features/userLang/userLang";
+
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -25,7 +28,15 @@ export default function Header() {
   const userData = useSelector((state) => state?.user?.value);
   const notifications = useSelector((state) => state?.notification?.value);
   const cartCounts = useSelector(state=> state?.saved?.value);
-  const popup = useSelector(state => state?.popup?.value)
+  const userLang = useSelector( state => state?.lang?.value)
+  const popup = useSelector(state => state?.popup?.value);
+  const [activeDropDown, setActiveDropDown] = useState("")
+  
+  const {t} = useTranslation();
+  const location = useLocation();
+
+  const [currentPage, setCurrentPage] = useState("home");
+  const [ toggleNavbar, setToggleNavbar] = useState(false);
 
   console.log(notifications);
 
@@ -39,6 +50,18 @@ export default function Header() {
     if (localStorage.getItem("client_token")) {
       dispatch(loginUser());
     }
+      const lang = localStorage?.getItem("i18nextLng");
+      console.log("lang",lang, userLang)
+      let userLan = ""
+      if (lang === "/ms" || location.pathname.includes("/ms") ) {
+        dispatch(userLanguage("/ms"));
+        userLan = "/ms"
+      } else {
+        dispatch(userLanguage(""))
+        userLan = ""
+      }
+      
+      
   }, []);
 
   useEffect(()=>{
@@ -64,31 +87,31 @@ export default function Header() {
   //   );
   // }, [window?.scroll]);
 
-  useEffect(() => {
-    async function fetchProducts() {
-      dispatch(showLoader());
-      try {
-        const response = await axios.get(
-          "https://admin.tradingmaterials.com/api/get/products",
-          {
-            headers: {
-              "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-              Accept: "application/json",
-            },
-          }
-        );
-        if (response?.data?.status) {
-          dispatch(fetchAllProducts(response?.data?.data));
-        }
-      } catch (err) {
-        console.log("err");
-      } finally {
-        dispatch(hideLoader());
-      }
-    }
+  // useEffect(() => {
+  //   async function fetchProducts() {
+  //     dispatch(showLoader());
+  //     try {
+  //       const response = await axios.get(
+  //         "https://admin.tradingmaterials.com/api/get/products",
+  //         {
+  //           headers: {
+  //             "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+  //             Accept: "application/json",
+  //           },
+  //         }
+  //       );
+  //       if (response?.data?.status) {
+  //         dispatch(fetchAllProducts(response?.data?.data));
+  //       }
+  //     } catch (err) {
+  //       console.log("err");
+  //     } finally {
+  //       dispatch(hideLoader());
+  //     }
+  //   }
 
-    // fetchProducts();
-  }, []);
+  //   // fetchProducts();
+  // }, []);
 
   const getUserInfo = async () => {
     try {
@@ -129,7 +152,7 @@ export default function Header() {
       getUserInfo();
     }
     
-  }, [isLoggedIn, userData]);
+  }, [isLoggedIn]);
 
   async function handleLogout() {
     try {
@@ -150,7 +173,7 @@ export default function Header() {
         dispatch(updateNotifications({ type: "", message: "" }));
 
         // window.location.reload();
-        navigate("/login");
+        navigate(`${userLang}/login`);
       }
     } catch (err) {
       console.log("err", err);
@@ -168,12 +191,13 @@ export default function Header() {
   const showAlert = () => {
     if(notifications?.type === "warning"){
     Swal.fire({title: notifications?.message,
-      showCloseButton: true,
+      showCloseButton: false,
       // timer: 1000,
       timerProgressBar: true,
       icon: notifications?.type,
-      footer: '<a className="font-bold" style="font-weight:bold;cursor: pointer" href="/login">Clcik here to login</a>',
+      footer: `<a className="font-bold" style="font-weight:bold;cursor: pointer" href=${userLang}/login>Clcik here to login</a>`,
       showConfirmButton: false,
+      allowOutsideClick: false,
     showClass: {
       popup: 'animate__animated animate__fadeInDown'
     },
@@ -214,9 +238,9 @@ export default function Header() {
               className="text-red-500 text-3xl cursor-pointer"
               onClick={() => dispatch(hidePopup())}
             />
-            <a href="/login">
+            <a href={`${userLang}/login`}>
               <img
-                onClick={() => navigate("/login")}
+                onClick={() => navigate(`${userLang}/login`)}
                 src="/assets/images/banner-cart.jpg"
                 alt=""
               />
@@ -224,30 +248,12 @@ export default function Header() {
           </span>
         </div>
       )}
-      {/* {<CSSTransition classNames={Fade} timeout={1000} >  */}
-      {/* {notifications?.message && (
-        <div className="absolute fixed right-10 !mt-[8%] text-left !w-fit z-[9999]  ">
-          <CSSTransition in={true} classNames="alert">
-            <Alert
-              variant="warning"
-              closeVariant="black"
-              dismissible
-              onClick={() => dispatch(notifications(""))}
-            >
-              <p>{notifications?.message}</p>
-              <Alert.Link href="/login" onClick={() => navigate("/login")}>
-                login again
-              </Alert.Link>
-            </Alert>
-          </CSSTransition>
-        </div>
-      )} */}
       <header className="nk-header">
-        <div className="nk-header-main nk-navbar-main">
+        <div className={`nk-header-main nk-navbar-main `}>
           <div className="container">
             <div className="nk-header-wrap">
               <div className="nk-header-logo">
-                <a href="/" className="logo-link">
+                <a href={`${userLang}/`} className="logo-link">
                   <div className="logo-wrap">
                     <img
                       className="logo-img logo-dark"
@@ -257,28 +263,29 @@ export default function Header() {
                   </div>
                 </a>
               </div>
-              <nav className="nk-header-menu nk-navbar">
+              {toggleNavbar && <div className="navbar-overlay" onClick={()=>{setToggleNavbar(false)}}></div>}
+              <nav className={`nk-header-menu nk-navbar ${toggleNavbar ? "navbar-active" : ""}`} >
                 <div>
                   <ul className="nk-nav">
                     <li className="nk-nav-item">
-                      <a href="/" className="nk-nav-link">
-                        <span className="nk-nav-text">Home</span>
+                      <a href={`${userLang}/`} className="nk-nav-link">
+                        <span className="nk-nav-text">{t("Home")}</span>
                       </a>
                     </li>
                     <li className="nk-nav-item">
-                      <a href="about-us.php" className="nk-nav-link">
-                        <span className="nk-nav-text">About Us</span>
+                      <a href={`${userLang}/about`} className="nk-nav-link">
+                        <span className="nk-nav-text">{t("About_Us")}</span>
                       </a>
                     </li>
-                    <li className="nk-nav-item has-sub">
-                      <a href="#" className="nk-nav-link nk-nav-toggle">
-                        <span className="nk-nav-text">Trading Materials</span>
+                    <li className="nk-nav-item has-sub ">
+                      <a  className="nk-nav-link nk-nav-toggle cursor-pointer" onClick={()=>activeDropDown==="trading" ? setActiveDropDown("")  : setActiveDropDown("trading")}>
+                        <span className="nk-nav-text">{t("Trading_Materials")}</span>
                       </a>
-                      <ul className="nk-nav-sub nk-nav-mega nk-nav-mega-lg nk-nav-mega-lg-home">
+                      <ul className={`nk-nav-sub ${activeDropDown === "trading" ? "!block" : ""}  nk-nav-mega nk-nav-mega-lg  nk-nav-mega-lg-home`}>
                         <li className="nk-nav-item">
                           <ul className="row mx-auto">
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link ">
                                 <div className="media-group">
                                   <div className="text-primary me-3">
                                     <em className="icon ni ni-pie-fill"></em>
@@ -292,7 +299,7 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-danger me-3">
                                     <em className="icon ni ni-book-fill"></em>
@@ -306,7 +313,7 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-info me-3">
                                     <em className="icon ni ni-users-fill"></em>
@@ -320,7 +327,7 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-warning me-3">
                                     <em className="icon ni ni-building-fill"></em>
@@ -334,7 +341,7 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-success me-3">
                                     <em className="icon ni ni-chat-circle-fill"></em>
@@ -349,7 +356,7 @@ export default function Header() {
                               </a>
                             </li>
                             <li className="col-lg-6 col-xl-4 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link">
                                 <div className="media-group">
                                   <div className="text-primary me-3">
                                     <em className="icon ni ni-db-fill"></em>
@@ -367,26 +374,26 @@ export default function Header() {
                       </ul>
                     </li>
                     <li className="nk-nav-item has-sub">
-                      <a href="#" className="nk-nav-link nk-nav-toggle">
-                        <span className="nk-nav-text">Bundles</span>
+                      <a  className="nk-nav-link nk-nav-toggle cursor-pointer" onClick={()=>activeDropDown==="bundle" ? setActiveDropDown("")  : setActiveDropDown("bundle")}>
+                        <span className="nk-nav-text">{t("Bundles")}</span>
                       </a>
-                      <ul className="nk-nav-sub nk-nav-mega row nk-nav-mega-lg-2">
+                      <ul className={`nk-nav-sub ${activeDropDown === "bundle" ? "!block " : ""} nk-nav-mega row nk-nav-mega-lg-2`  }   style={{transitionProperty: "all", transitionDelay:"10000ms",overflow:"hidden"}}>
                         <li className="nk-nav-item col-lg-8">
                           <ul className="row px-3 px-lg-0 mx-auto">
                             <li className="col-lg-12 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link">
                                 {" "}
                                 Combo Trading Bundle{" "}
                               </a>
                             </li>
                             <li className="col-lg-12 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link">
                                 {" "}
                                 Bundle Pack 1{" "}
                               </a>
                             </li>
                             <li className="col-lg-12 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link">
                                 {" "}
                                 Bundle Pack 2{" "}
                               </a>
@@ -397,26 +404,96 @@ export default function Header() {
                     </li>
 
                     <li className="nk-nav-item">
-                      <a href="#" className="nk-nav-link">
-                        <span className="nk-nav-text">Order Tracking</span>
+                      <a href={`${userLang}/#`} className="nk-nav-link">
+                        <span className="nk-nav-text">{t("Order_Tracking")}</span>
                       </a>
                     </li>
                     <li className="nk-nav-item">
-                      <a href="contact-us.php" className="nk-nav-link">
-                        <span className="nk-nav-text">Contact Us</span>
+                      <a href={`${userLang}/contact`} className="nk-nav-link">
+                        <span className="nk-nav-text">{t("Contact_Us")}</span>
                       </a>
                     </li>
+                    {isLoggedIn && (
+                    <li className="nk-nav-item has-sub">
+                      <a className="nk-nav-link nk-nav-toggle cursor-pointer" onClick={()=>activeDropDown==="profile" ? setActiveDropDown("")  : setActiveDropDown("profile")}>
+                        <span className="nk-nav-text">
+                          {userData?.client?.first_name}
+                        </span>
+                      </a>
+                      <ul className={`nk-nav-sub  ${activeDropDown === "profile" ? "!block" : ""} ` }>
+                        <li className="nk-nav-item col-lg-12">
+                          <ul className="row px-3 px-lg-0 mx-auto">
+                            <li className="col-lg-12 p-0">
+                              <a href={`https://client.tradingmaterials.com/`} className="nk-nav-link">
+                                Profile
+                              </a>
+                            </li>
+                            <li className="col-lg-12 p-0">
+                              <a href={`${userLang}/`} className="nk-nav-link">
+                                inbox
+                              </a>
+                            </li>
+                            <li className="col-lg-12 p-0">
+                              <a className="nk-nav-link" onClick={handleLogout}>
+                                logout
+                              </a>
+                            </li>
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+                  )}
+
+                  {!isLoggedIn && (
+                    <li className="flex items-center">
+                      <a href={`${userLang}/login`}>
+                        <span className="nk-nav-text nk-nav-link">Login</span>
+                      </a>
+                    </li>
+                  )}
                   </ul>
-                  <div className="nk-navbar-btn d-lg-none">
+                  {/* <div className="nk-navbar-btn d-lg-none">
                     <ul className="nk-btn-group sm justify-content-center">
-                      <li className="w-100">
-                        <a href="/" className="btn btn-primary w-100">
-                          <em className="icon ni ni-bag-fill"></em>
-                          <span id="cart">Profile</span>
-                        </a>
-                      </li>
+                    {isLoggedIn && (
+                    <li className="nk-nav-item has-sub">
+                      <a className="nk-nav-link nk-nav-toggle">
+                        <span className="nk-nav-text">
+                          {userData?.client?.first_name}
+                        </span>
+                      </a>
+                      <ul className="nk-nav-sub">
+                        <li className="nk-nav-item col-lg-12">
+                          <ul className="row px-3 px-lg-0 mx-auto">
+                            <li className="col-lg-12 p-0">
+                              <a href={`${userLang}/`} className="nk-nav-link">
+                                Profile
+                              </a>
+                            </li>
+                            <li className="col-lg-12 p-0">
+                              <a href={`${userLang}/`} className="nk-nav-link">
+                                inbox
+                              </a>
+                            </li>
+                            <li className="col-lg-12 p-0">
+                              <a className="nk-nav-link" onClick={handleLogout}>
+                                logout
+                              </a>
+                            </li>
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+                  )}
+
+                  {!isLoggedIn && (
+                    <li className="flex items-center">
+                      <a href={`${userLang}/login`}>
+                        <span className="nk-nav-text">Login</span>
+                      </a>
+                    </li>
+                  )}
                     </ul>
-                  </div>
+                  </div> */}
                 </div>
               </nav>
               <div className="nk-header-action">
@@ -452,7 +529,7 @@ export default function Header() {
                       </svg>
                       <span class="sr-only">Notifications</span>
                       <div class="absolute inline-flex items-center justify-center w-6 h-6 !text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -right-3 dark:border-gray-900">
-                        {userData?.client?.wishlist_count}
+                        {userData?.client?.wishlist_count ? userData?.client?.wishlist_count : 0}
                       </div>
                     </button>
                   </li>
@@ -461,7 +538,7 @@ export default function Header() {
                     <button
                       type="button"
                       class="relative inline-flex items-center text-lg font-medium text-center rounded-lg focus:outline-none "
-                      onClick={() => navigate("/cart")}
+                      onClick={() => navigate(`${userLang}/cart`)}
                     >
                       <svg
                         width="21"
@@ -507,7 +584,7 @@ export default function Header() {
                       </div>
                     </button>
                   </li>
-                  {isLoggedIn && (
+                  {/* {isLoggedIn && (
                     <li className="nk-nav-item has-sub">
                       <a className="nk-nav-link nk-nav-toggle">
                         <span className="nk-nav-text">
@@ -518,12 +595,12 @@ export default function Header() {
                         <li className="nk-nav-item col-lg-12">
                           <ul className="row px-3 px-lg-0 mx-auto">
                             <li className="col-lg-12 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link">
                                 Profile
                               </a>
                             </li>
                             <li className="col-lg-12 p-0">
-                              <a href="/" className="nk-nav-link">
+                              <a href={`${userLang}/`} className="nk-nav-link">
                                 inbox
                               </a>
                             </li>
@@ -540,14 +617,14 @@ export default function Header() {
 
                   {!isLoggedIn && (
                     <li className="flex items-center">
-                      <a href="/login">
+                      <a href={`${userLang}/login`}>
                         <span className="nk-nav-text">Login</span>
                       </a>
                     </li>
-                  )}
+                  )} */}
 
-                  <li className="nk-navbar-toggle">
-                    <button className="btn btn-outline-primary navbar-toggle rounded-1 p-2 h-100">
+                  <li className="nk-navbar-toggle" onClick={()=>setToggleNavbar(true)}>
+                    <button className={`btn btn-outline-primary navbar-toggle ${toggleNavbar ? "active" : ""} rounded-1 p-2 h-100`} >
                       <em className="icon ni ni-menu"></em>
                     </button>
                   </li>

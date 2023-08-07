@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Swiper, SwiperSlide } from "swiper/react";
 import Footer from "../../footer/footer";
 import {
   hideLoader,
@@ -11,11 +12,24 @@ import { useNavigate, useParams } from "react-router-dom";
 import { fetchAllProducts } from "../../../../features/products/productsSlice";
 import { updateUsers } from "../../../../features/users/userSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
-import { notifications, updateNotifications } from "../../../../features/notifications/notificationSlice";
+import {
+  notifications,
+  updateNotifications,
+} from "../../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
 import { showPopup } from "../../../../features/popups/popusSlice";
+// import Swiper from "swiper";
+import "swiper/css";
+import "swiper/css/free-mode";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+import "swiper/css/autoplay";
+import { FreeMode, Navigation, Thumbs, Autoplay } from "swiper/modules";
+import { useTranslation } from "react-i18next";
+// import { delay } from "@reduxjs/toolkit/dist/utils";
 
 export default function ProductDetails() {
+  const {t} = useTranslation()
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -23,8 +37,9 @@ export default function ProductDetails() {
   const cartProducts = useSelector((state) => state?.cart?.value);
 
   const loaderState = useSelector((state) => state?.loader?.value);
-  const [product, setProduct] = useState({});
 
+  const [product, setProduct] = useState({});
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [subCatProducts, setSubCatProducts] = useState([]);
   const [qunatity, setQuantity] = useState(1);
   console.log(cartProducts, params);
@@ -47,17 +62,17 @@ export default function ProductDetails() {
         navigate("/cart");
       } else {
         console.log(response?.data);
-        if(localStorage.getItem("client_token")){
+        if (localStorage.getItem("client_token")) {
           dispatch(
             updateNotifications({
               type: "warning",
               message: response?.data?.message,
             })
           );
-        }else{
-          dispatch(showPopup())
+        } else {
+          dispatch(showPopup());
         }
-        
+
         // navigate("/login")
       }
     } catch (err) {
@@ -169,17 +184,22 @@ export default function ProductDetails() {
           },
         }
       );
-      console.log(response?.data?.status)
+      console.log(response?.data?.status);
       if (response?.data?.status) {
         dispatch(updateCart(response?.data?.data?.cart_details));
-        dispatch(updateCartCount(response?.data?.data?.cart_count))
-        dispatch(notifications({type:"success", message:response?.data?.data?.message}))
-      }else{
-        dispatch(showPopup())
+        dispatch(updateCartCount(response?.data?.data?.cart_count));
+        dispatch(
+          notifications({
+            type: "success",
+            message: response?.data?.data?.message,
+          })
+        );
+      } else {
+        dispatch(showPopup());
       }
     } catch (err) {
       console.log(err);
-      dispatch(showPopup())
+      dispatch(showPopup());
     } finally {
       dispatch(hideLoader());
     }
@@ -212,116 +232,215 @@ export default function ProductDetails() {
                 <div className="nk-section-content">
                   <div className="row gy-5 gy-md-7 gy-lg-0 justify-content-lg-between">
                     <div className="col-lg-6">
-                      <div className="swiper product-slider-lg mb-5">
-                        <div className="swiper-wrapper">
-                          <div className="swiper-slide">
-                            <img
-                              src={
-                                product?.product?.img_1 === null
-                                  ? "/images/shop/slider-cover-1.jpg"
-                                  : product?.product?.img_1
-                              }
-                              className="w-100"
-                            />
-                          </div>
-                          <div className="swiper-slide">
-                            <img
-                              src={
-                                product?.product?.img_2 === null
-                                  ? "/images/shop/slider-cover-2.jpg"
-                                  : product?.product?.img_2
-                              }
-                              className="w-100"
-                            />
-                          </div>
-                          <div className="swiper-slide">
-                            <img
-                              src={
-                                product?.product?.img_3 === null
-                                  ? "/images/shop/slider-cover-3.jpg"
-                                  : product?.product?.img_3
-                              }
-                              className="w-100"
-                            />
-                          </div>
-                          <div className="swiper-slide">
-                            <img
-                              src={
-                                product?.product?.img_4 === null
-                                  ? product?.product?.img_1
-                                  : product?.product?.img_4
-                              }
-                              className="w-100"
-                            />
-                          </div>
-                          <div className="swiper-slide">
-                            <img
-                              src={
-                                product?.product?.img_5 === null
-                                  ? product?.product?.img_2
-                                  : product?.product?.img_5
-                              }
-                              className="w-100"
-                            />
-                          </div>
+                      <Swiper
+                        style={{
+                          "--swiper-navigation-color": "#fff",
+                          "--swiper-pagination-color": "#fff",
+                        }}
+                        loop={true}
+                        spaceBetween={10}
+                        speed={3000}
+                        // navigation={true}
+                        thumbs={{ swiper: thumbsSwiper }}
+                        autoplay={{
+                          autoplay: {
+                            delay: 1000
+                          }
+                        }
+
+                        }
+                        modules={[FreeMode, Navigation, Thumbs,Autoplay]}
+                        className="mySwiper2"
+                      >
+                        <div className="swiper-slide">
+                        <SwiperSlide>
+                          <img
+                            src={
+                              product?.product?.img_1 === null
+                                ? "/images/shop/slider-cover-1.jpg"
+                                : product?.product?.img_1
+                            }
+                            style={{aspectRatio:1, objectFit: "cover", width:"100%"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide>
                         </div>
-                      </div>
-                      <div thumbsSlider="" className="swiper product-slider-sm">
-                        <div className="swiper-wrapper">
-                          <div className="swiper-slide">
-                            <img
-                              src={
-                                product?.product?.img_1 === null
-                                  ? "/images/shop/slider-cover-1.jpg"
-                                  : product?.product?.img_1
-                              }
-                              className="w-100"
-                            />
-                          </div>
-                          <div className="swiper-slide">
-                            <img
-                              src={
-                                product?.product?.img_2 === null
-                                  ? "/images/shop/slider-cover-2.jpg"
-                                  : product?.product?.img_2
-                              }
-                              className="w-100"
-                            />
-                          </div>
-                          <div className="swiper-slide">
-                            <img
-                              src={
-                                product?.product?.img_3 === null
-                                  ? "/images/shop/slider-cover-3.jpg"
-                                  : product?.product?.img_3
-                              }
-                              className="w-100"
-                            />
-                          </div>
-                          <div className="swiper-slide">
-                            <img
-                              src={
-                                product?.product?.img_4 === null
-                                  ? product?.product?.img_1
-                                  : product?.product?.img_4
-                              }
-                              className="w-100"
-                            />
-                          </div>
-                          <div className="swiper-slide">
-                            <img
-                              src={
-                                product?.product?.img_5 === null
-                                  ? product?.product?.img_2
-                                  : product?.product?.img_5
-                              }
-                              className="w-100"
-                            />
-                          </div>
-                        </div>
-                        <div className="swiper-button-next"></div>
-                        <div className="swiper-button-prev"></div>
-                      </div>
+                        <SwiperSlide>
+                          <img
+                            src={
+                              product?.product?.img_2 === null
+                                ? "/images/shop/slider-cover-2.jpg"
+                                : product?.product?.img_2
+                            }
+                            style={{aspectRatio:1, objectFit: "cover", width:"100%"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                          <img
+                            src={
+                              product?.product?.img_3 === null
+                                ? "/images/shop/slider-cover-3.jpg"
+                                : product?.product?.img_3
+                            }
+                            style={{aspectRatio:1, objectFit: "cover", width:"100%"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                          <img
+                            src={
+                              product?.product?.img_4 === null
+                                ? product?.product?.img_2
+                                : product?.product?.img_4
+                            }
+                            style={{aspectRatio:1, objectFit: "cover", width:"100%"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                          <img
+                            src={
+                              product?.product?.img_5 === null
+                                ? product?.product?.img_3
+                                : product?.product?.img_5
+                            }
+                            style={{aspectRatio:1, objectFit: "cover", width:"100%"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide>
+                        
+                        {/* <SwiperSlide>
+                          <img
+                            src={
+                              product?.product?.img_4 === null
+                                ? "/images/shop/slider-cover-4.jpg"
+                                : product?.product?.img_4
+                            }
+                            style={{aspectRatio:1, objectFit: "cover"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                          <img
+                            src={
+                              product?.product?.img_5 === null
+                                ? "/images/shop/slider-cover-5.jpg"
+                                : product?.product?.img_5
+                            }
+                            style={{aspectRatio:1, objectFit: "cover"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide> */}
+                      </Swiper>
+                      <Swiper
+                        onSwiper={setThumbsSwiper}
+                        loop={true}
+                        spaceBetween={10}
+                        slidesPerView={4}
+                        speed={5000}
+                        autoplay={{
+                          autoplay: {
+                            delay: 1000
+                          }
+                        }
+                        }
+                        freeMode={true}
+                        watchSlidesProgress={true}
+                        modules={[FreeMode, Navigation, Thumbs, Autoplay]}
+                        className="swiper product-slider-sm mt-5"
+                      >
+                        <SwiperSlide>
+                          <img 
+                          className="w-100"
+                            src={
+                              product?.product?.img_1 === null
+                                ? "/images/shop/slider-cover-1.jpg"
+                                : product?.product?.img_1
+                            }
+                            style={{aspectRatio:1, objectFit: "cover"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                          <img
+                          className="w-100"
+                            src={
+                              product?.product?.img_2 === null
+                                ? "/images/shop/slider-cover-2.jpg"
+                                : product?.product?.img_2
+                            }
+                            style={{aspectRatio:1, objectFit: "cover"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                          <img
+                          className="w-100"
+                            src={
+                              product?.product?.img_3 === null
+                                ? "/images/shop/slider-cover-3.jpg"
+                                : product?.product?.img_3
+                            }
+                            style={{aspectRatio:1, objectFit: "cover"}}
+                            alt="product-images"
+                            width={"100%"}
+                            height={"100%"}
+                          />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                          <img
+                          className="w-100"
+                            src={
+                              product?.product?.img_4 === null
+                                ? product?.product?.img_1
+                                : product?.product?.img_4
+                            }
+                            style={{aspectRatio:1, objectFit: "cover"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                          <img
+                          className="w-100"
+                            src={
+                              product?.product?.img_5 === null
+                                ? product?.product?.img_3
+                                : product?.product?.img_5
+                            }
+                            style={{aspectRatio:1, objectFit: "cover"}}
+                            alt="product-images"
+                            width={"100%"}
+                            height={"100%"}
+                          />
+                        </SwiperSlide>
+
+                        {/* <SwiperSlide>
+                          <img
+                          className="w-100"
+                            src={
+                              product?.product?.img_4 === null
+                                ? "/images/shop/slider-cover-4.jpg"
+                                : product?.product?.img_4
+                            }
+                            style={{aspectRatio:1, objectFit: "cover"}}
+                            alt="product-images"
+                          />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                          <img
+                          className="w-100"
+                            src={
+                              product?.product?.img_5 === null
+                                ? "/images/shop/slider-cover-5.jpg"
+                                : product?.product?.img_5
+                            }
+                            style={{aspectRatio:1, objectFit: "cover"}}
+                            alt="product-images"
+                            height={100}
+                          />
+                        </SwiperSlide> */}
+                      </Swiper>
                     </div>
                     <div className="col-lg-6 col-xl-5">
                       <div>
@@ -736,6 +855,24 @@ export default function ProductDetails() {
                     })}
                 </div>
               </div>
+            </section>
+            <section class="nk-section nk-cta-section nk-section-content-1">
+                <div class="container">
+                    <div class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7" data-aos="fade-up" data-aos-delay="100">
+                        <div class="row g-gs align-items-center">
+                            <div class="col-lg-8">
+                                <div class="media-group flex-column flex-lg-row align-items-center">
+                                    <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2"><em class="icon ni ni-chat-fill"></em></div>
+                                    <div class="text-center text-lg-start">
+                                        <h3 class="text-capitalize m-0 !text-2xl">{t("Chat_With_Our_Support_Team")}</h3>
+                                        <p class="fs-16 opacity-75">{t("chat_team_desc")}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 text-center text-lg-end"><a href="/contact" class="btn btn-white fw-semiBold">{t("Contact_support")}</a></div>
+                        </div>
+                    </div>
+                </div>
             </section>
           </main>
 

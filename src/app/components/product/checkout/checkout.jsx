@@ -15,22 +15,38 @@ import { updateUsers } from "../../../../features/users/userSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
+import { Form } from "formik";
+import { FaCreditCard, FaCalendarAlt, FaLock, FaClock } from "react-icons/fa";
+import { MdOutlineAccountCircle } from "react-icons/md";
 
-export default function AddToCart() {
+export default function Checkout() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const products = useSelector((state) => state?.products?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const userData = useSelector((state) => state?.user?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
-  const userLang = useSelector(state => state?.lang?.value)
+  const userLang = useSelector((state) => state?.lang?.value);
 
   const [showModal, setShowModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [allProducts, setAllProducts] = useState(cartProducts);
-  const [fomrType, setFormType] = useState("add")
+  const [fomrType, setFormType] = useState("add");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCVV] = useState("");
+  const [nameOnCard, setNameOnCard] = useState("");
+
+  const [cardNumberError, setCardNumberError] = useState("");
+  const [expiryError, setExpiryError] = useState("");
+  const [cvvError, setCVVError] = useState("");
+  const [nameErr, setNameErr] = useState("");
+  const [activeShippingAddress, setActiveShippingAddress] = useState(userData?.client?.primary_address[0]);
+  const [activeBillingAddress, setActivebillingAddress]  =useState(userData?.client?.address[0]);
+  const [activeShippingAddressChecked, setActiveShippingaddressChecked] = useState(0)
+  const [activeBillingAddfreeChecked, setActiveBillingAddressChecked] = useState(0)
 
   // State variable to track quantities for each product
   const [quantities, setQuantities] = useState({});
@@ -62,7 +78,9 @@ export default function AddToCart() {
         dispatch(
           updateNotifications({
             type: "warning",
-            message: isLoggedIn ? response?.data?.message : "PLease Login to continue",
+            message: isLoggedIn
+              ? response?.data?.message
+              : "PLease Login to continue",
           })
         );
         // navigate("/login")
@@ -79,73 +97,6 @@ export default function AddToCart() {
       dispatch(hideLoader());
     }
   };
-
-  async function handleAddToCart(productId, status) {
-    // setAnimateProductId(productId)
-    try {
-      dispatch(showLoader());
-      const response = await axios?.post(
-        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
-        {
-          product_id: productId,
-          qty: quantities[productId],
-          status: status,
-        },
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-          },
-        }
-      );
-      if (response?.data?.status) {
-        dispatch(updateCart(response?.data?.data?.cart_details));
-        dispatch(updateCartCount(response?.data?.data?.cart_count))
-        setAllProducts(response?.data?.data?.cart_details);
-        // getUserInfo();
-      }
-    } catch (err) {
-      console.log(err);
-      dispatch(
-        updateNotifications({
-          type: "error",
-          message: err?.response?.data?.message,
-        })
-      );
-    } finally {
-      dispatch(hideLoader());
-    }
-  }
-
-  // useEffect(() => {
-  //   async function fetchProducts() {
-  //     if (cartProducts?.length > 0) {
-  //       setAllProducts(cartProducts);
-  //     }
-  //     dispatch(showLoader());
-  //     try {
-  //       const response = await axios.get(
-  //         "https://admin.tradingmaterials.com/api/get/products",
-  //         {
-  //           headers: {
-  //             "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-  //             Accept: "application/json",
-  //           },
-  //         }
-  //       );
-  //       if (response?.data?.status) {
-  //         // setAllProducts(response?.data?.data?.products)
-  //         dispatch(fetchAllProducts(response?.data?.data));
-  //         // setSubCatProducts(response?.data?.data?.products)
-  //       }
-  //     } catch (err) {
-  //       console.log("err");
-  //     } finally {
-  //       dispatch(hideLoader());
-  //     }
-  //   }
-
-  //   fetchProducts();
-  // }, [cartProducts]);
 
   useEffect(() => {
     getUserInfo();
@@ -189,111 +140,143 @@ export default function AddToCart() {
     dispatch(hideLoader());
   }, [allProducts, quantities]);
 
-  // Function to handle incrementing the quantity for a product
-  const handleIncrement = (productId) => {
-    setQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: (prevQuantities[productId] || 0) + 1,
-    }));
-    handleAddToCart(productId, "add");
-  };
-
-  //deleting from the cart
-  const handleDeleteFromCart = async (id) => {
-    try {
-      dispatch(showLoader());
-      const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/lead/product/remove-cart-item",
-        { item_id: id },
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-          },
-        }
-      );
-      if (response?.data?.status) {
-        // getUserInfo();
-        dispatch(updateCart(response?.data?.data?.cart_details));
-        dispatch(updateCartCount(response?.data?.data?.cart_count))
-        setAllProducts(response?.data?.data?.cart_details)
-      } else {
-        console.log(response?.data);
-        dispatch(
-          updateNotifications({
-            type: "warning",
-            message: !isLoggedIn ? response?.data?.message : "Please Login To continue",
-          })
-        );
-        // navigate("/login")
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      dispatch(hideLoader());
+  const handleCvvChange = (e) => {
+    const addCvv = e.target.value;
+    setCVV(addCvv);
+    console.log(addCvv.match(/^[0-9]+$/),addCvv)
+if (addCvv?.length > 3 || addCvv?.length < 3) {
+      setCVVError("CVV required");
+    }else if(addCvv.match(/^[0-9]+$/) === null){
+      setCVVError("Invalid CVV")
+    } else {
+      setCVVError("");
     }
   };
 
-  // Function to handle decrementing the quantity for a product
-  const handleDecrement = (productId) => {
-    if(quantities[productId] >1){
-    setQuantities((prevQuantities) => {
-      const currentQuantity = prevQuantities[productId] || 0;
-      return {
-        ...prevQuantities,
-        [productId]: currentQuantity > 1 ? currentQuantity - 1 : 1,
-      };
-    });
-    handleAddToCart(productId, "remove");
-  }else{
-    setQuantities((prevQuantities) => {
-      return {
-        ...prevQuantities,
-        [productId]: 1,
-      };
-    });
+  const handleNameChage = (e) => {
+    const addName = e.target.value;
+    setNameOnCard(addName);
+    if (addName?.length == 0) {
+      setNameErr("Name is required");
+    } else {
+      if(validateName(addName) !== null){
+      setNameErr("");
+    }else{
+      setNameErr("invalid name")
+    }}
+  };
+
+  const formatCardNumber = (value) => {
+    // Remove any non-digit characters from the input value
+    const cardNumberDigits = value.replace(/\D/g, "");
+    // Split the card number into groups of 4 digits
+    const cardNumberGroups = cardNumberDigits.match(/.{1,4}/g);
+    // Join the groups with a space between them
+    return cardNumberGroups ? cardNumberGroups.join(" ") : cardNumberDigits;
+  };
+
+  const formatExpiry = (value) => {
+    // Remove any non-digit characters from the input value
+    const expiryDigits = value.replace(/\D/g, "");
+    // Split the expiry value into month and year
+    const month = expiryDigits.slice(0, 2);
+    const year = expiryDigits.slice(2, 4);
+    // Format the expiry value as MM/YY
+    return `${month}/${year}`;
+  };
+
+  const validateExpiry = (value) => {
+    // Implement your expiry date validation logic here
+    // For example, you can check if the expiry date is in the future and in the valid format
+    // Return true if the expiry date is valid, otherwise false
+    return value.match(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/);
+  };
+
+  const validateCardNumber = (value) => {
+    // Implement your card number validation logic here
+    // For example, you can use a library like 'card-validator'
+    // Return true if the card number is valid, otherwise false
+    return value?.length >= 18 && value?.length <= 19;
+  };
+
+  const validateCVV = (value) => {
+    // Implement your CVV validation logic here
+    // For example, you can check if the CVV is a 3 or 4 digit number
+    // Return true if the CVV is valid, otherwise false
+    return value?.length === 3 || value?.length === 4;
+  };
+
+  const handleCardNumberChange = (event) => {
+    const formattedValue = formatCardNumber(event.target.value);
+    if (validateCardNumber(formattedValue)) {
+      setCardNumberError("");
+    } else {
+      setCardNumberError("Please enter a valid card number.");
+    }
+    setCardNumber(formattedValue);
+  };
+
+  const handleExpiryChange = (event) => {
+    const formattedValue = formatExpiry(event.target.value);
+    if (validateExpiry(formattedValue)) {
+      setExpiryError("");
+    } else {
+      setExpiryError("Expiry field required");
+    }
+    setExpiry(formattedValue);
+  };
+
+  const validateName = (value) => {
+    console.log(value.match(/^[a-zA-Z ]+$/), value)
+
+    return value.match(/^[a-zA-Z ]+$/) 
+  };
+
+
+  const handleShippingAddressChange=(id)=>{
+    setActiveShippingAddress(userData?.client?.address[id])
+    setActiveShippingaddressChecked(id)
   }
-    // handleAddToCart(productId, "remove");
-  };
 
-  // Calculate the total price for each product based on the quantity
-  const calculateTotalPrice = (product) => {
-    const quantity = quantities[product.id] || 1;
-    const price = product?.prices?.find((price) => {
-      return price?.USD;
-    });
-    console.log(price);
-    if (price) {
-      const totalPrice = quantity * price.USD;
-      // setPrices((prevPrices) => ({ ...prevPrices, [product.id]: totalPrice }));
-      return totalPrice.toFixed(2);
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    const isNameValid = validateName(nameOnCard);
+      const isCardNumberValid = validateCardNumber(cardNumber)
+      const isExpiryValid = validateExpiry(expiry)
+      const isCVVValid = validateCVV(cvv)
+      console.log(nameErr, cardNumberError, cvvError, expiryError)
+    if(nameErr === "" && cardNumberError === "" && expiryError === ""&& cvvError=== "" ){
+      console.log(isCVVValid, isCardNumberValid, isExpiryValid, isNameValid)
+      if(isNameValid!== null && isCardNumberValid !== null && isExpiryValid!== null && isCVVValid !== null){
+
+
+      console.log("all fields are validated and are valid")
+      // setIsSuccess(true)
     }
-    return "0.00";
-  };
-
-  const handleFormSubmit = async (values, actions) => {
-    setIsSuccess(false);
-    setIsFailure(false);
-    // Perform form submission logic here, e.g., sending data to the server
-    // For demonstration purposes, let's assume the submission is successful after 2 seconds
-    try {
-      const token = localStorage.getItem("client_token");
-      const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/client/add-new/address",
-        values,
-        {
-          headers: {
-            "access-token": token,
-          },
-        }
-      );
-    } catch (err) {
-      console.log(err, "error");
+    else{
+      if(isNameValid === null){
+        setNameErr("invalid name")
+      }if(isCardNumberValid === null){
+        setCardNumberError("Card number is invalid")
+      }if(isExpiryValid === null){
+        setExpiryError("invalid card expiry")
+      }if(isCVVValid === null){
+        setCVVError("Invalid CVV")
+      }
+      // setIsFailure(true)
     }
-
-    // setTimeout(() => {
-    //   setIsSuccess(false);
-    //   setIsFailure(false);
-    // }, 6000);
+    }else{
+      if(nameOnCard === ""){
+        setNameErr("name is required")
+      }if(cardNumber === ""){
+        setCardNumberError("Card number is required")
+      }if(expiry === ""){
+        setExpiryError("Card expiry required")
+      }if(cvv === ""){
+        setCVVError("CVV requried")
+      }
+      // setIsFailure(true)
+    }
   };
 
   return (
@@ -345,13 +328,13 @@ export default function AddToCart() {
                 <div className="col-lg-8 col-xxl-5 text-left">
                   <div>
                     <a
-                      href="careers-project-manage.html"
+                      onClick={() => navigate("/cart")}
                       className="btn-link mb-2 !inline-flex !items-center !text-large !font-semibold"
                     >
                       <em className="icon ni ni-arrow-left  !inline-flex !items-center !text-large !font-semibold"></em>
-                      <span>Back to Home</span>
+                      <span>Back to Cart</span>
                     </a>
-                    <h1 className="mb-3 font-bold !text-4xl">Your Cart</h1>
+                    <h1 className="mb-3 font-bold !text-4xl">Order Summary</h1>
                     {/* <!-- <ul className="d-flex align-items-center gap-5 mb-5">
                                         <li>
                                             <p className="fs-14 text-gray-1200 fw-semibold text-uppercase"><em className="icon ni ni-clock-fill"></em><span className="ms-1">Full Time</span></p>
@@ -371,7 +354,7 @@ export default function AddToCart() {
           <div className="container">
             <div className="nk-section-content row px-lg-5">
               <div className="col-lg-8 pe-lg-0">
-                <div className="nk-entry pe-lg-5 py-lg-5">
+                <div className="nk-entry pe-lg-5 py-lg-5 max-h-[50%] overflow-y-auto">
                   <div className="mb-5">
                     {allProducts?.length > 0 ? (
                       <table className="table">
@@ -402,17 +385,25 @@ export default function AddToCart() {
                                         <p className="prod-desc mb-1 text-success">
                                           In Stock
                                         </p>
-                                        <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                          ₹{product?.price}
-                                          {product?.price?.USD && (
-                                            <span className="text-muted">
-                                              {" "}
-                                              /Unit
+                                        <div className=" ">
+                                          <div id="counter" className="">
+                                            Qty:
+                                            <span id="fs-18 m-0 text-gray-1200 text-start !font-bold !mr-2r">
+                                              {quantities[product.product_id] ||
+                                                1}
                                             </span>
-                                          )}
-                                        </p>
+                                          </div>
+                                          <div
+                                            className="!mt-3"
+                                            // style={{ marginLeft: "1rem" }}
+                                          >
+                                            <span className="total text-black font-semibold">
+                                              ₹ {prices[product?.product_id]}
+                                            </span>{" "}
+                                          </div>
+                                        </div>
 
-                                        <div
+                                        {/* <div
                                           className="d-flex align-items-center "
                                           style={{ marginTop: "2rem" }}
                                         >
@@ -420,28 +411,10 @@ export default function AddToCart() {
                                             id="counter"
                                             className="nk-counter"
                                           >
-                                            <button
-                                              onClick={() =>
-                                                handleDecrement(
-                                                  product.product_id
-                                                )
-                                              }
-                                            >
-                                              -
-                                            </button>
                                             <span id="count">
                                               {quantities[product.product_id] ||
                                                 1}
                                             </span>
-                                            <button
-                                              onClick={() =>
-                                                handleIncrement(
-                                                  product.product_id
-                                                )
-                                              }
-                                            >
-                                              +
-                                            </button>
                                           </div>
                                           <div
                                             className="!ml-8"
@@ -472,7 +445,7 @@ export default function AddToCart() {
                                               View
                                             </a>
                                           </div>
-                                        </div>
+                                        </div> */}
                                       </div>
                                       <div className="d-flex align-items-center w-25">
                                         <img
@@ -509,12 +482,11 @@ export default function AddToCart() {
                     )}
                   </div>
                 </div>
-              </div>
-              <div className="col-lg-4 ps-lg-0">
-                <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
+                <hr className="mt-2" />
+                <div className="mt-5">
                   {userData ? (
                     <div className="nk-section-blog-details mt-3">
-                      <h4 className="mb-3">Shipping To</h4>
+                      <h4 className="mb-3">Billing Address</h4>
                       <ul className="d-flex flex-column gap-2 pb-0">
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
                           <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
@@ -530,11 +502,14 @@ export default function AddToCart() {
                           </p>
                           <p className="m-0 fs-14 text-gray-1200 w-75">
                             {userData?.client?.primary_address[0]?.add_1},{" "}
-                            {userData?.client?.primary_address[0]?.add_2 !== null
+                            {userData?.client?.primary_address[0]?.add_2 !==
+                            null
                               ? `${userData?.client?.primary_address[0]?.add_2},  `
                               : ""}
-                            {userData?.client?.primary_address[0]?.city}, {userData?.client?.primary_address[0]?.state},{" "}
-                            {userData?.client?.primary_address[0]?.country}, {userData?.client?.primary_address[0]?.zip}
+                            {userData?.client?.primary_address[0]?.city},{" "}
+                            {userData?.client?.primary_address[0]?.state},{" "}
+                            {userData?.client?.primary_address[0]?.country},{" "}
+                            {userData?.client?.primary_address[0]?.zip}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -552,11 +527,15 @@ export default function AddToCart() {
                         color="warning"
                         onClick={() => {
                           setShowModal(true);
-                          setFormType("update")
+                          setFormType("update");
                         }}
                       >
                         Update address
                       </button>
+                      <div>
+                        <hr className="mr-2"/>
+
+                      </div>
                     </div>
                   ) : (
                     <div className="nk-section-blog-details mt-3">
@@ -566,14 +545,200 @@ export default function AddToCart() {
                         color="warning"
                         onClick={() => {
                           setShowModal(true);
-                          setFormType("add")
+                          setFormType("add");
                         }}
                       >
                         Add address
                       </Button>
                     </div>
                   )}
-                  <hr />
+                  <div className="nk-section-blog-details mt-3">
+                  <div className="max-h-[100px] md:max-h-[175px] overflow-y-auto">
+                      <h4 className="mb-3">Shipping Address</h4>
+                      
+                      <ul className="d-flex flex-column gap-2 pb-0">
+                      {userData?.client?.address?.map((add, ind)=>(
+                        <div className="">
+                          {/* <li className="d-flex align-items-center "> */}
+                          
+                          {/* </li> */}
+
+                        <li className="d-flex align-items-center gap-3 text-gray-1200">
+                          <div className="!block">
+                          <input
+                type="checkbox"
+                checked={ind === activeShippingAddressChecked}
+                onChange={() => handleShippingAddressChange(ind)}
+                className="form-check-input"
+              />
+                          </div>
+                        
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Full Name:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            {userData?.client?.first_name}
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Address:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            {add.add_1},{" "}
+                            {add?.add_2 !==
+                            null
+                              ? `${add?.add_2},  `
+                              : ""}
+                            {add?.city},{" "}
+                            {add?.state},{" "}
+                            {add?.country},{" "}
+                            {add?.zip}
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Shipping Type:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            Standard (2-5 business days)
+                          </p>
+                        </li>
+                        </div>
+                        ))}
+                      </ul>
+                      </div>
+
+
+                    <button
+                    className="btn btn-warning mt-2 mb-2"
+                    variant="warning"
+                    color="warning"
+                    onClick={() => {
+                      setShowModal(true);
+                      setFormType("update");
+                    }}
+                  >
+                    Update address
+                    </button>
+                    
+                  </div>
+                </div>
+              </div>
+              <div className="col-lg-4 ps-lg-0">
+                <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
+                  <h4 className="">Payment Details</h4>
+                  <form onSubmit={handleSubmit}>
+                    {/* <Form.Group controlId="cardNumber"> */}
+                    <label className="font-bold !text-sm mt-3 m-0">
+                      Card Number
+                    </label>
+                    <div className="relative m-0">
+                      <input
+                        maxLength={19}
+                        type="text"
+                        className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                        placeholder="Enter card number"
+                        value={cardNumber}
+                        onChange={handleCardNumberChange}
+                        required
+                        isInvalid={
+                          cardNumber && !validateCardNumber(cardNumber)
+                        }
+                      />
+                      <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                        <FaCreditCard size={15} color="gray" />
+                      </div>
+                    </div>
+                    {cardNumberError ? (
+                      <p className="text-red-600 font-bold !text-sm !m-0 !p-0 !text-left">
+                        {cardNumberError}
+                      </p>
+                    ) : (
+                      ""
+                    )}
+                    {/* </Form.Group> */}
+                    <div className="">
+                      {/* <Form.Group controlId="expiry" className="col-md-6 "> */}
+                      <label className="font-bold !text-sm mt-3 m-0 ">
+                        Expiry date
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                          placeholder="MM/YY"
+                          value={expiry}
+                          onChange={handleExpiryChange}
+                          required
+                          maxLength={5}
+                          isInvalid={expiry && !validateExpiry(expiry)}
+                        />
+                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                          <FaCalendarAlt size={15} color="gray" />
+                        </div>
+                      </div>
+                      {expiryError ? (
+                        <p className="text-red-600 font-bold !text-left !text-sm !m-0 !p-0">
+                          {expiryError}
+                        </p>
+                      ) : (
+                        ""
+                      )}
+                      {/* </Form.Group> */}
+                      {/* <Form.Group controlId="cvv" className="col-md-6"> */}
+                      <label className="font-bold !text-sm mt-3 m-0">CVV</label>
+                      <div className="relative">
+                        <input
+                          type="password"
+                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                          placeholder="Enter CVV"
+                          value={cvv}
+                          onChange={handleCvvChange}
+                          required
+                          maxLength={3}
+                          isInvalid={cvv && !validateCVV(cvv)}
+                        />
+                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                          <FaLock size={15} color="gray" />
+                        </div>
+                      </div>
+                      {cvvError ? (
+                        <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
+                          {cvvError}
+                        </p>
+                      ) : (
+                        ""
+                      )}
+                      {/* </Form.Group> */}
+                      {/* <Form.Group controlId="name" className="col-md-8"> */}
+                      <label className="font-bold !text-sm mt-3 m-0">
+                        Name on the card
+                      </label>
+                      <div className="relative">
+                        <input
+                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                          type="text"
+                          placeholder="Enter account holder name"
+                          value={nameOnCard}
+                          onChange={handleNameChage}
+                          // isInvalid={nameOnCard && !validateName(name)}
+                        />
+                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                          <MdOutlineAccountCircle size={20} color="gray" />
+                        </div>
+                      </div>
+                      {nameErr ? (
+                        <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
+                          {nameErr}
+                        </p>
+                      ) : (
+                        ""
+                      )}
+                      {/* </Form.Group> */}
+                    </div>
+                  </form>
+                  <hr className="mt-3" />
                   <div className="nk-section-blog-details">
                     <h4 className="mb-3">Order Summary</h4>
                     <div className="pt-0 mb-3">
@@ -608,33 +773,52 @@ export default function AddToCart() {
                         <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                           Shipping:
                         </p>
-                        <p className="m-0 fs-14 text-gray-1200 w-75">{allProducts?.length> 0 ? "₹ 10.00" : "₹ 0.00"}</p>
+                        <p className="m-0 fs-14 text-gray-1200 w-75">
+                          {allProducts?.length > 0 ? "₹ 10.00" : "₹ 0.00"}
+                        </p>
                       </li>
                       <li className="d-flex align-items-center gap-5 text-gray-1200">
                         <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                           Tax:
                         </p>
-                        <p className="m-0 fs-14 text-gray-1200 w-75">{allProducts?.length> 0 ? "₹ 40.00" : "₹ 0.00"}</p>
+                        <p className="m-0 fs-14 text-gray-1200 w-75">
+                          {allProducts?.length > 0 ? "₹ 40.00" : "₹ 0.00"}
+                        </p>
                       </li>
                       <li className="d-flex align-items-center gap-5 text-gray-1200">
                         <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                           Discount:
                         </p>
-                        <p className="m-0 fs-14 text-danger w-75">{allProducts?.length> 0 ? "- ₹5.00" : "₹ 0.00"}</p>
+                        <p className="m-0 fs-14 text-danger w-75">
+                          {allProducts?.length > 0 ? "- ₹5.00" : "₹ 0.00"}
+                        </p>
                       </li>
                       <li className="d-flex align-items-center gap-5 text-gray-1200">
                         <p className="m-0 fs-16 fw-semibold text-uppercase w-25">
                           Total:
                         </p>
                         <p className="m-0 fs-16 fw-semibold text-dark w-75">
-                          {allProducts?.length>0 ? `₹ ${(subTotal + 10 + 40 - 5).toFixed(2)}` : "0.00"}
+                          {allProducts?.length > 0
+                            ? `₹ ${(subTotal + 10 + 40 - 5).toFixed(2)}`
+                            : "0.00"}
                         </p>
                       </li>
                     </ul>
-                   
-
-                    <button disabled={allProducts?.length>0 ?false : true} onClick={()=>navigate("/checkout")} className="btn btn-primary w-100">
-                      Proceed to Checkout
+                    <div className="!flex !justify-start items-center">
+                      <img src="/images/stripe.png" width={45}></img>
+                      <p className="w-fit text-sm">
+                        The payment is secure and data are not saved for your
+                        privacy.
+                      </p>
+                      <FaLock size={10} className="ml-1" />
+                    </div>
+                    <button
+                      disabled={allProducts?.length > 0 ? false : true}
+                      className="btn btn-primary w-100"
+                      type="submit"
+                      onClick={handleSubmit}
+                    >
+                      Proceed to Pay
                     </button>
                   </div>
                 </div>
