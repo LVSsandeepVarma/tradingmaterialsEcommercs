@@ -10,6 +10,10 @@ import AddToCart from './app/components/product/cart/addToCart';
 import Login from './app/components/login/login';
 import Register from './app/components/register/register';
 import Checkout from './app/components/product/checkout/checkout';
+import ForgotPassword from './app/components/login/forgotPassword';
+import Otp from './app/components/login/otp';
+import Profile from './app/components/user/profile';
+import Sidebar from './app/components/user/sidebar';
 
 
 function App() {
@@ -25,6 +29,9 @@ function App() {
           <Route path='/login' element={<Login/>}></Route>
           <Route path="/signup" element={<Register/>}></Route>
           <Route path='/checkout' element={<Checkout/>}></Route>
+          <Route path="/forgot-password" element={<ForgotPassword/>}></Route>
+          <Route path="/otp" element={<Otp/>}></Route>
+          <Route path="/profile" element={<Sidebar/>}></Route>
           {/* malay */}
           <Route path='/ms/' element={<Home/>}></Route>
           <Route path='/ms/about' element={<About/>}></Route>
@@ -34,6 +41,8 @@ function App() {
           <Route path='/ms/login' element={<Login/>}></Route>
           <Route path="/ms/signup" element={<Register/>}></Route>
           <Route path='/ms/checkout' element={<Checkout/>}></Route>
+          <Route path="/ms/forgot-password" element={<ForgotPassword/>}></Route>
+          <Route path="/ms/otp" element={<Otp/>}></Route>
         </Routes>
       </BrowserRouter>
     </div>

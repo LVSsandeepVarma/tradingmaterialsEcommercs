@@ -34034,7 +34034,7 @@ button.swiper-pagination-bullet {
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 999;
+    z-index: 99999;
     padding: .8438rem 0px;
     transition: padding .2s linear;
     background-color: #fff;

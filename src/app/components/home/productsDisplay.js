@@ -28,6 +28,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { t } from "i18next";
 import { useTranslation } from "react-i18next";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 export default function ProductsDisplay() {
 
@@ -354,8 +355,6 @@ export default function ProductsDisplay() {
     // return clearInterval(timeInterval)
   }
 
-  //pending
-
   function handleSortingProducts(value) {
     const combinedProducts = [...products?.products];
     console.log(combinedProducts[0], typeof combinedProducts);
@@ -372,6 +371,26 @@ export default function ProductsDisplay() {
     setAllProducts(res);
     console.log(res);
   }
+
+  async function handleAddToWishList(id) {
+      console.log(id)
+      try{
+        dispatch(showLoader());
+        const response = await axios.post("https://admin.tradingmaterials.com/api/lead/product/add-to-wishlist",{
+          product_id: id,
+        },
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        })
+      }catch(err){
+        console.log(err)
+      }finally{
+        dispatch(hideLoader())
+      }
+  }
+
 
   const dynamicAnimation = keyframes`
   from {
@@ -879,8 +898,18 @@ export default function ProductsDisplay() {
                                         </p>
                                       ))}
 
+                                      <button className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right" style={{
+                                        display: "flex",
+                                        justifyContent:"end",
+                                        marginRight:"5px"
+                                      }}
+                                        onClick={()=>{handleAddToWishList(product?.id)}}
+                                      >
+                                            <FaRegHeart size={25} />
+                                      </button>
+
                                       <button
-                                        className="p-0 border-0 outline-none bg-transparent text-primary !content-right w-full text-right"
+                                        className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
                                         onClick={(event) => {
                                           return isLoggedIn
                                             ? (handleAddToCart(product?.id),
@@ -901,9 +930,12 @@ export default function ProductsDisplay() {
 
                                       )}
                                       {/* product animation ends */}
+                                        
                                         <em className="icon ni ni-cart text-3xl"></em>
                                         
                                       </button>
+
+                                      
                                     </div>
                                   </div>
                                 </div>

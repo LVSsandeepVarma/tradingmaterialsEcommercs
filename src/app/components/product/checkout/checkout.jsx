@@ -43,10 +43,17 @@ export default function Checkout() {
   const [expiryError, setExpiryError] = useState("");
   const [cvvError, setCVVError] = useState("");
   const [nameErr, setNameErr] = useState("");
-  const [activeShippingAddress, setActiveShippingAddress] = useState(userData?.client?.primary_address[0]);
-  const [activeBillingAddress, setActivebillingAddress]  =useState(userData?.client?.address[0]);
-  const [activeShippingAddressChecked, setActiveShippingaddressChecked] = useState(0)
-  const [activeBillingAddfreeChecked, setActiveBillingAddressChecked] = useState(0)
+  const [activeShippingAddress, setActiveShippingAddress] = useState(
+    userData?.client?.address[0]
+  );
+  const [activeBillingAddress, setActivebillingAddress] = useState(
+    userData?.client?.primary_address[0]
+  );
+  const [activeShippingAddressChecked, setActiveShippingaddressChecked] =
+    useState(0);
+  const [activeBillingAddfreeChecked, setActiveBillingAddressChecked] =
+    useState(0);
+    const [addressUpdateType, setAddressUpdateType] = useState("")
 
   // State variable to track quantities for each product
   const [quantities, setQuantities] = useState({});
@@ -99,6 +106,8 @@ export default function Checkout() {
   };
 
   useEffect(() => {
+    setActiveShippingAddress(userData?.client?.address[0]);
+    setActivebillingAddress(userData?.client?.primary_address[0]);
     getUserInfo();
   }, []);
 
@@ -143,11 +152,11 @@ export default function Checkout() {
   const handleCvvChange = (e) => {
     const addCvv = e.target.value;
     setCVV(addCvv);
-    console.log(addCvv.match(/^[0-9]+$/),addCvv)
-if (addCvv?.length > 3 || addCvv?.length < 3) {
+    console.log(addCvv.match(/^[0-9]+$/), addCvv);
+    if (addCvv?.length > 3 || addCvv?.length < 3) {
       setCVVError("CVV required");
-    }else if(addCvv.match(/^[0-9]+$/) === null){
-      setCVVError("Invalid CVV")
+    } else if (addCvv.match(/^[0-9]+$/) === null) {
+      setCVVError("Invalid CVV");
     } else {
       setCVVError("");
     }
@@ -159,11 +168,12 @@ if (addCvv?.length > 3 || addCvv?.length < 3) {
     if (addName?.length == 0) {
       setNameErr("Name is required");
     } else {
-      if(validateName(addName) !== null){
-      setNameErr("");
-    }else{
-      setNameErr("invalid name")
-    }}
+      if (validateName(addName) !== null) {
+        setNameErr("");
+      } else {
+        setNameErr("invalid name");
+      }
+    }
   };
 
   const formatCardNumber = (value) => {
@@ -227,53 +237,65 @@ if (addCvv?.length > 3 || addCvv?.length < 3) {
   };
 
   const validateName = (value) => {
-    console.log(value.match(/^[a-zA-Z ]+$/), value)
+    console.log(value.match(/^[a-zA-Z ]+$/), value);
 
-    return value.match(/^[a-zA-Z ]+$/) 
+    return value.match(/^[a-zA-Z ]+$/);
   };
 
-
-  const handleShippingAddressChange=(id)=>{
-    setActiveShippingAddress(userData?.client?.address[id])
-    setActiveShippingaddressChecked(id)
-  }
+  const handleShippingAddressChange = (id) => {
+    setActiveShippingAddress(userData?.client?.address[id]);
+    setActiveShippingaddressChecked(id);
+  };
 
   const handleSubmit = async (event) => {
-    event.preventDefault()
+    event.preventDefault();
     const isNameValid = validateName(nameOnCard);
-      const isCardNumberValid = validateCardNumber(cardNumber)
-      const isExpiryValid = validateExpiry(expiry)
-      const isCVVValid = validateCVV(cvv)
-      console.log(nameErr, cardNumberError, cvvError, expiryError)
-    if(nameErr === "" && cardNumberError === "" && expiryError === ""&& cvvError=== "" ){
-      console.log(isCVVValid, isCardNumberValid, isExpiryValid, isNameValid)
-      if(isNameValid!== null && isCardNumberValid !== null && isExpiryValid!== null && isCVVValid !== null){
-
-
-      console.log("all fields are validated and are valid")
-      // setIsSuccess(true)
-    }
-    else{
-      if(isNameValid === null){
-        setNameErr("invalid name")
-      }if(isCardNumberValid === null){
-        setCardNumberError("Card number is invalid")
-      }if(isExpiryValid === null){
-        setExpiryError("invalid card expiry")
-      }if(isCVVValid === null){
-        setCVVError("Invalid CVV")
+    const isCardNumberValid = validateCardNumber(cardNumber);
+    const isExpiryValid = validateExpiry(expiry);
+    const isCVVValid = validateCVV(cvv);
+    console.log(nameErr, cardNumberError, cvvError, expiryError);
+    if (
+      nameErr === "" &&
+      cardNumberError === "" &&
+      expiryError === "" &&
+      cvvError === ""
+    ) {
+      console.log(isCVVValid, isCardNumberValid, isExpiryValid, isNameValid);
+      if (
+        isNameValid !== null &&
+        isCardNumberValid !== false &&
+        isExpiryValid !== null &&
+        isCVVValid !== false
+      ) {
+        console.log("all fields are validated and are valid");
+        // setIsSuccess(true)
+      } else {
+        if (isNameValid === null) {
+          setNameErr("invalid name");
+        }
+        if (isCardNumberValid === false) {
+          setCardNumberError("Card number is invalid");
+        }
+        if (isExpiryValid === null) {
+          setExpiryError("invalid card expiry");
+        }
+        if (isCVVValid === false) {
+          setCVVError("Invalid CVV");
+        }
+        // setIsFailure(true)
       }
-      // setIsFailure(true)
-    }
-    }else{
-      if(nameOnCard === ""){
-        setNameErr("name is required")
-      }if(cardNumber === ""){
-        setCardNumberError("Card number is required")
-      }if(expiry === ""){
-        setExpiryError("Card expiry required")
-      }if(cvv === ""){
-        setCVVError("CVV requried")
+    } else {
+      if (nameOnCard === "") {
+        setNameErr("name is required");
+      }
+      if (cardNumber === "") {
+        setCardNumberError("Card number is required");
+      }
+      if (expiry === "") {
+        setExpiryError("Card expiry required");
+      }
+      if (cvv === "") {
+        setCVVError("CVV requried");
       }
       // setIsFailure(true)
     }
@@ -286,13 +308,33 @@ if (addCvv?.length > 3 || addCvv?.length < 3) {
           <div className="loader"></div>
         </div>
       )}
-      <ShippingAddressModal
+      {addressUpdateType==="shipping" && <ShippingAddressModal
         show={showModal}
         onHide={() => setShowModal(false)}
         type={fomrType}
-        data={fomrType === "add" ? [] : userData?.client?.primary_address[0]}
+        data={
+          fomrType === "add"
+            ? []
+            : activeShippingAddress === undefined
+            ? userData?.client?.address[activeShippingAddressChecked]
+            : activeShippingAddress
+        }
         // handleFormSubmit={handleFormSubmit}
-      />
+      />}
+
+{addressUpdateType==="billing" && <ShippingAddressModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        type={fomrType}
+        data={
+          fomrType === "add"
+            ? []
+            : activeBillingAddress === undefined
+            ? userData?.client?.address[activeBillingAddfreeChecked]
+            : activeBillingAddress
+        }
+        // handleFormSubmit={handleFormSubmit}
+      />}
 
       {isSuccess && (
         <div
@@ -528,14 +570,26 @@ if (addCvv?.length > 3 || addCvv?.length < 3) {
                         onClick={() => {
                           setShowModal(true);
                           setFormType("update");
+                          setAddressUpdateType("billing")
                         }}
                       >
                         Update address
                       </button>
+                      {/* <button
+                        className="btn btn-warning mb-2 mt-2 ml-2"
+                        variant="warning"
+                        color="warning"
+                        onClick={() => {
+                          setShowModal(true);
+                          setFormType("add");
+                        }}
+                      >
+                        Add address
+                      </button> */}
                       <div>
-                        <hr className="mr-2"/>
-
+                        <hr className="mr-2" />
                       </div>
+                      <div className="nk-section-blog-details mt-3"></div>
                     </div>
                   ) : (
                     <div className="nk-section-blog-details mt-3">
@@ -546,6 +600,7 @@ if (addCvv?.length > 3 || addCvv?.length < 3) {
                         onClick={() => {
                           setShowModal(true);
                           setFormType("add");
+                          setAddressUpdateType("shipping")
                         }}
                       >
                         Add address
@@ -553,75 +608,89 @@ if (addCvv?.length > 3 || addCvv?.length < 3) {
                     </div>
                   )}
                   <div className="nk-section-blog-details mt-3">
-                  <div className="max-h-[100px] md:max-h-[175px] overflow-y-auto">
+                    <div className="max-h-[100px] md:max-h-[175px] overflow-y-auto">
                       <h4 className="mb-3">Shipping Address</h4>
-                      
-                      <ul className="d-flex flex-column gap-2 pb-0">
-                      {userData?.client?.address?.map((add, ind)=>(
-                        <div className="">
-                          {/* <li className="d-flex align-items-center "> */}
-                          
-                          {/* </li> */}
 
-                        <li className="d-flex align-items-center gap-3 text-gray-1200">
-                          <div className="!block">
+                      <ul className="d-flex flex-column gap-2 pb-0">
+                        {userData?.client?.address?.map((add, ind) => (
+                          <div className="">
+                            <li className="d-flex align-items-center ">
+                              <div className="!block">
+                                <input
+                                  type="checkbox"
+                                  checked={ind === activeShippingAddressChecked}
+                                  onChange={() =>
+                                    handleShippingAddressChange(ind)
+                                  }
+                                  className="form-check-input"
+                                />
+                              </div>
+                            </li>
+
+                            <li className="d-flex align-items-center gap-5 text-gray-1200">
+                              {/* <div className="!block">
                           <input
                 type="checkbox"
                 checked={ind === activeShippingAddressChecked}
                 onChange={() => handleShippingAddressChange(ind)}
                 className="form-check-input"
               />
+                          </div> */}
+
+                              <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                Full Name:
+                              </p>
+                              <p className="m-0 fs-14 text-gray-1200 w-75">
+                                {userData?.client?.first_name}
+                              </p>
+                            </li>
+                            <li className="d-flex align-items-center gap-5 text-gray-1200">
+                              <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                Address:
+                              </p>
+                              <p className="m-0 fs-14 text-gray-1200 w-75">
+                                {add.add_1},{" "}
+                                {add?.add_2 !== null ? `${add?.add_2},  ` : ""}
+                                {add?.city}, {add?.state}, {add?.country},{" "}
+                                {add?.zip}
+                              </p>
+                            </li>
+                            <li className="d-flex align-items-center gap-5 text-gray-1200">
+                              <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                Shipping Type:
+                              </p>
+                              <p className="m-0 fs-14 text-gray-1200 w-75">
+                                Standard (2-5 business days)
+                              </p>
+                            </li>
                           </div>
-                        
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Full Name:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {userData?.client?.first_name}
-                          </p>
-                        </li>
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Address:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {add.add_1},{" "}
-                            {add?.add_2 !==
-                            null
-                              ? `${add?.add_2},  `
-                              : ""}
-                            {add?.city},{" "}
-                            {add?.state},{" "}
-                            {add?.country},{" "}
-                            {add?.zip}
-                          </p>
-                        </li>
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Shipping Type:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            Standard (2-5 business days)
-                          </p>
-                        </li>
-                        </div>
                         ))}
                       </ul>
-                      </div>
-
+                    </div>
 
                     <button
-                    className="btn btn-warning mt-2 mb-2"
-                    variant="warning"
-                    color="warning"
-                    onClick={() => {
-                      setShowModal(true);
-                      setFormType("update");
-                    }}
-                  >
-                    Update address
+                      className="btn btn-warning mt-2 mb-2"
+                      variant="warning"
+                      color="warning"
+                      onClick={() => {
+                        setShowModal(true);
+                        setFormType("update");
+                        setAddressUpdateType("shipping")
+                      }}
+                    >
+                      Update address
                     </button>
-                    
+                    <button
+                      className="btn btn-warning mb-2 mt-2 ml-2"
+                      variant="warning"
+                      color="warning"
+                      onClick={() => {
+                        setShowModal(true);
+                        setFormType("add");
+                      }}
+                    >
+                      Add address
+                    </button>
                   </div>
                 </div>
               </div>

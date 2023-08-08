@@ -242,7 +242,7 @@ export default function Login() {
                             </label>
                           </div>
                           <a
-                            href="forgot-password.php"
+                            href={`${userLang}/forgot-password`}
                             className="d-inline-block fs-16"
                           >
                             Forgot Password?

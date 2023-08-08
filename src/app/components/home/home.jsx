@@ -17,11 +17,13 @@ export default function Home() {
         const fetchProducts = async () => {
             dispatch(showLoader())
             console.log("fetching products")
+
             try {
                 const response = await axios.get("https://admin.tradingmaterials.com/api/get/products", {
                     headers: {
                         "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-                        "Accept": "application/json"
+                        "Accept": "application/json",
+                        "access-token": localStorage.getItem("client_token"),
                     }
                 })
                 if (response?.data?.status) {
