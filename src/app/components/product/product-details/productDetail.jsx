@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Helmet } from "react-helmet";
+import { Zoom } from "reactjs-image-zoom";
 import Footer from "../../footer/footer";
 import {
   hideLoader,
@@ -349,7 +350,7 @@ export default function ProductDetails() {
                         thumbs={{ swiper: thumbsSwiper }}
                         autoplay={{
                           autoplay: {
-                            delay: 1000,
+                            delay: 9000,
                           },
                         }}
                         modules={[FreeMode, Navigation, Thumbs, Autoplay]}
@@ -357,92 +358,139 @@ export default function ProductDetails() {
                       >
                         <div className="swiper-slide">
                           {product?.product?.img_1 !== null && (
-                            
                             <SwiperSlide>
-                              {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
-                                aspectRatio: 1,
-                                objectFit: "fill",
-                                width: "100%",
-                                height:"100%"
-                              }}/>}
-                              {!loaderState && <img
-                                src={
-                                  product?.product?.img_1 === null
-                                    ? "/images/shop/slider-cover-1.jpg"
-                                    : product?.product?.img_1
-                                }
-                                style={{
-                                  aspectRatio: 1,
-                                  objectFit: "fill",
-                                  width: "100%",
-                                }}
-                                alt="product-images"
-                              />}
+                              {loaderState && (
+                                <Skeleton
+                                  animation="wave"
+                                  variant="rectangular"
+                                  style={{
+                                    aspectRatio: 1,
+                                    objectFit: "fill",
+                                    width: "100%",
+                                    height: "100%",
+                                  }}
+                                />
+                              )}
+                              {
+                                !loaderState && (
+                                  <Zoom
+                                    imagesrc={
+                                      product?.product?.img_1 === null
+                                        ? "/images/shop/slider-cover-1.jpg"
+                                        : product?.product?.img_1
+                                    }
+                                    style={{
+                                      aspectRatio: 1,
+                                      objectFit: "fill",
+                                      width: "100%",
+                                      height: "100%",
+                                      maxWidth: "100% !important",
+                                      minHeight: "100% !important",
+                                    }}
+                                    size={200}
+                                    bgsize="cover"
+                                    cursor="zoom-in"
+                                  />
+                                )
+                                // <img
+                                //   src={
+                                //     product?.product?.img_1 === null
+                                //       ? "/images/shop/slider-cover-1.jpg"
+                                //       : product?.product?.img_1
+                                //   }
+                                //   style={{
+                                //     aspectRatio: 1,
+                                //     objectFit: "fill",
+                                //     width: "100%",
+                                //   }}
+                                //   alt="product-images"
+                                // />
+                              }
                             </SwiperSlide>
                           )}
                         </div>
                         {product?.product?.img_2 !== null && (
                           <SwiperSlide>
-                            <img
-                              src={
-                                product?.product?.img_2 !== null &&
-                                product?.product?.img_2
-                              }
-                              style={{
-                                aspectRatio: 1,
-                                objectFit: "fill",
-                                width: "100%",
-                              }}
-                              alt="product-images"
-                            />
+                            <Zoom
+                                    imagesrc={
+                                      product?.product?.img_2 !== null
+                                        && product?.product?.img_2
+                                    }
+                                    style={{
+                                      aspectRatio: 1,
+                                      objectFit: "fill",
+                                      width: "100%",
+                                      height: "100%",
+                                      maxWidth: "100% !important",
+                                      minHeight: "100% !important",
+                                    }}
+                                    size={200}
+                                    bgsize="cover"
+                                    cursor="zoom-in"
+                                  />
                           </SwiperSlide>
                         )}
                         {product?.product?.img_3 !== null && (
                           <SwiperSlide>
-                            <img
-                              src={
-                                product?.product?.img_3 !== null &&
-                                product?.product?.img_3
-                              }
-                              style={{
-                                aspectRatio: 1,
-                                objectFit: "fill",
-                                width: "100%",
-                              }}
-                              alt="product-images"
-                            />
+                            <Zoom
+                                    imagesrc={
+                                      product?.product?.img_3 !== null
+                                        && product?.product?.img_3
+                                    }
+                                    style={{
+                                      aspectRatio: 1,
+                                      objectFit: "fill",
+                                      width: "100%",
+                                      height: "100%",
+                                      maxWidth: "100% !important",
+                                      minHeight: "100% !important",
+                                    }}
+                                    size={200}
+                                    bgsize="cover"
+                                    cursor="zoom-in"
+                                  />
                           </SwiperSlide>
                         )}
                         {product?.product?.img_4 !== null && (
                           <SwiperSlide>
-                            <img
-                              src={
-                                product?.product?.img_4 !== null &&
-                                product?.product?.img_4
-                              }
-                              style={{
-                                aspectRatio: 1,
-                                objectFit: "fill",
-                                width: "100%",
-                              }}
-                              alt="product-images"
-                            />
+                            <Zoom
+                                    imagesrc={
+                                      product?.product?.img_4 !== null
+                                        && product?.product?.img_4
+                                    }
+                                    style={{
+                                      aspectRatio: 1,
+                                      objectFit: "fill",
+                                      width: "100%",
+                                      height: "100%",
+                                      maxWidth: "100% !important",
+                                      minHeight: "100% !important",
+                                    }}
+                                    size={200}
+                                    bgsize="cover"
+                                    cursor="zoom-in"
+                                  />
                           </SwiperSlide>
                         )}
                         {product?.product?.img_5 !== null && (
                           <SwiperSlide>
-                            <img
-                              src={
-                                product?.product?.img_5 !== null &&
-                                product?.product?.img_5
-                              }
-                              style={{
-                                aspectRatio: 1,
-                                objectFit: "fill",
-                                width: "100%",
-                              }}
-                              alt="product-images"
-                            />
+                            <Zoom
+                                    imagesrc={
+                                      product?.product?.img_5 !== null
+                                        && product?.product?.img_5
+                                    }
+                                    style={{
+                                      aspectRatio: 1,
+                                      objectFit: "fill",
+                                      width: "100%",
+                                      height: "100%",
+                                      maxWidth: "100% !important",
+                                      minHeight: "100% !important",
+                                    }}
+                                    size={200}
+                                    bgsize="cover"
+                                    cursor="zoom-in"
+                                  />
                           </SwiperSlide>
                         )}
 
@@ -487,101 +535,141 @@ export default function ProductDetails() {
                       >
                         {product?.product?.img_1 !== null && (
                           <SwiperSlide>
-                            {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
-                                aspectRatio: 1,
-                                objectFit: "fill",
-                                width: "100%",
-                                height: "100%"
-                              }}/>}
-                            {!loaderState && <img
-                              className="w-100"
-                              src={
-                                product?.product?.img_1 !== null &&
-                                product?.product?.img_1
-                              }
-                              style={{ aspectRatio: 1, objectFit: "fill" }}
-                              alt="product-images"
-                            />}
+                            {loaderState && (
+                              <Skeleton
+                                animation="wave"
+                                variant="rectangular"
+                                style={{
+                                  aspectRatio: 1,
+                                  objectFit: "fill",
+                                  width: "100%",
+                                  height: "100%",
+                                }}
+                              />
+                            )}
+                            {!loaderState && (
+                              <img
+                                className="w-100"
+                                src={
+                                  product?.product?.img_1 !== null &&
+                                  product?.product?.img_1
+                                }
+                                style={{ aspectRatio: 1, objectFit: "fill" }}
+                                alt="product-images"
+                              />
+                            )}
                           </SwiperSlide>
                         )}
                         {product?.product?.img_2 !== null && (
                           <SwiperSlide>
-                            {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
-                                aspectRatio: 1,
-                                objectFit: "fill",
-                                width: "100%",
-                                height: "100%"
-                              }}/>}
-                            {!loaderState && <img
-                              className="w-100"
-                              src={
-                                product?.product?.img_2 !== null &&
-                                product?.product?.img_2
-                              }
-                              style={{ aspectRatio: 1, objectFit: "fill" }}
-                              alt="product-images"
-                            />}
+                            {loaderState && (
+                              <Skeleton
+                                animation="wave"
+                                variant="rectangular"
+                                style={{
+                                  aspectRatio: 1,
+                                  objectFit: "fill",
+                                  width: "100%",
+                                  height: "100%",
+                                }}
+                              />
+                            )}
+                            {!loaderState && (
+                              <img
+                                className="w-100"
+                                src={
+                                  product?.product?.img_2 !== null &&
+                                  product?.product?.img_2
+                                }
+                                style={{ aspectRatio: 1, objectFit: "fill" }}
+                                alt="product-images"
+                              />
+                            )}
                           </SwiperSlide>
                         )}
                         {product?.product?.img_3 !== null && (
                           <SwiperSlide>
-                            {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
-                                aspectRatio: 1,
-                                objectFit: "fill",
-                                width: "100%",
-                                height: "100%"
-                              }}/>}
-                            {!loaderState && <img
-                              className="w-100"
-                              src={
-                                product?.product?.img_3 !== null &&
-                                product?.product?.img_3
-                              }
-                              style={{ aspectRatio: 1, objectFit: "fill" }}
-                              alt="product-images"
-                              width={"100%"}
-                              height={"100%"}
-                            />}
+                            {loaderState && (
+                              <Skeleton
+                                animation="wave"
+                                variant="rectangular"
+                                style={{
+                                  aspectRatio: 1,
+                                  objectFit: "fill",
+                                  width: "100%",
+                                  height: "100%",
+                                }}
+                              />
+                            )}
+                            {!loaderState && (
+                              <img
+                                className="w-100"
+                                src={
+                                  product?.product?.img_3 !== null &&
+                                  product?.product?.img_3
+                                }
+                                style={{ aspectRatio: 1, objectFit: "fill" }}
+                                alt="product-images"
+                                width={"100%"}
+                                height={"100%"}
+                              />
+                            )}
                           </SwiperSlide>
                         )}
                         {product?.product?.img_4 !== null && (
                           <SwiperSlide>
-                            {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
-                                aspectRatio: 1,
-                                objectFit: "fill",
-                                width: "100%",
-                                height: "100%"
-                              }}/>}
-                            {!loaderState && <img
-                              className="w-100"
-                              src={
-                                product?.product?.img_4 !== null &&
-                                product?.product?.img_4
-                              }
-                              style={{ aspectRatio: 1, objectFit: "fill" }}
-                              alt="product-images"
-                            />}
+                            {loaderState && (
+                              <Skeleton
+                                animation="wave"
+                                variant="rectangular"
+                                style={{
+                                  aspectRatio: 1,
+                                  objectFit: "fill",
+                                  width: "100%",
+                                  height: "100%",
+                                }}
+                              />
+                            )}
+                            {!loaderState && (
+                              <img
+                                className="w-100"
+                                src={
+                                  product?.product?.img_4 !== null &&
+                                  product?.product?.img_4
+                                }
+                                style={{ aspectRatio: 1, objectFit: "fill" }}
+                                alt="product-images"
+                              />
+                            )}
                           </SwiperSlide>
                         )}
                         {product?.product?.img_5 !== null && (
                           <SwiperSlide>
-                            {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
-                                aspectRatio: 1,
-                                objectFit: "fill",
-                                width: "100%",
-                                height: "100%"
-                              }}/>}
-                            {!loaderState && <img
-                              className="w-100"
-                              src={
-                                product?.product?.img_5 !== null &&
-                                product?.product?.img_5
-                              }
-                              style={{ aspectRatio: 1, objectFit: "fill" }}
-                              alt="product-images"
-                              width={"100%"}
-                              height={"100%"}
-                            />}
+                            {loaderState && (
+                              <Skeleton
+                                animation="wave"
+                                variant="rectangular"
+                                style={{
+                                  aspectRatio: 1,
+                                  objectFit: "fill",
+                                  width: "100%",
+                                  height: "100%",
+                                }}
+                              />
+                            )}
+                            {!loaderState && (
+                              <img
+                                className="w-100"
+                                src={
+                                  product?.product?.img_5 !== null &&
+                                  product?.product?.img_5
+                                }
+                                style={{ aspectRatio: 1, objectFit: "fill" }}
+                                alt="product-images"
+                                width={"100%"}
+                                height={"100%"}
+                              />
+                            )}
                           </SwiperSlide>
                         )}
 
@@ -995,7 +1083,17 @@ export default function ProductDetails() {
                           >
                             <div className="nk-card overflow-hidden rounded-3 border h-100">
                               <div className="nk-card-img">
-                                <a href="/">
+                                <a
+                                  href={`${userLang}/product-detail/${
+                                    product?.slug
+                                  }/${CryptoJS?.AES?.encrypt(
+                                    `${product?.id}`,
+                                    "trading_materials"
+                                  )
+                                    ?.toString()
+                                    .replace(/\//g, "_")
+                                    .replace(/\+/g, "-")}`}
+                                >
                                   <img
                                     src={product?.img_1}
                                     alt="product-image"
@@ -1005,8 +1103,22 @@ export default function ProductDetails() {
                               </div>
                               <div className="nk-card-info bg-white p-4">
                                 <a
-                                  href="/"
+                                  href={`${userLang}/product-detail/${
+                                    product?.slug
+                                  }/${CryptoJS?.AES?.encrypt(
+                                    `${product?.id}`,
+                                    "trading_materials"
+                                  )
+                                    ?.toString()
+                                    .replace(/\//g, "_")
+                                    .replace(/\+/g, "-")}`}
                                   className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                  style={{
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    width: "90%",
+                                  }}
                                 >
                                   {product?.name}
                                   <br />

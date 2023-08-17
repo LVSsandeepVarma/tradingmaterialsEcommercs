@@ -1076,6 +1076,12 @@ export default function ProductsDisplay() {
                                             .replace(/\//g, "_")
                                             .replace(/\+/g, "-")}`}
                                           className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                          style={{
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            width: "90%",
+                                          }}
                                         >
                                           {product?.name}
                                           <br />
@@ -1295,6 +1301,12 @@ export default function ProductsDisplay() {
                                     .replace(/\//g, "_")
                                     .replace(/\+/g, "-")}`}
                                   className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                  style={{
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    width: "90%",
+                                  }}
                                 >
                                   {product?.name}
                                   <br />
