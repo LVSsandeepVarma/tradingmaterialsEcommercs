@@ -15,6 +15,7 @@ import { updateUsers } from "../../../../features/users/userSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
+import CryptoJS from "crypto-js";
 
 export default function AddToCart() {
   const dispatch = useDispatch();
@@ -23,14 +24,29 @@ export default function AddToCart() {
   const loaderState = useSelector((state) => state?.loader?.value);
   const userData = useSelector((state) => state?.user?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
-  const userLang = useSelector(state => state?.lang?.value)
+  const userLang = useSelector((state) => state?.lang?.value);
+  const clientType = useSelector((state) => state?.clientType?.value);
+  const addressStatus = useSelector((state) => state?.addressStatus?.value);
 
   const [showModal, setShowModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [allProducts, setAllProducts] = useState(cartProducts);
-  const [fomrType, setFormType] = useState("add")
+  const [fomrType, setFormType] = useState("add");
+  const [promocode, setPromocode] = useState("");
+  const [apiErr, setApiErr] = useState([]);
+  const [activeShippingAddress, setActiveShippingAddress] = useState(
+    userData?.client?.address[0]
+  );
+  const [activeBillingAddress, setActivebillingAddress] = useState(
+    userData?.client
+  );
+  const [activeShippingAddressChecked, setActiveShippingaddressChecked] =
+    useState(0);
+  const [activeBillingAddfreeChecked, setActiveBillingAddressChecked] =
+    useState(0);
+  const [addressUpdateType, setAddressUpdateType] = useState("");
 
   // State variable to track quantities for each product
   const [quantities, setQuantities] = useState({});
@@ -38,47 +54,82 @@ export default function AddToCart() {
   // State variable to store prices for each product
   const [prices, setPrices] = useState({});
   const [subTotal, setSubTotal] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [discountPercentage, setDiscountPercentage] = useState(0);
+  const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
+  const [optionalNotes, setOptionalNotes] = useState("");
 
   console.log(cartProducts, "gggggggg");
 
   const getUserInfo = async () => {
     try {
-      const response = await axios.get(
-        "https://admin.tradingmaterials.com/api/lead/get-user-info",
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-            Accept: "application/json",
-          },
-        }
-      );
+      const url =
+        clientType === "client"
+          ? "https://admin.tradingmaterials.com/api/get-user-info"
+          : "https://admin.tradingmaterials.com/api/lead/get-user-info";
+      const headerData =
+        clientType === "client"
+          ? {
+              headers: {
+                Authorization: `Bearer ` + localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            }
+          : {
+              headers: {
+                "access-token": localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            };
+
+      const response = await axios.get(url, headerData);
       if (response?.data?.status) {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
         setAllProducts(response?.data?.data?.client?.cart);
+        setActivebillingAddress(
+          response?.data?.data?.client?.primary_address[0]?.id
+        );
+        if (billingSameAsShipping) {
+          setActiveShippingAddress(
+            response?.data?.data?.client?.address[0]?.id
+          );
+        } else {
+          if (userData?.client?.address?.length > 1)
+            setActiveShippingAddress(
+              response?.data?.data?.client?.address[1]?.id
+            );
+        }
       } else {
         console.log(response?.data);
         dispatch(
           updateNotifications({
             type: "warning",
-            message: isLoggedIn ? response?.data?.message : "PLease Login to continue",
+            message: isLoggedIn
+              ? response?.data?.message
+              : "PLease Login to continue",
           })
         );
         // navigate("/login")
       }
     } catch (err) {
-      console.log(err);
+      console.log(err, "err");
       dispatch(
         updateNotifications({
-          type: "error",
-          message: err?.response?.data?.message,
+          type: "warning",
+          message: "Session expired, please login to continue",
         })
       );
     } finally {
       dispatch(hideLoader());
     }
   };
+
+  useEffect(() => {
+    applyPromoCode();
+    console.log(activeBillingAddress, activeShippingAddress, userData);
+  }, []);
 
   async function handleAddToCart(productId, status) {
     // setAnimateProductId(productId)
@@ -99,9 +150,10 @@ export default function AddToCart() {
       );
       if (response?.data?.status) {
         dispatch(updateCart(response?.data?.data?.cart_details));
-        dispatch(updateCartCount(response?.data?.data?.cart_count))
+        dispatch(updateCartCount(response?.data?.data?.cart_count));
         setAllProducts(response?.data?.data?.cart_details);
         // getUserInfo();
+        applyPromoCode();
       }
     } catch (err) {
       console.log(err);
@@ -116,6 +168,40 @@ export default function AddToCart() {
     }
   }
 
+  const handlePromoCodeChange = (e) => {
+    setPromocode(e?.target?.value);
+  };
+
+  const applyPromoCode = async () => {
+    try {
+      const token = localStorage.getItem("client_token");
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/lead/product/apply-register-promo-code",
+        {
+          headers: {
+            "access-token": token,
+          },
+        }
+      );
+      if (response?.data?.status) {
+        console.log(response?.data?.data);
+        setSubTotal(response?.data?.data?.subtotal);
+        setDiscount(response?.data?.data?.discount);
+        setDiscountPercentage(
+          response?.data?.data?.percentage !== null
+            ? response?.data?.data?.percentage
+            : 0
+        );
+      }
+    } catch (err) {
+      console.log(err, "err");
+    }
+  };
+
+  const handleShippingAddressChange = (id) => {
+    setActiveShippingAddress(id);
+    // setActiveShippingaddressChecked(id);
+  };
   // useEffect(() => {
   //   async function fetchProducts() {
   //     if (cartProducts?.length > 0) {
@@ -151,6 +237,10 @@ export default function AddToCart() {
     getUserInfo();
   }, []);
 
+  useEffect(() => {
+    getUserInfo();
+  }, [addressStatus]);
+
   // Set initial quantity for all products to 1 in the useEffect hook
   useEffect(() => {
     if (allProducts?.length) {
@@ -172,12 +262,14 @@ export default function AddToCart() {
     allProducts?.forEach((product) => {
       const quantity = quantities[product.product_id] || 1;
       const price = parseInt(product?.price);
+
       if (price) {
         const totalPrice = quantity * price;
         updatedPrices[product.product_id] = totalPrice.toFixed(2);
       }
     });
     setPrices(updatedPrices);
+    console.log(updatedPrices, "uuuuuuuuuuuuuuuuu");
     // Calculate the subTotal by summing up the individual product prices
     const totalPriceArray = Object.values(updatedPrices).map(Number);
     const updatedSubTotal = totalPriceArray.reduce(
@@ -214,14 +306,17 @@ export default function AddToCart() {
       if (response?.data?.status) {
         // getUserInfo();
         dispatch(updateCart(response?.data?.data?.cart_details));
-        dispatch(updateCartCount(response?.data?.data?.cart_count))
-        setAllProducts(response?.data?.data?.cart_details)
+        dispatch(updateCartCount(response?.data?.data?.cart_count));
+        setAllProducts(response?.data?.data?.cart_details);
+        applyPromoCode();
       } else {
         console.log(response?.data);
         dispatch(
           updateNotifications({
             type: "warning",
-            message: !isLoggedIn ? response?.data?.message : "Please Login To continue",
+            message: !isLoggedIn
+              ? response?.data?.message
+              : "Please Login To continue",
           })
         );
         // navigate("/login")
@@ -235,23 +330,23 @@ export default function AddToCart() {
 
   // Function to handle decrementing the quantity for a product
   const handleDecrement = (productId) => {
-    if(quantities[productId] >1){
-    setQuantities((prevQuantities) => {
-      const currentQuantity = prevQuantities[productId] || 0;
-      return {
-        ...prevQuantities,
-        [productId]: currentQuantity > 1 ? currentQuantity - 1 : 1,
-      };
-    });
-    handleAddToCart(productId, "remove");
-  }else{
-    setQuantities((prevQuantities) => {
-      return {
-        ...prevQuantities,
-        [productId]: 1,
-      };
-    });
-  }
+    if (quantities[productId] > 1) {
+      setQuantities((prevQuantities) => {
+        const currentQuantity = prevQuantities[productId] || 0;
+        return {
+          ...prevQuantities,
+          [productId]: currentQuantity > 1 ? currentQuantity - 1 : 1,
+        };
+      });
+      handleAddToCart(productId, "remove");
+    } else {
+      setQuantities((prevQuantities) => {
+        return {
+          ...prevQuantities,
+          [productId]: 1,
+        };
+      });
+    }
     // handleAddToCart(productId, "remove");
   };
 
@@ -296,10 +391,76 @@ export default function AddToCart() {
     // }, 6000);
   };
 
+  const handleBillingSameAsShipping = () => {
+    setBillingSameAsShipping(!billingSameAsShipping);
+    if (!billingSameAsShipping) {
+      setActiveShippingAddress(activeBillingAddress);
+    } else {
+      if (userData?.client?.address?.length > 1)
+        setActiveShippingAddress(userData?.client?.address[1]?.id);
+    }
+  };
+
+  const handlePlaceOrder = async () => {
+    try {
+      dispatch(showLoader());
+      setApiErr([]);
+      const data = billingSameAsShipping
+        ? {
+            total: (subTotal - discount).toFixed(2),
+            subtotal: subTotal,
+            disc_percent: discountPercentage,
+            discount: discount,
+            b_address_id: activeBillingAddress,
+            shipping_address: billingSameAsShipping ? 1 : 0,
+            s_address_id: activeBillingAddress,
+            note: optionalNotes,
+          }
+        : {
+            total: (subTotal - discount).toFixed(2),
+            subtotal: subTotal,
+            disc_percent: discountPercentage,
+            discount: discount,
+            b_address_id: activeBillingAddress,
+            shipping_address: billingSameAsShipping ? 1 : 0,
+            s_address_id: activeShippingAddress,
+            note: optionalNotes,
+          };
+
+      console.log(data);
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/lead/product/checkout/place-order",
+        data,
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+      if (response?.data?.status) {
+        localStorage.setItem("order_id", response?.data?.data?.order_id);
+        navigate(`/checkout/order_id/${response?.data?.data?.order_id}`);
+      }
+    } catch (err) {
+      console.log("err", err);
+      if (err?.response?.data?.errors) {
+        setApiErr([Object.values(err?.response?.data?.errors)]);
+      } else {
+        setApiErr([err?.response?.data?.message]);
+      }
+    } finally {
+      dispatch(hideLoader());
+    }
+  };
+
+  const handleAdditionalComments = (event) => {
+    setOptionalNotes(event?.target?.value);
+  };
+
   return (
     <>
       {loaderState && (
-        <div className="preloader !bg-[rgba(0,0,0,0.5)]">
+        <div className="preloader !backdrop-blur-[1px]">
           <div className="loader"></div>
         </div>
       )}
@@ -339,13 +500,13 @@ export default function AddToCart() {
       <Header />
       <div className="nk-pages text-left">
         <section className="nk-banner nk-banner-career-job-details bg-gray">
-          <div className="nk-banner-wrap pt-120 pt-lg-180 pb-300">
+          <div className="nk-banner-wrap pt-120 pt-lg-80 pb-[100px] lg:!pb-[300px]">
             <div className="container">
               <div className="row">
                 <div className="col-lg-8 col-xxl-5 text-left">
                   <div>
                     <a
-                      href="careers-project-manage.html"
+                      href={`${userLang}/`}
                       className="btn-link mb-2 !inline-flex !items-center !text-large !font-semibold"
                     >
                       <em className="icon ni ni-arrow-left  !inline-flex !items-center !text-large !font-semibold"></em>
@@ -371,7 +532,7 @@ export default function AddToCart() {
           <div className="container">
             <div className="nk-section-content row px-lg-5">
               <div className="col-lg-8 pe-lg-0">
-                <div className="nk-entry pe-lg-5 py-lg-5">
+                <div className="nk-entry pe-lg-5 py-lg-5 max-h-[50%] overflow-y-auto">
                   <div className="mb-5">
                     {allProducts?.length > 0 ? (
                       <table className="table">
@@ -385,20 +546,48 @@ export default function AddToCart() {
                                       <img
                                         src={product?.product?.img_1}
                                         alt="product-image"
-                                        className="mb-0 mr-2"
+                                        className="mb-0 mr-2 cursor-pointer"
                                         width="150px"
+                                        onClick={() =>
+                                          navigate(
+                                            `${userLang}/product-detail/${
+                                              product?.product?.slug
+                                            }/${CryptoJS?.AES?.encrypt(
+                                              `${product?.product_id}`,
+                                              "trading_materials"
+                                            )
+                                              ?.toString()
+                                              .replace(/\//g, "_")
+                                              .replace(/\+/g, "-")}`
+                                          )
+                                        }
                                       />
                                       <div className="w-75">
-                                        <p className="prod-title mb-0">
+                                        <p
+                                          className="prod-title mb-0 cursor-pointer"
+                                          onClick={() =>
+                                            navigate(
+                                              `${userLang}/product-detail/${
+                                                product?.product?.slug
+                                              }/${CryptoJS?.AES?.encrypt(
+                                                `${product?.product_id}`,
+                                                "trading_materials"
+                                              )
+                                                ?.toString()
+                                                .replace(/\//g, "_")
+                                                .replace(/\+/g, "-")}`
+                                            )
+                                          }
+                                        >
                                           {product?.product?.name}
                                         </p>
-                                        <p
+                                        {/* <p
                                           className="prod-desc mb-0"
                                           dangerouslySetInnerHTML={{
                                             __html:
                                               product?.product?.description,
                                           }}
-                                        />
+                                        /> */}
                                         <p className="prod-desc mb-1 text-success">
                                           In Stock
                                         </p>
@@ -444,7 +633,7 @@ export default function AddToCart() {
                                             </button>
                                           </div>
                                           <div
-                                            className="!ml-8"
+                                            className="!ml-8 w-full"
                                             style={{ marginLeft: "1rem" }}
                                           >
                                             <span className="total">
@@ -463,7 +652,15 @@ export default function AddToCart() {
                                             </a>{" "}
                                             <a
                                               className="cursor-pointer"
-                                              href={`/product-detail/${product?.product_id}`}
+                                              href={`${userLang}/product-detail/${
+                                                product?.product?.slug
+                                              }/${CryptoJS?.AES?.encrypt(
+                                                `${product?.product_id}`,
+                                                "trading_materials"
+                                              )
+                                                ?.toString()
+                                                .replace(/\//g, "_")
+                                                .replace(/\+/g, "-")}`}
                                               style={{
                                                 color: " #8812a1",
                                                 marginLeft: "8px",
@@ -499,7 +696,7 @@ export default function AddToCart() {
                       <div className="text-center font-bold text-gray-700 ">
                         <p>no products found in cart</p>
                         <p
-                          className="nav-link text-green-600"
+                          className="nav-link text-green-600 cursor-pointer"
                           onClick={() => navigate("/")}
                         >
                           {" "}
@@ -509,10 +706,259 @@ export default function AddToCart() {
                     )}
                   </div>
                 </div>
+                <hr className="mt-2" />
+                {cartProducts?.length > 0 && (
+                  <div className="mt-5">
+                    {userData ? (
+                      <div className="nk-section-blog-details mt-3">
+                        <h4 className="mb-3">Billing Address</h4>
+                        {userData?.client?.primary_address?.length > 0 && (
+                          <ul className="d-flex flex-column gap-2 pb-0">
+                            <li className="d-flex align-items-center gap-5 text-gray-1200">
+                              <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                Full Name:
+                              </p>
+                              <p className="m-0 fs-14 text-gray-1200 w-75">
+                                {userData?.client?.first_name}
+                              </p>
+                            </li>
+                            <li className="d-flex align-items-center gap-5 text-gray-1200">
+                              <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                Address:
+                              </p>
+                              <p className="m-0 fs-14 text-gray-1200 w-75">
+                                {userData?.client?.primary_address[0]?.add_1},{" "}
+                                {userData?.client?.primary_address[0]?.add_2 !==
+                                null
+                                  ? `${userData?.client?.primary_address[0]?.add_2},  `
+                                  : ""}
+                                {userData?.client?.primary_address[0]?.city},{" "}
+                                {userData?.client?.primary_address[0]?.state},{" "}
+                                {userData?.client?.primary_address[0]?.country},{" "}
+                                {userData?.client?.primary_address[0]?.zip}
+                              </p>
+                            </li>
+                            <li className="d-flex align-items-center gap-5 text-gray-1200">
+                              <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                Shipping Type:
+                              </p>
+                              <p className="m-0 fs-14 text-gray-1200 w-75">
+                                Standard (2-5 business days)
+                              </p>
+                            </li>
+                          </ul>
+                        )}
+                        {userData?.client?.primary_address?.length > 0 ? (
+                          <div>
+                            <button
+                              className="btn btn-sm btn-warning mt-2 mb-2"
+                              variant="warning"
+                              color="warning"
+                              onClick={() => {
+                                setShowModal(true);
+                                setFormType("update");
+                                setAddressUpdateType("billing");
+                              }}
+                              style={{
+                                background: "#54a8c7",
+                                border: "#54a8c7",
+                                color: "#fff",
+                              }}
+                            >
+                              Update address
+                            </button>
+                            <div>
+                              <input
+                                type="checkbox"
+                                checked={billingSameAsShipping === true}
+                                onChange={handleBillingSameAsShipping}
+                              />
+                              <label className="ml-3">
+                                Billing address same as Shipping address
+                              </label>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn btn-sm btn-warning mt-2 mb-2"
+                            variant="warning"
+                            color="warning"
+                            onClick={() => {
+                              setShowModal(true);
+                              setFormType("add");
+                              setAddressUpdateType("billing");
+                            }}
+                            style={{
+                              background: "#54a8c7",
+                              border: "#54a8c7",
+                              color: "#fff",
+                            }}
+                          >
+                            Add address
+                          </button>
+                        )}
+                        {/* <button
+                        className="btn btn-warning mb-2 mt-2 ml-2"
+                        variant="warning"
+                        color="warning"
+                        onClick={() => {
+                          setShowModal(true);
+                          setFormType("add");
+                        }}
+                      >
+                        Add address
+                      </button> */}
+                        <div>
+                          <hr className="mr-2" />
+                        </div>
+                        <div className="nk-section-blog-details mt-3"></div>
+                      </div>
+                    ) : (
+                      <div className="nk-section-blog-details mt-3">
+                        <Button
+                          className="btn btn-warning mb-2"
+                          variant="warning"
+                          color="warning"
+                          onClick={() => {
+                            setShowModal(true);
+                            setFormType("add");
+                            setAddressUpdateType("shipping");
+                          }}
+                          style={{
+                            background: "#54a8c7 ",
+                            border: "#54a8c7",
+                            color: "#fff",
+                          }}
+                        >
+                          Add address
+                        </Button>
+                      </div>
+                    )}
+                    {!billingSameAsShipping && (
+                      <div className="nk-section-blog-details mt-3">
+                        <div className="max-h-[100px] md:max-h-[225px] overflow-y-auto">
+                          <h4 className="mb-3">Shipping Address</h4>
+
+                          <ul className="d-flex flex-column gap-2 pb-0">
+                            {userData?.client?.address?.length > 0 &&
+                              userData?.client?.address?.map((add, ind) => {
+                                // console.log(add?.id, activeBillingAddress)
+                                if (add?.id !== activeBillingAddress) {
+                                  return (
+                                    <div className="">
+                                      <li className="d-flex align-items-center ">
+                                        <div className="!block">
+                                          <input
+                                            type="checkbox"
+                                            checked={
+                                              add?.id === activeShippingAddress
+                                            }
+                                            onChange={() =>
+                                              handleShippingAddressChange(
+                                                add?.id
+                                              )
+                                            }
+                                            className="form-check-input"
+                                          />
+                                          <span
+                                            className="ml-3  font-semibold fs-14"
+                                            style={{ color: "#0167f3" }}
+                                          >
+                                            {activeShippingAddressChecked ===
+                                            ind
+                                              ? "[Selected]"
+                                              : ""}
+                                          </span>
+                                        </div>
+                                      </li>
+
+                                      <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                        {/* <div className="!block">
+                          <input
+                type="checkbox"
+                checked={ind === activeShippingAddressChecked}
+                onChange={() => handleShippingAddressChange(ind)}
+                className="form-check-input"
+              />
+                          </div> */}
+
+                                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                          Full Name:
+                                        </p>
+                                        <p className="m-0 fs-14 text-gray-1200 w-75">
+                                          {userData?.client?.first_name}
+                                        </p>
+                                      </li>
+                                      <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                          Address:
+                                        </p>
+                                        <p className="m-0 fs-14 text-gray-1200 w-75">
+                                          {add.add_1},{" "}
+                                          {add?.add_2 !== null
+                                            ? `${add?.add_2},  `
+                                            : ""}
+                                          {add?.city}, {add?.state},{" "}
+                                          {add?.country}, {add?.zip}
+                                        </p>
+                                      </li>
+                                      <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                          Shipping Type:
+                                        </p>
+                                        <p className="m-0 fs-14 text-gray-1200 w-75">
+                                          Standard (2-5 business days)
+                                        </p>
+                                      </li>
+                                    </div>
+                                  );
+                                }
+                              })}
+                          </ul>
+                        </div>
+
+                        {userData?.client?.address?.length > 1 && (
+                          <button
+                            className="btn btn-sm btn-warning mt-2 mb-2 "
+                            onClick={() => {
+                              setShowModal(true);
+                              setFormType("update");
+                              setAddressUpdateType("shipping");
+                            }}
+                            style={{
+                              backgroundColor: "#54a8c7",
+                              border: "#54a8c7",
+                              color: "#fff",
+                            }}
+                          >
+                            Update address
+                          </button>
+                        )}
+                        <button
+                          className="btn btn-sm btn-warning mb-2 mt-2 ml-2"
+                          variant="warning"
+                          color="warning"
+                          onClick={() => {
+                            setShowModal(true);
+                            setFormType("add");
+                          }}
+                          style={{
+                            background: "#54a8c7",
+                            border: "#54a8c7",
+                            color: "#fff",
+                          }}
+                        >
+                          Add address
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-              <div className="col-lg-4 ps-lg-0">
-                <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
-                  {userData ? (
+              {cartProducts?.length > 0 && (
+                <div className="col-lg-4 ps-lg-0">
+                  <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
+                    {/* {userData ? (
                     <div className="nk-section-blog-details mt-3">
                       <h4 className="mb-3">Shipping To</h4>
                       <ul className="d-flex flex-column gap-2 pb-0">
@@ -573,72 +1019,122 @@ export default function AddToCart() {
                       </Button>
                     </div>
                   )}
-                  <hr />
-                  <div className="nk-section-blog-details">
-                    <h4 className="mb-3">Order Summary</h4>
-                    <div className="pt-0 mb-3">
-                      {/* <!-- <h6 className="fs-18 mb-0">Promocode</h6> --> */}
-                      <div className="d-flex w-75">
-                        <input
-                          type="text"
-                          className="form-control rounded-0 py-0 px-2"
-                          placeholder="Promocode"
-                          name=""
-                          value=""
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-success rounded-0 px-3 py-1 fs-14 bg-[rgba(34,197,94,1)]"
-                          name="button"
-                        >
-                          Apply
-                        </button>
+                  <hr /> */}
+                    <div className="nk-section-blog-details">
+                      <h4 className="mb-3">Order Summary</h4>
+                      <div className="pt-0 mb-3">
+                        {/* <!-- <h6 className="fs-18 mb-0">Promocode</h6> --> */}
+                        <div className="d-flex w-75">
+                          {clientType === "client" && (
+                            <input
+                              type="text"
+                              className="form-control rounded-0 py-0 px-2"
+                              placeholder="Promocode"
+                              name=""
+                              value={promocode}
+                              onChange={handlePromoCodeChange}
+                            />
+                          )}
+                          {clientType === "client" && (
+                            <button
+                              type="button"
+                              className="btn btn-success rounded-0 px-3 py-1 fs-14 bg-[rgba(34,197,94,1)]"
+                              name="button"
+                            >
+                              Apply
+                            </button>
+                          )}
+                          {clientType !== "client" && (
+                            <p className="text-green-900 font-semibold">
+                              Promocode applied{" "}
+                              {discountPercentage !== null
+                                ? discountPercentage + "%"
+                                : ""}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <ul className="d-flex flex-column gap-2 pb-5">
-                      <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                          Sub Total:
-                        </p>
-                        <p className="m-0 fs-14 text-gray-1200 w-75">
-                          ₹ {subTotal?.toFixed(2)}
-                        </p>
-                      </li>
-                      <li className="d-flex align-items-center gap-5 text-gray-1200">
+                      <ul className="d-flex flex-column gap-2 pb-5">
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Sub Total:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            ₹ {subTotal?.toFixed(2)}
+                          </p>
+                        </li>
+                        {/* <li className="d-flex align-items-center gap-5 text-gray-1200">
                         <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                           Shipping:
                         </p>
                         <p className="m-0 fs-14 text-gray-1200 w-75">{allProducts?.length> 0 ? "₹ 10.00" : "₹ 0.00"}</p>
-                      </li>
-                      <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                          Tax:
-                        </p>
-                        <p className="m-0 fs-14 text-gray-1200 w-75">{allProducts?.length> 0 ? "₹ 40.00" : "₹ 0.00"}</p>
-                      </li>
-                      <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                          Discount:
-                        </p>
-                        <p className="m-0 fs-14 text-danger w-75">{allProducts?.length> 0 ? "- ₹5.00" : "₹ 0.00"}</p>
-                      </li>
-                      <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-16 fw-semibold text-uppercase w-25">
-                          Total:
-                        </p>
-                        <p className="m-0 fs-16 fw-semibold text-dark w-75">
-                          {allProducts?.length>0 ? `₹ ${(subTotal + 10 + 40 - 5).toFixed(2)}` : "0.00"}
-                        </p>
-                      </li>
-                    </ul>
-                   
+                      </li> */}
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Tax:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            {allProducts?.length > 0 ? "₹ 40.00" : "₹ 0.00"}
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Discount:
+                          </p>
+                          <p className="m-0 fs-14 text-danger w-75">
+                            {discount}
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-16 fw-semibold text-uppercase w-25">
+                            Total:
+                          </p>
+                          <p className="m-0 fs-16 fw-semibold text-dark w-75">
+                            {allProducts?.length > 0
+                              ? `₹ ${(subTotal - discount).toFixed(2)}`
+                              : "0.00"}
+                          </p>
+                        </li>
+                      </ul>
+                      <label>
+                        <h4 className="mb-1"> Comments:</h4>
+                      </label>
+                      <textarea
+                        className="form-control rounded-0  px-2 mb-2 !min-h-[auto]"
+                        rows={"2"}
+                        value={optionalNotes}
+                        onChange={handleAdditionalComments}
+                        placeholder="Please mention comments on your order here."
+                      ></textarea>
 
-                    <button disabled={allProducts?.length>0 ?false : true} onClick={()=>navigate("/checkout")} className="btn btn-primary w-100">
-                      Proceed to Checkout
-                    </button>
+                      <button
+                        disabled={
+                          allProducts?.length > 0 &&
+                          userData?.client?.primary_address?.length !== 0 &&
+                          subTotal > 0
+                            ? false
+                            : true
+                        }
+                        onClick={handlePlaceOrder}
+                        className="btn btn-primary w-100"
+                      >
+                        Place Order
+                      </button>
+                      {userData?.client?.primary_address?.length === 0 && (
+                        <span className="text-red-800 font-semibold">
+                          Please add Address before palcing order.
+                        </span>
+                      )}
+                      {apiErr?.length > 0 &&
+                        apiErr?.map((err, ind) => (
+                          <span className="text-red-800 font-semibold">
+                            {err}
+                          </span>
+                        ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
@@ -667,7 +1163,7 @@ export default function AddToCart() {
                   </div>
                 </div>
                 <div class="col-lg-4 text-center text-lg-end">
-                  <a href="contact-us.php" class="btn btn-white fw-semiBold">
+                  <a href={`${userLang}/contact`} class="btn btn-white fw-semiBold">
                     Contact Support
                   </a>
                 </div>

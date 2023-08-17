@@ -4,109 +4,116 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { userLanguage } from "../../../features/userLang/userLang";
 import axios from "axios";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
+import { Form } from "react-bootstrap";
+import { Alert } from "@mui/material";
 
 export default function ForgotPassword() {
-    const [email, setEmail] = useState("");
-    const [emailError, setEmailError] = useState("");
-    const [successMEssage, setSuccessMessage] = useState("");
-    const [apiError, setApiError] = useState()
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [apiError, setApiError] = useState();
+  const [emailSentMsg, setEmailSentMsg] = useState("");
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const loaderState = useSelector((state) => state.loader?.value);
-    const userLang = useSelector((state) => state?.lang?.value);
-  
-    useEffect(() => {
-      const lang = localStorage?.getItem("i18nextLng");
-      console.log("lang", lang, userLang);
-      let userLan = "";
-      if (lang === "/ms" || location.pathname.includes("/ms")) {
-        dispatch(userLanguage("/ms"));
-        userLan = "/ms";
-      } else {
-        dispatch(userLanguage(""));
-        userLan = "";
-      }
-    }, []);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const loaderState = useSelector((state) => state.loader?.value);
+  const userLang = useSelector((state) => state?.lang?.value);
 
-    function emailValidaiton(email) {
-        const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
-        if (email === "") {
-          setEmailError("Email is required");
-        } else if (!emailRegex.test(email)) {
-          setEmailError("invalid email");
-        } else {
-          setEmailError("");
-        }
-      }
-
-    const handleEmailChange=(e)=>{
-        setEmail(e?.target?.value);
-        emailValidaiton(email)
+  useEffect(() => {
+    const lang = localStorage?.getItem("i18nextLng");
+    console.log("lang", lang, userLang);
+    let userLan = "";
+    if (lang === "/ms" || location.pathname.includes("/ms")) {
+      dispatch(userLanguage("/ms"));
+      userLan = "/ms";
+    } else {
+      dispatch(userLanguage(""));
+      userLan = "";
     }
+  }, []);
 
-    async function handleFormSubmission() {
+  function emailValidaiton(email) {
+    const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    if (email === "") {
+      setEmailError("Email is required");
+    } else if (!emailRegex.test(email)) {
+      setEmailError("invalid email");
+    } else {
+      setEmailError("");
+    }
+  }
+
+  const handleEmailChange = (e) => {
+    setEmail(e?.target?.value);
+    emailValidaiton(email);
+  };
+
+  async function handleFormSubmission() {
+    setApiError([]);
+    setEmailSentMsg("");
+    console.log(email);
+    emailValidaiton(email);
+    if (emailError === "" && email !== "") {
+      try {
         dispatch(showLoader());
-        setApiError([]);
-        setSuccessMessage("");
-        console.log(email);
-        emailValidaiton(email);
-        if (emailError === "") {
-          try {
-            const response = await axios.post(
-              "https://admin.tradingmaterials.com/api/auth/login",
-              {
-                email: email,
-              }
-            );
-            if (response?.data?.status) {
-              setSuccessMessage(response?.data?.message);
-              console.log(response?.data);
-                navigate(`${userLang}/login`);
-
-            }
-          } catch (err) {
-            console.log("err", err);
-            if (err?.response?.data?.errors) {
-              setApiError([...Object?.values(err?.response?.data?.errors)]);
-            } else {
-              setApiError([err?.response?.data?.message]);
-            }
-          } finally {
-            dispatch(hideLoader());
+        const response = await axios.post(
+          "https://admin.tradingmaterials.com/api/lead/reset-password-link",
+          {
+            email: email,
           }
+        );
+        if (response?.data?.status) {
+          setEmailSentMsg(response?.data?.message);
+          console.log(response?.data);
+          // navigate(`${userLang}/login`);
         }
+      } catch (err) {
+        console.log("err", err);
+        if (err?.response?.data?.errors) {
+          setApiError([...Object?.values(err?.response?.data?.errors)]);
+        } else {
+          setApiError([err?.response?.data?.message]);
+        }
+        setTimeout(() => {
+          setApiError([]);
+          setEmailSentMsg("");
+        }, 8000);
+      } finally {
+        dispatch(hideLoader());
       }
-
+    }
+  }
 
   return (
     <>
-    {loaderState && (
+      {loaderState && (
         <div className="preloader !bg-[rgba(0,0,0,0.5)]">
           <div className="loader"></div>
         </div>
       )}
-      <div className="nk-app-root ">
+      <div className="nk-app-root !text-left">
         <main className="nk-pages">
           <div className="nk-split-page flex-column flex-xl-row">
             <div className="nk-split-col nk-auth-col justify-content-center">
               <div
                 className="nk-form-card card  p-0 card-gutter-md nk-auth-form-card mx-lg-9 mx-xl-auto"
-                data-aos="fade-up"
+                // data-aos="fade-up"
               >
                 <div className="card-body">
                   <div className="nk-form-card-head text-center pb-5">
-                    <div className="form-logo mb-3">
+                    <div className="form-logo flex justify-center mb-3">
                       <a href={`/`}>
                         <img
-                          className="logo-img content-center"
-                          src="images/tm-logo-1.png"
+                          className="logo-img justify-center"
+                          src="/images/tm-logo-1.png"
                           alt="logo"
                         />
                       </a>
                     </div>
-                    <h3 className="title mb-2 text-4xl font-semibold">
+                    <h3
+                      className="title mb-2 !font-bold"
+                      style={{ fontSize: "2rem" }}
+                    >
                       Password Forgotten?
                     </h3>
                     <p className="text">
@@ -117,7 +124,7 @@ export default function ForgotPassword() {
                       .
                     </p>
                   </div>
-                  <form action="#">
+                  <Form>
                     <div className="row gy-4">
                       <div className="col-12">
                         <div className="form-group text-left">
@@ -139,17 +146,40 @@ export default function ForgotPassword() {
                       </div>
                       <div className="col-12">
                         <div className="form-group">
-                        <button
+                          <button
                             className="btn btn-block btn-primary"
                             type="button"
                             onClick={handleFormSubmission}
                           >
                             Send Reset Link
                           </button>
+                          {emailSentMsg && (
+                            <p className="text-green-800 font-semibold">
+                              {emailSentMsg}
+                            </p>
+                          )}
+
+                          {apiError?.length > 0 &&
+                            apiError?.map((err, ind) => {
+                              return (
+                                <Alert
+                                  variant="outlined"
+                                  severity="error"
+                                  className="!mt-2"
+                                >
+                                  <p
+                                    key={ind}
+                                    className="text-red-700 font-semibold"
+                                  >
+                                    {err}
+                                  </p>
+                                </Alert>
+                              );
+                            })}
                         </div>
                       </div>
                     </div>
-                  </form>
+                  </Form>
                 </div>
               </div>
             </div>
@@ -160,7 +190,7 @@ export default function ForgotPassword() {
                   <div className="media media-lg media-circle media-middle text-bg-cyan-200 mb-5">
                     <em className="icon ni ni-quote-left text-white"></em>
                   </div>
-                  <h1 className="mb-5">
+                  <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
                     We’re building a better application now
                   </h1>
                   <div className="nk-auth-quote ms-sm-5">
@@ -176,7 +206,7 @@ export default function ForgotPassword() {
                           <img src="/images/avatar/a.jpg" alt="avatar" />
                         </div>
                         <div className="media-text">
-                          <div className="h5 mb-0">Wade Warren</div>
+                          <div className="h5 mb-0 !font-bold">Wade Warren</div>
                           <span className="small">3 months ago</span>
                         </div>
                       </div>
@@ -193,11 +223,11 @@ export default function ForgotPassword() {
         >
           <em className="icon ni ni-chevrons-up"></em>
         </a>
-        <div className="nk-sticky-badge">
+        {/* <div className="nk-sticky-badge">
           <ul>
             <li>
               <a
-                href="index.php"
+                href="/"
                 className="nk-sticky-badge-icon nk-sticky-badge-home"
                 data-bs-toggle="tooltip"
                 data-bs-placement="right"
@@ -209,7 +239,7 @@ export default function ForgotPassword() {
             </li>
             <li>
               <a
-                href="product-details.php"
+                href="/"
                 className="nk-sticky-badge-icon nk-sticky-badge-purchase"
                 data-bs-toggle="tooltip"
                 data-bs-custom-className="nk-tooltip"
@@ -220,7 +250,7 @@ export default function ForgotPassword() {
               </a>
             </li>
           </ul>
-        </div>
+        </div> */}
       </div>
     </>
   );

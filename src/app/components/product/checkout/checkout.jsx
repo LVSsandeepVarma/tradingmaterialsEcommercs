@@ -10,7 +10,7 @@ import { fetchAllProducts } from "../../../../features/products/productsSlice";
 import axios from "axios";
 import ShippingAddressModal from "../../modals/address";
 import { Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { updateUsers } from "../../../../features/users/userSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
@@ -18,8 +18,10 @@ import { updateCartCount } from "../../../../features/cartWish/focusedCount";
 import { Form } from "formik";
 import { FaCreditCard, FaCalendarAlt, FaLock, FaClock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
+import { Divider } from "@mui/material";
 
 export default function Checkout() {
+  const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const products = useSelector((state) => state?.products?.value);
@@ -27,6 +29,7 @@ export default function Checkout() {
   const userData = useSelector((state) => state?.user?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
   const userLang = useSelector((state) => state?.lang?.value);
+  const clientType = useSelector((state) => state?.clientType?.value);
 
   const [showModal, setShowModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -53,10 +56,13 @@ export default function Checkout() {
     useState(0);
   const [activeBillingAddfreeChecked, setActiveBillingAddressChecked] =
     useState(0);
-    const [addressUpdateType, setAddressUpdateType] = useState("")
-
+  const [addressUpdateType, setAddressUpdateType] = useState("");
+  const [activePaymentMethod, setActivePaymentMethod] = useState("razorpay");
   // State variable to track quantities for each product
   const [quantities, setQuantities] = useState({});
+  const [promocode, setPromocode] = useState("");
+  const [orderId, setOrderId] = useState(localStorage.getItem("order_id"));
+  const [orderData, setOrderData] = useState({});
 
   // State variable to store prices for each product
   const [prices, setPrices] = useState({});
@@ -66,15 +72,26 @@ export default function Checkout() {
 
   const getUserInfo = async () => {
     try {
-      const response = await axios.get(
-        "https://admin.tradingmaterials.com/api/lead/get-user-info",
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-            Accept: "application/json",
-          },
-        }
-      );
+      const url =
+        clientType === "client"
+          ? "https://admin.tradingmaterials.com/api/get-user-info"
+          : "https://admin.tradingmaterials.com/api/lead/get-user-info";
+      const headerData =
+        clientType === "client"
+          ? {
+              headers: {
+                Authorization: `Bearer ` + localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            }
+          : {
+              headers: {
+                "access-token": localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            };
+
+      const response = await axios.get(url, headerData);
       if (response?.data?.status) {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
@@ -105,49 +122,73 @@ export default function Checkout() {
     }
   };
 
+  const fetchOrderdetails = async () => {
+    try {
+      dispatch(showLoader());
+      const response = await axios.get(
+        `https://admin.tradingmaterials.com/api/lead/product/checkout/view-order?order_id=${params?.id}`,
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+      if (response?.data?.status) {
+        setAllProducts(response?.data?.data?.items);
+        setSubTotal(response?.data?.data?.sub_total);
+        setOrderData(response?.data?.data);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
+    }
+  };
+
   useEffect(() => {
-    setActiveShippingAddress(userData?.client?.address[0]);
-    setActivebillingAddress(userData?.client?.primary_address[0]);
-    getUserInfo();
+    // setActiveShippingAddress(userData?.client?.address[0]);
+    // setActivebillingAddress(userData?.client?.primary_address[0]);
+    // getUserInfo();
+    fetchOrderdetails();
   }, []);
 
   // Set initial quantity for all products to 1 in the useEffect hook
-  useEffect(() => {
-    if (allProducts?.length) {
-      console.log(allProducts);
-      const initialQuantities = {};
-      allProducts.forEach((product) => {
-        console.log(product?.total, "ttttttt");
-        initialQuantities[product.product_id] = product?.qty;
-      });
-      setQuantities(initialQuantities);
-    }
-  }, [allProducts, userData, products]);
+  // useEffect(() => {
+  //   if (allProducts?.length) {
+  //     console.log(allProducts);
+  //     const initialQuantities = {};
+  //     allProducts.forEach((product) => {
+  //       console.log(product?.total, "ttttttt");
+  //       initialQuantities[product.product_id] = product?.qty;
+  //     });
+  //     setQuantities(initialQuantities);
+  //   }
+  // }, [allProducts, userData, products]);
 
   // Calculate the total price for each product based on the quantity
-  useEffect(() => {
-    dispatch(showLoader());
-    const updatedPrices = {};
+  // useEffect(() => {
+  //   dispatch(showLoader());
+  //   const updatedPrices = {};
 
-    allProducts?.forEach((product) => {
-      const quantity = quantities[product.product_id] || 1;
-      const price = parseInt(product?.price);
-      if (price) {
-        const totalPrice = quantity * price;
-        updatedPrices[product.product_id] = totalPrice.toFixed(2);
-      }
-    });
-    setPrices(updatedPrices);
-    // Calculate the subTotal by summing up the individual product prices
-    const totalPriceArray = Object.values(updatedPrices).map(Number);
-    const updatedSubTotal = totalPriceArray.reduce(
-      (acc, price) => acc + price,
-      0
-    );
-    setSubTotal(updatedSubTotal);
+  //   allProducts?.forEach((product) => {
+  //     const quantity = quantities[product.product_id] || 1;
+  //     const price = parseInt(product?.price);
+  //     if (price) {
+  //       const totalPrice = quantity * price;
+  //       updatedPrices[product.product_id] = totalPrice.toFixed(2);
+  //     }
+  //   });
+  //   setPrices(updatedPrices);
+  //   // Calculate the subTotal by summing up the individual product prices
+  //   const totalPriceArray = Object.values(updatedPrices).map(Number);
+  //   const updatedSubTotal = totalPriceArray.reduce(
+  //     (acc, price) => acc + price,
+  //     0
+  //   );
+  //   setSubTotal(updatedSubTotal);
 
-    dispatch(hideLoader());
-  }, [allProducts, quantities]);
+  //   dispatch(hideLoader());
+  // }, [allProducts, quantities]);
 
   const handleCvvChange = (e) => {
     const addCvv = e.target.value;
@@ -301,40 +342,67 @@ export default function Checkout() {
     }
   };
 
+  const handlePaymentMethod = (paymentType) => {
+    setActivePaymentMethod(paymentType);
+  };
+
+  // const handlePromoCodeChange=(e)=>{
+  //   setPromocode(e?.target?.value)
+  // }
+
+  // const applyPromoCode=async ()=>{
+  //   try{
+  //     const token = localStorage.getItem("client_token")
+  //     const response = await axios.get(
+  //       "https://admin.tradingmaterials.com/api/lead/product/apply-register-promo-code",
+  //       {
+  //         headers: {
+  //           "access-token": token,
+  //         },
+  //       }
+  //     );
+  //   }catch(err){
+  //     console.log(err, "err")
+  //   }
+  // }
   return (
     <>
       {loaderState && (
-        <div className="preloader !bg-[rgba(0,0,0,0.5)]">
+        <div className="preloader !backdrop-blur-[1px]">
           <div className="loader"></div>
         </div>
       )}
-      {addressUpdateType==="shipping" && <ShippingAddressModal
-        show={showModal}
-        onHide={() => setShowModal(false)}
-        type={fomrType}
-        data={
-          fomrType === "add"
-            ? []
-            : activeShippingAddress === undefined
-            ? userData?.client?.address[activeShippingAddressChecked]
-            : activeShippingAddress
-        }
-        // handleFormSubmit={handleFormSubmit}
-      />}
+      {addressUpdateType === "shipping" && (
+        <ShippingAddressModal
+          show={showModal}
+          onHide={() => setShowModal(false)}
+          type={fomrType}
+          data={
+            fomrType === "add"
+              ? []
+              : activeShippingAddress === undefined
+              ? userData?.client?.address[activeShippingAddressChecked]
+              : activeShippingAddress
+          }
+          // handleFormSubmit={handleFormSubmit}
+        />
+      )}
 
-{addressUpdateType==="billing" && <ShippingAddressModal
-        show={showModal}
-        onHide={() => setShowModal(false)}
-        type={fomrType}
-        data={
-          fomrType === "add"
-            ? []
-            : activeBillingAddress === undefined
-            ? userData?.client?.address[activeBillingAddfreeChecked]
-            : activeBillingAddress
-        }
-        // handleFormSubmit={handleFormSubmit}
-      />}
+      {addressUpdateType === "billing" && (
+        <ShippingAddressModal
+          show={showModal}
+          onHide={() => setShowModal(false)}
+          type={fomrType}
+          data={
+            fomrType === "add"
+              ? []
+              : activeBillingAddress === undefined
+              ? userData?.client?.address[activeBillingAddfreeChecked]
+              : activeBillingAddress
+          }
+          // handleFormSubmit={handleFormSubmit}
+        />
+      )}
 
       {isSuccess && (
         <div
@@ -364,7 +432,7 @@ export default function Checkout() {
       <Header />
       <div className="nk-pages text-left">
         <section className="nk-banner nk-banner-career-job-details bg-gray">
-          <div className="nk-banner-wrap pt-120 pt-lg-180 pb-300">
+          <div className="nk-banner-wrap pt-120 pt-lg-180 pb-[100px] lg:!pb-[300px]">
             <div className="container">
               <div className="row">
                 <div className="col-lg-8 col-xxl-5 text-left">
@@ -417,30 +485,29 @@ export default function Checkout() {
                                         <p className="prod-title mb-0">
                                           {product?.product?.name}
                                         </p>
-                                        <p
+                                        {/* <p
                                           className="prod-desc mb-0"
                                           dangerouslySetInnerHTML={{
                                             __html:
                                               product?.product?.description,
                                           }}
-                                        />
+                                        /> */}
                                         <p className="prod-desc mb-1 text-success">
                                           In Stock
                                         </p>
                                         <div className=" ">
                                           <div id="counter" className="">
                                             Qty:
-                                            <span id="fs-18 m-0 text-gray-1200 text-start !font-bold !mr-2r">
-                                              {quantities[product.product_id] ||
-                                                1}
+                                            <span className="fs-18 m-0 text-gray-1200 !text-xs !font-bold !ml-1 !mr-2r">
+                                              {product?.qty || 1}
                                             </span>
                                           </div>
                                           <div
                                             className="!mt-3"
                                             // style={{ marginLeft: "1rem" }}
                                           >
-                                            <span className="total text-black font-semibold">
-                                              ₹ {prices[product?.product_id]}
+                                            <span className="total text-white font-semibold">
+                                              ₹ {product?.price}
                                             </span>{" "}
                                           </div>
                                         </div>
@@ -526,8 +593,18 @@ export default function Checkout() {
                 </div>
                 <hr className="mt-2" />
                 <div className="mt-5">
-                  {userData ? (
-                    <div className="nk-section-blog-details mt-3">
+                  {orderData ? (
+                    <div className="nk-section-blog-details mt-3 mb-3">
+                      {orderData?.order?.note != null && (
+                        <div>
+                          <h4 className="mb-1">Comments</h4>
+                          <ul className="d-flex flex-column gap-2 pb-0">
+                            <li className="d-flex align-items-center gap-5 text-gray-1200">
+                              {orderData?.order?.note}
+                            </li>
+                          </ul>
+                        </div>
+                      )}
                       <h4 className="mb-3">Billing Address</h4>
                       <ul className="d-flex flex-column gap-2 pb-0">
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -535,7 +612,9 @@ export default function Checkout() {
                             Full Name:
                           </p>
                           <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {userData?.client?.first_name}
+                            {orderData?.order?.name === null
+                              ? userData?.client?.first_name
+                              : orderData?.order?.name}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -543,15 +622,12 @@ export default function Checkout() {
                             Address:
                           </p>
                           <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {userData?.client?.primary_address[0]?.add_1},{" "}
-                            {userData?.client?.primary_address[0]?.add_2 !==
-                            null
+                            {orderData?.order?.address_1},{" "}
+                            {orderData?.order?.address_2 !== null
                               ? `${userData?.client?.primary_address[0]?.add_2},  `
                               : ""}
-                            {userData?.client?.primary_address[0]?.city},{" "}
-                            {userData?.client?.primary_address[0]?.state},{" "}
-                            {userData?.client?.primary_address[0]?.country},{" "}
-                            {userData?.client?.primary_address[0]?.zip}
+                            {orderData?.order?.city}, {orderData?.order?.state},{" "}
+                            {orderData?.order?.country}, {orderData?.order?.zip}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -563,18 +639,23 @@ export default function Checkout() {
                           </p>
                         </li>
                       </ul>
-                      <button
-                        className="btn btn-warning mt-2 mb-2"
+                      {/* <button
+                        className="btn btn-sm btn-warning mt-2 mb-2"
                         variant="warning"
                         color="warning"
                         onClick={() => {
                           setShowModal(true);
                           setFormType("update");
-                          setAddressUpdateType("billing")
+                          setAddressUpdateType("billing");
+                        }}
+                        style={{
+                          background: "#54a8c7",
+                          border: "#54a8c7",
+                          color: "#fff",
                         }}
                       >
                         Update address
-                      </button>
+                      </button> */}
                       {/* <button
                         className="btn btn-warning mb-2 mt-2 ml-2"
                         variant="warning"
@@ -587,34 +668,39 @@ export default function Checkout() {
                         Add address
                       </button> */}
                       <div>
-                        <hr className="mr-2" />
+                        <hr className="mr-2 mt-2" />
                       </div>
                       <div className="nk-section-blog-details mt-3"></div>
                     </div>
                   ) : (
                     <div className="nk-section-blog-details mt-3">
-                      <Button
+                      {/* <Button
                         className="btn btn-warning mb-2"
                         variant="warning"
                         color="warning"
                         onClick={() => {
                           setShowModal(true);
                           setFormType("add");
-                          setAddressUpdateType("shipping")
+                          setAddressUpdateType("shipping");
+                        }}
+                        style={{
+                          background: "#54a8c7 ",
+                          border: "#54a8c7",
+                          color: "#fff",
                         }}
                       >
                         Add address
-                      </Button>
+                      </Button> */}
                     </div>
                   )}
                   <div className="nk-section-blog-details mt-3">
-                    <div className="max-h-[100px] md:max-h-[175px] overflow-y-auto">
+                    <div className="max-h-[100px] md:max-h-[225px] overflow-y-auto">
                       <h4 className="mb-3">Shipping Address</h4>
 
                       <ul className="d-flex flex-column gap-2 pb-0">
-                        {userData?.client?.address?.map((add, ind) => (
-                          <div className="">
-                            <li className="d-flex align-items-center ">
+                        {/* {userData?.client?.address?.map((add, ind) => ( */}
+                        <div className="mb-1">
+                          {/* <li className="d-flex align-items-center ">
                               <div className="!block">
                                 <input
                                   type="checkbox"
@@ -624,11 +710,19 @@ export default function Checkout() {
                                   }
                                   className="form-check-input"
                                 />
+                                <span
+                                  className="ml-3  font-semibold fs-14"
+                                  style={{ color: "#0167f3" }}
+                                >
+                                  {activeShippingAddressChecked === ind
+                                    ? "[Selected]"
+                                    : ""}
+                                </span>
                               </div>
-                            </li>
+                            </li> */}
 
-                            <li className="d-flex align-items-center gap-5 text-gray-1200">
-                              {/* <div className="!block">
+                          <li className="d-flex align-items-center gap-5 text-gray-1200">
+                            {/* <div className="!block">
                           <input
                 type="checkbox"
                 checked={ind === activeShippingAddressChecked}
@@ -637,68 +731,81 @@ export default function Checkout() {
               />
                           </div> */}
 
-                              <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                Full Name:
-                              </p>
-                              <p className="m-0 fs-14 text-gray-1200 w-75">
-                                {userData?.client?.first_name}
-                              </p>
-                            </li>
-                            <li className="d-flex align-items-center gap-5 text-gray-1200">
-                              <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                Address:
-                              </p>
-                              <p className="m-0 fs-14 text-gray-1200 w-75">
-                                {add.add_1},{" "}
-                                {add?.add_2 !== null ? `${add?.add_2},  ` : ""}
-                                {add?.city}, {add?.state}, {add?.country},{" "}
-                                {add?.zip}
-                              </p>
-                            </li>
-                            <li className="d-flex align-items-center gap-5 text-gray-1200">
-                              <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                Shipping Type:
-                              </p>
-                              <p className="m-0 fs-14 text-gray-1200 w-75">
-                                Standard (2-5 business days)
-                              </p>
-                            </li>
-                          </div>
-                        ))}
+                            <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                              Full Name:
+                            </p>
+                            <p className="m-0 fs-14 text-gray-1200 w-75">
+                              {orderData?.order?.name === null
+                                ? userData?.client?.first_name
+                                : orderData?.order?.name}
+                            </p>
+                          </li>
+                          <li className="d-flex align-items-center gap-5 text-gray-1200">
+                            <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                              Address:
+                            </p>
+                            <p className="m-0 fs-14 text-gray-1200 w-75">
+                              {orderData?.order?.shipping_add1},{" "}
+                              {orderData?.order?.shipping_add2 !== null
+                                ? `${orderData?.order?.shipping_add_2},  `
+                                : ""}
+                              {orderData?.order?.shipping_city},{" "}
+                              {orderData?.order?.shipping_state},{" "}
+                              {orderData?.order?.shipping_country},{" "}
+                              {orderData?.order?.shipping_zip}
+                            </p>
+                          </li>
+                          <li className="d-flex align-items-center gap-5 text-gray-1200">
+                            <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                              Shipping Type:
+                            </p>
+                            <p className="m-0 fs-14 text-gray-1200 w-75">
+                              Standard (2-5 business days)
+                            </p>
+                          </li>
+                        </div>
+                        {/* // ))} */}
                       </ul>
                     </div>
 
-                    <button
-                      className="btn btn-warning mt-2 mb-2"
-                      variant="warning"
-                      color="warning"
+                    {/* <button
+                      className="btn btn-sm btn-warning mt-2 mb-2 "
                       onClick={() => {
                         setShowModal(true);
                         setFormType("update");
-                        setAddressUpdateType("shipping")
+                        setAddressUpdateType("shipping");
+                      }}
+                      style={{
+                        backgroundColor: "#54a8c7",
+                        border: "#54a8c7",
+                        color: "#fff",
                       }}
                     >
                       Update address
                     </button>
                     <button
-                      className="btn btn-warning mb-2 mt-2 ml-2"
+                      className="btn btn-sm btn-warning mb-2 mt-2 ml-2"
                       variant="warning"
                       color="warning"
                       onClick={() => {
                         setShowModal(true);
                         setFormType("add");
                       }}
+                      style={{
+                        background: "#54a8c7",
+                        border: "#54a8c7",
+                        color: "#fff",
+                      }}
                     >
                       Add address
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </div>
               <div className="col-lg-4 ps-lg-0">
                 <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
-                  <h4 className="">Payment Details</h4>
-                  <form onSubmit={handleSubmit}>
-                    {/* <Form.Group controlId="cardNumber"> */}
+                  <h4 className="!font-bold">Payment Method</h4>
+                  {/* <form onSubmit={handleSubmit}>
                     <label className="font-bold !text-sm mt-3 m-0">
                       Card Number
                     </label>
@@ -726,9 +833,7 @@ export default function Checkout() {
                     ) : (
                       ""
                     )}
-                    {/* </Form.Group> */}
                     <div className="">
-                      {/* <Form.Group controlId="expiry" className="col-md-6 "> */}
                       <label className="font-bold !text-sm mt-3 m-0 ">
                         Expiry date
                       </label>
@@ -754,8 +859,7 @@ export default function Checkout() {
                       ) : (
                         ""
                       )}
-                      {/* </Form.Group> */}
-                      {/* <Form.Group controlId="cvv" className="col-md-6"> */}
+                      {/* </Form.Group> 
                       <label className="font-bold !text-sm mt-3 m-0">CVV</label>
                       <div className="relative">
                         <input
@@ -779,8 +883,7 @@ export default function Checkout() {
                       ) : (
                         ""
                       )}
-                      {/* </Form.Group> */}
-                      {/* <Form.Group controlId="name" className="col-md-8"> */}
+                      {/* </Form.Group> 
                       <label className="font-bold !text-sm mt-3 m-0">
                         Name on the card
                       </label>
@@ -804,30 +907,49 @@ export default function Checkout() {
                       ) : (
                         ""
                       )}
-                      {/* </Form.Group> */}
+                      {/* </Form.Group> 
                     </div>
-                  </form>
+                  </form> */}
+                  <div>
+                    <div>
+                      <input
+                        type="checkbox"
+                        checked={activePaymentMethod === "razorpay"}
+                        onChange={() => handlePaymentMethod("razorpay")}
+                      />
+                      <label className="ml-2"> Razorpay</label>
+                    </div>
+                    <div>
+                      <input
+                        type="checkbox"
+                        checked={activePaymentMethod === "stripe"}
+                        onChange={() => handlePaymentMethod("stripe")}
+                      />
+                      <label className="ml-2"> Stripe</label>
+                    </div>
+                  </div>
                   <hr className="mt-3" />
                   <div className="nk-section-blog-details">
-                    <h4 className="mb-3">Order Summary</h4>
+                    <h4 className="mb-3 !font-bold">Order Summary</h4>
                     <div className="pt-0 mb-3">
-                      {/* <!-- <h6 className="fs-18 mb-0">Promocode</h6> --> */}
-                      <div className="d-flex w-75">
-                        <input
+                      {/* <div className="d-flex w-75">
+                        {clientType === "client" && <input
                           type="text"
                           className="form-control rounded-0 py-0 px-2"
                           placeholder="Promocode"
                           name=""
-                          value=""
-                        />
+                          value={promocode}
+                          onChange={handlePromoCodeChange}
+                        /> }
                         <button
                           type="button"
                           className="btn btn-success rounded-0 px-3 py-1 fs-14 bg-[rgba(34,197,94,1)]"
                           name="button"
+                          onClick={()=>applyPromoCode}
                         >
                           Apply
                         </button>
-                      </div>
+                      </div> */}
                     </div>
                     <ul className="d-flex flex-column gap-2 pb-5">
                       <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -835,23 +957,23 @@ export default function Checkout() {
                           Sub Total:
                         </p>
                         <p className="m-0 fs-14 text-gray-1200 w-75">
-                          ₹ {subTotal?.toFixed(2)}
+                          ₹ {orderData?.order?.sub_total}
                         </p>
                       </li>
-                      <li className="d-flex align-items-center gap-5 text-gray-1200">
+                      {/* <li className="d-flex align-items-center gap-5 text-gray-1200">
                         <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                           Shipping:
                         </p>
                         <p className="m-0 fs-14 text-gray-1200 w-75">
                           {allProducts?.length > 0 ? "₹ 10.00" : "₹ 0.00"}
                         </p>
-                      </li>
+                      </li> */}
                       <li className="d-flex align-items-center gap-5 text-gray-1200">
                         <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                           Tax:
                         </p>
                         <p className="m-0 fs-14 text-gray-1200 w-75">
-                          {allProducts?.length > 0 ? "₹ 40.00" : "₹ 0.00"}
+                          {orderData?.order?.total_tax}
                         </p>
                       </li>
                       <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -859,7 +981,9 @@ export default function Checkout() {
                           Discount:
                         </p>
                         <p className="m-0 fs-14 text-danger w-75">
-                          {allProducts?.length > 0 ? "- ₹5.00" : "₹ 0.00"}
+                          {orderData?.order?.discount_type === "percentage"
+                            ? orderData?.order?.discount + "%"
+                            : "₹" + orderData?.order?.discount_amount}
                         </p>
                       </li>
                       <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -867,19 +991,19 @@ export default function Checkout() {
                           Total:
                         </p>
                         <p className="m-0 fs-16 fw-semibold text-dark w-75">
-                          {allProducts?.length > 0
-                            ? `₹ ${(subTotal + 10 + 40 - 5).toFixed(2)}`
-                            : "0.00"}
+                          ₹ {orderData?.order?.total}
                         </p>
                       </li>
                     </ul>
-                    <div className="!flex !justify-start items-center">
-                      <img src="/images/stripe.png" width={45}></img>
-                      <p className="w-fit text-sm">
+                    <div className="!flex !justify-start items-center !text-sm">
+                      <FaLock size={10} className="mb-2 mr-1" />
+                      <span
+                        className="w-fit text-center mb-2"
+                        style={{ fontSize: "12px" }}
+                      >
                         The payment is secure and data are not saved for your
                         privacy.
-                      </p>
-                      <FaLock size={10} className="ml-1" />
+                      </span>
                     </div>
                     <button
                       disabled={allProducts?.length > 0 ? false : true}
@@ -889,6 +1013,22 @@ export default function Checkout() {
                     >
                       Proceed to Pay
                     </button>
+                    <Divider className="mt-2" />
+                    <div className="flex  w-full mt-3">
+                      <img
+                        className="flex justify-start"
+                        src="/images/paymentMethods.jpg"
+                        alt="payment methods"
+                        style={{ width: "45%" }}
+                      ></img>
+                      <div className="w-full flex justify-end">
+                        <img
+                          className=" "
+                          src="/images/stripe.png"
+                          width={45}
+                        ></img>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -920,7 +1060,7 @@ export default function Checkout() {
                   </div>
                 </div>
                 <div class="col-lg-4 text-center text-lg-end">
-                  <a href="contact-us.php" class="btn btn-white fw-semiBold">
+                  <a href={`${userLang}/contact`} class="btn btn-white fw-semiBold">
                     Contact Support
                   </a>
                 </div>

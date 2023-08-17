@@ -7,7 +7,7 @@ import {
 } from "../../../features/products/productsSlice";
 import styled, { keyframes } from "styled-components";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { loginUser, logoutUser } from "../../../features/login/loginSlice";
 import { updatePositions } from "../../../features/positions/positionsSlice";
@@ -15,36 +15,40 @@ import axios from "axios";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
-import { updateCartCount } from "../../../features/cartWish/focusedCount";
+import {
+  updateCartCount,
+  updateWishListCount,
+} from "../../../features/cartWish/focusedCount";
 import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Navigation, Autoplay } from 'swiper/modules';
-import { useSpring, animated } from 'react-spring';
-
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Navigation, Autoplay } from "swiper/modules";
+import { useSpring, animated } from "react-spring";
+import CryptoJS from "crypto-js";
 
 // Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
 import { t } from "i18next";
 import { useTranslation } from "react-i18next";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { Box, Skeleton } from "@mui/material";
 
 export default function ProductsDisplay() {
-
-  const {t} = useTranslation()
-
+  const { t } = useTranslation();
 
   const products = useSelector((state) => state?.products?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const isLoggedIn = useSelector((state) => state?.login?.value);
-  const popup = useSelector(state => state?.popup?.value)
-  const userLang = useSelector( state => state?.lang?.value)
+  const popup = useSelector((state) => state?.popup?.value);
+  const userLang = useSelector((state) => state?.lang?.value);
+  const clientType = useSelector((state) => state?.clientType?.value);
+  const subId = useSelector((state) => state?.subId?.value);
 
   const [megaDealTime, setMegaDealTime] = useState("2023-08-31T00:00:00");
   const [singleProductsCount, setSingleProductsCount] = useState(0);
   const [bundleProductCount, setBundleProductCount] = useState(0);
-  const [filteredProducts, setFilteredProducts] = useState({});
+  const [filteredProducts, setFilteredProducts] = useState({ all: true });
   const [subCategoryIds, setSubCategoryIds] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [subCatProducts, setSubCatProducts] = useState([]);
@@ -55,38 +59,71 @@ export default function ProductsDisplay() {
   const [isSearchResult, setIsSearchResult] = useState(false);
   const [resultsCount, setResultsCount] = useState(0);
   const [isNoProducts, setIsNoProducts] = useState(false);
+  const [showPlaceHolderLoader, setShowPlaceHolderLoader] = useState(false);
   // const [showPopup, setShowPopup] = useState(false);
   const [animateProductId, setAnimateProductId] = useState("");
   const [cartPosition, setCartPosition] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [currentUserlang, setCurrentUserLang] = useState(
+    localStorage.getItem("i18nextLng")
+  );
 
   const navigate = useNavigate();
   const positions = useSelector((state) => state?.position?.value);
   console.log(positions, positions?.cartTop, positions?.cartRight);
 
+  useEffect(() => {
+    setCurrentUserLang(localStorage.getItem("i18nextLng"));
+  }, [userLang]);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const hash = location.hash;
+    if (hash) {
+      const element = document.querySelector(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [location, window]);
+
   const getUserInfo = async () => {
     try {
-      const response = await axios.get(
-        "https://admin.tradingmaterials.com/api/lead/get-user-info",
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-            Accept: "application/json",
-          },
-        }
-      );
+      const url =
+        clientType === "client"
+          ? "https://admin.tradingmaterials.com/api/get-user-info"
+          : "https://admin.tradingmaterials.com/api/lead/get-user-info";
+      const headerData =
+        clientType === "client"
+          ? {
+              headers: {
+                Authorization: `Bearer ` + localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            }
+          : {
+              headers: {
+                "access-token": localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            };
+
+      const response = await axios.get(url, headerData);
       if (response?.data?.status) {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
       } else {
         console.log(response?.data);
-        dispatch(
-          updateNotifications({
-            type: "warning",
-            message: response?.data?.message,
-          })
-        );
+        // dispatch(
+        //   updateNotifications({
+        //     type: "warning",
+        //     message: response?.data?.message,
+        //   })
+        // );
+        dispatch(logoutUser());
+        localStorage.removeItem("client_token");
         // navigate("/login")
       }
     } catch (err) {
@@ -99,8 +136,20 @@ export default function ProductsDisplay() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(showLoader());
+    const timoeOut = setTimeout(() => {
+      setAnimateProductId("");
+    }, 3000);
+
+    return () => {
+      clearTimeout(timoeOut);
+    };
+  }, [animateProductId]);
+
+  useEffect(() => {
+    // dispatch(showLoader());
+    setShowPlaceHolderLoader(true);
     setAllProducts(products);
+    console.log("inside 2");
     setSubCatProducts(products?.products);
     let totalCount = 0;
     let bundleCount = 0;
@@ -117,20 +166,36 @@ export default function ProductsDisplay() {
     console.log(totalCount);
 
     products?.sub_categories?.map((product, ind) => {
-      productsFilter[product] = false;
+      console.log(product);
+      productsFilter[product?.name] = false;
     });
     productsFilter["all"] = true;
-
+    console.log(productsFilter);
     setFilteredProducts({ ...productsFilter });
     setFilteredSubcatproducts({ ...productsFilter });
     setAllProducts(products?.products);
-    dispatch(hideLoader());
+    // dispatch(hideLoader());
     if (localStorage?.getItem("client_token")) {
       dispatch(loginUser());
     } else {
       dispatch(logoutUser());
     }
+    setShowPlaceHolderLoader(false);
   }, [products]);
+
+  //useEffect for filtering products from the header (global scope)
+  useEffect(() => {
+    setSubCategoryIds([]);
+    if (subId?.id) {
+      console.log("inside");
+      setSubCategoryIds([subId?.id]);
+      if (subId?.type === "single") {
+        addFilterProducts(subId?.name, subId?.id);
+      } else if (subId?.type === "combo") {
+        filtersubcatProducts(subId?.name, subId?.id);
+      }
+    }
+  }, [subId, products]);
 
   //function for generating random discounted price
   function getRandomNumberWithOffset(number) {
@@ -150,10 +215,19 @@ export default function ProductsDisplay() {
 
   //function for review stars
   function ratingStars(number) {
-    const elemetns = Array.from({ length: number }, (_, index) => (
-      <li key={index}>
-        <em className="icon ni ni-star-fill text-yellow"></em>
-      </li>
+    const elemetns = Array.from({ length: 5 }, (_, index) => (
+      <>
+        {index < number && (
+          <li key={index}>
+            <em className="icon ni ni-star-fill text-yellow"></em>
+          </li>
+        )}
+        {index >= number && (
+          <li key={index}>
+            <em className="icon ni ni-star-fill text-gray-700"></em>
+          </li>
+        )}
+      </>
     ));
 
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
@@ -161,10 +235,12 @@ export default function ProductsDisplay() {
 
   // function for filtering single products
   function addFilterProducts(subCategoryName, subCategoryId) {
-    console.log(subCategoryName, subCategoryId);
-    const subIDs = [...subCategoryIds];
-    let filterProducts = { ...filteredProducts };
+    setShowPlaceHolderLoader(true);
+    console.log(subCategoryName, subCategoryId, subId);
+    const subIDs = subId?.id ? [] : [...subCategoryIds];
+    let filterProducts = subId?.name ? {} : { ...filteredProducts };
     console.log(subIDs);
+
     // toggles checked or not
     filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
       ? false
@@ -231,13 +307,15 @@ export default function ProductsDisplay() {
       // const allProducts = products
     }
     setFilteredProducts({ ...filterProducts });
+    setShowPlaceHolderLoader(false);
   }
 
   // filtering buldle products
   function filtersubcatProducts(subCategoryName, subCategoryId) {
+    setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId);
-    const subIDs = [...bundleSubCategoryIDs];
-    let filterProducts = { ...filteredSubcatProducts };
+    const subIDs = subId?.id ? [] : [...bundleSubCategoryIDs];
+    let filterProducts = subId?.name ? {} : { ...filteredSubcatProducts };
     console.log(subIDs);
     // toggles checked or not
     filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
@@ -305,6 +383,8 @@ export default function ProductsDisplay() {
       // const allProducts = products
     }
     setFilteredSubcatproducts({ ...filterProducts });
+    navigate(`${userLang}/#trading_bundles`);
+    setShowPlaceHolderLoader(false);
   }
 
   //function for handling filtering based on in stock or out stock
@@ -331,13 +411,14 @@ export default function ProductsDisplay() {
   function handlesearchProducts(e) {
     const searchText = e.target.value;
     if (searchText?.length > 0) {
+      setShowPlaceHolderLoader(true);
       setIsSearchResult(true);
     } else {
       setIsSearchResult(false);
     }
     const completeProducts = products?.products;
     const timeInterval = setTimeout(() => {
-      dispatch(showLoader());
+      // dispatch(showLoader());
       const res = completeProducts?.filter((product) =>
         product?.name?.toLowerCase()?.includes(searchText?.toLowerCase())
       );
@@ -349,15 +430,16 @@ export default function ProductsDisplay() {
       } else {
         setIsNoProducts(false);
       }
-      dispatch(hideLoader());
-    }, 1000);
-
+      // dispatch(hideLoader());
+      setShowPlaceHolderLoader(false);
+    }, 500);
     // return clearInterval(timeInterval)
   }
 
   function handleSortingProducts(value) {
     const combinedProducts = [...products?.products];
     console.log(combinedProducts[0], typeof combinedProducts);
+    console.log(value);
 
     // const res = combinedProducts?.sort((a, b) => new Date(a.added_at) - new Date(b.added_at));
 
@@ -365,32 +447,69 @@ export default function ProductsDisplay() {
     // Output: Sorted array in ascending order based on 'created_at'
 
     // Sort in descending order based on the 'created_at' property
-    const res = combinedProducts?.sort(
-      (b, a) => new Date(a.added_at) - new Date(b.added_at)
-    );
-    setAllProducts(res);
-    console.log(res);
+    if (value === "Oldest") {
+      setShowPlaceHolderLoader(true);
+      const res = combinedProducts?.sort(
+        (b, a) => new Date(a.added_at) - new Date(b.added_at)
+      );
+      setAllProducts(res);
+      console.log(res);
+    } else if (value === "Newest") {
+      const res = combinedProducts?.sort(
+        (b, a) => new Date(b.added_at) - new Date(a.added_at)
+      );
+      setAllProducts(res);
+      console.log(res);
+    }
+    setShowPlaceHolderLoader(false);
   }
 
   async function handleAddToWishList(id) {
-      console.log(id)
-      try{
-        dispatch(showLoader());
-        const response = await axios.post("https://admin.tradingmaterials.com/api/lead/product/add-to-wishlist",{
+    console.log(id);
+    try {
+      dispatch(showLoader());
+      const url =
+        clientType === "client"
+          ? "https://admin.tradingmaterials.com/api/product/add-to-wishlist"
+          : "https://admin.tradingmaterials.com/api/lead/product/add-to-wishlist";
+      const headerData =
+        clientType === "client"
+          ? {
+              headers: {
+                Authorization: `Bearer ` + localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            }
+          : {
+              headers: {
+                "access-token": localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            };
+      const response = await axios.post(
+        url,
+        {
           product_id: id,
         },
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-          },
-        })
-      }catch(err){
-        console.log(err)
-      }finally{
-        dispatch(hideLoader())
+        headerData
+      );
+      if (response?.data?.status) {
+        dispatch(
+          updateNotifications({
+            type: "success",
+            message: "Added to wishlist successfully",
+          })
+        );
+        // dispatch(updateWis(response?.data?.data?.cart_details));
+        dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
+        getUserInfo();
       }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
+    }
   }
-
 
   const dynamicAnimation = keyframes`
   from {
@@ -406,13 +525,11 @@ export default function ProductsDisplay() {
     animation: ${dynamicAnimation} 2s forwards;
   `;
 
-
-
   // function for handling add to cart animation
   async function handleAddToCart(productId) {
     // setAnimateProductId(productId)
     try {
-      setAnimateProductId(productId)
+      setAnimateProductId(productId);
       // dispatch(showLoader());
       const response = await axios?.post(
         "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
@@ -433,15 +550,15 @@ export default function ProductsDisplay() {
             message: "Added to cart successfully",
           })
         );
-        dispatch(updateCart(response?.data?.data?.cart_details))
-        dispatch(updateCartCount(response?.data?.data?.cart_count))
+        dispatch(updateCart(response?.data?.data?.cart_details));
+        dispatch(updateCartCount(response?.data?.data?.cart_count));
         // getUserInfo();
       }
     } catch (err) {
       console.log(err);
-    } 
+    }
     // finally {
-      // dispatch(hideLoader());
+    // dispatch(hideLoader());
     // }
   }
 
@@ -464,11 +581,28 @@ export default function ProductsDisplay() {
     setCartPosition({ top: `${top}px`, right: `${right}px` });
   };
 
+  // const encryptText = (id) => {
+  //   const encrypted = CryptoJS?.AES?.encrypt(id, 'trading_materials')?.toString();
+  //   return encrypted
+  // };
+
+  // const decryptText = () => {
+  //   try {
+  //     const decrypted = CryptoJS.AES.decrypt(encryptedText, 'secret_key').toString(CryptoJS.enc.Utf8);
+  //     setDecryptedText(decrypted);
+  //   } catch (error) {
+  //     console.error('Decryption error:', error.message);
+  //     setDecryptedText('Decryption error');
+  //   }
+  // };
+
   return (
     <>
-    {loaderState && <div className="preloader !backdrop-blur-[1px] ">
-        <div class="loader"></div>
-      </div>}
+      {loaderState && (
+        <div className="preloader !backdrop-blur-[1px] ">
+          <div class="loader"></div>
+        </div>
+      )}
       {/* {loaderState && (
         <div className="preloader !bg-[rgba(0,0,0,0.5)]">
           <div className="loader"></div>
@@ -491,6 +625,7 @@ export default function ProductsDisplay() {
           </span>
         </div>
       )} */}
+      {}
       <div className="nk-pages">
         <section className="nk-banner nk-banner-shop">
           <div className="container">
@@ -509,13 +644,12 @@ export default function ProductsDisplay() {
                   <div className="col-xl-6">
                     <div className="text-center text-xl-start">
                       <div className="mb-5">
-                        <h1 className="text-capitalize display-6 mb-2">
+                        <h1 className="text-capitalize display-6 mb-2 !font-bold">
                           {t("Mega_Deal")}
                         </h1>
                         <p className="m-0 text-gray-800">
                           {" "}
-                          {t("Mega_Deal_desc")}
-                          {" "}
+                          {t("Mega_Deal_desc")}{" "}
                         </p>
                       </div>
                       <Countdown targetDate={megaDealTime} />
@@ -526,7 +660,7 @@ export default function ProductsDisplay() {
             </div>
           </div>
         </section>
-        <section className="nk-section nk-section-products">
+        <section className="nk-section nk-section-products" id="products">
           <div className="container">
             <div className="nk-section-content">
               <div className="row">
@@ -537,7 +671,7 @@ export default function ProductsDisplay() {
                         <div className="form-group nk-newsletter-three">
                           <div className="form-control-wrap">
                             <div className="icon">
-                              <em className="icon ni ni-search"></em>
+                              <em className="icon ni ni-search cursor-pointer"></em>
                             </div>
                             <input
                               type="search"
@@ -553,7 +687,9 @@ export default function ProductsDisplay() {
                     </div>
                     <div className="d-flex flex-column gap-5">
                       <div>
-                        <h6 className="mb-3">{t("Trading_Materials")}</h6>
+                        <h6 className="mb-3 text-xl !font-bold text-left ">
+                          {t("Trading_Materials")}
+                        </h6>
                         <ul className="d-flex gy-4 flex-column">
                           <li>
                             <div className="form-check d-flex align-items-center">
@@ -570,7 +706,7 @@ export default function ProductsDisplay() {
                                   className="form-check-label fs-14 text-gray-1200"
                                   for="all-category"
                                 >
-                                  {t("All_Trading_Materials")}
+                                  All Trading Materiasl
                                 </label>
                                 <span className="fs-14 text-gray-1200">
                                   {singleProductsCount}
@@ -588,7 +724,7 @@ export default function ProductsDisplay() {
                                       type="checkbox"
                                       name="category"
                                       id="tablet"
-                                      onChange={() =>
+                                      onClick={() =>
                                         addFilterProducts(
                                           product?.name,
                                           product?.id
@@ -599,7 +735,7 @@ export default function ProductsDisplay() {
                                     <div className="d-flex w-100 align-items-center justify-content-between">
                                       <label
                                         className="form-check-label fs-14 text-gray-1200"
-                                        for="tablet"
+                                        // for="tablet"
                                       >
                                         {product?.name}
                                       </label>
@@ -615,7 +751,9 @@ export default function ProductsDisplay() {
                         </ul>
                       </div>
                       <div>
-                        <h6 className="mb-3">{t("Bundles")}</h6>
+                        <h6 className="mb-3 text-xl !font-bold text-left ">
+                          {t("Bundles")}
+                        </h6>
                         <ul className="d-flex gy-4 flex-column">
                           <li>
                             <div className="form-check d-flex align-items-center">
@@ -629,7 +767,8 @@ export default function ProductsDisplay() {
                               />
                               <label
                                 className="form-check-label fs-14 text-gray-1200"
-                                for="themenio"
+                                // for="themenio"
+                                onClick={() => filteredSubcatProducts["all"]}
                               >
                                 {" "}
                                 All Trading Materials Pack on Shop{" "}
@@ -642,13 +781,13 @@ export default function ProductsDisplay() {
                           {products?.sub_categories?.map((product, ind) => (
                             <>
                               {product?.combo == 1 && (
-                                <li key={`combo-${ind}`}>
+                                <li id="bundles" key={`combo-${ind}`}>
                                   <div className="form-check d-flex align-items-center">
                                     <input
                                       className="form-check-input"
                                       type="checkbox"
                                       name="category"
-                                      id="tablet"
+                                      id="bundle-combo"
                                       onClick={() => {
                                         filtersubcatProducts(
                                           product?.name,
@@ -659,10 +798,16 @@ export default function ProductsDisplay() {
                                         filteredSubcatProducts[product?.name]
                                       }
                                     />
-                                    <div className="d-flex w-100 align-items-center justify-content-between">
+                                    <div className="d-flex w-100 align-items-center justify-content-between cursor-pointer">
                                       <label
+                                        // onClick={() => {
+                                        //   filtersubcatProducts(
+                                        //     product?.name,
+                                        //     product?.id
+                                        //   );
+                                        // }}
                                         className="form-check-label fs-14 text-gray-1200"
-                                        for="tablet"
+                                        // for="tablet"
                                       >
                                         {product?.name}
                                       </label>
@@ -678,7 +823,9 @@ export default function ProductsDisplay() {
                         </ul>
                       </div>
                       <div>
-                        <h6 className="mb-3">{t("stock_status")}</h6>
+                        <h6 className="mb-3 text-xl !font-bold text-left ">
+                          {t("stock_status")}
+                        </h6>
                         <ul className="d-flex gy-4 flex-column">
                           <li>
                             <div className="form-check d-flex align-items-center">
@@ -740,7 +887,7 @@ export default function ProductsDisplay() {
                     <div className="row justify-content-between align-items-center pb-5">
                       <div className="col-sm-6">
                         {isSearchResult && (
-                          <h6 className="fs-16 fw-normal">
+                          <h6 className="fs-16 fw-normal !text-left">
                             Showing {resultsCount} results
                           </h6>
                         )}
@@ -789,7 +936,7 @@ export default function ProductsDisplay() {
                                     <span
                                       className="fs-14 text-gray-1200"
                                       onClick={() => {
-                                        handleSortingProducts("Popular");
+                                        handleSortingProducts("Newest");
                                       }}
                                     >
                                       Newest
@@ -802,7 +949,7 @@ export default function ProductsDisplay() {
                                     <span
                                       className="fs-14 text-gray-1200"
                                       onClick={() => {
-                                        handleSortingProducts("Popular");
+                                        handleSortingProducts("Oldest");
                                       }}
                                     >
                                       Oldest
@@ -816,9 +963,10 @@ export default function ProductsDisplay() {
                       </div>
                     </div>
                     <div className="row gy-5">
-                      {isNoProducts && (
-                        <p className="font-bold">No products to Display</p>
-                      )}
+                      {isNoProducts ||
+                        (allProducts?.length === 0 && (
+                          <p className="font-bold">No products to Display</p>
+                        ))}
                       {products !== {} &&
                         !isNoProducts &&
                         allProducts?.map((product, ind) => {
@@ -828,97 +976,218 @@ export default function ProductsDisplay() {
                             isSearchResult
                           ) {
                             return (
-                              <div
-                                className="col-md-6 col-xl-4 !gap-x-[5px]"
-                                id={`img-${product?.id}`}
-                              >
-                                <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
-                                  <div className="nk-card-img ">
-                                    <a href={`${userLang}/product-detail/${product?.id}`}>
-                                      <img
-                                        src={product?.img_1}
-                                        alt="product-image"
-                                        className="w-100 h-100 sm:!h-[350px] "
-                                      />
-                                    </a>
+                              <>
+                                {/* placeholder laoder */}
+                                {showPlaceHolderLoader === true && (
+                                  <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                                    <Box sx={{ pt: 0.5 }}>
+                                      <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                        <Skeleton
+                                          animation="wave"
+                                          variant="rectangular"
+                                          className="!w-full !h-[250px] sm:!h-[300px] "
+                                          width="100%"
+                                        />
+                                        {/* <Skeleton animation="wave" /> */}
+                                        <Skeleton
+                                          animation="wave"
+                                          width="80%"
+                                          className="!mt-[2.5vh]"
+                                          // style={{marginTop:"2rem !important"}}
+                                        />
+                                        <div className="flex !mt-[2.5vh]">
+                                          <Skeleton
+                                            animation="wave"
+                                            width="30%"
+                                            className="mr-3"
+                                          />
+                                          <Skeleton
+                                            animation="wave"
+                                            width="20%"
+                                          />
+                                        </div>
+                                        <div className="flex mt-2 mb-2  !w-full">
+                                          <Skeleton
+                                            className="mr-2"
+                                            animation="wave"
+                                            width="50%"
+                                          />
+                                          <Skeleton
+                                            className="mr-2"
+                                            animation="wave"
+                                            width="50%"
+                                          />
+                                          <div className="flex !justify-end !w-full">
+                                            <Skeleton
+                                              animation="wave"
+                                              width="20%"
+                                              className="mr-2 ml-4"
+                                            />
+                                            <Skeleton
+                                              animation="wave"
+                                              width="20%"
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </Box>
                                   </div>
-                                  <div className="nk-card-info bg-white p-4">
-                                    {/* <a
+                                )}
+                                {showPlaceHolderLoader === false && (
+                                  <div
+                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
+                                    id={`img-${product?.id}`}
+                                  >
+                                    <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                      <div className="nk-card-img ">
+                                        <a
+                                          href={`${userLang}/product-detail/${
+                                            product?.slug
+                                          }/${CryptoJS?.AES?.encrypt(
+                                            `${product?.id}`,
+                                            "trading_materials"
+                                          )
+                                            ?.toString()
+                                            .replace(/\//g, "_")
+                                            .replace(/\+/g, "-")}`}
+                                        >
+                                          <img
+                                            src={product?.img_1}
+                                            alt="product-image"
+                                            className="sm:!h-[300px] !w-full"
+                                          />
+                                        </a>
+                                      </div>
+                                      <div className="nk-card-info bg-white p-4">
+                                        {/* <a
                               href="/"
                               className="d-inline-block mb-1 line-clamp-1 h5"
                             >
                                {product?.name}
                             </a> */}
-                                    <a
-                                      href={`${userLang}/product-detail/${product?.id}`}
-                                      className="d-inline-block mb-1 line-clamp-1 h5"
-                                    >
-                                      {product?.name}
-                                      <br />
-                                      <span className="text-xs !mt-1">
-                                        <p
-                                          onClick={() => {
-                                            navigate(
-                                              `${userLang}/product-detail/${product?.id}`
-                                            );
-                                            dispatch(showLoader());
-                                          }}
-                                          className="!mt-5 text-gray-700  truncate"
-                                          dangerouslySetInnerHTML={{
-                                            __html: product?.description?.length > 55 ? `${product?.description?.slice(0,55)}...` :  product?.description ,
-                                          }}
-                                        />
-                                      </span>
-                                    </a>
-                                    <div className="d-flex align-items-center mb-2 gap-1">
-                                      {ratingStars(product?.rating)}
+                                        <a
+                                          href={`${userLang}/product-detail/${
+                                            product?.slug
+                                          }/${CryptoJS?.AES?.encrypt(
+                                            `${product?.id}`,
+                                            "trading_materials"
+                                          )
+                                            ?.toString()
+                                            .replace(/\//g, "_")
+                                            .replace(/\+/g, "-")}`}
+                                          className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                        >
+                                          {product?.name}
+                                          <br />
+                                          <span className="text-xs !mt-1">
+                                            <p
+                                              onClick={() => {
+                                                navigate(
+                                                  `${userLang}/product-detail/${
+                                                    product?.slug
+                                                  }/${CryptoJS?.AES?.encrypt(
+                                                    `${product?.id}`,
+                                                    "trading_materials"
+                                                  )
+                                                    ?.toString()
+                                                    .replace(/\//g, "_")
+                                                    .replace(/\+/g, "-")}`
+                                                );
+                                                dispatch(showLoader());
+                                              }}
+                                              className="!mt-5 text-gray-700  truncate"
+                                              dangerouslySetInnerHTML={{
+                                                __html:
+                                                  product?.description?.length >
+                                                  55
+                                                    ? `${product?.description?.slice(
+                                                        0,
+                                                        55
+                                                      )}...`
+                                                    : product?.description,
+                                              }}
+                                            />
+                                          </span>
+                                        </a>
+                                        <div className="d-flex align-items-center mb-2 gap-1">
+                                          {ratingStars(product?.rating)}
 
-                                      <span className="fs-14 text-gray-800">
-                                        {" "}
-                                        (7 Reviews){" "}
-                                      </span>
-                                    </div>
-                                    <div className="d-flex align-items-center justify-content-start">
-                                      {product?.prices?.map((price, ind) => (
-                                        <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                          {price?.USD &&
-                                            `$${Number.parseFloat(
-                                              price?.USD
-                                            ).toFixed(2)}`}
-                                          {price?.USD && (
-                                            <del className="text-gray-800 !ml-2">
-                                              $
-                                              {getRandomNumberWithOffset(
-                                                Number.parseFloat(
-                                                  price?.USD
-                                                ).toFixed(2)
-                                              )}
-                                            </del>
+                                          <span className="fs-14 text-gray-800">
+                                            {" "}
+                                            ({product?.rating} Reviews){" "}
+                                          </span>
+                                        </div>
+                                        <div className="d-flex align-items-center justify-content-start">
+                                          {product?.prices?.map(
+                                            (price, ind) => (
+                                              <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                                {currentUserlang === "en"
+                                                  ? price?.INR &&
+                                                    `₹${Number.parseFloat(
+                                                      price?.INR
+                                                    ).toFixed(2)}`
+                                                  : price?.USD &&
+                                                    `$${Number.parseFloat(
+                                                      price?.USD
+                                                    ).toFixed(2)}`}
+                                                {currentUserlang === "en"
+                                                  ? price?.INR && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {getRandomNumberWithOffset(
+                                                          price?.INR
+                                                        )}
+                                                      </del>
+                                                    )
+                                                  : price?.USD && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {getRandomNumberWithOffset(
+                                                          Number.parseFloat(
+                                                            price?.USD
+                                                          ).toFixed(2)
+                                                        )}
+                                                      </del>
+                                                    )}
+                                              </p>
+                                            )
                                           )}
-                                        </p>
-                                      ))}
 
-                                      <button className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right" style={{
-                                        display: "flex",
-                                        justifyContent:"end",
-                                        marginRight:"5px"
-                                      }}
-                                        onClick={()=>{handleAddToWishList(product?.id)}}
-                                      >
-                                            <FaRegHeart size={25} />
-                                      </button>
+                                          <button
+                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "end",
+                                              marginRight: "5px",
+                                            }}
+                                            onClick={() => {
+                                              isLoggedIn
+                                                ? handleAddToWishList(
+                                                    product?.id
+                                                  )
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            <FaRegHeart size={18} />
+                                          </button>
 
-                                      <button
-                                        className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
-                                        onClick={(event) => {
-                                          return isLoggedIn
-                                            ? (handleAddToCart(product?.id),
-                                              handleCartPosition(event))
-                                            : dispatch(showPopup());
-                                        }}
-                                      >
-                                                                              {/* product animation starts */}
-                                      {animateProductId === product?.id && (
+                                          <button
+                                            className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                            onClick={(event) => {
+                                              return isLoggedIn
+                                                ? (handleAddToCart(product?.id),
+                                                  handleCartPosition(event))
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            {/* product animation starts */}
+                                            {/* {animateProductId === product?.id && (
                                         <AnimatedDiv className="">
 
                                       <img
@@ -928,18 +1197,22 @@ export default function ProductsDisplay() {
   />
                                       </AnimatedDiv>
 
-                                      )}
-                                      {/* product animation ends */}
-                                        
-                                        <em className="icon ni ni-cart text-3xl"></em>
-                                        
-                                      </button>
+                                      )} */}
+                                            {/* product animation ends */}
 
-                                      
+                                            {animateProductId ===
+                                            product?.id ? (
+                                              <img src="/images/addedtocart.gif" />
+                                            ) : (
+                                              <em className="icon ni ni-cart text-2xl"></em>
+                                            )}
+                                          </button>
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              </div>
+                                )}
+                              </>
                             );
                           }
                         })}
@@ -953,87 +1226,174 @@ export default function ProductsDisplay() {
         <section className="nk-section  pt-lg-0">
           <div className="container">
             <div className="row">
-              <div className="col-12">
+              <div className="col-12" id="trading_bundles">
                 <div className="nk-section-head">
-                  <h2 className="nk-section-title">{t("trading_bundles")}</h2>
+                  <h2 className="nk-section-title !text-start !font-bold">
+                    {t("trading_bundles")}
+                  </h2>
                 </div>
               </div>
             </div>
-            <div className="row gy-5 justify-center">
+            <div className="row gy-5 justify-between overflow-auto !max-h-[354px] sm:!max-h-[500px] lg:!max-h-[670px]">
               {subCatProducts?.length !== 0 &&
                 subCatProducts?.map((product, indx) => {
                   if (product?.combo) {
                     return (
-                      // product?.getproducts?.map((comboProduct, n)=>(
-                      <div
-                        className="col-xl-4 col-lg-4 col-md-6"
-                        data-aos="fade-up"
-                        data-aos-delay="0"
-                      >
-                        <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
-                          <div className="nk-card-img">
-                            <a href={`${userLang}/product-detail/${product?.id}`}>
-                              <img
-                                src={product?.img_1}
-                                alt="product-image"
-                                className="w-100"
-                              />
-                            </a>
-                          </div>
-                          <div className="nk-card-info bg-white p-4">
-                            <a
-                              href={`${userLang}/product-detail/${product?.id}`}
-                              className="d-inline-block mb-1 line-clamp-1 h5"
-                            >
-                              {product?.name}
-                              <br />
-                              <span className="text-xs">
-                                <p
-                                  className="!mt-5 text-gray-700"
-                                  onClick={() => {
-                                    navigate(`${userLang}/product-detail/${product?.id}`);
-                                    dispatch(showLoader());
-                                  }}
-                                  dangerouslySetInnerHTML={{
-                                    __html: product?.description?.length > 55 ? `${product?.description?.slice(0,55)}...` :  product?.description,
-                                  }}
+                      <>
+                        {showPlaceHolderLoader === true && (
+                          <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                            <Box sx={{ pt: 0.5 }}>
+                              <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                <Skeleton
+                                  animation="wave"
+                                  variant="rectangular"
+                                  className="w-100 h-100 sm:!h-[350px] "
                                 />
-                              </span>
-                            </a>
-                            <div className="d-flex align-items-center mb-2 gap-1">
-                              {ratingStars(5)}
-                              <span className="fs-14 text-gray-800">
-                                {" "}
-                                (7 Reviews){" "}
-                              </span>
-                            </div>
-                            <div className="d-flex align-items-center justify-content-between">
-                              {product?.prices?.map((price, ind) => (
-                                <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                  {price?.USD &&
-                                    `$${Number.parseFloat(price?.USD).toFixed(
-                                      2
-                                    )}`}
-                                  {price?.USD && (
-                                    <del className="text-gray-800 !ml-2">
-                                      $
-                                      {getRandomNumberWithOffset(
-                                        Number.parseFloat(price?.USD).toFixed(2)
-                                      )}
-                                    </del>
-                                  )}
-                                </p>
-                              ))}
-                              <button
-                                className="p-0 border-0 outline-none bg-transparent text-primary !content-right w-full text-right"
-                                onClick={(event) => {
-                                  return isLoggedIn
-                                    ? handleAddToCart(product?.id)
-                                    : dispatch(showPopup());
-                                }}
-                              >
-                                {/* product animation starts */}
-                                {animateProductId === product?.id && (
+                                <Skeleton animation="wave" />
+                                <Skeleton animation="wave" width="60%" />
+                                <Skeleton animation="wave" width="30%" />
+                                <Skeleton animation="wave" width="30%" />
+                              </div>
+                            </Box>
+                          </div>
+                        )}
+                        {showPlaceHolderLoader === false && (
+                          <div
+                            className="col-xl-4 col-lg-4 col-md-6"
+                            data-aos="fade-up"
+                            data-aos-delay="0"
+                          >
+                            <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
+                              <div className="nk-card-img">
+                                <a
+                                  href={`${userLang}/product-detail/${
+                                    product?.slug
+                                  }/${CryptoJS?.AES?.encrypt(
+                                    `${product?.id}`,
+                                    "trading_materials"
+                                  )
+                                    ?.toString()
+                                    .replace(/\//g, "_")
+                                    .replace(/\+/g, "-")}`}
+                                >
+                                  <img
+                                    src={product?.img_1}
+                                    alt="product-image"
+                                    className="w-100"
+                                  />
+                                </a>
+                              </div>
+                              <div className="nk-card-info bg-white p-4">
+                                <a
+                                  href={`${userLang}/product-detail/${
+                                    product?.slug
+                                  }/${CryptoJS?.AES?.encrypt(
+                                    `${product?.id}`,
+                                    "trading_materials"
+                                  )
+                                    ?.toString()
+                                    .replace(/\//g, "_")
+                                    .replace(/\+/g, "-")}`}
+                                  className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                >
+                                  {product?.name}
+                                  <br />
+                                  <span className="text-xs">
+                                    <p
+                                      className="!mt-5 text-gray-700"
+                                      onClick={() => {
+                                        navigate(
+                                          `${userLang}/product-detail/${
+                                            product?.slug
+                                          }/${CryptoJS?.AES?.encrypt(
+                                            `${product?.id}`,
+                                            "trading_materials"
+                                          )
+                                            ?.toString()
+                                            .replace(/\//g, "_")
+                                            .replace(/\+/g, "-")}`
+                                        );
+                                        dispatch(showLoader());
+                                      }}
+                                      dangerouslySetInnerHTML={{
+                                        __html:
+                                          product?.description?.length > 55
+                                            ? `${product?.description?.slice(
+                                                0,
+                                                55
+                                              )}...`
+                                            : product?.description,
+                                      }}
+                                    />
+                                  </span>
+                                </a>
+                                <div className="d-flex align-items-center mb-2 gap-1">
+                                  {ratingStars(product?.rating)}
+                                  <span className="fs-14 text-gray-800">
+                                    {" "}
+                                    {product?.rating} Reviews{" "}
+                                  </span>
+                                </div>
+                                <div className="d-flex align-items-center justify-content-between">
+                                  {product?.prices?.map((price, ind) => (
+                                    <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                      {currentUserlang === "en"
+                                        ? price?.INR && `₹${price?.INR}`
+                                        : price?.USD &&
+                                          `$${Number.parseFloat(
+                                            price?.USD
+                                          ).toFixed(2)}`}
+                                      {currentUserlang === "en"
+                                        ? price?.INR && (
+                                            <del className="text-gray-800 !ml-2">
+                                              {currentUserlang === "en"
+                                                ? "₹"
+                                                : "$"}
+                                              {getRandomNumberWithOffset(
+                                                price?.INR
+                                              )}
+                                            </del>
+                                          )
+                                        : price?.USD && (
+                                            <del className="text-gray-800 !ml-2">
+                                              {currentUserlang === "en"
+                                                ? "₹"
+                                                : "$"}
+                                              {getRandomNumberWithOffset(
+                                                Number.parseFloat(
+                                                  price?.USD
+                                                ).toFixed(2)
+                                              )}
+                                            </del>
+                                          )}
+                                    </p>
+                                  ))}
+                                  <button
+                                    className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "end",
+                                      marginRight: "5px",
+                                    }}
+                                    onClick={() => {
+                                      isLoggedIn
+                                        ? handleAddToWishList(product?.id)
+                                        : dispatch(showPopup());
+                                    }}
+                                  >
+                                    <FaRegHeart size={18} />
+                                  </button>
+                                  <button
+                                    className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                    onClick={(event) => {
+                                      return isLoggedIn
+                                        ? (handleAddToCart(product?.id),
+                                          handleCartPosition(event))
+                                        : dispatch(showPopup());
+                                    }}
+                                  >
+                                    {/* product animation starts */}
+                                    {/* {animateProductId === product?.id && (
                                         <AnimatedDiv className="">
 
                                       <img
@@ -1043,15 +1403,21 @@ export default function ProductsDisplay() {
   />
                                       </AnimatedDiv>
 
-                                      )}
-                                      {/* product animation ends */}
-                                <em className="icon ni ni-cart text-3xl"></em>
-                              </button>
+                                      )} */}
+                                    {/* product animation ends */}
+
+                                    {animateProductId === product?.id ? (
+                                      <img src="/images/addedtocart.gif" />
+                                    ) : (
+                                      <em className="icon ni ni-cart text-2xl"></em>
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                      // ))
+                        )}
+                      </>
                     );
                   }
                 })}
@@ -1059,160 +1425,245 @@ export default function ProductsDisplay() {
           </div>
         </section>
         <section class="nk-section-testimonials pt-lg-3 pb-lg-6">
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-6">
-                            <div class="nk-section-head text-center">
-                                <h2 class="nk-section-title">{t("Stories_From_Our_Customers")}</h2>
-                                <p class="nk-section-text">{t("stories_desc")}</p>
-                            </div>
-                        </div>
-                    </div>
-                    {/* <div class="swiper swiper-init nk-swiper nk-swiper-s4 pt-5 pt-lg-0" data-autoplay="true" data-space-between="30" data-breakpoints='{                    "0":{"slidesPerView":1,"slidesPerGroup":1 },                    "991":{"slidesPerView":2,"slidesPerGroup":1}                 }'>
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-6">
+                <div class="nk-section-head text-center">
+                  <h2 class="nk-section-title !font-bold">
+                    {t("Stories_From_Our_Customers")}
+                  </h2>
+                  <p class="nk-section-text">{t("stories_desc")}</p>
+                </div>
+              </div>
+            </div>
+            {/* <div class="swiper swiper-init nk-swiper nk-swiper-s4 pt-5 pt-lg-0" data-autoplay="true" data-space-between="30" data-breakpoints='{                    "0":{"slidesPerView":1,"slidesPerGroup":1 },                    "991":{"slidesPerView":2,"slidesPerGroup":1}                 }'>
                         <div class="swiper-wrapper has-pagination"> */}
-                        <Swiper
-        slidesPerView={2}
-        spaceBetween={30}
-        dots={false}
-        speed={1500}
-        loop={true}
-        autoplay= {true}
-        // pagination={{
-        //   clickable: true,
-        // }}
-        navigation={true}
-        breakpoints={{
-          0: {
-            
-            slidesPerView: 1,
-            spaceBetween: 10,
-          },
-          720: {
-            slidesPerView: 1,
-            spaceBetween: 20,
-          },
-          1024: {
-            slidesPerView: 2,
-            spaceBetween: 40,
-          },
-          2048: {
-            slidesPerView: 2,
-            spaceBetween: 50,
-          },
-        }}
-        modules={[Pagination, Navigation, Autoplay]}
-        className="swiper swiper-init nk-swiper nk-swiper-s4 pt-5 pt-lg-0" data-autoplay="true" data-space-between="30"
-      >
-                            <SwiperSlide class="swiper-slide h-auto">
-                            
-
-                                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
-                                    <div class="nk-testimonial-content">
-										<div>
-											<ul class="d-flex aling-items-center gap-1 mb-2">
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-											</ul>
-										</div>
-                                        <div>
-                                            <h5 class="mb-2">Chadha Acharya</h5>
-                                            <p class="fs-14 line-clamp-3">"Thank you for your kind words! We strive to provide brilliant solutions for our customers. If there's anything else we can assist you with, please let us know."</p>
-                                        </div>
-                                        {/* <!--<div class="media-group align-items-center pt-4">
+            <Swiper
+              slidesPerView={2}
+              spaceBetween={30}
+              dots={false}
+              speed={1500}
+              loop={true}
+              autoplay={true}
+              // pagination={{
+              //   clickable: true,
+              // }}
+              navigation={true}
+              breakpoints={{
+                0: {
+                  slidesPerView: 1,
+                  spaceBetween: 10,
+                },
+                720: {
+                  slidesPerView: 1,
+                  spaceBetween: 20,
+                },
+                1024: {
+                  slidesPerView: 2,
+                  spaceBetween: 40,
+                },
+                2048: {
+                  slidesPerView: 2,
+                  spaceBetween: 50,
+                },
+              }}
+              modules={[Pagination, Navigation, Autoplay]}
+              className="swiper swiper-init nk-swiper nk-swiper-s4 pt-5 pt-lg-0"
+              data-autoplay="true"
+              data-space-between="30"
+            >
+              <SwiperSlide class="swiper-slide h-auto">
+                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                  <div class="nk-testimonial-content">
+                    <div>
+                      <ul class="d-flex aling-items-center gap-1 mb-2">
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 class="mb-2 !font-bold text-left !text-xl">
+                        Chadha Acharya
+                      </h5>
+                      <p class="fs-14 line-clamp-3 text-left">
+                        "Thank you for your kind words! We strive to provide
+                        brilliant solutions for our customers. If there's
+                        anything else we can assist you with, please let us
+                        know."
+                      </p>
+                    </div>
+                    {/* <!--<div class="media-group align-items-center pt-4">
                                             <div class="media media-circle"><img src="images/avatar/a.jpg" alt="avatar"/></div>
                                             <div class="media-text">
                                                 <h5 class="mb-0">John Carter</h5><span class="small text fw-medium">Financial Analyst</span></div>
                                         </div>--> */}
-                                    </div>
-                                </div>
-                            </SwiperSlide>
-                            <SwiperSlide class="swiper-slide h-auto">
-                                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
-                                    <div class="nk-testimonial-content">
-										<div>
-											<ul class="d-flex aling-items-center gap-1 mb-2">
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-											</ul>
-										</div>
-										
-                                        <div>
-                                            <h5 class="mb-2">Barman Agarwal</h5>
-                                            <p class="fs-14 line-clamp-3">"Thank you for your kind words! We strive to provide brilliant solutions for our customers. If there's anything else we can assist you with, please let us know."</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </SwiperSlide>
-                            <SwiperSlide class="swiper-slide h-auto">
-                                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
-                                    <div class="nk-testimonial-content">
-										<div>
-											<ul class="d-flex aling-items-center gap-1 mb-2">
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-											</ul>
-										</div>
-										
-                                        <h5 class="mb-2">Aadarsh Chopra</h5>
-                                        <p class="fs-14 line-clamp-3">"Thank you for your feedback! We're glad to hear that you find our platform to be the best for learning. We are committed to providing high-quality educational resources and a user-friendly experience.</p>
-                                    </div>
-                                </div>
-                            </SwiperSlide>
-                            <SwiperSlide class="swiper-slide h-auto">
-                                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
-                                    <div class="nk-testimonial-content">
-										<div>
-											<ul class="d-flex aling-items-center gap-1 mb-2">
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-												<li class="text-green-2"><em class="icon ni ni-star-fill"></em></li>
-											</ul>
-										</div>
-                                        <h5 class="mb-2">Farhan Aktar</h5>
-                                        <p class="fs-14">Thanks to Trading Materials, our application is undergoing significant improvements, resulting in a better user experience and enhanced features.</p>
-                                    </div>
-                                </div>
-                            </SwiperSlide>
-                            </Swiper>
-                        {/* </div>
+                  </div>
+                </div>
+              </SwiperSlide>
+              <SwiperSlide class="swiper-slide h-auto">
+                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                  <div class="nk-testimonial-content">
+                    <div>
+                      <ul class="d-flex aling-items-center gap-1 mb-2">
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h5 class="mb-2 !font-bold text-left !text-xl">
+                        Barman Agarwal
+                      </h5>
+                      <p class="fs-14 line-clamp-3 text-left">
+                        "Thank you for your kind words! We strive to provide
+                        brilliant solutions for our customers. If there's
+                        anything else we can assist you with, please let us
+                        know."
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </SwiperSlide>
+              <SwiperSlide class="swiper-slide h-auto">
+                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                  <div class="nk-testimonial-content">
+                    <div>
+                      <ul class="d-flex aling-items-center gap-1 mb-2">
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <h5 class="mb-2 !font-bold text-left !text-xl">
+                      Aadarsh Chopra
+                    </h5>
+                    <p class="fs-14 line-clamp-3 text-left">
+                      "Thank you for your feedback! We're glad to hear that you
+                      find our platform to be the best for learning. We are
+                      committed to providing high-quality educational resources
+                      and a user-friendly experience."
+                    </p>
+                  </div>
+                </div>
+              </SwiperSlide>
+              <SwiperSlide class="swiper-slide h-auto">
+                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                  <div class="nk-testimonial-content">
+                    <div>
+                      <ul class="d-flex aling-items-center gap-1 mb-2">
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                        <li class="text-green-2">
+                          <em class="icon ni ni-star-fill"></em>
+                        </li>
+                      </ul>
+                    </div>
+                    <h5 class="mb-2 !font-bold text-left !text-xl">
+                      Farhan Aktar
+                    </h5>
+                    <p class="fs-14 text-left">
+                      "Thanks to Trading Materials, our application is
+                      undergoing significant improvements, resulting in a better
+                      user experience and enhanced features."
+                    </p>
+                  </div>
+                </div>
+              </SwiperSlide>
+            </Swiper>
+            {/* </div>
                         <div class="swiper-pagination d-block d-lg-none"></div>
                         <div class="swiper-button-group d-none d-lg-block">
                             <div class="swiper-button-prev"></div>
                             <div class="swiper-button-next"></div>
                         </div> */}
-                    {/* </div> */}
-                </div>
-            </section>
-			
-			<section class="nk-section nk-cta-section nk-section-content-1">
-                <div class="container">
-                    <div class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7" data-aos="fade-up" data-aos-delay="100">
-                        <div class="row g-gs align-items-center">
-                            <div class="col-lg-8">
-                                <div class="media-group flex-column flex-lg-row align-items-center">
-                                    <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2"><em class="icon ni ni-chat-fill"></em></div>
-                                    <div class="text-center text-lg-start">
-                                        <h3 class="text-capitalize m-0 !text-2xl">{t("Chat_With_Our_Support_Team")}</h3>
-                                        <p class="fs-16 opacity-75">{t("chat_team_desc")}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 text-center text-lg-end"><a href={`${userLang}/contact`} class="btn btn-white fw-semiBold">{t("Contact_support")}</a></div>
-                        </div>
+            {/* </div> */}
+          </div>
+        </section>
+
+        <section class="nk-section nk-cta-section nk-section-content-1">
+          <div class="container">
+            <div
+              class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
+              <div class="row g-gs align-items-center">
+                <div class="col-lg-8">
+                  <div class="media-group flex-column flex-lg-row align-items-center">
+                    <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                      <em class="icon ni ni-chat-fill"></em>
                     </div>
+                    <div class="text-center text-lg-start">
+                      <h3 class="text-capitalize m-0 !text-3xl !font-bold">
+                        {t("Chat_With_Our_Support_Team")}
+                      </h3>
+                      <p class="fs-16 opacity-75 !text-lg mt-1">
+                        {t("chat_team_desc")}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-            </section>
+                <div class="col-lg-4 text-center text-lg-end">
+                  <a
+                    href={`${userLang}/contact`}
+                    class="btn btn-white fw-semiBold"
+                  >
+                    {t("Contact_support")}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
       <div class="nk-sticky-badge">
         <ul>

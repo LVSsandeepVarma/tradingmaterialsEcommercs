@@ -11,20 +11,21 @@ import { useTranslation } from "react-i18next";
 import { userLanguage } from "../../../features/userLang/userLang";
 import { updateclientType } from "../../../features/clientType/clientType";
 import { Alert } from "@mui/material";
+import { Helmet } from "react-helmet";
 
-export default function Login() {
+export default function NewPassword() {
   const { t } = useTranslation();
 
-  const [email, setEmail] = useState("");
+  const [confirmPassword, setconfirmPassword] = useState("");
   const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
+  const [confirmPasswordError, setconfirmPasswordError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [apiError, setApiError] = useState([]);
   const [loginSuccessMsg, setLoginsuccessMsg] = useState("");
   const loginStatus = useSelector((state) => state?.login?.value);
   const loaderState = useSelector((state) => state.loader?.value);
   const [showPassword, setShowPassword] = useState(false);
-  const [saveCredentials, setSavecredentials] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   console.log(loginStatus);
 
   const dispatch = useDispatch();
@@ -33,11 +34,10 @@ export default function Login() {
 
   const userLang = useSelector((state) => state?.lang?.value);
 
+  const url = location.search;
+  console.log(url);
+
   useEffect(() => {
-    if (localStorage.getItem("email") && localStorage.getItem("phone")) {
-      setEmail(localStorage.getItem("email"));
-      setPassword(localStorage.getItem("phone"));
-    }
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
     let userLan = "";
@@ -50,30 +50,33 @@ export default function Login() {
     }
   }, []);
 
-  function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
-    if (email === "") {
-      setEmailError("Email is required");
-    } else if (!emailRegex.test(email)) {
-      setEmailError("invalid email");
+  function confirmPasswordValidaiton(confirmPassword) {
+    const confirmPasswordRegex =
+      /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    if (confirmPassword?.length === 0) {
+      setconfirmPasswordError("confirm Password is required");
+    } else if (confirmPassword !== password) {
+      setconfirmPasswordError("password and confirm password does not match");
     } else {
-      setEmailError("");
+      setconfirmPasswordError("");
     }
   }
 
   function passwordValidation(password) {
     if (password?.length === 0) {
-      setPasswordError("Phone is required");
+      setPasswordError("Password is required");
     } else if (password?.length <= 5) {
-      setPasswordError("password should be atleast 6 digits");
+      setPasswordError("password is Too short");
+    } else if (password?.length <= 7 && password?.length > 5) {
+      setPasswordError("min 8 digits required");
     } else {
       setPasswordError("");
     }
   }
 
-  function handleEmailChange(e) {
-    setEmail(e?.target?.value);
-    emailValidaiton(e?.target?.value);
+  function handleconfirmPasswordChange(e) {
+    setconfirmPassword(e?.target?.value);
+    confirmPasswordValidaiton(e?.target?.value);
   }
 
   function handlePasswordChange(e) {
@@ -84,82 +87,73 @@ export default function Login() {
   async function handleFormSubmission() {
     setApiError([]);
     setLoginsuccessMsg("");
-    console.log(email, password);
-    emailValidaiton(email);
+    console.log(confirmPassword, password);
+    confirmPasswordValidaiton(confirmPassword);
     passwordValidation(password);
     if (
-      emailError === "" &&
+      confirmPasswordError === "" &&
       passwordError === "" &&
-      email !== "" &&
+      confirmPassword !== "" &&
       password !== ""
     ) {
       try {
         dispatch(showLoader());
+        const url = location.hash;
+        console.log(url);
         const response = await axios.post(
-          "https://admin.tradingmaterials.com/api/auth/login",
+          "https://admin.tradingmaterials.com/api/lead/reset/password",
           {
-            email: email,
+            confirm_password: confirmPassword,
             password: password,
+            hash: localStorage.getItem("passHash"),
           }
         );
         if (response?.data?.status) {
+          localStorage.removeItem("passHash");
           setLoginsuccessMsg(response?.data?.message);
-          localStorage.removeItem("client_token");
-          localStorage.setItem("client_token", response?.data?.token);
-          // localStorage
-          console.log(response?.data?.first_name);
-          if (saveCredentials) {
-            localStorage.setItem("email", email);
-            localStorage.setItem("phone", password);
-          } else {
-            if (
-              localStorage.getItem("email", email) &&
-              localStorage.getItem("phone", password)
-            ) {
-              localStorage.removeItem("email", email);
-              localStorage.removeItem("phone", password);
-            }
-          }
+          //   localStorage.removeItem("client_token");
+          //   localStorage.setItem("client_token", response?.data?.token);
+          //   // localStorage
+          //   console.log(response?.data?.first_name);
+          //   dispatch(
+          //     updateUsers({
+          //       first_name: response?.data?.first_name,
+          //       last_name: response?.data?.last_name,
+          //       cart_count: response?.data?.cart_count,
+          //       wish_count: response?.data?.wish_count,
+          //     })
+          //   );
+          //   dispatch(updateclientType(response?.data?.type));
+          //   localStorage.setItem("client_type", response?.data?.type);
+          //   dispatch(loginUser());
+          //   if (response?.data?.data?.type === "client") {
+          //     navigate(`https://client.tradingmaterials.com/dashboard/`);
+          //   } else {
+          //     navigate(`${userLang}/profile`);
+          //   }
 
-          dispatch(
-            updateUsers({
-              first_name: response?.data?.first_name,
-              last_name: response?.data?.last_name,
-              cart_count: response?.data?.cart_count,
-              wish_count: response?.data?.wish_count,
-            })
-          );
-          dispatch(updateclientType(response?.data?.type));
-          localStorage.setItem("client_type", response?.data?.type);
-          dispatch(loginUser());
-          if (response?.data?.data?.type === "client") {
-            navigate(`https://client.tradingmaterials.com/dashboard/`);
-          } else {
-            navigate(`${userLang}/profile`);
-          }
-
-          setTimeout(() => {
-            localStorage.removeItem("token");
-            dispatch(
-              updateNotifications({
-                type: "warning",
-                message: "Session expired, Login again.",
-              })
-            );
-            navigate(`${userLang}/login`);
-          }, 3600000);
+          //   setTimeout(() => {
+          //     localStorage.removeItem("token");
+          //     dispatch(
+          //       updateNotifications({
+          //         type: "warning",
+          //         message: "Session expired, Login again.",
+          //       })
+          //     );
+          navigate(`${userLang}/login`);
+          //   }, 3600000);
+        } else {
+          console.log(response?.data);
+          setApiError([...Object?.values(response?.data?.errors)]);
         }
       } catch (err) {
         console.log("err", err);
         if (err?.response?.data?.errors) {
+          console.log(err?.response?.data?.errors);
           setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
           setApiError([err?.response?.data?.message]);
         }
-        setTimeout(() => {
-          setApiError([]);
-          setLoginsuccessMsg("");
-        }, 8000);
       } finally {
         dispatch(hideLoader());
       }
@@ -168,6 +162,9 @@ export default function Login() {
 
   return (
     <>
+    <Helmet>
+    <meta name="no-back-button" content="true"/>
+      </Helmet>
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px]">
           <div className="loader"></div>
@@ -199,40 +196,11 @@ export default function Login() {
                       className="title mb-2 font-semibold !font-bold"
                       style={{ fontSize: "2rem" }}
                     >
-                      Login to your account
+                      Reset Password
                     </h3>
-                    <p className="text">
-                      Not a member yet?{" "}
-                      <a
-                        href={`${userLang}/signup`}
-                        className="btn-link text-primary"
-                      >
-                        Sign Up
-                      </a>
-                      .
-                    </p>
                   </div>
                   <Form>
                     <div className="row gy-4 !text-left">
-                      <div className="col-12">
-                        <div className="form-group">
-                          <label className="form-label ">Email</label>
-                          <div className="form-control-wrap">
-                            <input
-                              type="email"
-                              className="form-control"
-                              placeholder="Enter your email"
-                              value={email}
-                              onChange={handleEmailChange}
-                            />
-                            {emailError && (
-                              <p className="text-red-600 font-semibold">
-                                {emailError}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
                       <div className="col-12">
                         <div className="form-group">
                           <label className="form-label">Password</label>
@@ -243,7 +211,7 @@ export default function Login() {
                               title="Toggle show/hide password"
                             >
                               <em
-                                className={`on icon ni ${
+                                className={`on icon ni cursor-pointer ${
                                   showPassword
                                     ? "ni-eye-off-fill"
                                     : "ni-eye-fill"
@@ -258,17 +226,55 @@ export default function Login() {
                               className="form-control"
                               placeholder="Enter your password"
                               onChange={handlePasswordChange}
-                              value={password}
                             />
-                            {passwordError && (
-                              <p className="text-red-700 font-semibold">
-                                {passwordError}
-                              </p>
-                            )}
                           </div>
+                          {passwordError && (
+                            <p className="text-red-700 font-semibold">
+                              {passwordError}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="col-12">
+                        <div className="form-group">
+                          <label className="form-label ">
+                            Confirm Password
+                          </label>
+                          <div className="form-control-wrap">
+                            <a
+                              // href="show-hide-password.html"
+                              className="form-control-icon end password-toggle"
+                              title="Toggle show/hide password"
+                            >
+                              <em
+                                className={`on icon ni cursor-pointer ${
+                                  showConfirmPassword
+                                    ? "ni-eye-off-fill"
+                                    : "ni-eye-fill"
+                                } text-primary`}
+                                onClick={() =>
+                                  setShowConfirmPassword(!showConfirmPassword)
+                                }
+                              ></em>
+                              {/* <em className="off icon ni ni-eye-off-fill text-primary"></em> */}
+                            </a>
+                            <input
+                              type={showConfirmPassword ? "text" : "password"}
+                              className="form-control"
+                              placeholder="Enter confirm Password"
+                              onChange={handleconfirmPasswordChange}
+                            />
+                          </div>
+                          {confirmPasswordError && (
+                            <Alert variant="outlined" severity="error">
+                              <p className="text-red-700 font-semibold">
+                                {confirmPasswordError}
+                              </p>
+                            </Alert>
+                          )}
+                        </div>
+                      </div>
+                      {/* <div className="col-12">
                         <div className="d-flex flex-wrap align-items-center  justify-content-between text-center">
                           <div className="form-check">
                             <input
@@ -276,10 +282,6 @@ export default function Login() {
                               type="checkbox"
                               value=""
                               id="rememberMe"
-                              checked={saveCredentials}
-                              onChange={() =>
-                                setSavecredentials(!saveCredentials)
-                              }
                             />
                             <label
                               className="form-check-label"
@@ -296,7 +298,7 @@ export default function Login() {
                             Forgot Password?
                           </a>
                         </div>
-                      </div>
+                      </div> */}
                       <div className="col-12">
                         <div className="form-group">
                           <button
@@ -309,7 +311,8 @@ export default function Login() {
                           {loginSuccessMsg && (
                             <Alert
                               variant="outlined"
-                              severity="success"className="mt-2"
+                              severity="success"
+                              className="mt-2"
                             >
                               <p className="text-green-600 font-semibold">
                                 {loginSuccessMsg}

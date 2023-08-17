@@ -35,7 +35,7 @@ export const products = (state) => state.products.value;
 
 export const filteredProductsByIds = (state , ids) => {
   console.log(ids)
-  const filteredObject = Object.values(state?.products).filter( product => ids?.includes(product?.subcat_id))
+  const filteredObject = Object.values(state?.products)?.filter( product => ids?.includes(product?.subcat_id))
   console.log(filteredObject)
   // state?.products[0].push(filteredObject)
   

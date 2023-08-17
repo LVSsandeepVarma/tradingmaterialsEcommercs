@@ -36443,17 +36443,17 @@ button.swiper-pagination-bullet {
 }
 
 .nk-section-title {
-    font-size: 1.75rem;
+    font-size: 1.75rem !important;
     color: #0a1425;
     line-height: 1.5;
-    font-weight: bold;
+    font-weight: bold !important;
     margin-bottom: 12px;
     text-transform: capitalize
 }
 
 @media(min-width: 768px) {
     .nk-section-title {
-        font-size: 2.5rem
+        font-size: 2.5rem !important
     }
 }
 
@@ -47433,10 +47433,11 @@ h6,
     opacity: 1;
     width: 100%;
     height: 100%;
-    z-index: 99999;
+    z-index: 9999999;
     position: fixed;
     transition: all .5s ease;
-    background-color: #d5deff
+    background-color: transparent;
+    /* filter : blur(1px); */
 }
 
 .preloader.hide {

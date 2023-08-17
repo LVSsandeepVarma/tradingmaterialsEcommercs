@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Helmet } from "react-helmet";
 import Footer from "../../footer/footer";
 import {
   hideLoader,
@@ -16,7 +17,10 @@ import {
   notifications,
   updateNotifications,
 } from "../../../../features/notifications/notificationSlice";
-import { updateCartCount } from "../../../../features/cartWish/focusedCount";
+import {
+  updateCartCount,
+  updateWishListCount,
+} from "../../../../features/cartWish/focusedCount";
 import { showPopup } from "../../../../features/popups/popusSlice";
 // import Swiper from "swiper";
 import "swiper/css";
@@ -26,35 +30,71 @@ import "swiper/css/thumbs";
 import "swiper/css/autoplay";
 import { FreeMode, Navigation, Thumbs, Autoplay } from "swiper/modules";
 import { useTranslation } from "react-i18next";
+import CryptoJS from "crypto-js";
+import { Skeleton } from "@mui/material";
+
 // import { delay } from "@reduxjs/toolkit/dist/utils";
 
 export default function ProductDetails() {
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const products = useSelector((state) => state?.products?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
-
+  const clientType = useSelector((state) => state?.clientType?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
+  const userLang = useSelector((state) => state?.lang?.value);
+  const isLoggedIn = useSelector((state) => state?.login?.value);
+  const [animateProductId, setAnimateProductId] = useState("");
 
   const [product, setProduct] = useState({});
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [subCatProducts, setSubCatProducts] = useState([]);
   const [qunatity, setQuantity] = useState(1);
+  const [currentUserlang, setCurrentUserLang] = useState(
+    localStorage.getItem("i18nextLng")
+  );
+  const [previewImage, setPreviewImage] = useState("/images/logo");
+  let count = 0;
   console.log(cartProducts, params);
+
+  useEffect(() => {
+    const timoeOut = setTimeout(() => {
+      setAnimateProductId("");
+    }, 3000);
+
+    return () => {
+      clearTimeout(timoeOut);
+    };
+  }, [animateProductId]);
+
+  useEffect(() => {
+    setCurrentUserLang(localStorage.getItem("i18nextLng"));
+  }, [userLang]);
 
   const getUserInfo = async () => {
     try {
-      const response = await axios.get(
-        "https://admin.tradingmaterials.com/api/lead/get-user-info",
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-            Accept: "application/json",
-          },
-        }
-      );
+      const url =
+        clientType === "client"
+          ? "https://admin.tradingmaterials.com/api/get-user-info"
+          : "https://admin.tradingmaterials.com/api/lead/get-user-info";
+      const headerData =
+        clientType === "client"
+          ? {
+              headers: {
+                Authorization: `Bearer ` + localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            }
+          : {
+              headers: {
+                "access-token": localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            };
+
+      const response = await axios.get(url, headerData);
       if (response?.data?.status) {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
@@ -98,10 +138,19 @@ export default function ProductDetails() {
   }
 
   function ratingStars(number) {
-    const elemetns = Array.from({ length: number }, (_, index) => (
-      <li key={index}>
-        <em className="icon ni ni-star-fill text-yellow"></em>
-      </li>
+    const elemetns = Array.from({ length: 5 }, (_, index) => (
+      <>
+        {index < number && (
+          <li key={index}>
+            <em className="icon ni ni-star-fill text-yellow"></em>
+          </li>
+        )}
+        {index >= number && (
+          <li key={index}>
+            <em className="icon ni ni-star-fill text-gray-700"></em>
+          </li>
+        )}
+      </>
     ));
 
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
@@ -110,13 +159,18 @@ export default function ProductDetails() {
   console.log(products);
 
   const { id } = useParams();
+  const decryptedId = CryptoJS.AES.decrypt(
+    id.replace(/_/g, "/").replace(/-/g, "+"),
+    "trading_materials"
+  ).toString(CryptoJS.enc.Utf8);
+  console.log(decryptedId);
 
   async function fetchProductdetails() {
     console.log(id);
     try {
       dispatch(showLoader());
       const response = await axios.get(
-        `https://admin.tradingmaterials.com/api/get/products-details?product_id=${id}`,
+        `https://admin.tradingmaterials.com/api/get/products-details?product_id=${decryptedId}`,
         {
           headers: {
             "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
@@ -126,6 +180,7 @@ export default function ProductDetails() {
       );
       if (response?.data?.status) {
         setProduct(response?.data?.data);
+        setPreviewImage(response?.data?.data?.product?.img_1);
       }
     } catch (err) {
       console.log(err);
@@ -171,12 +226,13 @@ export default function ProductDetails() {
   async function handleAddToCart(productId) {
     // setAnimateProductId(productId)
     try {
-      dispatch(showLoader());
+      // dispatch(showLoader());
+      setAnimateProductId(productId);
       const response = await axios?.post(
         "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
         {
           product_id: productId,
-          qty: qunatity,
+          qty: 1,
         },
         {
           headers: {
@@ -184,22 +240,67 @@ export default function ProductDetails() {
           },
         }
       );
-      console.log(response?.data?.status);
       if (response?.data?.status) {
-        dispatch(updateCart(response?.data?.data?.cart_details));
-        dispatch(updateCartCount(response?.data?.data?.cart_count));
         dispatch(
-          notifications({
+          updateNotifications({
             type: "success",
-            message: response?.data?.data?.message,
+            message: "Added to cart successfully",
           })
         );
-      } else {
-        dispatch(showPopup());
+        dispatch(updateCart(response?.data?.data?.cart_details));
+        dispatch(updateCartCount(response?.data?.data?.cart_count));
+        // getUserInfo();
       }
     } catch (err) {
       console.log(err);
-      dispatch(showPopup());
+    }
+    // finally {
+    // dispatch(hideLoader());
+    // }
+  }
+
+  async function handleAddToWishList(id) {
+    console.log(id);
+    try {
+      dispatch(showLoader());
+      const url =
+        clientType === "client"
+          ? "https://admin.tradingmaterials.com/api/product/add-to-wishlist"
+          : "https://admin.tradingmaterials.com/api/lead/product/add-to-wishlist";
+      const headerData =
+        clientType === "client"
+          ? {
+              headers: {
+                Authorization: `Bearer ` + localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            }
+          : {
+              headers: {
+                "access-token": localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            };
+      const response = await axios.post(
+        url,
+        {
+          product_id: id,
+        },
+        headerData
+      );
+      if (response?.data?.status) {
+        dispatch(
+          updateNotifications({
+            type: "success",
+            message: "Added to wishlist successfully",
+          })
+        );
+        // dispatch(updateWis(response?.data?.data?.cart_details));
+        dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
+        getUserInfo();
+      }
+    } catch (err) {
+      console.log(err);
     } finally {
       dispatch(hideLoader());
     }
@@ -217,14 +318,18 @@ export default function ProductDetails() {
 
   return (
     <>
+      {/* <Helmet>
+        <meta property="og:image" content="/images/tm-logo-1.png" />
+        <meta property="og:name" content="trading product"/>
+        <meta property="og:description" content="trading desc"/>
+      </Helmet> */}
       <div className="nk-body">
         <div className="nk-body-root">
           {loaderState && (
-            <div className="preloader">
+            <div className="preloader !backdrop-blur-[1px]">
               <div className="loader"></div>
             </div>
           )}
-
           <Header />
           <main className="nk-pages">
             <section className="nk-section nk-section-product-details pb-lg-7 pt-120 pt-lg-180">
@@ -244,72 +349,103 @@ export default function ProductDetails() {
                         thumbs={{ swiper: thumbsSwiper }}
                         autoplay={{
                           autoplay: {
-                            delay: 1000
-                          }
-                        }
-
-                        }
-                        modules={[FreeMode, Navigation, Thumbs,Autoplay]}
+                            delay: 1000,
+                          },
+                        }}
+                        modules={[FreeMode, Navigation, Thumbs, Autoplay]}
                         className="mySwiper2"
                       >
                         <div className="swiper-slide">
-                        <SwiperSlide>
-                          <img
-                            src={
-                              product?.product?.img_1 === null
-                                ? "/images/shop/slider-cover-1.jpg"
-                                : product?.product?.img_1
-                            }
-                            style={{aspectRatio:1, objectFit: "cover", width:"100%"}}
-                            alt="product-images"
-                          />
-                        </SwiperSlide>
+                          {product?.product?.img_1 !== null && (
+                            
+                            <SwiperSlide>
+                              {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
+                                aspectRatio: 1,
+                                objectFit: "fill",
+                                width: "100%",
+                                height:"100%"
+                              }}/>}
+                              {!loaderState && <img
+                                src={
+                                  product?.product?.img_1 === null
+                                    ? "/images/shop/slider-cover-1.jpg"
+                                    : product?.product?.img_1
+                                }
+                                style={{
+                                  aspectRatio: 1,
+                                  objectFit: "fill",
+                                  width: "100%",
+                                }}
+                                alt="product-images"
+                              />}
+                            </SwiperSlide>
+                          )}
                         </div>
-                        <SwiperSlide>
-                          <img
-                            src={
-                              product?.product?.img_2 === null
-                                ? "/images/shop/slider-cover-2.jpg"
-                                : product?.product?.img_2
-                            }
-                            style={{aspectRatio:1, objectFit: "cover", width:"100%"}}
-                            alt="product-images"
-                          />
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <img
-                            src={
-                              product?.product?.img_3 === null
-                                ? "/images/shop/slider-cover-3.jpg"
-                                : product?.product?.img_3
-                            }
-                            style={{aspectRatio:1, objectFit: "cover", width:"100%"}}
-                            alt="product-images"
-                          />
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <img
-                            src={
-                              product?.product?.img_4 === null
-                                ? product?.product?.img_2
-                                : product?.product?.img_4
-                            }
-                            style={{aspectRatio:1, objectFit: "cover", width:"100%"}}
-                            alt="product-images"
-                          />
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <img
-                            src={
-                              product?.product?.img_5 === null
-                                ? product?.product?.img_3
-                                : product?.product?.img_5
-                            }
-                            style={{aspectRatio:1, objectFit: "cover", width:"100%"}}
-                            alt="product-images"
-                          />
-                        </SwiperSlide>
-                        
+                        {product?.product?.img_2 !== null && (
+                          <SwiperSlide>
+                            <img
+                              src={
+                                product?.product?.img_2 !== null &&
+                                product?.product?.img_2
+                              }
+                              style={{
+                                aspectRatio: 1,
+                                objectFit: "fill",
+                                width: "100%",
+                              }}
+                              alt="product-images"
+                            />
+                          </SwiperSlide>
+                        )}
+                        {product?.product?.img_3 !== null && (
+                          <SwiperSlide>
+                            <img
+                              src={
+                                product?.product?.img_3 !== null &&
+                                product?.product?.img_3
+                              }
+                              style={{
+                                aspectRatio: 1,
+                                objectFit: "fill",
+                                width: "100%",
+                              }}
+                              alt="product-images"
+                            />
+                          </SwiperSlide>
+                        )}
+                        {product?.product?.img_4 !== null && (
+                          <SwiperSlide>
+                            <img
+                              src={
+                                product?.product?.img_4 !== null &&
+                                product?.product?.img_4
+                              }
+                              style={{
+                                aspectRatio: 1,
+                                objectFit: "fill",
+                                width: "100%",
+                              }}
+                              alt="product-images"
+                            />
+                          </SwiperSlide>
+                        )}
+                        {product?.product?.img_5 !== null && (
+                          <SwiperSlide>
+                            <img
+                              src={
+                                product?.product?.img_5 !== null &&
+                                product?.product?.img_5
+                              }
+                              style={{
+                                aspectRatio: 1,
+                                objectFit: "fill",
+                                width: "100%",
+                              }}
+                              alt="product-images"
+                            />
+                          </SwiperSlide>
+                        )}
+
                         {/* <SwiperSlide>
                           <img
                             src={
@@ -317,7 +453,7 @@ export default function ProductDetails() {
                                 ? "/images/shop/slider-cover-4.jpg"
                                 : product?.product?.img_4
                             }
-                            style={{aspectRatio:1, objectFit: "cover"}}
+                            style={{aspectRatio:1, objectFit: "fill"}}
                             alt="product-images"
                           />
                         </SwiperSlide>
@@ -328,7 +464,7 @@ export default function ProductDetails() {
                                 ? "/images/shop/slider-cover-5.jpg"
                                 : product?.product?.img_5
                             }
-                            style={{aspectRatio:1, objectFit: "cover"}}
+                            style={{aspectRatio:1, objectFit: "fill"}}
                             alt="product-images"
                           />
                         </SwiperSlide> */}
@@ -341,79 +477,113 @@ export default function ProductDetails() {
                         speed={5000}
                         autoplay={{
                           autoplay: {
-                            delay: 1000
-                          }
-                        }
-                        }
+                            delay: 1000,
+                          },
+                        }}
                         freeMode={true}
                         watchSlidesProgress={true}
                         modules={[FreeMode, Navigation, Thumbs, Autoplay]}
                         className="swiper product-slider-sm mt-5"
                       >
-                        <SwiperSlide>
-                          <img 
-                          className="w-100"
-                            src={
-                              product?.product?.img_1 === null
-                                ? "/images/shop/slider-cover-1.jpg"
-                                : product?.product?.img_1
-                            }
-                            style={{aspectRatio:1, objectFit: "cover"}}
-                            alt="product-images"
-                          />
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <img
-                          className="w-100"
-                            src={
-                              product?.product?.img_2 === null
-                                ? "/images/shop/slider-cover-2.jpg"
-                                : product?.product?.img_2
-                            }
-                            style={{aspectRatio:1, objectFit: "cover"}}
-                            alt="product-images"
-                          />
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <img
-                          className="w-100"
-                            src={
-                              product?.product?.img_3 === null
-                                ? "/images/shop/slider-cover-3.jpg"
-                                : product?.product?.img_3
-                            }
-                            style={{aspectRatio:1, objectFit: "cover"}}
-                            alt="product-images"
-                            width={"100%"}
-                            height={"100%"}
-                          />
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <img
-                          className="w-100"
-                            src={
-                              product?.product?.img_4 === null
-                                ? product?.product?.img_1
-                                : product?.product?.img_4
-                            }
-                            style={{aspectRatio:1, objectFit: "cover"}}
-                            alt="product-images"
-                          />
-                        </SwiperSlide>
-                        <SwiperSlide>
-                          <img
-                          className="w-100"
-                            src={
-                              product?.product?.img_5 === null
-                                ? product?.product?.img_3
-                                : product?.product?.img_5
-                            }
-                            style={{aspectRatio:1, objectFit: "cover"}}
-                            alt="product-images"
-                            width={"100%"}
-                            height={"100%"}
-                          />
-                        </SwiperSlide>
+                        {product?.product?.img_1 !== null && (
+                          <SwiperSlide>
+                            {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
+                                aspectRatio: 1,
+                                objectFit: "fill",
+                                width: "100%",
+                                height: "100%"
+                              }}/>}
+                            {!loaderState && <img
+                              className="w-100"
+                              src={
+                                product?.product?.img_1 !== null &&
+                                product?.product?.img_1
+                              }
+                              style={{ aspectRatio: 1, objectFit: "fill" }}
+                              alt="product-images"
+                            />}
+                          </SwiperSlide>
+                        )}
+                        {product?.product?.img_2 !== null && (
+                          <SwiperSlide>
+                            {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
+                                aspectRatio: 1,
+                                objectFit: "fill",
+                                width: "100%",
+                                height: "100%"
+                              }}/>}
+                            {!loaderState && <img
+                              className="w-100"
+                              src={
+                                product?.product?.img_2 !== null &&
+                                product?.product?.img_2
+                              }
+                              style={{ aspectRatio: 1, objectFit: "fill" }}
+                              alt="product-images"
+                            />}
+                          </SwiperSlide>
+                        )}
+                        {product?.product?.img_3 !== null && (
+                          <SwiperSlide>
+                            {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
+                                aspectRatio: 1,
+                                objectFit: "fill",
+                                width: "100%",
+                                height: "100%"
+                              }}/>}
+                            {!loaderState && <img
+                              className="w-100"
+                              src={
+                                product?.product?.img_3 !== null &&
+                                product?.product?.img_3
+                              }
+                              style={{ aspectRatio: 1, objectFit: "fill" }}
+                              alt="product-images"
+                              width={"100%"}
+                              height={"100%"}
+                            />}
+                          </SwiperSlide>
+                        )}
+                        {product?.product?.img_4 !== null && (
+                          <SwiperSlide>
+                            {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
+                                aspectRatio: 1,
+                                objectFit: "fill",
+                                width: "100%",
+                                height: "100%"
+                              }}/>}
+                            {!loaderState && <img
+                              className="w-100"
+                              src={
+                                product?.product?.img_4 !== null &&
+                                product?.product?.img_4
+                              }
+                              style={{ aspectRatio: 1, objectFit: "fill" }}
+                              alt="product-images"
+                            />}
+                          </SwiperSlide>
+                        )}
+                        {product?.product?.img_5 !== null && (
+                          <SwiperSlide>
+                            {loaderState && <Skeleton  animation="wave" variant="rectangular"  style={{
+                                aspectRatio: 1,
+                                objectFit: "fill",
+                                width: "100%",
+                                height: "100%"
+                              }}/>}
+                            {!loaderState && <img
+                              className="w-100"
+                              src={
+                                product?.product?.img_5 !== null &&
+                                product?.product?.img_5
+                              }
+                              style={{ aspectRatio: 1, objectFit: "fill" }}
+                              alt="product-images"
+                              width={"100%"}
+                              height={"100%"}
+                            />}
+                          </SwiperSlide>
+                        )}
 
                         {/* <SwiperSlide>
                           <img
@@ -423,7 +593,7 @@ export default function ProductDetails() {
                                 ? "/images/shop/slider-cover-4.jpg"
                                 : product?.product?.img_4
                             }
-                            style={{aspectRatio:1, objectFit: "cover"}}
+                            style={{aspectRatio:1, objectFit: "fill"}}
                             alt="product-images"
                           />
                         </SwiperSlide>
@@ -435,7 +605,7 @@ export default function ProductDetails() {
                                 ? "/images/shop/slider-cover-5.jpg"
                                 : product?.product?.img_5
                             }
-                            style={{aspectRatio:1, objectFit: "cover"}}
+                            style={{aspectRatio:1, objectFit: "fill"}}
                             alt="product-images"
                             height={100}
                           />
@@ -445,65 +615,69 @@ export default function ProductDetails() {
                     <div className="col-lg-6 col-xl-5">
                       <div>
                         <div>
-                          <div className="pb-3 border-bottom">
-                            <span className="fs-14 text-gray-1200 text-uppercase fw-semibold">
-                              {product?.product?.name}
-                            </span>
-                            <div
-                              className="text-sm"
-                              dangerouslySetInnerHTML={{
-                                __html: product?.product?.description,
-                              }}
-                            />
-                          </div>
-                          <div className="d-flex gap-4 align-items-center pt-1">
-                            <div className="d-flex gap-1 align-items-center">
-                              {ratingStars(product?.product?.rating)}
-                              <p className="fs-14">(7 Reviews)</p>
+                          <div className="pb-3 border-bottom !text-left ">
+                            <div className="fs-14 mb-1 text-black text-uppercase  font-semibold">
+                              {product?.product?.category}
                             </div>
-                            <a
-                              href="#"
-                              className="d-flex align-items-center text-gray-1200"
-                            >
+                            <h3 className="text-gray-1200 fw-bold h3">
+                              {product?.product?.name}
+                            </h3>
+                          </div>
+                          <div className="d-flex gap-4  pt-1">
+                            <div className="d-flex gap-1">
+                              {ratingStars(product?.rating)}
+
+                              <span className="fs-14 text-gray-800">
+                                {" "}
+                                ({product?.rating} Reviews){" "}
+                              </span>
+                            </div>
+                            <a href="#" className="d-flex    text-gray-1200">
                               <em className="icon ni ni-edit-alt text-gray-800"></em>
                               <span className="fs-14 ms-1">Write A Review</span>
                             </a>
                           </div>
                         </div>
-                        <div className="nk-product-specification py-5">
-                          <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50">Availability:</h6>
+                        <div className="nk-product-specification py-5 !text-left ">
+                          <div
+                            className="text-sm"
+                            dangerouslySetInnerHTML={{
+                              __html: product?.product?.description,
+                            }}
+                          />
+                          {/* <div className="nk-product-specification-content ">
+                            <h6 className="fs-16 m-0 w-50 !font-bold">Availability:</h6>
                             <p className="fs-16 text-gray-800 w-50">
                               {product?.stock}
                             </p>
                           </div>
                           <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50">Brand:</h6>
+                            <h6 className="fs-16 m-0 w-50 !font-bold">Brand:</h6>
                             <p className="fs-16 text-gray-800 w-50">
                               Rubberised Material
                             </p>
                           </div>
                           <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50">Size:</h6>
+                            <h6 className="fs-16 m-0 w-50 !font-bold">Size:</h6>
                             <p className="fs-16 text-gray-800 w-50">
                               (32 inch x13inch) Large enough to have mouse,
                               keyboard and other desk items]
                             </p>
                           </div>
                           <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50">Product Code:</h6>
+                            <h6 className="fs-16 m-0 w-50 !font-bold">Product Code:</h6>
                             <p className="fs-16 text-gray-800 w-50">
                               Product 20
                             </p>
                           </div>
                           <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50">Mode of Payment:</h6>
+                            <h6 className="fs-16 m-0 w-50 !font-bold">Mode of Payment:</h6>
                             <p className="fs-16 text-gray-800 w-50">
                               Cash on Delivery / Online Banking
                             </p>
                           </div>
                           <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50">
+                            <h6 className="fs-16 m-0 w-50 !font-bold">
                               7 Day Free Replacement:
                             </h6>
                             <p className="fs-16 text-gray-800 w-50">
@@ -511,15 +685,17 @@ export default function ProductDetails() {
                             </p>
                           </div>
                           <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50">
+                            <h6 className="fs-16 m-0 w-50 !font-bold">
                               Fast/Free Shipping
                             </h6>
                             <p className="fs-16 text-gray-800 w-50">
                               All orders are shipped free within 24 hours
                             </p>
-                          </div>
+                          </div> */}
                           <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50">Quantity:</h6>
+                            <h6 className="fs-16 m-0 w-50 !font-bold">
+                              Quantity:
+                            </h6>
                             <div className="w-50">
                               <div id="counter" className="nk-counter">
                                 <button
@@ -544,9 +720,23 @@ export default function ProductDetails() {
                           </div>
                         </div>
                         <div className="position-relative overflow-hidden bg-blue-300 rounded p-4">
-                          <h4 className="mb-4">$450.00</h4>
-                          <p className="fs-14 text-gray-1200">
-                            <em className="icon ni ni-plus-circle-fill text-primary me-1"></em>
+                          <h4 className="mb-4 !text-2xl !font-bold !text-left">
+                            {product?.product?.prices?.map((price, ind) => (
+                              <p className=" m-0 text-gray-1200 text-start !text-2xl !font-bold !mr-2 ">
+                                {currentUserlang === "en"
+                                  ? price?.INR &&
+                                    `₹${Number.parseFloat(price?.INR).toFixed(
+                                      2
+                                    )}`
+                                  : price?.USD &&
+                                    `$${Number.parseFloat(price?.USD).toFixed(
+                                      2
+                                    )}`}
+                              </p>
+                            ))}
+                          </h4>
+                          <p className="fs-14 text-gray-1200 !text-left !w-full mb-2">
+                            <em className="icon ni ni-plus-circle-fill text-primary me-1 "></em>
                             <span>Add Nio care pius service from $39</span>
                           </p>
                           <ul className="d-flex align-items-center gap-2">
@@ -558,9 +748,11 @@ export default function ProductDetails() {
                             <li>
                               <button
                                 className="btn btn-white text-primary"
-                                onClick={() =>
-                                  handleAddToCart(product?.product_id)
-                                }
+                                onClick={(event) => {
+                                  return isLoggedIn
+                                    ? handleAddToCart(product?.product_id)
+                                    : dispatch(showPopup());
+                                }}
                               >
                                 Add To Cart
                               </button>
@@ -568,7 +760,14 @@ export default function ProductDetails() {
                           </ul>
                           <div className="d-flex align-items-center gap-1 pt-4">
                             <em className="icon ni ni-heart-fill text-primary "></em>
-                            <p className="fs-16 fw-semibold text-gray-1200">
+                            <p
+                              className="fs-16 fw-semibold text-gray-1200 cursor-pointer"
+                              onClick={() => {
+                                isLoggedIn
+                                  ? handleAddToWishList(product?.id)
+                                  : dispatch(showPopup());
+                              }}
+                            >
                               {" "}
                               Add to WishList{" "}
                               <span className="fs-14 text-gray-800 fw-normal">
@@ -578,15 +777,15 @@ export default function ProductDetails() {
                           </div>
                         </div>
                         <div className="pt-5">
-                          <p className="fs-14">
+                          <p className="fs-14 !text-left">
                             {" "}
                             Must explain to you how all this mistaken idea of
                             denouncing pleasure and praising pain was born and I
                             will give you a complete account of the system, and
                             expound.{" "}
                           </p>
-                          <div className="nk-social d-sm-flex align-items-center gap-3 pb-2">
-                            <h6 className="fs-14 m-0 fw-semibold text-uppercase mb-2 mb-sm-0">
+                          <div className="nk-social d-sm-flex align-items-center mt-2 gap-3 pb-2">
+                            <h6 className="fs-14 m-0 fw-semibold text-uppercase !leading-loose mb-2  mb-sm-0 ">
                               Share :
                             </h6>
                             <ul>
@@ -682,8 +881,8 @@ export default function ProductDetails() {
                         id="tab-1"
                         tabindex="0"
                       >
-                        <div className="mb-5">
-                          <h5 className="mb-2">Product Description</h5>
+                        <div>
+                          {/* <h5 className="mb-2">Product Description</h5> */}
                           <p
                             className="fs-16 text-gray-1200 text-left"
                             dangerouslySetInnerHTML={{
@@ -694,7 +893,7 @@ export default function ProductDetails() {
                         <div className="row">
                           <div className="col-lg-10 col-xl-8">
                             <div className="row flex-row-reverse gy-5 gy-md-0">
-                              <div className="col-md-6">
+                              {/* <div className="col-md-6">
                                 <div>
                                   <h6 className="mb-3">Care & Instructions</h6>
                                   <p className="fs-16 text-gray-1200">
@@ -761,7 +960,7 @@ export default function ProductDetails() {
                                     </p>
                                   </li>
                                 </ul>
-                              </div>
+                              </div> */}
                             </div>
                           </div>
                         </div>
@@ -776,20 +975,23 @@ export default function ProductDetails() {
                 <div className="row">
                   <div className="col-12">
                     <div className="nk-section-head pb-5">
-                      <h2 className="nk-section-title">Trading Bundles</h2>
+                      <h2 className="nk-section-title !text-left">
+                        Trading Bundles
+                      </h2>
                     </div>
                   </div>
                 </div>
-                <div className="row gy-5 justify-center">
+                <div className="row gy-5 justify-between">
                   {subCatProducts?.length !== 0 &&
                     subCatProducts?.map((product, indx) => {
+                      console.log(product);
                       if (product?.combo) {
                         return (
                           // product?.getproducts?.map((comboProduct, n)=>(
                           <div
                             className="col-xl-4 col-lg-4 col-md-6"
-                            data-aos="fade-up"
-                            data-aos-delay="0"
+                            // data-aos="fade-up"
+                            // data-aos-delay="100"
                           >
                             <div className="nk-card overflow-hidden rounded-3 border h-100">
                               <div className="nk-card-img">
@@ -804,46 +1006,73 @@ export default function ProductDetails() {
                               <div className="nk-card-info bg-white p-4">
                                 <a
                                   href="/"
-                                  className="d-inline-block mb-1 line-clamp-1 h5"
+                                  className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
                                 >
                                   {product?.name}
                                   <br />
-                                  <span className="text-xs">
+                                  {/* <span className="text-xs">
                                     <p
                                       dangerouslySetInnerHTML={{
                                         __html: product?.description,
                                       }}
                                     />
-                                  </span>
+                                  </span> */}
                                 </a>
                                 <div className="d-flex align-items-center mb-2 gap-1">
-                                  {ratingStars(5)}
+                                  {ratingStars(product?.rating)}
+
                                   <span className="fs-14 text-gray-800">
                                     {" "}
-                                    (7 Reviews){" "}
+                                    ({product?.rating} Reviews){" "}
                                   </span>
                                 </div>
-                                <div className="d-flex align-items-center justify-content-between">
+                                <div className="d-flex align-items-center justify-between	">
                                   {product?.prices?.map((price, ind) => (
                                     <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                      {price?.USD &&
-                                        Number.parseFloat(price?.USD).toFixed(
-                                          2
-                                        )}
-                                      {price?.USD && (
-                                        <del className="text-gray-800 !ml-2">
-                                          $
-                                          {getRandomNumberWithOffset(
-                                            Number.parseFloat(
-                                              price?.USD
-                                            ).toFixed(2)
+                                      {currentUserlang === "en"
+                                        ? price?.INR && `₹${price?.INR}`
+                                        : price?.USD &&
+                                          `$${Number.parseFloat(
+                                            price?.USD
+                                          ).toFixed(2)}`}
+                                      {currentUserlang === "en"
+                                        ? price?.INR && (
+                                            <del className="text-gray-800 !ml-2">
+                                              {currentUserlang === "en"
+                                                ? "₹"
+                                                : "$"}
+                                              {getRandomNumberWithOffset(
+                                                price?.INR
+                                              )}
+                                            </del>
+                                          )
+                                        : price?.USD && (
+                                            <del className="text-gray-800 !ml-2">
+                                              {currentUserlang === "en"
+                                                ? "₹"
+                                                : "$"}
+                                              {getRandomNumberWithOffset(
+                                                Number.parseFloat(
+                                                  price?.USD
+                                                ).toFixed(2)
+                                              )}
+                                            </del>
                                           )}
-                                        </del>
-                                      )}
                                     </p>
                                   ))}
-                                  <button className="p-0 border-0 outline-none bg-transparent text-primary">
-                                    <em className="icon ni ni-cart"></em>
+                                  <button
+                                    className="p-0 border-0 outline-none bg-transparent text-primary"
+                                    onClick={(event) => {
+                                      return isLoggedIn
+                                        ? handleAddToCart(product?.id)
+                                        : dispatch(showPopup());
+                                    }}
+                                  >
+                                    {animateProductId === product?.id ? (
+                                      <img src="/images/addedtocart.gif" />
+                                    ) : (
+                                      <em className="icon ni ni-cart text-2xl"></em>
+                                    )}
                                   </button>
                                 </div>
                               </div>
@@ -852,34 +1081,52 @@ export default function ProductDetails() {
                           // ))
                         );
                       }
+                      // count= count + 1
                     })}
                 </div>
               </div>
             </section>
             <section class="nk-section nk-cta-section nk-section-content-1">
-                <div class="container">
-                    <div class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7" data-aos="fade-up" data-aos-delay="100">
-                        <div class="row g-gs align-items-center">
-                            <div class="col-lg-8">
-                                <div class="media-group flex-column flex-lg-row align-items-center">
-                                    <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2"><em class="icon ni ni-chat-fill"></em></div>
-                                    <div class="text-center text-lg-start">
-                                        <h3 class="text-capitalize m-0 !text-2xl">{t("Chat_With_Our_Support_Team")}</h3>
-                                        <p class="fs-16 opacity-75">{t("chat_team_desc")}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 text-center text-lg-end"><a href="/contact" class="btn btn-white fw-semiBold">{t("Contact_support")}</a></div>
+              <div class="container">
+                <div
+                  class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+                  // data-aos="fade-up"
+                  // data-aos-delay="100"
+                >
+                  <div class="row g-gs align-items-center">
+                    <div class="col-lg-8">
+                      <div class="media-group flex-column flex-lg-row align-items-center">
+                        <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                          <em class="icon ni ni-chat-fill"></em>
                         </div>
+                        <div class="text-center text-lg-start">
+                          <h3 class="text-capitalize m-0 !text-3xl !font-bold">
+                            {t("Chat_With_Our_Support_Team")}
+                          </h3>
+                          <p class="fs-16 opacity-75 !text-lg mt-1">
+                            {t("chat_team_desc")}
+                          </p>
+                        </div>
+                      </div>
                     </div>
+                    <div class="col-lg-4 text-center text-lg-end">
+                      <a
+                        href={`${userLang}/contact`}
+                        class="btn btn-white fw-semiBold"
+                      >
+                        {t("Contact_support")}
+                      </a>
+                    </div>
+                  </div>
                 </div>
+              </div>
             </section>
           </main>
 
           <Footer />
         </div>
       </div>
-      <div class="nk-sticky-badge">
+      <div className="nk-sticky-badge">
         <ul>
           <li>
             <a
@@ -887,10 +1134,10 @@ export default function ProductDetails() {
               className="nk-sticky-badge-icon nk-sticky-badge-home"
               data-bs-toggle="tooltip"
               data-bs-placement="right"
-              data-bs-custom-class="nk-tooltip"
+              data-bs-custom-className="nk-tooltip"
               data-bs-title="View Demo"
             >
-              <em class="icon ni ni-home-fill"></em>
+              <em className="icon ni ni-home-fill"></em>
             </a>
           </li>
           <li>
@@ -899,11 +1146,11 @@ export default function ProductDetails() {
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               id="cart-button"
               data-bs-toggle="tooltip"
-              data-bs-custom-class="nk-tooltip"
+              data-bs-custom-className="nk-tooltip"
               data-bs-title="Purchase Now"
               aria-label="Purchase Now"
             >
-              <em class="icon ni ni-cart-fill"></em>
+              <em className="icon ni ni-cart-fill"></em>
             </a>
           </li>
         </ul>

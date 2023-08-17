@@ -34447,7 +34447,7 @@ body {
   color: #64728f;
   font-size: 1.25rem;
   font-weight: 400;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
 }
 a {
   transition: color 0.2s, background-color 0.2s, border 0.2s, box-shadow 0.2s;

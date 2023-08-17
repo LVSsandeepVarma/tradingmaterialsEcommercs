@@ -9,6 +9,10 @@ import notificationRefucer from '../features/notifications/notificationSlice';
 import cartReducer from '../features/cartItems/cartSlice';
 import popupReducer from '../features/popups/popusSlice';
 import langReducer  from '../features/userLang/userLang';
+import clientTypeReducer from '../features/clientType/clientType';
+import addressReducer from '../features/address/addressSlice';
+import subIdReducer from '../features/subCategoriesIds/subCategoriesSlice';
+import signupinModalReducer  from '../features/signupinModals/signupinSlice';
 
 export const store = configureStore({
   reducer: {
@@ -22,5 +26,9 @@ export const store = configureStore({
     cart: cartReducer,
     popup: popupReducer,
     lang: langReducer,
+    clientType : clientTypeReducer,
+    addressStatus: addressReducer,
+    subId: subIdReducer,
+    signupInModal : signupinModalReducer
   },
 });

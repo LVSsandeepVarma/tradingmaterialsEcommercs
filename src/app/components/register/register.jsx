@@ -9,6 +9,8 @@ import { updateUsers } from "../../../features/users/userSlice";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import { loginUser } from "../../../features/login/loginSlice";
 import { Form } from "react-bootstrap";
+import { updateclientType } from "../../../features/clientType/clientType";
+import Alert from "@mui/material/Alert";
 
 export default function Register() {
   const { t } = useTranslation();
@@ -19,7 +21,7 @@ export default function Register() {
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [firstNameError, setFirstNameError] = useState("");
-  const [lastNameError, setLastNameError] = useState("")
+  const [lastNameError, setLastNameError] = useState("");
   const [apiError, setApiError] = useState([]);
   const [signupSuccessMsg, setSignupSuccessMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +52,7 @@ export default function Register() {
   function emailValidaiton(email) {
     const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (email === "") {
-      setEmailError("E?mail is required");
+      setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
       setEmailError("invalid email");
     } else {
@@ -69,25 +71,25 @@ export default function Register() {
   }
 
   function firstNameVerification(name) {
-    const nameRegex = /^[a-zA-Z. ]+$/
+    const nameRegex = /^[a-zA-Z. ]+$/;
     if (name === "") {
-        setFirstNameError("First name is required");
-      } else if (!nameRegex.test(name)) {
-        setFirstNameError("Invalid first name, only charecters are allowed");
-      } else {
-        setFirstNameError("");
-      }
+      setFirstNameError("First name is required");
+    } else if (!nameRegex.test(name)) {
+      setFirstNameError("Invalid first name, only charecters are allowed");
+    } else {
+      setFirstNameError("");
+    }
   }
 
   function lastNameVerification(name) {
-    const nameRegex = /^[a-zA-Z. ]+$/
+    const nameRegex = /^[a-zA-Z. ]+$/;
     if (name === "") {
-        setLastNameError("Last name is required");
-      } else if (!nameRegex.test(name)) {
-        setLastNameError("Invalid last name, only charecters are allowed");
-      } else {
-        setLastNameError("");
-      }
+      setLastNameError("Last name is required");
+    } else if (!nameRegex.test(name)) {
+      setLastNameError("Invalid last name, only charecters are allowed");
+    } else {
+      setLastNameError("");
+    }
   }
 
   function handleEmailChange(e) {
@@ -100,28 +102,36 @@ export default function Register() {
     phoneValidation(e?.target?.value);
   }
 
-  function handleFirstNamechange(e){
-    setFirstName(e?.target?.value)
-    firstNameVerification(e?.target?.value)
+  function handleFirstNamechange(e) {
+    setFirstName(e?.target?.value);
+    firstNameVerification(e?.target?.value);
   }
 
-  function handleLastNameChange(e){
-    setLastName(e?.target?.value)
-    lastNameVerification(e?.target?.value)
+  function handleLastNameChange(e) {
+    setLastName(e?.target?.value);
+    lastNameVerification(e?.target?.value);
   }
 
   async function handleFormSubmission() {
-    dispatch(showLoader());
     setApiError([]);
     setSignupSuccessMsg("");
-    console.log(email, firstName, lastName,phone);
-    firstNameVerification(firstName)
-    lastNameVerification(lastName)
+    console.log(email, firstName, lastName, phone);
+    firstNameVerification(firstName);
+    lastNameVerification(lastName);
     emailValidaiton(email);
     phoneValidation(phone);
     // console.log(emailError, phoneError, firstNameError)
-    if (emailError === "" && phoneError === "" && firstNameError === "" && lastNameError === "") {
+    if (
+      (emailError === "" &&
+        phoneError === "" &&
+        firstNameError === "" &&
+        lastNameError === "" &&
+        email !== "" &&
+        phone !== "",
+      firstName !== "" && lastName !== "")
+    ) {
       try {
+        dispatch(showLoader());
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/store",
           {
@@ -129,11 +139,13 @@ export default function Register() {
             last_name: lastName,
             email: email,
             phone: phone,
-          }, {
+          },
+          {
             headers: {
-            "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-            "Accept": "application/json"
-        }}
+              "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+              Accept: "application/json",
+            },
+          }
         );
         if (response?.data?.status) {
           setSignupSuccessMsg(response?.data?.message);
@@ -147,6 +159,8 @@ export default function Register() {
               wish_count: response?.data?.wish_count,
             })
           );
+          dispatch(updateclientType(response?.data?.type));
+          localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
           navigate(`${userLang}/`);
           setTimeout(() => {
@@ -154,7 +168,7 @@ export default function Register() {
             dispatch(
               updateNotifications({
                 type: "warning",
-                message: "token expired, please login again",
+                message: "Session expired, Login again",
               })
             );
             navigate(`${userLang}/login`);
@@ -163,10 +177,18 @@ export default function Register() {
       } catch (err) {
         console.log("err", err);
         if (err?.response?.data?.errors) {
-          setApiError([...Object?.values(err?.response?.data?.errors)]);
+          setEmailError(err?.response?.data?.errors["email"]);
+          setFirstNameError(err?.response?.data?.errors["first_name"]);
+          setLastNameError(err?.response?.data?.errors["last_name"]);
+          setPhoneError(err?.response?.data?.errors["phone"]);
+          // setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
           setApiError([err?.response?.data?.message]);
         }
+        setTimeout(() => {
+          setApiError([]);
+          setSignupSuccessMsg("");
+        }, 8000);
       } finally {
         dispatch(hideLoader());
       }
@@ -175,29 +197,38 @@ export default function Register() {
 
   return (
     <>
-      <div className="nk-app-root ">
+      <div className="nk-app-root !text-left">
         <main className="nk-pages">
           <div className="nk-split-page flex-column flex-xl-row">
             <div className="nk-split-col nk-auth-col">
               <div
                 className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-md-9 mx-xl-auto"
-                data-aos="fade-up"
+                style={{ opacity: "1 !important" }}
+                // data-aos="fade-up"
               >
                 <div className="card-body p-5">
                   <div className="nk-form-card-head text-center pb-5">
-                    <div className="form-logo mb-3">
+                    <div className="form-logo mb-3 flex justify-center">
                       <a href={`${userLang}/`}>
                         <img
-                          className="logo-img"
+                          className="logo-img justify-center"
                           src="images/tm-logo-1.png"
                           alt="logo"
                         />
                       </a>
                     </div>
-                    <h3 className="title mb-2 text-4xl font-semibold">Sign up to your account</h3>
+                    <h3
+                      className="title mb-2 !font-bold"
+                      style={{ fontSize: "2rem" }}
+                    >
+                      Sign up to your account
+                    </h3>
                     <p className="text">
                       Already a member?{" "}
-                      <a href={`${userLang}/login`} className="btn-link text-primary">
+                      <a
+                        href={`${userLang}/login`}
+                        className="btn-link text-primary"
+                      >
                         Login
                       </a>
                       .
@@ -301,26 +332,39 @@ export default function Register() {
                             Sign Up to Your Account
                           </button>
                           {signupSuccessMsg && (
-                            <p className="text-green-600 font-semibold">
-                              {signupSuccessMsg}
-                            </p>
+                            <Alert
+                              variant="outlined"
+                              severity="success"
+                              className="mt-2"
+                              // className="mt-2"
+                            >
+                              <p className="text-green-600 !text-center font-semibold">
+                                {signupSuccessMsg}
+                              </p>
+                            </Alert>
                           )}
 
                           {apiError?.length > 0 &&
                             apiError?.map((err, ind) => {
                               return (
-                                <p
-                                  key={ind}
-                                  className="text-red-700 font-semibold"
+                                <Alert
+                                  variant="outlined"
+                                  severity="error"
+                                  className="mt-2"
                                 >
-                                  {err}
-                                </p>
+                                  <p
+                                    key={ind}
+                                    className="text-red-700 font-semibold"
+                                  >
+                                    {err}
+                                  </p>
+                                </Alert>
                               );
                             })}
                         </div>
                       </div>
                     </div>
-                    </Form>
+                  </Form>
                   {/* <!--<div className="pt-4 text-center">
                                 <div className="small overline-title-sep"><span className="bg-white px-2 text-base">or register with</span></div>
                             </div>
@@ -335,7 +379,9 @@ export default function Register() {
                   <div className="media media-lg media-circle media-middle text-bg-cyan-200 mb-5">
                     <em className="icon ni ni-quote-left text-white"></em>
                   </div>
-                  <h1 className="mb-5">We’re building a better application now</h1>
+                  <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
+                    We’re building a better application now
+                  </h1>
                   <div className="nk-auth-quote ms-sm-5">
                     <div className="nk-auth-quote-inner">
                       <p className="small">
@@ -349,7 +395,7 @@ export default function Register() {
                           <img src="images/avatar/a.jpg" alt="avatar" />
                         </div>
                         <div className="media-text">
-                          <div className="h5 mb-0">Wade Warren</div>
+                          <div className="h5 mb-0 !font-bold">Wade Warren</div>
                           <span className="small">3 months ago</span>
                         </div>
                       </div>
@@ -366,7 +412,7 @@ export default function Register() {
         >
           <em className="icon ni ni-chevrons-up"></em>
         </a>
-        <div className="nk-sticky-badge">
+        {/* <div className="nk-sticky-badge">
           <ul>
             <li>
               <a
@@ -393,7 +439,7 @@ export default function Register() {
               </a>
             </li>
           </ul>
-        </div>
+        </div> */}
       </div>
     </>
   );

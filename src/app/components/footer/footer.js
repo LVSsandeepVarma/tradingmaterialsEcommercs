@@ -2,8 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 export default function Footer() {
-
-  const userLang = useSelector(state => state?.lang?.value)
+  const userLang = useSelector((state) => state?.lang?.value);
   return (
     <>
       <footer className="nk-footer is-theme pt-lg-9">
@@ -14,9 +13,9 @@ export default function Footer() {
                 <div className="col-md-8 col-lg-4 col-xxl-4">
                   <div className="nk-footer-brand pb-5 pb-lg-0">
                     <div className="nk-footer-brand-info mb-4">
-                      <div className="nk-footer-logo">
+                      <div className="nk-footer-logo flex !justify-start !text-left">
                         <a href={`${userLang}/`} className="logo-link">
-                          <div className="logo-wrap">
+                          <div className="logo-wrap ">
                             <img
                               className="logo-img"
                               src="/images/footer-logo.png"
@@ -25,7 +24,7 @@ export default function Footer() {
                           </div>
                         </a>
                       </div>
-                      <p>
+                      <p className="!text-left">
                         Discover the inspiring story behind NioLand - how a
                         vision became a reality, empowering individuals and
                         businesses to thrive in the digital world.
@@ -81,8 +80,10 @@ export default function Footer() {
                     </div> */}
 
                 <div className="col-md-8 col-lg-4 col-xxl-4">
-                  <div className="nk-footer-info">
-                    <h5 className="title !text-start">Get In Touch</h5>
+                  <div className="nk-footer-info ">
+                    <h5 className="title !text-start !font-bold !mb-[24px]">
+                      Get In Touch
+                    </h5>
                     <ul className="row gy-2 gy-sm-4 ">
                       <li className="col-12 !text-center">
                         <a
@@ -127,7 +128,9 @@ export default function Footer() {
                 <div className="col-lg-6 col-md-12 col-sm-12">
                   <div className="nk-footer-brand">
                     <div className="nk-footer-brand-info">
-                      <h5 className="title">Our Courier Partners</h5>
+                      <h5 className="title !font-bold !text-xl">
+                        Our Courier Partners
+                      </h5>
                       <div className="nk-footer-logo mb-5 mb-md-0">
                         <img
                           className="logo-img"
@@ -142,7 +145,9 @@ export default function Footer() {
                 <div className="col-lg-6 col-md-12 col-sm-12">
                   <div className="nk-footer-brand">
                     <div className="nk-footer-brand-info">
-                      <h5 className="title">We Accept Card Payment</h5>
+                      <h5 className="title !text-xl !font-bold">
+                        We Accept Card Payment
+                      </h5>
                       <div className="nk-footer-logo mb-5 mb-md-0">
                         <img
                           className="logo-img"
@@ -163,8 +168,9 @@ export default function Footer() {
               <div className="row justify-content-between">
                 <div className="col-lg-6 col-md-12 col-sm-12">
                   <p className="nk-footer-copyright-text text-center text-lg-start">
-                    Copyrights &copy;<span id="currentYear"></span>
-                    <a className="fs-16" href="#">
+                    Copyrights &copy;
+                    <span id="currentYear">{new Date().getFullYear()}</span>
+                    <a className="fs-16 !text-blue-600" href="#">
                       {" "}
                       Trading Materials
                     </a>
@@ -174,10 +180,7 @@ export default function Footer() {
                 <div className="col-lg-6 col-md-12 col-sm-12">
                   <ul className="nk-footer-copyright justify-content-center justify-content-lg-end">
                     <li>
-                      <a
-                        className="nk-footer-text"
-                        href={`${userLang}/`}
-                      >
+                      <a className="nk-footer-text" href={`${userLang}/`}>
                         Terms & conditions
                       </a>
                     </li>
