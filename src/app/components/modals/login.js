@@ -196,7 +196,7 @@ const LoginModal = ({ show, onHide }) => {
       onHide={handleHide}
       // scrollable
       // size="lg"
-      className="!backdrop-blur-[1px] !overflow-auto "
+      className="!backdrop-blur-[1px] !overflow-auto !h-[100%] "
       dialogClassName="modal-25"
       
       style={{ marginTop: "0 !important" }}
@@ -218,7 +218,7 @@ const LoginModal = ({ show, onHide }) => {
           )}
 
           <div
-            className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[100vh] "
+            className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[950px]  "
             style={{
               border: 0,
             }}

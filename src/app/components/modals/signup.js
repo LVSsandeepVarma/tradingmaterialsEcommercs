@@ -224,7 +224,7 @@ const SignupModal = ({ show, onHide }) => {
       show={show}
       onHide={handleHide}
       // size="lg"
-      className="!backdrop-blur-[1px]  !overflow-auto "
+      className="!backdrop-blur-[1px]  !overflow-auto !h-[100%]"
       dialogClassName="modal-25"
       centered
     >
@@ -244,7 +244,7 @@ const SignupModal = ({ show, onHide }) => {
             </div>
           )}
           <div
-            className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[100vh]  "
+            className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[950px]  "
             style={{
               border: 0,
             }}

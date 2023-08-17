@@ -136,7 +136,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
           )}
 
           <div
-            className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[100vh] "
+            className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[950px] "
             style={{
               border: 0,
             }}
