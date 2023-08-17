@@ -520,7 +520,7 @@ export default function SideBar() {
                       )}
                       {userData?.client?.primary_address?.length === 0 && (
                         <Button
-                          className="!ml-2"
+                          className="!ml-2 !mr-2"
                           onClick={() => {
                             setAddressUpdateType("add")
                             setShowModal(true)
@@ -559,7 +559,11 @@ export default function SideBar() {
                       ))}
                       <Button
                         className="!ml-2"
-                        onClick={() => setShowModal(true)}
+                        onClick={() => {
+                          setAddressUpdateType("add")
+                          setShowModal(true)
+                          setAddressData([])
+                        }}
                       >
                         + Add new Address
                       </Button>
