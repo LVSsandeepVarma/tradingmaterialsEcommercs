@@ -218,7 +218,7 @@ const LoginModal = ({ show, onHide }) => {
           )}
 
           <div
-            className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[100vh] !overflow-auto lg:!overflow-hidden"
+            className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[100vh] !overflow-auto "
             style={{
               border: 0,
             }}
