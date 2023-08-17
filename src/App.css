@@ -497,3 +497,27 @@ td span {
 .css-1ri6ub7-MuiPaper-root-MuiCard-root{
   max-width: 100% !important;
 }
+
+.terms-tex p {
+  margin: 0px;
+  color: #072d52;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 400;
+  padding: 0px;
+  font-family: 'Plus Jakarta Sans', serif;
+}
+
+.terms-tex p a {
+  margin: 0px;
+  color: #009339;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 600;
+  padding: 0px;
+  text-decoration: underline;
+  -webkit-transition: all .3s ease 0s;
+  -o-transition: all .3s ease 0s;
+  transition: all .3s ease 0s;
+  font-family: 'Plus Jakarta Sans', serif;
+}

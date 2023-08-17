@@ -367,7 +367,9 @@ const LoginModal = ({ show, onHide }) => {
                       >
                         Login to Your Account
                       </button>
-                      {loginSuccessMsg && (
+                      <div class="terms-tex mt-2 text-lg">
+							<p>By signing up, you agree to the <br></br> <a href="/terms">Terms of Service</a> <br/> and <br/> <a href="/privacy">Privacy Policy</a>. </p>
+						</div>                      {loginSuccessMsg && (
                         <Alert
                           variant="outlined"
                           severity="success"
