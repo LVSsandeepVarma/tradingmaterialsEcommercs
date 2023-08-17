@@ -119,7 +119,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
       centered
       style={{ marginTop: "0 !important" }}
     >
-      <Modal.Header closeButton={true} className="noBorderBottom pt-[70px] md:!pt-[16px]">
+      <Modal.Header closeButton={true} className="noBorderBottom !pt-[16px]">
         <Modal.Title
           className="text-[#072d52] !font-semibold !text-center w-full "
           style={{ borderBottom: 0 }}

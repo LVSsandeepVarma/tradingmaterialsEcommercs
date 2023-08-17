@@ -16,6 +16,7 @@ import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
 import CryptoJS from "crypto-js";
+import { Divider } from "@mui/material";
 
 export default function AddToCart() {
   const dispatch = useDispatch();
@@ -40,7 +41,7 @@ export default function AddToCart() {
     userData?.client?.address[0]
   );
   const [activeBillingAddress, setActivebillingAddress] = useState(
-    userData?.client
+    userData?.client?.address[0]
   );
   const [activeShippingAddressChecked, setActiveShippingaddressChecked] =
     useState(0);
@@ -405,6 +406,7 @@ export default function AddToCart() {
     try {
       dispatch(showLoader());
       setApiErr([]);
+      console.log(billingSameAsShipping)
       const data = billingSameAsShipping
         ? {
             total: (subTotal - discount).toFixed(2),
@@ -422,7 +424,7 @@ export default function AddToCart() {
             disc_percent: discountPercentage,
             discount: discount,
             b_address_id: activeBillingAddress,
-            shipping_address: billingSameAsShipping ? 1 : 0,
+            shipping_address: billingSameAsShipping ? 0 : 1,
             s_address_id: activeShippingAddress,
             note: optionalNotes,
           };
@@ -532,7 +534,7 @@ export default function AddToCart() {
           <div className="container">
             <div className="nk-section-content row px-lg-5">
               <div className="col-lg-8 pe-lg-0">
-                <div className="nk-entry pe-lg-5 py-lg-5 max-h-[50%] overflow-y-auto">
+                <div className={`nk-entry pe-lg-5 py-lg-5 ${allProducts?.length ? "max-h-[50%]" : ""}  overflow-y-auto`}>
                   <div className="mb-5">
                     {allProducts?.length > 0 ? (
                       <table className="table">
@@ -711,7 +713,8 @@ export default function AddToCart() {
                   <div className="mt-5">
                     {userData ? (
                       <div className="nk-section-blog-details mt-3">
-                        <h4 className="mb-3">Billing Address</h4>
+                        <h4 className="mb-3 !font-bold">Billing Address :</h4>
+                        
                         {userData?.client?.primary_address?.length > 0 && (
                           <ul className="d-flex flex-column gap-2 pb-0">
                             <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -837,7 +840,7 @@ export default function AddToCart() {
                     {!billingSameAsShipping && (
                       <div className="nk-section-blog-details mt-3">
                         <div className="max-h-[100px] md:max-h-[225px] overflow-y-auto">
-                          <h4 className="mb-3">Shipping Address</h4>
+                          <h4 className="mb-3 !font-bold">Shipping Address</h4>
 
                           <ul className="d-flex flex-column gap-2 pb-0">
                             {userData?.client?.address?.length > 0 &&

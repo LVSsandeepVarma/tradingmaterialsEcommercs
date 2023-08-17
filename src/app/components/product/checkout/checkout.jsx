@@ -597,15 +597,17 @@ export default function Checkout() {
                     <div className="nk-section-blog-details mt-3 mb-3">
                       {orderData?.order?.note != null && (
                         <div>
-                          <h4 className="mb-1">Comments</h4>
+                          <h4 className="mb-1 !font-bold">Comments</h4>
                           <ul className="d-flex flex-column gap-2 pb-0">
                             <li className="d-flex align-items-center gap-5 text-gray-1200">
                               {orderData?.order?.note}
                             </li>
                           </ul>
+                          
                         </div>
                       )}
-                      <h4 className="mb-3">Billing Address</h4>
+                      <Divider className="mt-2 mb-2"/>
+                      <h4 className="mb-3 !font-bold">Billing Address</h4>
                       <ul className="d-flex flex-column gap-2 pb-0">
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
                           <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
@@ -623,8 +625,8 @@ export default function Checkout() {
                           </p>
                           <p className="m-0 fs-14 text-gray-1200 w-75">
                             {orderData?.order?.address_1},{" "}
-                            {orderData?.order?.address_2 !== null
-                              ? `${userData?.client?.primary_address[0]?.add_2},  `
+                            {orderData?.order?.address_2?.length> 0
+                              ? `${orderData?.order?.address_2},  `
                               : ""}
                             {orderData?.order?.city}, {orderData?.order?.state},{" "}
                             {orderData?.order?.country}, {orderData?.order?.zip}
@@ -695,7 +697,7 @@ export default function Checkout() {
                   )}
                   <div className="nk-section-blog-details mt-3">
                     <div className="max-h-[100px] md:max-h-[225px] overflow-y-auto">
-                      <h4 className="mb-3">Shipping Address</h4>
+                      <h4 className="mb-3 !font-bold">Shipping Address</h4>
 
                       <ul className="d-flex flex-column gap-2 pb-0">
                         {/* {userData?.client?.address?.map((add, ind) => ( */}
@@ -747,7 +749,7 @@ export default function Checkout() {
                             <p className="m-0 fs-14 text-gray-1200 w-75">
                               {orderData?.order?.shipping_add1},{" "}
                               {orderData?.order?.shipping_add2 !== null
-                                ? `${orderData?.order?.shipping_add_2},  `
+                                ? `${orderData?.order?.shipping_add2},  `
                                 : ""}
                               {orderData?.order?.shipping_city},{" "}
                               {orderData?.order?.shipping_state},{" "}

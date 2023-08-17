@@ -18,7 +18,7 @@ import ListItemText from "@mui/material/ListItemText";
 import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
 import MailIcon from "@mui/icons-material/Mail";
 import { useDispatch, useSelector } from "react-redux";
-import { hideLoader } from "../../../features/loader/loaderSlice";
+import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
 import { updateCartCount } from "../../../features/cartWish/focusedCount";
@@ -38,6 +38,8 @@ import { useNavigate } from "react-router-dom";
 import { FaMinusCircle } from "react-icons/fa";
 import CryptoJS from "crypto-js";
 import { red } from "@mui/material/colors";
+import { showPopup } from "../../../features/popups/popusSlice";
+import { updatePositions } from "../../../features/positions/positionsSlice";
 
 const drawerWidth = 240;
 
@@ -111,13 +113,59 @@ export default function SideBar() {
   const [open, setOpen] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [addressUpdateType, setAddressUpdateType] = useState();
+  const [addressData, setAddressData] = useState()
   const userData = useSelector((state) => state?.user?.value);
+  const isLoggedIn = useSelector((state) => state?.login?.value);
   const tabs = ["Address", "Cart", "Wishlist", "Orders"];
   const clientType = useSelector((state) => state?.clientType?.value);
-
+  const [animateProductId, setAnimateProductId] = useState("");
+  const [cartPosition, setCartPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userLang = useSelector((state) => state?.lang?.value);
+  const positions = useSelector((state) => state?.position?.value);
+  const addressStatus = useSelector(state =>  state?.addressStatus?.value)
+  const [currentUserlang, setCurrentUserLang] = useState(
+    localStorage.getItem("i18nextLng")
+  );
+
+
+  function getRandomNumberWithOffset(number) {
+    // Define an array of possible offsets: 5, 10, and 20.
+    const offsets = [15, 50, 80];
+
+    // Generate a random index within the valid range of offsets array.
+    const randomIndex = Math.floor(Math.random() * offsets.length);
+
+    // Get the random offset based on the selected index.
+    const randomOffset = offsets[randomIndex];
+
+    // Add the random offset to the input number.
+    const result = parseInt(number) + randomOffset;
+    return result;
+  }
+
+  //function for review stars
+  function ratingStars(number) {
+    const elemetns = Array.from({ length: 5 }, (_, index) => (
+      <>
+        {index < number && (
+          <li key={index}>
+            <em className="icon ni ni-star-fill text-yellow"></em>
+          </li>
+        )}
+        {index >= number && (
+          <li key={index}>
+            <em className="icon ni ni-star-fill text-gray-700"></em>
+          </li>
+        )}
+      </>
+    ));
+
+    return <ul className="d-flex align-items-center">{elemetns}</ul>;
+  }
 
   const getUserInfo = async () => {
     try {
@@ -163,9 +211,76 @@ export default function SideBar() {
     }
   };
 
+    // function for handling add to cart animation
+    async function handleAddToCart(productId) {
+      // setAnimateProductId(productId)
+      try {
+        setAnimateProductId(productId);
+        // dispatch(showLoader());
+        const response = await axios?.post(
+          "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+          {
+            product_id: productId,
+            qty: 1,
+          },
+          {
+            headers: {
+              "access-token": localStorage.getItem("client_token"),
+            },
+          }
+        );
+        if (response?.data?.status) {
+          dispatch(
+            updateNotifications({
+              type: "success",
+              message: "Added to cart successfully",
+            })
+          );
+          dispatch(updateCart(response?.data?.data?.cart_details));
+          dispatch(updateCartCount(response?.data?.data?.cart_count));
+          // getUserInfo();
+        }
+      } catch (err) {
+        console.log(err);
+      }
+      // finally {
+      // dispatch(hideLoader());
+      // }
+    }
+  
+    useEffect(() => {
+      const timoeOut = setTimeout(() => {
+        setAnimateProductId("");
+      }, 3000);
+  
+      return () => {
+        clearTimeout(timoeOut);
+      };
+    }, [animateProductId]);
+
+    const handleCartPosition = (event) => {
+      const cartButtonRect = document
+        ?.getElementById(`img-4`)
+        ?.getBoundingClientRect();
+      const top = cartButtonRect?.top;
+      const right = cartButtonRect?.left;
+      dispatch(
+        updatePositions({
+          cartTop: positions?.cartTop,
+          cartRight: positions?.cartRight,
+          productTop: top,
+          productRight: right,
+        })
+      );
+  
+      // Animate the product's movement towards the cart button
+      setCartPosition({ top: `${top}px`, right: `${right}px` });
+    };
+
   useEffect(() => {
     getUserInfo();
-  }, []);
+  }, [addressStatus]);
+
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -184,8 +299,8 @@ export default function SideBar() {
       <ShippingAddressModal
         show={showModal}
         onHide={() => setShowModal(false)}
-        type="add"
-        data={[]}
+        type={addressUpdateType}
+        data={addressData}
         // handleFormSubmit={handleFormSubmit}
       />
       <div className="container">
@@ -387,7 +502,11 @@ export default function SideBar() {
                       {userData?.client?.primary_address?.map(
                         (address, ind) => (
                           <div className="w-fit border border-1 p-3 text-left !min-w-[45%]  sm:!min-w-[25%] ml-5">
-                            <CardActionArea>
+                            <CardActionArea onClick={() => {
+                            setAddressUpdateType("billing")
+                            setShowModal(true)
+                            setAddressData(userData?.client?.primary_address[ind])
+                          }}>
                               <h3 className="font-bold">Address - {ind + 1}</h3>
                               <p>{address?.add_1},</p>
                               <p>{address?.add_2},</p>
@@ -402,7 +521,11 @@ export default function SideBar() {
                       {userData?.client?.primary_address?.length === 0 && (
                         <Button
                           className="!ml-2"
-                          onClick={() => setShowModal(true)}
+                          onClick={() => {
+                            setAddressUpdateType("add")
+                            setShowModal(true)
+                            setAddressData([])
+                          }}
                         >
                           + Add new Address
                         </Button>
@@ -419,7 +542,11 @@ export default function SideBar() {
                     <div className="flex overflow-x-auto ">
                       {userData?.client?.address?.map((address, ind) => (
                         <div className="w-fit border border-1 p-3 text-left !min-w-[45%]  sm:!min-w-[25%] mt-5 ml-5 gap-5">
-                          <CardActionArea>
+                          <CardActionArea onClick={() => {
+                            setAddressUpdateType("shipping")
+                            setShowModal(true)
+                            setAddressData(userData?.client?.address[ind])
+                          }}>
                             <h3 className="font-bold">Address - {ind + 1}</h3>
                             <p>{address?.add_1},</p>
                             <p>{address?.add_2},</p>
@@ -485,6 +612,7 @@ export default function SideBar() {
                               height="140"
                               image={product?.product?.img_1}
                               alt="green iguana"
+                              className="sm:!h-[300px]"
                               onClick={() =>
                                 navigate(
                                   `${userLang}/product-detail/${
@@ -505,7 +633,7 @@ export default function SideBar() {
                                 variant="h5"
                                 component="div"
                               >
-                                <div className="flex items-center">
+                                {/* <div className="flex items-center">
                                   <p
                                     className="max-w-[100%] md:max-w-[75%]"
                                     style={{
@@ -520,7 +648,169 @@ export default function SideBar() {
                                 </div>
                                 <small className="font-bold block !w-full !text-left">
                                   Qty : {product?.qty}{" "}
-                                </small>
+                                </small> */}
+                                <div className="nk-card-info bg-white p-4">
+                                        {/* <a
+                              href="/"
+                              className="d-inline-block mb-1 line-clamp-1 h5"
+                            >
+                               {product?.name}
+                            </a> */}
+                                        <a
+                                          href={`${userLang}/product-detail/${
+                                            product?.product?.slug
+                                          }/${CryptoJS?.AES?.encrypt(
+                                            `${product?.id}`,
+                                            "trading_materials"
+                                          )
+                                            ?.toString()
+                                            .replace(/\//g, "_")
+                                            .replace(/\+/g, "-")}`}
+                                          className="d-inline-block mb-1 line-clamp-1 h5 !font-bold text-left"
+                                          style={{
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            width: "90%",
+                                          }}
+                                        >
+                                          {product?.product?.name}
+                                          <br />
+                                          <span className="text-xs !mt-1">
+                                            <p
+                                              onClick={() => {
+                                                navigate(
+                                                  `${userLang}/product-detail/${
+                                                    product?.product?.slug
+                                                  }/${CryptoJS?.AES?.encrypt(
+                                                    `${product?.id}`,
+                                                    "trading_materials"
+                                                  )
+                                                    ?.toString()
+                                                    .replace(/\//g, "_")
+                                                    .replace(/\+/g, "-")}`
+                                                );
+                                                dispatch(showLoader());
+                                              }}
+                                              className="!mt-5 text-gray-700  truncate"
+                                              dangerouslySetInnerHTML={{
+                                                __html:
+                                                  product?.product?.description?.length >
+                                                  55
+                                                    ? `${product?.product?.description?.slice(
+                                                        0,
+                                                        55
+                                                      )}...`
+                                                    : product?.product?.description,
+                                              }}
+                                            />
+                                          </span>
+                                        </a>
+                                        <div className="d-flex align-items-center text-lg mb-2 gap-1">
+                                          {ratingStars(product?.product?.rating ? product?.product?.rating  : 0 )}
+
+                                          <span className=" fs-12 text-gray-800">
+                                            {" "}
+                                            ({product?.product?.rating} Reviews){" "}
+                                          </span>
+                                        </div>
+                                        <div className="d-flex align-items-center justify-content-start">
+                                          <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                          ₹{product?.price}
+                                          <del className="text-gray-800 !ml-2">
+                                              {getRandomNumberWithOffset(product?.price)}
+                                            </del>
+                                          </p>
+
+                                          {/* {product?.prices?.map(
+                                            (price, ind) => (
+                                              <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                                {currentUserlang === "en"
+                                                  ? price?.INR &&
+                                                    `₹${Number.parseFloat(
+                                                      price?.INR
+                                                    ).toFixed(2)}`
+                                                  : price?.USD &&
+                                                    `$${Number.parseFloat(
+                                                      price?.USD
+                                                    ).toFixed(2)}`}
+                                                {currentUserlang === "en"
+                                                  ? price?.INR && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {getRandomNumberWithOffset(
+                                                          price?.INR
+                                                        )}
+                                                      </del>
+                                                    )
+                                                  : price?.USD && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {getRandomNumberWithOffset(
+                                                          Number.parseFloat(
+                                                            price?.USD
+                                                          ).toFixed(2)
+                                                        )}
+                                                      </del>
+                                                    )}
+                                              </p>
+                                            )
+                                          )} */}
+
+                                          {/* <button
+                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "end",
+                                              marginRight: "5px",
+                                            }}
+                                            onClick={() => {
+                                              isLoggedIn
+                                                ? handleAddToWishList(
+                                                    product?.id
+                                                  )
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            <FaRegHeart size={18} />
+                                          </button> */}
+
+                                          {/* <button
+                                            className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                            onClick={(event) => {
+                                              return isLoggedIn
+                                                ? (handleAddToCart(product?.id),
+                                                  handleCartPosition(event))
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            {animateProductId ===
+                                            product?.id ? (
+                                              <img src="/images/addedtocart.gif" />
+                                            ) : (
+                                              <em className="icon ni ni-cart text-2xl"></em>
+                                            )}
+                                          </button> */}
+                                          <p
+                                    className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "end",
+                                      marginRight: "5px",
+                                    }}
+                                  >
+                                    <span className="text-base text-black font-semibold flex !items-center">Qty:</span>{product?.qty}
+                                  </p>
+                                        </div>
+
+                                        
+                                      </div>
                               </Typography>
                               {/* <Typography variant="body2" color="text.secondary">
                        <p dangerouslySetInnerHTML={{__html: product?.product?.description}}/>
@@ -543,7 +833,7 @@ export default function SideBar() {
                     <p>Your Wishlist is empty</p>
                   )}
                   {userData?.client?.wishlist?.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5">
                       {userData?.client?.wishlist?.map((product, ind) => (
                         <Card className="mt-5 " sx={{ maxWidth: 345 }}>
                           <CardActionArea>
@@ -552,20 +842,120 @@ export default function SideBar() {
                               height="140"
                               image={product?.product?.img_1}
                               alt="green iguana"
+                              className="sm:!h-[300px]"
+                              onClick={() =>
+                                navigate(
+                                  `${userLang}/product-detail/${
+                                    product?.product?.slug
+                                  }/${CryptoJS?.AES?.encrypt(
+                                    `${product?.product?.id}`,
+                                    "trading_materials"
+                                  )
+                                    ?.toString()
+                                    .replace(/\//g, "_")
+                                    .replace(/\+/g, "-")}`
+                                )
+                              }
                             />
                             <CardContent>
-                              <Typography
+                            <Typography
                                 gutterBottom
                                 variant="h5"
                                 component="div"
                               >
-                                {product?.product?.name}
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                {/* {product?.product?.description} */}
+                                <div >
+
+                                        <a
+                                          href={`${userLang}/product-detail/${
+                                            product?.product?.slug
+                                          }/${CryptoJS?.AES?.encrypt(
+                                            `${product?.product?.id}`,
+                                            "trading_materials"
+                                          )
+                                            ?.toString()
+                                            .replace(/\//g, "_")
+                                            .replace(/\+/g, "-")}`}
+                                          className="d-inline-block mb-1 line-clamp-1 h5 !font-bold text-left"
+                                          style={{
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            width: "90%",
+                                          }}
+                                        >
+                                          {product?.product?.name}
+                                          <br />
+                                          <span className="text-xs !mt-1">
+                                            <p
+                                              onClick={() => {
+                                                navigate(
+                                                  `${userLang}/product-detail/${
+                                                    product?.product?.slug
+                                                  }/${CryptoJS?.AES?.encrypt(
+                                                    `${product?.product?.id}`,
+                                                    "trading_materials"
+                                                  )
+                                                    ?.toString()
+                                                    .replace(/\//g, "_")
+                                                    .replace(/\+/g, "-")}`
+                                                );
+                                                dispatch(showLoader());
+                                              }}
+                                              className="!mt-5 text-gray-700  truncate"
+                                              dangerouslySetInnerHTML={{
+                                                __html:
+                                                  product?.product?.description?.length >
+                                                  55
+                                                    ? `${product?.product?.description?.slice(
+                                                        0,
+                                                        55
+                                                      )}...`
+                                                    : product?.product?.description,
+                                              }}
+                                            />
+                                          </span>
+                                        </a>
+                                        <div className="d-flex align-items-center text-lg mb-2 gap-1">
+                                          {ratingStars(product?.product?.rating ? product?.product?.rating  : 0 )}
+
+                                          <span className=" fs-12 text-gray-800">
+                                            {" "}
+                                            ({product?.product?.rating} Reviews){" "}
+                                          </span>
+                                        </div>
+                                        <div className="d-flex align-items-center justify-content-start">
+                                          <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                          ₹{product?.price}
+                                          <del className="text-gray-800 !ml-2">
+                                              {getRandomNumberWithOffset(product?.price)}
+                                            </del>
+                                          </p>
+                                          <button
+                                            className="p-0 !flex !flex-row text-primary	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "end",
+                                              marginRight: "5px",
+                                            }}
+                                            onClick={(event) => {
+                                              return isLoggedIn
+                                                ? (handleAddToCart(product?.product?.id),
+                                                  handleCartPosition(event))
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            {animateProductId ===
+                                            product?.product?.id ? (
+                                              <img src="/images/addedtocart.gif" style={{width : "50%"}} />
+                                            ) : (
+                                              <em className="icon ni ni-cart text-2xl"></em>
+                                            )}
+                                          </button>
+                                         
+                                        </div>
+
+                                        
+                                      </div>
                               </Typography>
                             </CardContent>
                           </CardActionArea>
