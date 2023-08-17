@@ -224,7 +224,7 @@ const SignupModal = ({ show, onHide }) => {
       show={show}
       onHide={handleHide}
       // size="lg"
-      className="!backdrop-blur-[1px]  !overflow-auto lg:!overflow-hidden"
+      className="!backdrop-blur-[1px]  !overflow-auto "
       dialogClassName="modal-25"
       centered
     >

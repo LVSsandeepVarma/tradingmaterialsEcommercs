@@ -196,7 +196,7 @@ const LoginModal = ({ show, onHide }) => {
       onHide={handleHide}
       // scrollable
       // size="lg"
-      className="!backdrop-blur-[1px] !overflow-auto lg:!overflow-hidden"
+      className="!backdrop-blur-[1px] !overflow-auto "
       dialogClassName="modal-25"
       
       style={{ marginTop: "0 !important" }}
