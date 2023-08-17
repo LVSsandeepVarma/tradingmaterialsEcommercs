@@ -1202,9 +1202,9 @@ export default function ProductsDisplay() {
 
                                             {animateProductId ===
                                             product?.id ? (
-                                              <img src="/images/addedtocart.gif" />
+                                              <img src="/images/addedtocart.gif" className="max-w-[45px]" />
                                             ) : (
-                                              <em className="icon ni ni-cart text-2xl"></em>
+                                              <em className="icon ni ni-cart text-2xl " ></em>
                                             )}
                                           </button>
                                         </div>
