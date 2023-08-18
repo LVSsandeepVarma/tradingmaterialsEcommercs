@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Helmet } from "react-helmet";
-import { Zoom } from "reactjs-image-zoom";
+import PrismaZoom from 'react-prismazoom'
 import Footer from "../../footer/footer";
 import {
   hideLoader,
@@ -373,11 +373,11 @@ export default function ProductDetails() {
                               )}
                               {
                                 !loaderState && (
-                                  <Zoom
-                                    imagesrc={
-                                      product?.product?.img_1 === null
-                                        ? "/images/shop/slider-cover-1.jpg"
-                                        : product?.product?.img_1
+                                  <PrismaZoom allowZoom={true} allowPan={true} maxZoom={5} minZoom={1} allowWheel={true}>
+                            <img
+                                    src={
+                                      product?.product?.img_1 !== null
+                                        && product?.product?.img_1
                                     }
                                     style={{
                                       aspectRatio: 1,
@@ -387,10 +387,9 @@ export default function ProductDetails() {
                                       maxWidth: "100% !important",
                                       minHeight: "100% !important",
                                     }}
-                                    size={200}
-                                    bgsize="cover"
-                                    cursor="zoom-in"
+                                    
                                   />
+                                  </PrismaZoom>
                                 )
                                 // <img
                                 //   src={
@@ -411,8 +410,9 @@ export default function ProductDetails() {
                         </div>
                         {product?.product?.img_2 !== null && (
                           <SwiperSlide>
-                            <Zoom
-                                    imagesrc={
+                            <PrismaZoom allowZoom={true} allowPan={true} maxZoom={5} minZoom={1}>
+                            <img
+                                    src={
                                       product?.product?.img_2 !== null
                                         && product?.product?.img_2
                                     }
@@ -424,16 +424,16 @@ export default function ProductDetails() {
                                       maxWidth: "100% !important",
                                       minHeight: "100% !important",
                                     }}
-                                    size={200}
-                                    bgsize="cover"
-                                    cursor="zoom-in"
+                                    
                                   />
+                                  </PrismaZoom>
                           </SwiperSlide>
                         )}
                         {product?.product?.img_3 !== null && (
                           <SwiperSlide>
-                            <Zoom
-                                    imagesrc={
+                            <PrismaZoom allowZoom={true} allowPan={true} maxZoom={5} minZoom={1}>
+                            <img
+                                    src={
                                       product?.product?.img_3 !== null
                                         && product?.product?.img_3
                                     }
@@ -445,16 +445,16 @@ export default function ProductDetails() {
                                       maxWidth: "100% !important",
                                       minHeight: "100% !important",
                                     }}
-                                    size={200}
-                                    bgsize="cover"
-                                    cursor="zoom-in"
+                                    
                                   />
+                                  </PrismaZoom>
                           </SwiperSlide>
                         )}
                         {product?.product?.img_4 !== null && (
                           <SwiperSlide>
-                            <Zoom
-                                    imagesrc={
+                            <PrismaZoom allowZoom={true} allowPan={true} maxZoom={5} minZoom={1}>
+                            <img
+                                    src={
                                       product?.product?.img_4 !== null
                                         && product?.product?.img_4
                                     }
@@ -466,16 +466,16 @@ export default function ProductDetails() {
                                       maxWidth: "100% !important",
                                       minHeight: "100% !important",
                                     }}
-                                    size={200}
-                                    bgsize="cover"
-                                    cursor="zoom-in"
+                                    
                                   />
+                                  </PrismaZoom>
                           </SwiperSlide>
                         )}
                         {product?.product?.img_5 !== null && (
                           <SwiperSlide>
-                            <Zoom
-                                    imagesrc={
+                            <PrismaZoom allowZoom={true} allowPan={true} maxZoom={5} minZoom={1}>
+                            <img
+                                    src={
                                       product?.product?.img_5 !== null
                                         && product?.product?.img_5
                                     }
@@ -487,10 +487,9 @@ export default function ProductDetails() {
                                       maxWidth: "100% !important",
                                       minHeight: "100% !important",
                                     }}
-                                    size={200}
-                                    bgsize="cover"
-                                    cursor="zoom-in"
+                                    
                                   />
+                                  </PrismaZoom>
                           </SwiperSlide>
                         )}
 
