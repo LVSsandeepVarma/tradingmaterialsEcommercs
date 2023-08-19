@@ -134,7 +134,7 @@ export default function ForgotPassword() {
                               type="email"
                               className="form-control"
                               placeholder="Enter your email"
-                              onChange={handleEmailChange}
+                              onChange={(e) => handleEmailChange(e)}
                             />
                             {emailError && (
                               <p className="text-red-600 font-semibold">
@@ -154,9 +154,15 @@ export default function ForgotPassword() {
                             Send Reset Link
                           </button>
                           {emailSentMsg && (
-                            <p className="text-green-800 font-semibold">
+                            <Alert
+                            variant="outlined"
+                            severity="success"
+                            className="mt-2"
+                          >
+                            <p className="text-green-600 font-semibold">
                               {emailSentMsg}
                             </p>
+                          </Alert>
                           )}
 
                           {apiError?.length > 0 &&

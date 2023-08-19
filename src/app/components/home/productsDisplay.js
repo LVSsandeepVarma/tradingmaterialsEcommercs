@@ -48,7 +48,7 @@ export default function ProductsDisplay() {
   const [megaDealTime, setMegaDealTime] = useState("2023-08-31T00:00:00");
   const [singleProductsCount, setSingleProductsCount] = useState(0);
   const [bundleProductCount, setBundleProductCount] = useState(0);
-  const [filteredProducts, setFilteredProducts] = useState({ all: true });
+  const [filteredProducts, setFilteredProducts] = useState({});
   const [subCategoryIds, setSubCategoryIds] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [subCatProducts, setSubCatProducts] = useState([]);
@@ -188,6 +188,11 @@ export default function ProductsDisplay() {
     setSubCategoryIds([]);
     if (subId?.id) {
       console.log("inside");
+      // const name = subId?.name
+      // const filteredProduct = {}
+      // filteredProduct[name] = true
+      // console.log(filteredProduct)
+      // setFilteredProducts({...filteredProduct})
       setSubCategoryIds([subId?.id]);
       if (subId?.type === "single") {
         addFilterProducts(subId?.name, subId?.id);
@@ -235,11 +240,12 @@ export default function ProductsDisplay() {
 
   // function for filtering single products
   function addFilterProducts(subCategoryName, subCategoryId) {
+    setStockCount("inStock")
     setShowPlaceHolderLoader(true);
-    console.log(subCategoryName, subCategoryId, subId);
-    const subIDs = subId?.id ? [] : [...subCategoryIds];
-    let filterProducts = subId?.name ? {} : { ...filteredProducts };
-    console.log(subIDs);
+    console.log(subCategoryName, subCategoryId,subCategoryIds, subId);
+    const subIDs = [...subCategoryIds];
+    let filterProducts = { ...filteredProducts };
+    console.log(subIDs, filterProducts, subId?.name);
 
     // toggles checked or not
     filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
@@ -247,6 +253,7 @@ export default function ProductsDisplay() {
       : true;
 
     const ind = subIDs.indexOf(subCategoryId);
+    console.log(ind)
     if (ind !== -1) {
       subIDs?.splice(ind, 1);
       const fp = filteredProductsByIds(products, subIDs);
@@ -256,6 +263,7 @@ export default function ProductsDisplay() {
     }
 
     if (filterProducts[subCategoryName]) {
+      console.log(subCategoryName, filterProducts)
       subIDs.push(subCategoryId);
       // if(subIDs?.includes(0)){
       //   console.log(subIDs)
@@ -280,7 +288,7 @@ export default function ProductsDisplay() {
     }
 
     setSubCategoryIds([...subIDs]);
-
+    console.log(filterProducts)
     // checks if all the filter options are false
     if (Object.values(filterProducts).every((value) => value === false)) {
       filterProducts["all"] = true;
@@ -295,6 +303,8 @@ export default function ProductsDisplay() {
       setAllProducts(fp);
       console.log(subIDs, subCategoryId);
     }
+    console.log(filterProducts)
+    console.log(subCategoryName)
     if (subCategoryName === "all") {
       const keys = Object.keys(filterProducts);
       // Iterate through the keys and set all values to false except for the "all" key
@@ -306,16 +316,18 @@ export default function ProductsDisplay() {
 
       // const allProducts = products
     }
+    console.log(filterProducts)
     setFilteredProducts({ ...filterProducts });
     setShowPlaceHolderLoader(false);
   }
 
   // filtering buldle products
   function filtersubcatProducts(subCategoryName, subCategoryId) {
+    setStockCount("inStock")
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId);
-    const subIDs = subId?.id ? [] : [...bundleSubCategoryIDs];
-    let filterProducts = subId?.name ? {} : { ...filteredSubcatProducts };
+    const subIDs = [...bundleSubCategoryIDs];
+    let filterProducts = { ...filteredSubcatProducts };
     console.log(subIDs);
     // toggles checked or not
     filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
@@ -389,6 +401,8 @@ export default function ProductsDisplay() {
 
   //function for handling filtering based on in stock or out stock
   function filterstockProducts() {
+    filtersubcatProducts("all", 0);
+    addFilterProducts("all", 0);
     let currentActiveCheckbox;
     if (stockCount === "inStock") {
       setStockCount("outStock");
@@ -399,12 +413,20 @@ export default function ProductsDisplay() {
     }
 
     const completeProducts = products?.products;
+    const outOfStockBundleProducts = products?.sub_categories;
     console.log(completeProducts, typeof completeProducts);
     const res =
       currentActiveCheckbox === "inStock"
         ? completeProducts?.filter((product) => product?.stock?.stock > 0)
         : completeProducts?.filter((product) => product?.stock?.stock === 0);
+        const result =
+        currentActiveCheckbox === "inStock"
+          ? outOfStockBundleProducts?.filter((product) => product?.stock?.stock > 0)
+          : outOfStockBundleProducts?.filter((product) => product?.stock?.stock === 0);
     setAllProducts(res);
+    setSubCatProducts(result)
+
+
     console.log(res);
   }
   // function for handling products search
@@ -676,7 +698,7 @@ export default function ProductsDisplay() {
                             <input
                               type="search"
                               name="search"
-                              className="form-control py-2 ps-7 border"
+                              className="form-control  !py-2 !ps-10 border"
                               placeholder={t("product_search")}
                               required
                               onChange={handlesearchProducts}
@@ -706,7 +728,7 @@ export default function ProductsDisplay() {
                                   className="form-check-label fs-14 text-gray-1200"
                                   for="all-category"
                                 >
-                                  All Trading Materiasl
+                                  All Trading Materials
                                 </label>
                                 <span className="fs-14 text-gray-1200">
                                   {singleProductsCount}
@@ -963,8 +985,12 @@ export default function ProductsDisplay() {
                       </div>
                     </div>
                     <div className="row gy-5">
-                      {isNoProducts ||
+                      {isNoProducts  ||
                         (allProducts?.length === 0 && (
+                          <p className="font-bold">No products to Display</p>
+                        ))}
+                        {isSearchResult  &&
+                        (resultsCount === 0 && (
                           <p className="font-bold">No products to Display</p>
                         ))}
                       {products !== {} &&
@@ -1055,6 +1081,7 @@ export default function ProductsDisplay() {
                                             src={product?.img_1}
                                             alt="product-image"
                                             className="sm:!h-[300px] !w-full"
+                                            loading="lazy"
                                           />
                                         </a>
                                       </div>
@@ -1126,34 +1153,35 @@ export default function ProductsDisplay() {
                                         <div className="d-flex align-items-center justify-content-start">
                                           {product?.prices?.map(
                                             (price, ind) => (
-                                              <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                              <>
+                                                {(currentUserlang=== "en" && price?.INR) && <p className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}>
                                                 {currentUserlang === "en"
                                                   ? price?.INR &&
                                                     `₹${Number.parseFloat(
                                                       price?.INR
-                                                    ).toFixed(2)}`
+                                                    )}`
                                                   : price?.USD &&
                                                     `$${Number.parseFloat(
                                                       price?.USD
-                                                    ).toFixed(2)}`}
+                                                    )}`}
                                                 {currentUserlang === "en"
                                                   ? price?.INR && (
                                                       <del className="text-gray-800 !ml-2">
                                                         {currentUserlang ===
                                                         "en"
-                                                          ? "₹"
-                                                          : "$"}
+                                                          ? "₹ "
+                                                          : "$ "}
                                                         {getRandomNumberWithOffset(
                                                           price?.INR
                                                         )}
                                                       </del>
                                                     )
                                                   : price?.USD && (
-                                                      <del className="text-gray-800 !ml-2">
+                                                      <del className="text-gray-800 block !ml-2">
                                                         {currentUserlang ===
                                                         "en"
-                                                          ? "₹"
-                                                          : "$"}
+                                                          ? "₹ "
+                                                          : "$ "}
                                                         {getRandomNumberWithOffset(
                                                           Number.parseFloat(
                                                             price?.USD
@@ -1161,12 +1189,49 @@ export default function ProductsDisplay() {
                                                         )}
                                                       </del>
                                                     )}
-                                              </p>
+                                              </p>}
+                                              {(currentUserlang!== "en" && price?.USD) && <p className={`flex fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}>
+                                                {currentUserlang === "en"
+                                                  ? price?.INR &&
+                                                    `₹${Number.parseFloat(
+                                                      price?.INR
+                                                    )}`
+                                                  : price?.USD &&
+                                                    `$${Number.parseFloat(
+                                                      price?.USD.toFixed(2)
+                                                    )}`}
+                                                {currentUserlang === "en"
+                                                  ? price?.INR && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹ "
+                                                          : "$ "}
+                                                        {getRandomNumberWithOffset(
+                                                          price?.INR
+                                                        )}
+                                                      </del>
+                                                    )
+                                                  : price?.USD && (
+                                                      <del className="text-gray-800 block !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹ "
+                                                          : "$ "}
+                                                        {getRandomNumberWithOffset(
+                                                          Number.parseFloat(
+                                                            price?.USD
+                                                          ).toFixed(2)
+                                                        )}
+                                                      </del>
+                                                    )}
+                                              </p>}
+                                              </>
                                             )
                                           )}
 
                                           <button
-                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
+                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center  !text-right"
                                             style={{
                                               display: "flex",
                                               justifyContent: "end",
@@ -1208,9 +1273,12 @@ export default function ProductsDisplay() {
 
                                             {animateProductId ===
                                             product?.id ? (
-                                              <img src="/images/addedtocart.gif" className="max-w-[45px]" />
+                                              <img
+                                                src="/images/addedtocart.gif"
+                                                className="max-w-[45px]"
+                                              />
                                             ) : (
-                                              <em className="icon ni ni-cart text-2xl " ></em>
+                                              <em className="icon ni ni-cart text-2xl "></em>
                                             )}
                                           </button>
                                         </div>
@@ -1241,6 +1309,14 @@ export default function ProductsDisplay() {
               </div>
             </div>
             <div className="row gy-5 justify-between overflow-auto !max-h-[354px] sm:!max-h-[500px] lg:!max-h-[670px]">
+            {/* {subCatProducts ||
+                        (subCatProducts?.length === 0 && (
+                          <p className="font-bold">No products to Display</p>
+                        ))} */}
+                        {
+                          subCatProducts?.length === 0 &&
+                          <p className="font-bold">No products to Display</p>
+                        }
               {subCatProducts?.length !== 0 &&
                 subCatProducts?.map((product, indx) => {
                   if (product?.combo) {
@@ -1286,6 +1362,7 @@ export default function ProductsDisplay() {
                                     src={product?.img_1}
                                     alt="product-image"
                                     className="w-100"
+                                    loading="lazy"
                                   />
                                 </a>
                               </div>

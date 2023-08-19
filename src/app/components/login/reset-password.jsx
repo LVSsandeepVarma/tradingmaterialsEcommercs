@@ -69,7 +69,9 @@ export default function NewPassword() {
       setPasswordError("password is Too short");
     } else if (password?.length <= 7 && password?.length > 5) {
       setPasswordError("min 8 digits required");
-    } else {
+    } else if (confirmPassword != "" && confirmPassword !== password) {
+      setconfirmPasswordError("password and confirm password does not match");
+    }else {
       setPasswordError("");
     }
   }
@@ -90,12 +92,12 @@ export default function NewPassword() {
     console.log(confirmPassword, password);
     confirmPasswordValidaiton(confirmPassword);
     passwordValidation(password);
-    if (
-      confirmPasswordError === "" &&
-      passwordError === "" &&
-      confirmPassword !== "" &&
-      password !== ""
-    ) {
+    // if (
+    //   confirmPasswordError === "" &&
+    //   passwordError === "" &&
+    //   confirmPassword !== "" &&
+    //   password !== ""
+    // ) {
       try {
         dispatch(showLoader());
         const url = location.hash;
@@ -140,7 +142,10 @@ export default function NewPassword() {
           //         message: "Session expired, Login again.",
           //       })
           //     );
-          navigate(`${userLang}/login`);
+          setTimeout(()=>{
+            navigate(`${userLang}/login`);
+          } , 2000)
+          
           //   }, 3600000);
         } else {
           console.log(response?.data);
@@ -150,14 +155,15 @@ export default function NewPassword() {
         console.log("err", err);
         if (err?.response?.data?.errors) {
           console.log(err?.response?.data?.errors);
-          setApiError([...Object?.values(err?.response?.data?.errors)]);
+          setPasswordError([...Object?.values(err?.response?.data?.errors["password"])]);
+          setconfirmPasswordError([...Object?.values(err?.response?.data?.errors["confirm_password"])]);
         } else {
           setApiError([err?.response?.data?.message]);
         }
       } finally {
         dispatch(hideLoader());
       }
-    }
+    // }
   }
 
   return (

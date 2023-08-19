@@ -181,7 +181,7 @@ td{
   top: 100px !important;
   height: auto !important;
   left:auto !important;
-  z-index: 9999 !important;
+  z-index: 999 !important;
 }
 
 .css-1l8j5k8{
@@ -244,6 +244,7 @@ td{
     position: absolute !important;
     left: 0px !important;
     padding: 0px !important;
+    width: 100%;
   }
   
   .css-nukr7r .MuiDrawer-paper{
@@ -520,4 +521,8 @@ td span {
   -o-transition: all .3s ease 0s;
   transition: all .3s ease 0s;
   font-family: 'Plus Jakarta Sans', serif;
+}
+
+.form-control{
+  padding: 0.3rem !important
 }

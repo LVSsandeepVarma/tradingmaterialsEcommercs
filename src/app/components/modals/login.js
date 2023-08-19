@@ -62,7 +62,7 @@ const LoginModal = ({ show, onHide }) => {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("invalid email");
+      setEmailError("Invalid email");
     } else {
       setEmailError("");
     }
@@ -70,9 +70,9 @@ const LoginModal = ({ show, onHide }) => {
 
   function passwordValidation(password) {
     if (password?.length === 0) {
-      setPasswordError("Phone is required");
-    } else if (password?.length <= 5) {
-      setPasswordError("password should be atleast 6 digits");
+      setPasswordError("Password is required");
+    } else if (password?.length <= 7) {
+      setPasswordError("Password should be atleast 8 digits");
     } else {
       setPasswordError("");
     }
@@ -209,7 +209,7 @@ const LoginModal = ({ show, onHide }) => {
           Account
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="">
+      <Modal.Body className="!pt-0">
         <div className="nk-split-col ">
           {localLoader && (
             <div className="preloader  !backdrop-blur-[1px]">
@@ -244,12 +244,12 @@ const LoginModal = ({ show, onHide }) => {
                 </div>
                 <h3
                   className="title mb-2 font-semibold !font-bold"
-                  style={{ fontSize: "2rem" }}
+                  style={{ fontSize: "1.5rem" }}
                 >
                   Login to your account
                 </h3>
-                <small className="text font-semibold text-lg">To Offers</small>
-                <p className="text">
+                {/* <small className="text font-semibold text-lg">To Offers</small> */}
+                <p className="text-sm">
                   Not a member yet?{" "}
                   <a
                     onClick={() =>
@@ -317,7 +317,7 @@ const LoginModal = ({ show, onHide }) => {
                           value={password}
                         />
                         {passwordError && (
-                          <p className="text-red-700 font-semibold">
+                          <p className="text-red-600 font-semibold">
                             {passwordError}
                           </p>
                         )}
@@ -368,7 +368,7 @@ const LoginModal = ({ show, onHide }) => {
                         Login to Your Account
                       </button>
                       <div class="terms-tex mt-2 text-lg">
-							<p>By signing up, you agree to the <br></br> <a href="/terms">Terms of Service</a> <br/> and <br/> <a href="/privacy">Privacy Policy</a>. </p>
+							<p>By signing up, you agree to the <br></br> <a href="/terms">Terms of Service</a> and  <a href="/privacy">Privacy Policy</a>. </p>
 						</div>                      {loginSuccessMsg && (
                         <Alert
                           variant="outlined"

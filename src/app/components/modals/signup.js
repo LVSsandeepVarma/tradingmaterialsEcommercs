@@ -59,17 +59,22 @@ const SignupModal = ({ show, onHide }) => {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("invalid email");
+      setEmailError("Invalid email");
     } else {
       setEmailError("");
     }
   }
 
   function phoneValidation(phone) {
+    const phoneRegex = /^[0-9]+$/;
     if (phone?.length === 0) {
       setPhoneError("Phone number is required");
-    } else if (phone?.length <= 5) {
-      setPhoneError("Phone number should be atleast 6 digits");
+    }else if (!phoneRegex.test(phone)) {
+      setPhoneError("Invalid phone number");
+    } else if (phone?.length <= 7) {
+      setPhoneError("Phone number should be atleast 8 digits");
+    }else if (phone?.length >15) {
+      setPhoneError("Phone number should be atmost 15 digits");
     } else {
       setPhoneError("");
     }
@@ -236,7 +241,7 @@ const SignupModal = ({ show, onHide }) => {
           Account
         </Modal.Title>
       </Modal.Header>
-      <Modal.Body className="">
+      <Modal.Body className="pt-0">
         <div className="nk-split-col ">
           {localLoader && (
             <div className="preloader  !backdrop-blur-[1px]">
@@ -268,10 +273,10 @@ const SignupModal = ({ show, onHide }) => {
                     />
                   </a>
                 </div>
-                <h3 className="title mb-2 text-4xl !font-bold">
+                <h3 className="title mb-2 text-2xl !font-bold">
                   Sign up to your account
                 </h3>
-                <p className="text">
+                <p className="text-sm">
                   Already a member?{" "}
                   <a
                     onClick={() =>
@@ -316,7 +321,7 @@ const SignupModal = ({ show, onHide }) => {
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="Enter your first name"
+                          placeholder="Enter your last name"
                           onChange={handleLastNameChange}
                         />
                         {lastNameError && (
@@ -366,11 +371,11 @@ const SignupModal = ({ show, onHide }) => {
                           id="show-hide-password"
                           type="text"
                           className="form-control"
-                          placeholder="Enter your number"
+                          placeholder="Enter your mobile"
                           onChange={handlePhoneChange}
                         />
                         {phoneError && (
-                          <p className="text-red-700 font-semibold">
+                          <p className="text-red-600 font-semibold">
                             {phoneError}
                           </p>
                         )}

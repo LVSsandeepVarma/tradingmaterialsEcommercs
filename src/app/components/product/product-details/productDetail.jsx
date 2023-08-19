@@ -49,10 +49,12 @@ export default function ProductDetails() {
   const isLoggedIn = useSelector((state) => state?.login?.value);
   const [animateProductId, setAnimateProductId] = useState("");
 
+
   const [product, setProduct] = useState({});
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [subCatProducts, setSubCatProducts] = useState([]);
   const [qunatity, setQuantity] = useState(1);
+  const [total, setTotal] = useState(0)
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
@@ -233,7 +235,7 @@ export default function ProductDetails() {
         "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
         {
           product_id: productId,
-          qty: 1,
+          qty: qunatity,
         },
         {
           headers: {
@@ -379,6 +381,7 @@ export default function ProductDetails() {
                                       product?.product?.img_1 !== null
                                         && product?.product?.img_1
                                     }
+                                    loading="lazy"
                                     style={{
                                       aspectRatio: 1,
                                       objectFit: "fill",
@@ -416,6 +419,7 @@ export default function ProductDetails() {
                                       product?.product?.img_2 !== null
                                         && product?.product?.img_2
                                     }
+                                    loading="lazy"
                                     style={{
                                       aspectRatio: 1,
                                       objectFit: "fill",
@@ -437,6 +441,7 @@ export default function ProductDetails() {
                                       product?.product?.img_3 !== null
                                         && product?.product?.img_3
                                     }
+                                    loading="lazy"
                                     style={{
                                       aspectRatio: 1,
                                       objectFit: "fill",
@@ -458,6 +463,7 @@ export default function ProductDetails() {
                                       product?.product?.img_4 !== null
                                         && product?.product?.img_4
                                     }
+                                    loading="lazy"
                                     style={{
                                       aspectRatio: 1,
                                       objectFit: "fill",
@@ -479,6 +485,7 @@ export default function ProductDetails() {
                                       product?.product?.img_5 !== null
                                         && product?.product?.img_5
                                     }
+                                    loading="lazy"
                                     style={{
                                       aspectRatio: 1,
                                       objectFit: "fill",
@@ -553,6 +560,7 @@ export default function ProductDetails() {
                                   product?.product?.img_1 !== null &&
                                   product?.product?.img_1
                                 }
+                                loading="lazy"
                                 style={{ aspectRatio: 1, objectFit: "fill" }}
                                 alt="product-images"
                               />
@@ -580,6 +588,7 @@ export default function ProductDetails() {
                                   product?.product?.img_2 !== null &&
                                   product?.product?.img_2
                                 }
+                                loading="lazy"
                                 style={{ aspectRatio: 1, objectFit: "fill" }}
                                 alt="product-images"
                               />
@@ -607,6 +616,7 @@ export default function ProductDetails() {
                                   product?.product?.img_3 !== null &&
                                   product?.product?.img_3
                                 }
+                                loading="lazy"
                                 style={{ aspectRatio: 1, objectFit: "fill" }}
                                 alt="product-images"
                                 width={"100%"}
@@ -636,6 +646,7 @@ export default function ProductDetails() {
                                   product?.product?.img_4 !== null &&
                                   product?.product?.img_4
                                 }
+                                loading="lazy"
                                 style={{ aspectRatio: 1, objectFit: "fill" }}
                                 alt="product-images"
                               />
@@ -663,6 +674,7 @@ export default function ProductDetails() {
                                   product?.product?.img_5 !== null &&
                                   product?.product?.img_5
                                 }
+                                loading="lazy"
                                 style={{ aspectRatio: 1, objectFit: "fill" }}
                                 alt="product-images"
                                 width={"100%"}
@@ -732,53 +744,6 @@ export default function ProductDetails() {
                               __html: product?.product?.description,
                             }}
                           />
-                          {/* <div className="nk-product-specification-content ">
-                            <h6 className="fs-16 m-0 w-50 !font-bold">Availability:</h6>
-                            <p className="fs-16 text-gray-800 w-50">
-                              {product?.stock}
-                            </p>
-                          </div>
-                          <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50 !font-bold">Brand:</h6>
-                            <p className="fs-16 text-gray-800 w-50">
-                              Rubberised Material
-                            </p>
-                          </div>
-                          <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50 !font-bold">Size:</h6>
-                            <p className="fs-16 text-gray-800 w-50">
-                              (32 inch x13inch) Large enough to have mouse,
-                              keyboard and other desk items]
-                            </p>
-                          </div>
-                          <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50 !font-bold">Product Code:</h6>
-                            <p className="fs-16 text-gray-800 w-50">
-                              Product 20
-                            </p>
-                          </div>
-                          <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50 !font-bold">Mode of Payment:</h6>
-                            <p className="fs-16 text-gray-800 w-50">
-                              Cash on Delivery / Online Banking
-                            </p>
-                          </div>
-                          <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50 !font-bold">
-                              7 Day Free Replacement:
-                            </h6>
-                            <p className="fs-16 text-gray-800 w-50">
-                              Replace your item within 7 days.
-                            </p>
-                          </div>
-                          <div className="nk-product-specification-content">
-                            <h6 className="fs-16 m-0 w-50 !font-bold">
-                              Fast/Free Shipping
-                            </h6>
-                            <p className="fs-16 text-gray-800 w-50">
-                              All orders are shipped free within 24 hours
-                            </p>
-                          </div> */}
                           <div className="nk-product-specification-content">
                             <h6 className="fs-16 m-0 w-50 !font-bold">
                               Quantity:
@@ -788,7 +753,7 @@ export default function ProductDetails() {
                                 <button
                                   id="decrement"
                                   onClick={() => {
-                                    setQuantity(qunatity - 1);
+                                    setQuantity(qunatity >2 ? qunatity - 1 : 1);
                                   }}
                                 >
                                   -
@@ -807,9 +772,10 @@ export default function ProductDetails() {
                           </div>
                         </div>
                         <div className="position-relative overflow-hidden bg-blue-300 rounded p-4">
+                          <div className="flex justify-between">
                           <h4 className="mb-4 !text-2xl !font-bold !text-left">
                             {product?.product?.prices?.map((price, ind) => (
-                              <p className=" m-0 text-gray-1200 text-start !text-2xl !font-bold !mr-2 ">
+                              <p className=" m-0 text-gray-1200 text-start !text-xl !font-bold !mr-2 ">
                                 {currentUserlang === "en"
                                   ? price?.INR &&
                                     `₹${Number.parseFloat(price?.INR).toFixed(
@@ -822,10 +788,27 @@ export default function ProductDetails() {
                               </p>
                             ))}
                           </h4>
-                          <p className="fs-14 text-gray-1200 !text-left !w-full mb-2">
+                          <h4 className="mb-4 flex !text-xl !font-semibold !text-left">
+                          Total:&nbsp; 
+                            {product?.product?.prices?.map((price, ind) => (
+                              <p className=" m-0 text-start !text- !font-bold !mr-2 ">
+                                {currentUserlang === "en"
+                                  ? price?.INR &&
+                                   `₹${Number.parseFloat(price?.INR*qunatity).toFixed(
+                                      2
+                                    )}`
+                                  : price?.USD &&
+                                    `$${Number.parseFloat(price?.USD * qunatity).toFixed(
+                                      2
+                                    )}`}
+                              </p>
+                            ))}
+                          </h4>
+                          </div>
+                          {/* <p className="fs-14 text-gray-1200 !text-left !w-full mb-2">
                             <em className="icon ni ni-plus-circle-fill text-primary me-1 "></em>
                             <span>Add Nio care pius service from $39</span>
-                          </p>
+                          </p> */}
                           <ul className="d-flex align-items-center gap-2">
                             <li>
                               <button className="btn btn-primary">
@@ -857,9 +840,9 @@ export default function ProductDetails() {
                             >
                               {" "}
                               Add to WishList{" "}
-                              <span className="fs-14 text-gray-800 fw-normal">
+                              {/* <span className="fs-14 text-gray-800 fw-normal">
                                 (32,145 Adds)
-                              </span>
+                              </span> */}
                             </p>
                           </div>
                         </div>
@@ -900,20 +883,6 @@ export default function ProductDetails() {
                                     Twitter{" "}
                                     <span className=" fs-14 text-gray-800">
                                       60
-                                    </span>
-                                  </p>
-                                </a>
-                              </li>
-                              <li>
-                                <a
-                                  href="#"
-                                  className="d-flex align-items-center text-gray-1200"
-                                >
-                                  <em className="icon ni ni-snapchat text-primary"></em>
-                                  <p className="fs-14 text-nowrap fw-semibold ms-1">
-                                    Snap Chat{" "}
-                                    <span className=" fs-14 text-gray-800">
-                                      80
                                     </span>
                                   </p>
                                 </a>
@@ -1097,6 +1066,7 @@ export default function ProductDetails() {
                                     src={product?.img_1}
                                     alt="product-image"
                                     className="w-100"
+                                    loading="lazy"
                                   />
                                 </a>
                               </div>

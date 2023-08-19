@@ -55,7 +55,7 @@ export default function Login() {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("invalid email");
+      setEmailError("Invalid email");
     } else {
       setEmailError("");
     }
@@ -63,9 +63,9 @@ export default function Login() {
 
   function passwordValidation(password) {
     if (password?.length === 0) {
-      setPasswordError("Phone is required");
+      setPasswordError("Password is required");
     } else if (password?.length <= 5) {
-      setPasswordError("password should be atleast 6 digits");
+      setPasswordError("Password should be atleast 6 digits");
     } else {
       setPasswordError("");
     }
@@ -225,12 +225,13 @@ export default function Login() {
                               value={email}
                               onChange={handleEmailChange}
                             />
-                            {emailError && (
+                            
+                          </div>
+                          {emailError && (
                               <p className="text-red-600 font-semibold">
                                 {emailError}
                               </p>
                             )}
-                          </div>
                         </div>
                       </div>
                       <div className="col-12">
@@ -260,12 +261,13 @@ export default function Login() {
                               onChange={handlePasswordChange}
                               value={password}
                             />
-                            {passwordError && (
-                              <p className="text-red-700 font-semibold">
+                            
+                          </div>
+                          {passwordError && (
+                              <p className="text-red-600 font-semibold">
                                 {passwordError}
                               </p>
                             )}
-                          </div>
                         </div>
                       </div>
                       <div className="col-12">
@@ -327,7 +329,7 @@ export default function Login() {
                                 >
                                   <p
                                     key={ind}
-                                    className="text-red-700 font-semibold"
+                                    className="text-red-600 font-semibold"
                                   >
                                     {err}
                                   </p>

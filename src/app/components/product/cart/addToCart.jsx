@@ -441,7 +441,13 @@ export default function AddToCart() {
       );
       if (response?.data?.status) {
         localStorage.setItem("order_id", response?.data?.data?.order_id);
-        navigate(`/checkout/order_id/${response?.data?.data?.order_id}`);
+        navigate(`/checkout/order_id/${CryptoJS?.AES?.encrypt(
+          `${response?.data?.data?.order_id}`,
+          "trading_materials_order"
+        )
+          ?.toString()
+          .replace(/\//g, "_")
+          .replace(/\+/g, "-")}`);
       }
     } catch (err) {
       console.log("err", err);

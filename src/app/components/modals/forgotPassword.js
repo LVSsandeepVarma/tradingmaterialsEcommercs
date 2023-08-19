@@ -164,7 +164,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                   className="title mb-2 font-semibold !font-bold"
                   style={{ fontSize: "2rem" }}
                 >
-                  Forgot Pawword
+                  Forgot Password
                 </h3>
                 {/* <small className="text font-semibold text-lg">To Offers</small> */}
                 {/* <p className="text">

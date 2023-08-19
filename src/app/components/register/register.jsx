@@ -54,17 +54,22 @@ export default function Register() {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("invalid email");
+      setEmailError("Invalid email");
     } else {
       setEmailError("");
     }
   }
 
   function phoneValidation(phone) {
+    const phoneRegex = /^[0-9]+$/;
     if (phone?.length === 0) {
-      setPhoneError("password is required");
-    } else if (phone?.length <= 5) {
-      setPhoneError("password should be atleast 6 digits");
+      setPhoneError("Phone number is required");
+    }else if (!phoneRegex.test(phone)) {
+      setPhoneError("Invalid Phone number");
+    } else if (phone?.length <= 7) {
+      setPhoneError("Phone number should be atleast 8 digits");
+    }else if (phone?.length >15) {
+      setPhoneError("Phone number should be atmost 15 digits");
     } else {
       setPhoneError("");
     }
@@ -261,7 +266,7 @@ export default function Register() {
                             <input
                               type="text"
                               className="form-control"
-                              placeholder="Enter your first name"
+                              placeholder="Enter your last name"
                               onChange={handleLastNameChange}
                             />
                             {lastNameError && (
@@ -311,7 +316,7 @@ export default function Register() {
                               id="show-hide-password"
                               type="text"
                               className="form-control"
-                              placeholder="Enter your number"
+                              placeholder="Enter your Mobile"
                               onChange={handlePhoneChange}
                             />
                             {phoneError && (

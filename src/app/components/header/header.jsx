@@ -583,6 +583,11 @@ export default function Header() {
                                               }}
                                               className="nk-nav-link "
                                             >
+                                              <div className="text-primary me-3">
+                                                  <ArrowForwardIcon
+                                                    style={{ fontSize: "18px" }}
+                                                  />
+                                                </div>
                                               {product?.name}
                                             </a>
                                           </li>

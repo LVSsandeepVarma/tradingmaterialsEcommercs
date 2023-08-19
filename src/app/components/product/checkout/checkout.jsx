@@ -19,6 +19,7 @@ import { Form } from "formik";
 import { FaCreditCard, FaCalendarAlt, FaLock, FaClock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { Divider } from "@mui/material";
+import CryptoJS from "crypto-js";
 
 export default function Checkout() {
   const params = useParams();
@@ -67,6 +68,13 @@ export default function Checkout() {
   // State variable to store prices for each product
   const [prices, setPrices] = useState({});
   const [subTotal, setSubTotal] = useState(0);
+
+  const { id } = useParams();
+  const decryptedId = CryptoJS.AES.decrypt(
+    id.replace(/_/g, "/").replace(/-/g, "+"),
+    "trading_materials_order"
+  ).toString(CryptoJS.enc.Utf8);
+  console.log(decryptedId);
 
   console.log(cartProducts, "gggggggg");
 
@@ -126,7 +134,7 @@ export default function Checkout() {
     try {
       dispatch(showLoader());
       const response = await axios.get(
-        `https://admin.tradingmaterials.com/api/lead/product/checkout/view-order?order_id=${params?.id}`,
+        `https://admin.tradingmaterials.com/api/lead/product/checkout/view-order?order_id=${decryptedId}`,
         {
           headers: {
             "access-token": localStorage.getItem("client_token"),
