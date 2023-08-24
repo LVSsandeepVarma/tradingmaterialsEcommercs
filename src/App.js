@@ -29,6 +29,7 @@ const Sidebar = lazy(() => import("./app/components/user/sidebar"))
 function App() {
   return (
     <div className="App custom-scrollbar">
+      
       <BrowserRouter>
       <Suspense fallback={<div className="preloader !backdrop-blur-[1px] ">
           <div class="loader"></div>

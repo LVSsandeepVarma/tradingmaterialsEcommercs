@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import PrismaZoom from "react-prismazoom";
 import Footer from "../../footer/footer";
 import {
@@ -380,7 +380,7 @@ function handleHelpfulDialog() {
 
   return (
     <>
-      <Helmet>
+      <Helmet data-react-helmet="true">
         <meta name="image" property="og:image"  content={`${product?.product?.img_1}`} />
         <meta name="type" property="og:type" content="website"></meta>
         <meta name="title" property="og:title" content={`${product?.product?.name}`}/>
