@@ -52,7 +52,7 @@ export default function NewPassword() {
 
   function confirmPasswordValidaiton(confirmPassword) {
     const confirmPasswordRegex =
-      /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+      /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (confirmPassword?.length === 0) {
       setconfirmPasswordError("confirm Password is required");
     } else if (confirmPassword !== password) {
@@ -71,7 +71,7 @@ export default function NewPassword() {
       setPasswordError("min 8 digits required");
     } else if (confirmPassword != "" && confirmPassword !== password) {
       setconfirmPasswordError("password and confirm password does not match");
-    }else {
+    } else {
       setPasswordError("");
     }
   }
@@ -98,78 +98,82 @@ export default function NewPassword() {
     //   confirmPassword !== "" &&
     //   password !== ""
     // ) {
-      try {
-        dispatch(showLoader());
-        const url = location.hash;
-        console.log(url);
-        const response = await axios.post(
-          "https://admin.tradingmaterials.com/api/lead/reset/password",
-          {
-            confirm_password: confirmPassword,
-            password: password,
-            hash: localStorage.getItem("passHash"),
-          }
-        );
-        if (response?.data?.status) {
-          localStorage.removeItem("passHash");
-          setLoginsuccessMsg(response?.data?.message);
-          //   localStorage.removeItem("client_token");
-          //   localStorage.setItem("client_token", response?.data?.token);
-          //   // localStorage
-          //   console.log(response?.data?.first_name);
-          //   dispatch(
-          //     updateUsers({
-          //       first_name: response?.data?.first_name,
-          //       last_name: response?.data?.last_name,
-          //       cart_count: response?.data?.cart_count,
-          //       wish_count: response?.data?.wish_count,
-          //     })
-          //   );
-          //   dispatch(updateclientType(response?.data?.type));
-          //   localStorage.setItem("client_type", response?.data?.type);
-          //   dispatch(loginUser());
-          //   if (response?.data?.data?.type === "client") {
-          //     navigate(`https://client.tradingmaterials.com/dashboard/`);
-          //   } else {
-          //     navigate(`${userLang}/profile`);
-          //   }
+    try {
+      dispatch(showLoader());
+      const url = location.hash;
+      console.log(url);
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/lead/reset/password",
+        {
+          confirm_password: confirmPassword,
+          password: password,
+          hash: localStorage.getItem("passHash"),
+        }
+      );
+      if (response?.data?.status) {
+        localStorage.removeItem("passHash");
+        setLoginsuccessMsg(response?.data?.message);
+        //   localStorage.removeItem("client_token");
+        //   localStorage.setItem("client_token", response?.data?.token);
+        //   // localStorage
+        //   console.log(response?.data?.first_name);
+        //   dispatch(
+        //     updateUsers({
+        //       first_name: response?.data?.first_name,
+        //       last_name: response?.data?.last_name,
+        //       cart_count: response?.data?.cart_count,
+        //       wish_count: response?.data?.wish_count,
+        //     })
+        //   );
+        //   dispatch(updateclientType(response?.data?.type));
+        //   localStorage.setItem("client_type", response?.data?.type);
+        //   dispatch(loginUser());
+        //   if (response?.data?.data?.type === "client") {
+        //     navigate(`https://client.tradingmaterials.com/dashboard/`);
+        //   } else {
+        //     navigate(`${userLang}/profile`);
+        //   }
 
-          //   setTimeout(() => {
-          //     localStorage.removeItem("token");
-          //     dispatch(
-          //       updateNotifications({
-          //         type: "warning",
-          //         message: "Session expired, Login again.",
-          //       })
-          //     );
-          setTimeout(()=>{
-            navigate(`${userLang}/login`);
-          } , 2000)
-          
-          //   }, 3600000);
-        } else {
-          console.log(response?.data);
-          setApiError([...Object?.values(response?.data?.errors)]);
-        }
-      } catch (err) {
-        console.log("err", err);
-        if (err?.response?.data?.errors) {
-          console.log(err?.response?.data?.errors);
-          setPasswordError([...Object?.values(err?.response?.data?.errors["password"])]);
-          setconfirmPasswordError([...Object?.values(err?.response?.data?.errors["confirm_password"])]);
-        } else {
-          setApiError([err?.response?.data?.message]);
-        }
-      } finally {
-        dispatch(hideLoader());
+        //   setTimeout(() => {
+        //     localStorage.removeItem("token");
+        //     dispatch(
+        //       updateNotifications({
+        //         type: "warning",
+        //         message: "Session expired, Login again.",
+        //       })
+        //     );
+        setTimeout(() => {
+          navigate(`${userLang}/login`);
+        }, 2000);
+
+        //   }, 3600000);
+      } else {
+        console.log(response?.data);
+        setApiError([...Object?.values(response?.data?.errors)]);
       }
+    } catch (err) {
+      console.log("err", err);
+      if (err?.response?.data?.errors) {
+        console.log(err?.response?.data?.errors);
+        setPasswordError([
+          ...Object?.values(err?.response?.data?.errors["password"]),
+        ]);
+        setconfirmPasswordError([
+          ...Object?.values(err?.response?.data?.errors["confirm_password"]),
+        ]);
+      } else {
+        setApiError([err?.response?.data?.message]);
+      }
+    } finally {
+      dispatch(hideLoader());
+    }
     // }
   }
 
   return (
     <>
-    <Helmet>
-    <meta name="no-back-button" content="true"/>
+      <Helmet>
+        <meta name="no-back-button" content="true" />
       </Helmet>
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px]">
@@ -235,7 +239,7 @@ export default function NewPassword() {
                             />
                           </div>
                           {passwordError && (
-                            <p className="text-red-700 font-semibold">
+                            <p className="text-red-600 font-semibold">
                               {passwordError}
                             </p>
                           )}
@@ -273,7 +277,7 @@ export default function NewPassword() {
                           </div>
                           {confirmPasswordError && (
                             <Alert variant="outlined" severity="error">
-                              <p className="text-red-700 font-semibold">
+                              <p className="text-red-600 font-semibold">
                                 {confirmPasswordError}
                               </p>
                             </Alert>
@@ -320,7 +324,7 @@ export default function NewPassword() {
                               severity="success"
                               className="mt-2"
                             >
-                              <p className="text-green-600 font-semibold">
+                              <p className="text-green-900 font-semibold">
                                 {loginSuccessMsg}
                               </p>
                             </Alert>
@@ -336,7 +340,7 @@ export default function NewPassword() {
                                 >
                                   <p
                                     key={ind}
-                                    className="text-red-700 font-semibold"
+                                    className="text-red-600 font-semibold"
                                   >
                                     {err}
                                   </p>

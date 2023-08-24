@@ -123,8 +123,7 @@ export default function SideBar() {
   const [animateProductId, setAnimateProductId] = useState("");
   const [cartPosition, setCartPosition] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState({ x: 0, y: 0 });
-
-
+  const [formType, setFormType] = useState("add");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userLang = useSelector((state) => state?.lang?.value);
@@ -133,7 +132,6 @@ export default function SideBar() {
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
-
 
   function getRandomNumberWithOffset(number) {
     // Define an array of possible offsets: 5, 10, and 20.
@@ -301,8 +299,9 @@ export default function SideBar() {
       <ShippingAddressModal
         show={showModal}
         onHide={() => setShowModal(false)}
-        type={addressUpdateType}
+        addressType={addressUpdateType}
         data={addressData}
+        type={formType}
         // handleFormSubmit={handleFormSubmit}
       />
       <div className="container">
@@ -495,7 +494,7 @@ export default function SideBar() {
             {activeIndex === 0 && (
               <>
                 <div>
-                  <h4>Billing address</h4>
+                  <h4 className="!font-bold !text-gray-900">Billing address</h4>
                   <div>
                     <small className="w-full !text-left">
                       Showing All Billing address available
@@ -508,12 +507,15 @@ export default function SideBar() {
                               onClick={() => {
                                 setAddressUpdateType("billing");
                                 setShowModal(true);
+                                setFormType("update")
                                 setAddressData(
                                   userData?.client?.primary_address[ind]
                                 );
                               }}
                             >
-                              <h3 className="font-bold">Address - {ind + 1}</h3>
+                              <h3 className="!font-bold">
+                                Address - {ind + 1}
+                              </h3>
                               <p>{address?.add_1},</p>
                               <p>{address?.add_2},</p>
                               <p>{address?.city},</p>
@@ -528,9 +530,10 @@ export default function SideBar() {
                         <Button
                           className="!ml-2 !mr-2"
                           onClick={() => {
-                            setAddressUpdateType("add");
+                            setAddressUpdateType("billing");
                             setShowModal(true);
                             setAddressData([]);
+                            setFormType("add")
                           }}
                         >
                           + Add new Address
@@ -540,7 +543,7 @@ export default function SideBar() {
 
                     <Divider />
                   </div>
-                  <h4 className="mt-5">Shippping address</h4>
+                  <h4 className="mt-5 !font-bold">Shippping address</h4>
                   <div>
                     <small className="w-full !text-left">
                       Showing All Shipping address available
@@ -552,10 +555,11 @@ export default function SideBar() {
                             onClick={() => {
                               setAddressUpdateType("shipping");
                               setShowModal(true);
+                              setFormType("update")
                               setAddressData(userData?.client?.address[ind]);
                             }}
                           >
-                            <h3 className="font-bold">Address - {ind + 1}</h3>
+                            <h3 className="!font-bold">Address - {ind + 1}</h3>
                             <p>{address?.add_1},</p>
                             <p>{address?.add_2},</p>
                             <p>{address?.city},</p>
@@ -568,9 +572,10 @@ export default function SideBar() {
                       <Button
                         className="!ml-2"
                         onClick={() => {
-                          setAddressUpdateType("add");
+                          setAddressUpdateType("shipping");
                           setShowModal(true);
                           setAddressData([]);
+                          setFormType("add")
                         }}
                       >
                         + Add new Address
@@ -584,7 +589,7 @@ export default function SideBar() {
             {activeIndex === 1 && (
               <>
                 <div>
-                  <h4>Your cart</h4>
+                  <h4 className="!font-bold">Your cart</h4>
                   <Divider />
                   {userData?.client?.cart?.length === 0 && (
                     <div>
@@ -601,7 +606,7 @@ export default function SideBar() {
                         ></img>
                       </div>
                       <div className="text-center">
-                        <p className="text-red-700 font-semibold">
+                        <p className="text-red-600 font-semibold">
                           Your cart is Empty.
                         </p>
                         <p
@@ -846,7 +851,7 @@ export default function SideBar() {
             {activeIndex === 2 && (
               <>
                 <div>
-                  <h4>Your Wishlist</h4>
+                  <h4 className="!font-bold">Your Wishlist</h4>
                   <Divider />
                   {userData?.client?.wishlist?.length === 0 && (
                     <p>Your Wishlist is empty</p>
@@ -995,12 +1000,12 @@ export default function SideBar() {
             {activeIndex === 3 && (
               <>
                 <div className="!w-full">
-                  <h4>Your Orders</h4>
+                  <h4 className="!font-bold">Your Orders</h4>
                   <Divider />
                   {userData?.client?.wishlist?.length === 0 && (
                     <p>Your Orders are empty</p>
                   )}
-                  <Invoices/>
+                  <Invoices />
                 </div>
               </>
             )}

@@ -107,9 +107,7 @@ export default function AddToCart() {
         dispatch(
           updateNotifications({
             type: "warning",
-            message: isLoggedIn
-              ? response?.data?.message
-              : "PLease Login to continue",
+            message: "Oops!",
           })
         );
         // navigate("/login")
@@ -119,7 +117,7 @@ export default function AddToCart() {
       dispatch(
         updateNotifications({
           type: "warning",
-          message: "Session expired, please login to continue",
+          message: "Oops!",
         })
       );
     } finally {
@@ -315,9 +313,7 @@ export default function AddToCart() {
         dispatch(
           updateNotifications({
             type: "warning",
-            message: !isLoggedIn
-              ? response?.data?.message
-              : "Please Login To continue",
+            message: "Oops!",
           })
         );
         // navigate("/login")
@@ -406,7 +402,7 @@ export default function AddToCart() {
     try {
       dispatch(showLoader());
       setApiErr([]);
-      console.log(billingSameAsShipping)
+      console.log(billingSameAsShipping);
       const data = billingSameAsShipping
         ? {
             total: (subTotal - discount).toFixed(2),
@@ -441,13 +437,15 @@ export default function AddToCart() {
       );
       if (response?.data?.status) {
         localStorage.setItem("order_id", response?.data?.data?.order_id);
-        navigate(`/checkout/order_id/${CryptoJS?.AES?.encrypt(
-          `${response?.data?.data?.order_id}`,
-          "trading_materials_order"
-        )
-          ?.toString()
-          .replace(/\//g, "_")
-          .replace(/\+/g, "-")}`);
+        navigate(
+          `/checkout/order_id/${CryptoJS?.AES?.encrypt(
+            `${response?.data?.data?.order_id}`,
+            "trading_materials_order"
+          )
+            ?.toString()
+            .replace(/\//g, "_")
+            .replace(/\+/g, "-")}`
+        );
       }
     } catch (err) {
       console.log("err", err);
@@ -476,6 +474,7 @@ export default function AddToCart() {
         show={showModal}
         onHide={() => setShowModal(false)}
         type={fomrType}
+        addressType={addressUpdateType}
         data={fomrType === "add" ? [] : userData?.client?.primary_address[0]}
         // handleFormSubmit={handleFormSubmit}
       />
@@ -540,7 +539,11 @@ export default function AddToCart() {
           <div className="container">
             <div className="nk-section-content row px-lg-5">
               <div className="col-lg-8 pe-lg-0">
-                <div className={`nk-entry pe-lg-5 py-lg-5 ${allProducts?.length ? "max-h-[50%]" : ""}  overflow-y-auto`}>
+                <div
+                  className={`nk-entry pe-lg-5 py-lg-5 ${
+                    allProducts?.length ? "max-h-[50%]" : ""
+                  }  overflow-y-auto`}
+                >
                   <div className="mb-5">
                     {allProducts?.length > 0 ? (
                       <table className="table">
@@ -586,6 +589,12 @@ export default function AddToCart() {
                                                 .replace(/\+/g, "-")}`
                                             )
                                           }
+                                          style={{
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            width: "90%",
+                                          }}
                                         >
                                           {product?.product?.name}
                                         </p>
@@ -704,7 +713,7 @@ export default function AddToCart() {
                       <div className="text-center font-bold text-gray-700 ">
                         <p>no products found in cart</p>
                         <p
-                          className="nav-link text-green-600 cursor-pointer"
+                          className="nav-link text-green-900 cursor-pointer"
                           onClick={() => navigate("/")}
                         >
                           {" "}
@@ -720,7 +729,7 @@ export default function AddToCart() {
                     {userData ? (
                       <div className="nk-section-blog-details mt-3">
                         <h4 className="mb-3 !font-bold">Billing Address :</h4>
-                        
+
                         {userData?.client?.primary_address?.length > 0 && (
                           <ul className="d-flex flex-column gap-2 pb-0">
                             <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -766,7 +775,7 @@ export default function AddToCart() {
                               onClick={() => {
                                 setShowModal(true);
                                 setFormType("update");
-                                setAddressUpdateType("billing");
+                                setAddressUpdateType("Billing");
                               }}
                               style={{
                                 background: "#54a8c7",
@@ -795,7 +804,7 @@ export default function AddToCart() {
                             onClick={() => {
                               setShowModal(true);
                               setFormType("add");
-                              setAddressUpdateType("billing");
+                              setAddressUpdateType("Billing");
                             }}
                             style={{
                               background: "#54a8c7",
@@ -1172,7 +1181,10 @@ export default function AddToCart() {
                   </div>
                 </div>
                 <div class="col-lg-4 text-center text-lg-end">
-                  <a href={`${userLang}/contact`} class="btn btn-white fw-semiBold">
+                  <a
+                    href={`${userLang}/contact`}
+                    class="btn btn-white fw-semiBold"
+                  >
                     Contact Support
                   </a>
                 </div>

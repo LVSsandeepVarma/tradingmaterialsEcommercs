@@ -26,6 +26,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import LoginModal from "../modals/login";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import ForgotPasswordModal from "../modals/forgotPassword";
+import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -90,45 +91,6 @@ export default function Header() {
     }
   }, [popup]);
 
-  // useEffect(() => {
-  //   const cartButtonRect = document
-  //     ?.getElementById("cart")
-  //     ?.getBoundingClientRect();
-  //   dispatch(
-  //     updatePositions({
-  //       cartTop: cartButtonRect?.top,
-  //       cartRight: cartButtonRect?.left,
-  //       productTop: positions?.productTop ? positions?.productTop : "",
-  //       productRight: positions?.productRight ? positions?.productRight : "",
-  //     })
-  //   );
-  // }, [window?.scroll]);
-
-  // useEffect(() => {
-  //   async function fetchProducts() {
-  //     dispatch(showLoader());
-  //     try {
-  //       const response = await axios.get(
-  //         "https://admin.tradingmaterials.com/api/get/products",
-  //         {
-  //           headers: {
-  //             "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-  //             Accept: "application/json",
-  //           },
-  //         }
-  //       );
-  //       if (response?.data?.status) {
-  //         dispatch(fetchAllProducts(response?.data?.data));
-  //       }
-  //     } catch (err) {
-  //       console.log("err");
-  //     } finally {
-  //       dispatch(hideLoader());
-  //     }
-  //   }
-
-  //   // fetchProducts();
-  // }, []);
 
   const getUserInfo = async () => {
     console.log(location.pathname.includes("/product-detail"));
@@ -272,7 +234,7 @@ export default function Header() {
         dispatch(updateNotifications({ type: "", message: "" }));
 
         // window.location.reload();
-        navigate(`${userLang}/login`);
+        navigate(`${userLang}/`);
       }
     } catch (err) {
       console.log("err", err);
@@ -295,7 +257,16 @@ export default function Header() {
         // timer: 1000,
         timerProgressBar: true,
         icon: notifications?.type,
-        footer: `<a className="font-bold" style="font-weight:bold;cursor: pointer" href=${userLang}/login>Click here to login</a>`,
+        html:`<a className="swalLink" style="font-weight: bold;
+        cursor: pointer;
+        box-shadow: none !important;
+        outline: none !important;
+        font-size: small;
+        display: flex;
+        align-items: center;
+        justify-content: center;" href=${userLang}/ ><svg style="width:25px; height:25px; scale:0.7; fill:#545454 !important; font-weight:bold !important" xmlns="http://www.w3.org/2000/svg" viewBox="0,0,5" > <g> <path fill="none" d="M0 0h24v24H0z"/> <path d="M8 7v4L2 6l6-5v4h5a8 8 0 1 1 0 16H4v-2h9a6 6 0 1 0 0-12H8z"/> </g> </svg>Back to home</a>`,
+        footer: `<a className="swalLink font-bold focus:outline-none" style="font-weight:bold;cursor: pointer;box-shadow: none !important;
+        outline: none !important; font-size:small;color: #54a8c7 !important;" autofocus=false href=/?login>Login here</a>`,
         showConfirmButton: false,
         allowOutsideClick: false,
         showClass: {
@@ -661,7 +632,7 @@ export default function Header() {
                                   </li>
                                   <li className="col-lg-12 p-0">
                                     <a
-                                      className="nk-nav-link"
+                                      className="nk-nav-link cursor-pointer"
                                       onClick={handleLogout}
                                     >
                                       logout

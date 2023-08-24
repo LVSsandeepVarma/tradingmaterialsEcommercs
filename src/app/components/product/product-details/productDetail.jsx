@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Helmet } from "react-helmet";
-import PrismaZoom from 'react-prismazoom'
+import PrismaZoom from "react-prismazoom";
 import Footer from "../../footer/footer";
 import {
   hideLoader,
@@ -32,7 +32,14 @@ import "swiper/css/autoplay";
 import { FreeMode, Navigation, Thumbs, Autoplay } from "swiper/modules";
 import { useTranslation } from "react-i18next";
 import CryptoJS from "crypto-js";
-import { Skeleton } from "@mui/material";
+import { Avatar, Button, Divider, Skeleton } from "@mui/material";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
+import ReviewDialog from "../../modals/reviewDialog";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 // import { delay } from "@reduxjs/toolkit/dist/utils";
 
@@ -48,16 +55,22 @@ export default function ProductDetails() {
   const userLang = useSelector((state) => state?.lang?.value);
   const isLoggedIn = useSelector((state) => state?.login?.value);
   const [animateProductId, setAnimateProductId] = useState("");
-
-
+  const [tabValue, setTabValue] = React.useState(1);
+  const [openReviewDialog, setOpenReviewDialog] = useState(false);
+  const [openHelpfulDialog, setOpenHelpfulDialog] = useState(false)
   const [product, setProduct] = useState({});
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [subCatProducts, setSubCatProducts] = useState([]);
   const [qunatity, setQuantity] = useState(1);
-  const [total, setTotal] = useState(0)
+  const [total, setTotal] = useState(0);
+  const [dialogType, setDialogType] = useState("helpful");
+  const [apiError, setApiError] = useState([])
+    const [apiSuccess, setApiSuccess] = useState("")
+    const [reviewIdErr, setReviewIdErr] = useState("")
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
+  const [reviewId, setReviewId] = useState("");
   const [previewImage, setPreviewImage] = useState("/images/logo");
   let count = 0;
   console.log(cartProducts, params);
@@ -143,16 +156,22 @@ export default function ProductDetails() {
   function ratingStars(number) {
     const elemetns = Array.from({ length: 5 }, (_, index) => (
       <>
-        {index < number && (
+        {index + 1 <= number && (
           <li key={index}>
             <em className="icon ni ni-star-fill text-yellow"></em>
           </li>
         )}
-        {index >= number && (
-          <li key={index}>
-            <em className="icon ni ni-star-fill text-gray-700"></em>
-          </li>
-        )}
+        {index + 1 > number &&
+          (index + 1 - number !== 0 && index + 1 - number < 1 ? (
+            <li key={index}>
+              <em class="icon ni ni-star-half-fill text-yellow"></em>
+            </li>
+          ) : (
+            <li key={index}>
+              <em className="icon ni ni-star-fill text-gray-700 "></em>
+            </li>
+          ))}
+        {/* <em class="icon ni ni-star-half-fill"></em> */}
       </>
     ));
 
@@ -309,23 +328,81 @@ export default function ProductDetails() {
     }
   }
 
-  // function ratingStars(number) {
-  //   const elemetns = Array.from({ length: number }, (_, index) => (
-  //     <li key={index}>
-  //       <em className="icon ni ni-star-fill text-yellow"></em>
-  //     </li>
-  //   ));
+  // function to close review Dialog
 
-  //   return <ul className="d-flex align-items-center">{elemetns}</ul>;
-  // }
+  function handleCloseReviewDialog() {
+    setOpenReviewDialog(false);
+  }
+function handleHelpfulDialog() {
+    setOpenHelpfulDialog(false);
+  }
+
+  async function reviewHelpfulReport(id) {
+    console.log(id)
+    setApiError([]);
+    setReviewIdErr("")
+      try {
+        dispatch(showLoader());
+
+        const response = await axios.post(
+          "https://admin.tradingmaterials.com/api/lead/product/review-report",
+          {
+            review_id: id,
+            type: "helpfull",
+          },
+          {
+            headers: {
+              "access-token": localStorage.getItem("client_token"),
+              Accept: "application/json",
+            },
+          }
+        );
+        if (response?.data?.status) {
+          setOpenHelpfulDialog(true)
+          setTimeout(() => {
+            setOpenHelpfulDialog(false)
+          }, 5000);
+        }
+      } catch (err) {
+        console.log(err);
+        if (err?.response?.data?.errors) {
+          setReviewIdErr(err?.response?.data?.errors["review_id"]);
+        } else {
+          setApiError([err?.response?.data?.message]);
+          setTimeout(()=>{
+              setApiError([])
+          }, 5000)
+        }
+      } finally {
+        dispatch(hideLoader());
+    }
+  }
 
   return (
     <>
-      {/* <Helmet>
+      <Helmet>
         <meta property="og:image" content="/images/tm-logo-1.png" />
         <meta property="og:name" content="trading product"/>
         <meta property="og:description" content="trading desc"/>
-      </Helmet> */}
+      </Helmet>
+      {openReviewDialog && (
+        <ReviewDialog
+          open={openReviewDialog}
+          handleClose={handleCloseReviewDialog}
+          type={dialogType}
+          reviewId = {reviewId}
+        />
+      )}
+
+{openHelpfulDialog && (
+        <ReviewDialog
+          open={openHelpfulDialog}
+          handleClose={handleHelpfulDialog}
+          type={dialogType}
+          reviewId = {reviewId}
+        />
+      )}
+      
       <div className="nk-body">
         <div className="nk-body-root">
           {loaderState && (
@@ -375,23 +452,28 @@ export default function ProductDetails() {
                               )}
                               {
                                 !loaderState && (
-                                  <PrismaZoom allowZoom={true} allowPan={true} maxZoom={5} minZoom={1} allowWheel={true}>
-                            <img
-                                    src={
-                                      product?.product?.img_1 !== null
-                                        && product?.product?.img_1
-                                    }
-                                    loading="lazy"
-                                    style={{
-                                      aspectRatio: 1,
-                                      objectFit: "fill",
-                                      width: "100%",
-                                      height: "100%",
-                                      maxWidth: "100% !important",
-                                      minHeight: "100% !important",
-                                    }}
-                                    
-                                  />
+                                  <PrismaZoom
+                                    allowZoom={true}
+                                    allowPan={true}
+                                    maxZoom={5}
+                                    minZoom={1}
+                                    allowWheel={true}
+                                  >
+                                    <img
+                                      src={
+                                        product?.product?.img_1 !== null &&
+                                        product?.product?.img_1
+                                      }
+                                      loading="lazy"
+                                      style={{
+                                        aspectRatio: 1,
+                                        objectFit: "fill",
+                                        width: "100%",
+                                        height: "100%",
+                                        maxWidth: "100% !important",
+                                        minHeight: "100% !important",
+                                      }}
+                                    />
                                   </PrismaZoom>
                                 )
                                 // <img
@@ -413,90 +495,106 @@ export default function ProductDetails() {
                         </div>
                         {product?.product?.img_2 !== null && (
                           <SwiperSlide>
-                            <PrismaZoom allowZoom={true} allowPan={true} maxZoom={5} minZoom={1}>
-                            <img
-                                    src={
-                                      product?.product?.img_2 !== null
-                                        && product?.product?.img_2
-                                    }
-                                    loading="lazy"
-                                    style={{
-                                      aspectRatio: 1,
-                                      objectFit: "fill",
-                                      width: "100%",
-                                      height: "100%",
-                                      maxWidth: "100% !important",
-                                      minHeight: "100% !important",
-                                    }}
-                                    
-                                  />
-                                  </PrismaZoom>
+                            <PrismaZoom
+                              allowZoom={true}
+                              allowPan={true}
+                              maxZoom={5}
+                              minZoom={1}
+                            >
+                              <img
+                                src={
+                                  product?.product?.img_2 !== null &&
+                                  product?.product?.img_2
+                                }
+                                loading="lazy"
+                                style={{
+                                  aspectRatio: 1,
+                                  objectFit: "fill",
+                                  width: "100%",
+                                  height: "100%",
+                                  maxWidth: "100% !important",
+                                  minHeight: "100% !important",
+                                }}
+                              />
+                            </PrismaZoom>
                           </SwiperSlide>
                         )}
                         {product?.product?.img_3 !== null && (
                           <SwiperSlide>
-                            <PrismaZoom allowZoom={true} allowPan={true} maxZoom={5} minZoom={1}>
-                            <img
-                                    src={
-                                      product?.product?.img_3 !== null
-                                        && product?.product?.img_3
-                                    }
-                                    loading="lazy"
-                                    style={{
-                                      aspectRatio: 1,
-                                      objectFit: "fill",
-                                      width: "100%",
-                                      height: "100%",
-                                      maxWidth: "100% !important",
-                                      minHeight: "100% !important",
-                                    }}
-                                    
-                                  />
-                                  </PrismaZoom>
+                            <PrismaZoom
+                              allowZoom={true}
+                              allowPan={true}
+                              maxZoom={5}
+                              minZoom={1}
+                            >
+                              <img
+                                src={
+                                  product?.product?.img_3 !== null &&
+                                  product?.product?.img_3
+                                }
+                                loading="lazy"
+                                style={{
+                                  aspectRatio: 1,
+                                  objectFit: "fill",
+                                  width: "100%",
+                                  height: "100%",
+                                  maxWidth: "100% !important",
+                                  minHeight: "100% !important",
+                                }}
+                              />
+                            </PrismaZoom>
                           </SwiperSlide>
                         )}
                         {product?.product?.img_4 !== null && (
                           <SwiperSlide>
-                            <PrismaZoom allowZoom={true} allowPan={true} maxZoom={5} minZoom={1}>
-                            <img
-                                    src={
-                                      product?.product?.img_4 !== null
-                                        && product?.product?.img_4
-                                    }
-                                    loading="lazy"
-                                    style={{
-                                      aspectRatio: 1,
-                                      objectFit: "fill",
-                                      width: "100%",
-                                      height: "100%",
-                                      maxWidth: "100% !important",
-                                      minHeight: "100% !important",
-                                    }}
-                                    
-                                  />
-                                  </PrismaZoom>
+                            <PrismaZoom
+                              allowZoom={true}
+                              allowPan={true}
+                              maxZoom={5}
+                              minZoom={1}
+                            >
+                              <img
+                                src={
+                                  product?.product?.img_4 !== null &&
+                                  product?.product?.img_4
+                                }
+                                loading="lazy"
+                                style={{
+                                  aspectRatio: 1,
+                                  objectFit: "fill",
+                                  width: "100%",
+                                  height: "100%",
+                                  maxWidth: "100% !important",
+                                  minHeight: "100% !important",
+                                }}
+                              />
+                            </PrismaZoom>
                           </SwiperSlide>
                         )}
                         {product?.product?.img_5 !== null && (
                           <SwiperSlide>
-                            <PrismaZoom allowZoom={true} allowPan={true} maxZoom={5} minZoom={1}>
-                            <img
-                                    src={
-                                      product?.product?.img_5 !== null
-                                        && product?.product?.img_5
-                                    }
-                                    loading="lazy"
-                                    style={{
-                                      aspectRatio: 1,
-                                      objectFit: "fill",
-                                      width: "100%",
-                                      height: "100%",
-                                      maxWidth: "100% !important",
-                                      minHeight: "100% !important",
-                                    }}
-                                    
-                                  />
-                                  </PrismaZoom>
+                            <PrismaZoom
+                              allowZoom={true}
+                              allowPan={true}
+                              maxZoom={5}
+                              minZoom={1}
+                            >
+                              <img
+                                src={
+                                  product?.product?.img_5 !== null &&
+                                  product?.product?.img_5
+                                }
+                                loading="lazy"
+                                style={{
+                                  aspectRatio: 1,
+                                  objectFit: "fill",
+                                  width: "100%",
+                                  height: "100%",
+                                  maxWidth: "100% !important",
+                                  minHeight: "100% !important",
+                                }}
+                              />
+                            </PrismaZoom>
                           </SwiperSlide>
                         )}
 
@@ -725,11 +823,11 @@ export default function ProductDetails() {
                           <div className="d-flex gap-4  pt-1">
                             <div className="d-flex gap-1">
                               {ratingStars(product?.rating)}
-
-                              <span className="fs-14 text-gray-800">
+                              
+                              <a className="fs-14 text-gray-800 cursor-pointer hover:!text-red-800 hover:font-semibold" href="#product_reviews" onClick={()=>setTabValue(2)} >
                                 {" "}
-                                ({product?.rating} Reviews){" "}
-                              </span>
+                                ({product?.product?.total_reviews} Reviews){" "}
+                              </a>
                             </div>
                             <a href="#" className="d-flex    text-gray-1200">
                               <em className="icon ni ni-edit-alt text-gray-800"></em>
@@ -753,7 +851,9 @@ export default function ProductDetails() {
                                 <button
                                   id="decrement"
                                   onClick={() => {
-                                    setQuantity(qunatity >2 ? qunatity - 1 : 1);
+                                    setQuantity(
+                                      qunatity > 2 ? qunatity - 1 : 1
+                                    );
                                   }}
                                 >
                                   -
@@ -773,37 +873,37 @@ export default function ProductDetails() {
                         </div>
                         <div className="position-relative overflow-hidden bg-blue-300 rounded p-4">
                           <div className="flex justify-between">
-                          <h4 className="mb-4 !text-2xl !font-bold !text-left">
-                            {product?.product?.prices?.map((price, ind) => (
-                              <p className=" m-0 text-gray-1200 text-start !text-xl !font-bold !mr-2 ">
-                                {currentUserlang === "en"
-                                  ? price?.INR &&
-                                    `₹${Number.parseFloat(price?.INR).toFixed(
-                                      2
-                                    )}`
-                                  : price?.USD &&
-                                    `$${Number.parseFloat(price?.USD).toFixed(
-                                      2
-                                    )}`}
-                              </p>
-                            ))}
-                          </h4>
-                          <h4 className="mb-4 flex !text-xl !font-semibold !text-left">
-                          Total:&nbsp; 
-                            {product?.product?.prices?.map((price, ind) => (
-                              <p className=" m-0 text-start !text- !font-bold !mr-2 ">
-                                {currentUserlang === "en"
-                                  ? price?.INR &&
-                                   `₹${Number.parseFloat(price?.INR*qunatity).toFixed(
-                                      2
-                                    )}`
-                                  : price?.USD &&
-                                    `$${Number.parseFloat(price?.USD * qunatity).toFixed(
-                                      2
-                                    )}`}
-                              </p>
-                            ))}
-                          </h4>
+                            <h4 className="mb-4 !text-2xl !font-bold !text-left">
+                              {product?.product?.prices?.map((price, ind) => (
+                                <p className=" m-0 text-gray-1200 text-start !text-xl !font-bold !mr-2 ">
+                                  {currentUserlang === "en"
+                                    ? price?.INR &&
+                                      `₹${Number.parseFloat(price?.INR).toFixed(
+                                        2
+                                      )}`
+                                    : price?.USD &&
+                                      `$${Number.parseFloat(price?.USD).toFixed(
+                                        2
+                                      )}`}
+                                </p>
+                              ))}
+                            </h4>
+                            <h4 className="mb-4 flex !text-xl !font-semibold !text-left">
+                              Total:&nbsp;
+                              {product?.product?.prices?.map((price, ind) => (
+                                <p className=" m-0 text-start !text- !font-bold !mr-2 ">
+                                  {currentUserlang === "en"
+                                    ? price?.INR &&
+                                      `₹${Number.parseFloat(
+                                        price?.INR * qunatity
+                                      ).toFixed(2)}`
+                                    : price?.USD &&
+                                      `$${Number.parseFloat(
+                                        price?.USD * qunatity
+                                      ).toFixed(2)}`}
+                                </p>
+                              ))}
+                            </h4>
                           </div>
                           {/* <p className="fs-14 text-gray-1200 !text-left !w-full mb-2">
                             <em className="icon ni ni-plus-circle-fill text-primary me-1 "></em>
@@ -894,11 +994,13 @@ export default function ProductDetails() {
                     </div>
                   </div>
                   <div className="nk-nav-tabs nav-tabs-s2 py-5 py-lg-7">
-                    <ul className="nav nav-tabs">
-                      <li className="nav-item">
+                    <ul className="nav nav-tabs" id="product_reviews">
+                      <li className="nav-item" onClick={() => setTabValue(1)}>
                         <a
                           href="#"
-                          className="nav-link active"
+                          className={`${
+                            tabValue === 1 ? "nav-link active" : "nav-link"
+                          }`}
                           data-bs-toggle="tab"
                           data-bs-target="#tab-1"
                         >
@@ -906,22 +1008,26 @@ export default function ProductDetails() {
                           Product Details{" "}
                         </a>
                       </li>
-                      <li className="nav-item">
-                        <a
+                      <li className="nav-item" onClick={() => setTabValue(2)}>
+                        <a 
                           href="#"
-                          className="nav-link"
+                          className={`${
+                            tabValue === 2 ? "nav-link active" : "nav-link"
+                          }`}
                           data-bs-toggle="tab"
                           data-bs-target="#tab-2"
                           disabled
                         >
                           {" "}
-                          Reviews (242){" "}
+                          Reviews ({product?.product?.total_reviews}){" "}
                         </a>
                       </li>
-                      <li className="nav-item">
+                      {/* <li className="nav-item" onClick={() => setTabValue(3)}>
                         <a
                           href="#"
-                          className="nav-link"
+                          className={`${
+                            tabValue === 3 ? "nav-link active" : "nav-link"
+                          }`}
                           data-bs-toggle="tab"
                           data-bs-target="#tab-3"
                           disabled
@@ -929,27 +1035,28 @@ export default function ProductDetails() {
                           {" "}
                           Shipping & Payment{" "}
                         </a>
-                      </li>
+                      </li> */}
                     </ul>
-                    <div className="tab-content pt-5" id="myTabContent">
-                      <div
-                        className="tab-pane fade show active"
-                        id="tab-1"
-                        tabindex="0"
-                      >
-                        <div>
-                          {/* <h5 className="mb-2">Product Description</h5> */}
-                          <p
-                            className="fs-16 text-gray-1200 text-left"
-                            dangerouslySetInnerHTML={{
-                              __html: product?.product?.long_desc,
-                            }}
-                          />
-                        </div>
-                        <div className="row">
-                          <div className="col-lg-10 col-xl-8">
-                            <div className="row flex-row-reverse gy-5 gy-md-0">
-                              {/* <div className="col-md-6">
+                    {tabValue === 1 && (
+                      <div className="tab-content pt-5" id="myTabContent">
+                        <div
+                          className="tab-pane fade show active"
+                          id="tab-1"
+                          tabindex="0"
+                        >
+                          <div>
+                            {/* <h5 className="mb-2">Product Description</h5> */}
+                            <p
+                              className="fs-16 text-gray-1200 text-left"
+                              dangerouslySetInnerHTML={{
+                                __html: product?.product?.long_desc,
+                              }}
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-lg-10 col-xl-8">
+                              <div className="row flex-row-reverse gy-5 gy-md-0">
+                                {/* <div className="col-md-6">
                                 <div>
                                   <h6 className="mb-3">Care & Instructions</h6>
                                   <p className="fs-16 text-gray-1200">
@@ -1017,11 +1124,136 @@ export default function ProductDetails() {
                                   </li>
                                 </ul>
                               </div> */}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    )}
+                    {tabValue === 2 && (
+                      <div className="tab-content pt-5"  id="product-reviews">
+                        <div className="container   ">
+                          <h1 className="!font-bold text-gray-800">
+                            {product?.product?.total_reviews === 0 &&
+                              "No Reviews for this product."}
+                          </h1>
+                          {product?.product?.total_reviews > 0 && (
+                            <>
+                              <div className="text-left">
+                                <h1 className="!font-bold text-3xl">
+                                  Customer Ratings
+                                </h1>
+                                <div className="flex items-center">
+                                  {ratingStars(product?.rating)}
+                                  <small className="ml-2">
+                                    Based on {product?.reviews?.length} reviews
+                                  </small>
+                                </div>
+                                <Divider />
+                                <div className="max-h-[450px] overflow-y-auto">
+                                  {product?.reviews?.map((review, ind) => (
+                                    <div className="review mt-2">
+                                      <div className="flex items-center">
+                                        <Avatar
+                                          alt="customer-profile"
+                                          src={review?.client?.profile_img}
+                                        />
+                                        <p className="ml-2 font-bold">
+                                          {review?.client?.first_name}{" "}
+                                          {review?.client?.last_name}{" "}
+                                        </p>
+                                      </div>
+                                      <div className="flex">
+                                        {ratingStars(review?.rating)}
+                                        <label className="ml-2 text-sm font-bold !text-black">
+                                          {review?.title
+                                            ? review?.title
+                                            : "title"}
+                                        </label>
+                                      </div>
+                                      <span className="text-sm flex items-center">
+                                        Reviewed on{" "}
+                                        <b className="ml-2 mr-2">
+                                          {new Date(
+                                            review?.created_at
+                                          ).toLocaleDateString("en-GB", {
+                                            day: "2-digit",
+                                            month: "long",
+                                            year: "numeric",
+                                          })}
+                                        </b>{" "}
+                                        |
+                                        <span className="!text-xs text-[#c45500] ml-2">
+                                          {" "}
+                                          <VerifiedUserIcon className="!w-[12px]" />{" "}
+                                          Verified Purchase
+                                        </span>{" "}
+                                      </span>
+                                      <div>
+                                        <p className="text-black text-clip max-h-[125px] overflow-y-auto max-w-[900px] mb-2">
+                                          {review?.description}
+                                        </p>
+                                        <Button
+                                          className="btn-btn-primary mr-2 !text-xs "
+                                          size="small"
+                                          variant="outlined"
+                                          onClick={() => {
+                                            if(isLoggedIn){
+                                            // setOpenHelpfulDialog(true);
+                                            setDialogType("helpful");
+                                            setReviewId(review?.id);
+                                            reviewHelpfulReport(review?.id)
+                                            }else{
+                                              dispatch(showPopup())
+                                            }
+                                          }}
+                                        >
+                                          Helpful
+                                        </Button>{" "}
+                                        |{" "}
+                                        <span
+                                          className="font-bold ml-2 cursor-pointer hover:text-gray-800"
+                                          onClick={() => {
+                                            if(isLoggedIn){
+                                            setOpenReviewDialog(true);
+                                            setDialogType("report");
+                                            setReviewId(review?.id);
+                                            }else{
+                                              dispatch(showPopup())
+                                            }
+                                          }}
+                                        >
+                                          Report
+                                        </span>
+                                        {reviewId===review?.id && apiError?.length > 0 &&
+                        apiError?.map((err, ind) => {
+                          return (
+                              <p
+                                key={ind}
+                                className="text-red-700 !text-xs"
+                              >
+                                {err}
+                              </p>
+                          );
+                        })}
+                        {reviewId===review?.id && reviewIdErr !== "" && <p className="text-red-700 !text-xs " >{reviewIdErr}</p>}
+                                      </div>
+                                      <div className="!w-fit">
+                                        <span className="text-sm">
+                                          {" "}
+                                          5 people found this helpful{" "}
+                                        </span>
+                                        <Divider />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1029,7 +1261,7 @@ export default function ProductDetails() {
             <section className="nk-section pt-lg-0">
               <div className="container">
                 <div className="row">
-                  <div className="col-12">
+                  <div className="col-12" id="trading_bundles">
                     <div className="nk-section-head pb-5">
                       <h2 className="nk-section-title !text-left">
                         Trading Bundles
@@ -1104,42 +1336,291 @@ export default function ProductDetails() {
 
                                   <span className="fs-14 text-gray-800">
                                     {" "}
-                                    ({product?.rating} Reviews){" "}
+                                    ({product?.total_reviews} Reviews){" "}
                                   </span>
                                 </div>
-                                <div className="d-flex align-items-center justify-between	">
+                                <div className="d-flex align-items-center justify-between	mb-2">
                                   {product?.prices?.map((price, ind) => (
-                                    <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                      {currentUserlang === "en"
-                                        ? price?.INR && `₹${price?.INR}`
-                                        : price?.USD &&
-                                          `$${Number.parseFloat(
-                                            price?.USD
-                                          ).toFixed(2)}`}
-                                      {currentUserlang === "en"
-                                        ? price?.INR && (
-                                            <del className="text-gray-800 !ml-2">
-                                              {currentUserlang === "en"
-                                                ? "₹"
-                                                : "$"}
-                                              {getRandomNumberWithOffset(
-                                                price?.INR
-                                              )}
-                                            </del>
-                                          )
-                                        : price?.USD && (
-                                            <del className="text-gray-800 !ml-2">
-                                              {currentUserlang === "en"
-                                                ? "₹"
-                                                : "$"}
-                                              {getRandomNumberWithOffset(
-                                                Number.parseFloat(
+                                    <>
+                                      {currentUserlang === "en" &&
+                                        price?.INR && (
+                                          <p
+                                            className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                          >
+                                            {currentUserlang === "en"
+                                              ? price?.INR && (
+                                                  <sub
+                                                    style={{
+                                                      verticalAlign: "super",
+                                                    }}
+                                                  >
+                                                    ₹
+                                                  </sub>
+                                                )
+                                              : price?.USD && (
+                                                  <sub
+                                                    style={{
+                                                      verticalAlign: "super",
+                                                    }}
+                                                  >
+                                                    $
+                                                  </sub>
+                                                )}
+
+                                            {currentUserlang === "en"
+                                              ? price?.INR && (
+                                                  <>
+                                                    {
+                                                      (
+                                                        Number.parseFloat(
+                                                          price?.INR
+                                                        )?.toFixed(2) + ""
+                                                      )?.split(".")[0]
+                                                    }
+                                                    <sub
+                                                      style={{
+                                                        verticalAlign: "super",
+                                                      }}
+                                                    >
+                                                      {
+                                                        (
+                                                          Number.parseFloat(
+                                                            price?.INR
+                                                          )?.toFixed(2) + ""
+                                                        )?.split(".")[1]
+                                                      }
+                                                    </sub>
+                                                  </>
+                                                )
+                                              : price?.USD &&
+                                                `${Number.parseFloat(
                                                   price?.USD
-                                                ).toFixed(2)
-                                              )}
-                                            </del>
-                                          )}
-                                    </p>
+                                                )}`}
+
+                                            {currentUserlang === "en"
+                                              ? price?.INR && (
+                                                  <>
+                                                    <del className="text-gray-800 !ml-2">
+                                                      {currentUserlang === "en"
+                                                        ? price?.INR && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              ₹
+                                                            </sub>
+                                                          )
+                                                        : price?.USD && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              $
+                                                            </sub>
+                                                          )}
+                                                      {getRandomNumberWithOffset(
+                                                        price?.INR
+                                                      )}
+                                                      <sub
+                                                        style={{
+                                                          verticalAlign:
+                                                            "super",
+                                                        }}
+                                                      >
+                                                        00
+                                                      </sub>
+                                                    </del>
+                                                  </>
+                                                )
+                                              : price?.USD && (
+                                                  <>
+                                                    <del className="text-gray-800 block !ml-2">
+                                                      {currentUserlang === "en"
+                                                        ? price?.INR && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              ₹
+                                                            </sub>
+                                                          )
+                                                        : price?.USD && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              $
+                                                            </sub>
+                                                          )}
+                                                      {getRandomNumberWithOffset(
+                                                        Number.parseFloat(
+                                                          price?.USD
+                                                        )?.toFixed(2) +
+                                                          ""?.split(".")[0]
+                                                      )}
+                                                    </del>
+                                                  </>
+                                                )}
+                                          </p>
+                                        )}
+                                      {currentUserlang !== "en" &&
+                                        price?.USD && (
+                                          <p
+                                            className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                          >
+                                            {currentUserlang === "en"
+                                              ? price?.INR && (
+                                                  <sub
+                                                    style={{
+                                                      verticalAlign: "super",
+                                                    }}
+                                                  >
+                                                    ₹
+                                                  </sub>
+                                                )
+                                              : price?.USD && (
+                                                  <sub
+                                                    style={{
+                                                      verticalAlign: "super",
+                                                    }}
+                                                  >
+                                                    $
+                                                  </sub>
+                                                )}
+
+                                            {currentUserlang === "en"
+                                              ? price?.INR && (
+                                                  <>
+                                                    {
+                                                      (
+                                                        Number.parseFloat(
+                                                          price?.INR
+                                                        )?.toFixed(2) + ""
+                                                      )?.split(".")[0]
+                                                    }
+                                                    <sub
+                                                      style={{
+                                                        verticalAlign: "super",
+                                                      }}
+                                                    >
+                                                      {
+                                                        (
+                                                          Number.parseFloat(
+                                                            price?.INR
+                                                          )?.toFixed(2) + ""
+                                                        )?.split(".")[1]
+                                                      }
+                                                    </sub>
+                                                  </>
+                                                )
+                                              : price?.USD && (
+                                                  <>
+                                                    {
+                                                      (
+                                                        Number.parseFloat(
+                                                          price?.USD
+                                                        )?.toFixed(2) + ""
+                                                      )?.split(".")[0]
+                                                    }
+                                                    <sub
+                                                      style={{
+                                                        verticalAlign: "super",
+                                                      }}
+                                                    >
+                                                      {
+                                                        (
+                                                          Number.parseFloat(
+                                                            price?.USD
+                                                          )?.toFixed(2) + ""
+                                                        )?.split(".")[1]
+                                                      }
+                                                    </sub>
+                                                  </>
+                                                )}
+
+                                            {currentUserlang === "en"
+                                              ? price?.INR && (
+                                                  <>
+                                                    <del className="text-gray-800 !ml-2">
+                                                      {currentUserlang === "en"
+                                                        ? price?.INR && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              ₹
+                                                            </sub>
+                                                          )
+                                                        : price?.USD && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              $
+                                                            </sub>
+                                                          )}
+                                                      {getRandomNumberWithOffset(
+                                                        price?.INR
+                                                      )}
+                                                      <sub
+                                                        style={{
+                                                          verticalAlign:
+                                                            "super",
+                                                        }}
+                                                      >
+                                                        00
+                                                      </sub>
+                                                    </del>
+                                                  </>
+                                                )
+                                              : price?.USD && (
+                                                  <>
+                                                    <del className="text-gray-800 !ml-2">
+                                                      {currentUserlang === "en"
+                                                        ? price?.INR && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              ₹
+                                                            </sub>
+                                                          )
+                                                        : price?.USD && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              $
+                                                            </sub>
+                                                          )}
+                                                      {getRandomNumberWithOffset(
+                                                        Number.parseFloat(
+                                                          price?.USD
+                                                        )?.toFixed(2) +
+                                                          ""?.split(".")[0]
+                                                      )}
+                                                    </del>
+                                                  </>
+                                                )}
+                                          </p>
+                                        )}
+                                    </>
                                   ))}
                                   <button
                                     className="p-0 border-0 outline-none bg-transparent text-primary"
@@ -1150,12 +1631,27 @@ export default function ProductDetails() {
                                     }}
                                   >
                                     {animateProductId === product?.id ? (
-                                      <img src="/images/addedtocart.gif" />
+                                      <img
+                                        src="/images/addedtocart.gif"
+                                        className="max-w-[45px]"
+                                      />
                                     ) : (
                                       <em className="icon ni ni-cart text-2xl"></em>
                                     )}
                                   </button>
                                 </div>
+                              </div>
+                            </div>
+                            <div className="flex justify-end items-end  !m-0 !p-0 ">
+                              <div className="flex absolute items-center justify-center img-box">
+                                <img
+                                  src="/images/offerLabel2.png"
+                                  alt="ffer_label"
+                                  width={65}
+                                ></img>
+                                <label className="absolute !font-bold text-black !text-xs">
+                                  25% OFF
+                                </label>
                               </div>
                             </div>
                           </div>
@@ -1223,7 +1719,11 @@ export default function ProductDetails() {
           </li>
           <li>
             <a
-              onClick={() => navigate("/cart")}
+              onClick={() =>
+                isLoggedIn
+                  ? navigate(`${userLang}/cart`)
+                  : dispatch(showPopup())
+              }
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               id="cart-button"
               data-bs-toggle="tooltip"

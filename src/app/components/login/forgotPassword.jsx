@@ -33,7 +33,7 @@ export default function ForgotPassword() {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -155,14 +155,14 @@ export default function ForgotPassword() {
                           </button>
                           {emailSentMsg && (
                             <Alert
-                            variant="outlined"
-                            severity="success"
-                            className="mt-2"
-                          >
-                            <p className="text-green-600 font-semibold">
-                              {emailSentMsg}
-                            </p>
-                          </Alert>
+                              variant="outlined"
+                              severity="success"
+                              className="mt-2"
+                            >
+                              <p className="text-green-900 font-semibold">
+                                {emailSentMsg}
+                              </p>
+                            </Alert>
                           )}
 
                           {apiError?.length > 0 &&
@@ -175,7 +175,7 @@ export default function ForgotPassword() {
                                 >
                                   <p
                                     key={ind}
-                                    className="text-red-700 font-semibold"
+                                    className="text-red-600 font-semibold"
                                   >
                                     {err}
                                   </p>

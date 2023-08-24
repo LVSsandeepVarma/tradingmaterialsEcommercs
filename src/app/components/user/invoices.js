@@ -77,7 +77,9 @@ data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 }}
               >
                 <div className="bg-neutral-50  p-3">
+                
                   <div className="flex w-full items-center">
+                    
                     <h1 className="!w-full flex !items-center !text-sm !font-bold">
                       <label className="font-semibold">Order Number :</label>
                       {order?.order_number}{" "}
@@ -90,7 +92,7 @@ data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                             ? "Partially Paid"
                             : "Unpaid"
                         }`}
-                        color="success"
+                        color= {order?.amount_paid === order?.balance ? "success" : order?.amount_paid === 0 ? "error" : "warning"}
                       ></Chip>
                     </h1>
                     <div className="w-full flex justify-end">
@@ -107,9 +109,10 @@ data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                     :{" "}
                     {order?.balance === 0
                       ? order?.payment_id
-                      : order?.invoice_id}
+                      : order?.invoice_id !== null ? order?.invoice_id : "1234567890"}
                   </label>
                   <div className="flex items-center">
+                    <p className="!text-sm p-1 font-bold">{ind+1}.</p>
                     <div className="w-full leading-relaxed">
                       <p className="!text-sm p-1">
                         <b>Balance Amount : </b>

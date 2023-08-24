@@ -34,9 +34,13 @@ export default function Login() {
   const userLang = useSelector((state) => state?.lang?.value);
 
   useEffect(() => {
-    if (localStorage.getItem("email") && localStorage.getItem("phone")) {
+    if (
+      localStorage.getItem("email") !== "" &&
+      localStorage.getItem("phone") !== ""
+    ) {
       setEmail(localStorage.getItem("email"));
       setPassword(localStorage.getItem("phone"));
+      setSavecredentials(true);
     }
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
@@ -51,7 +55,7 @@ export default function Login() {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -64,8 +68,8 @@ export default function Login() {
   function passwordValidation(password) {
     if (password?.length === 0) {
       setPasswordError("Password is required");
-    } else if (password?.length <= 5) {
-      setPasswordError("Password should be atleast 6 digits");
+    } else if (password?.length <= 7) {
+      setPasswordError("Password should be atleast 8 digits");
     } else {
       setPasswordError("");
     }
@@ -111,15 +115,16 @@ export default function Login() {
           if (saveCredentials) {
             localStorage.setItem("email", email);
             localStorage.setItem("phone", password);
-          } else {
-            if (
-              localStorage.getItem("email", email) &&
-              localStorage.getItem("phone", password)
-            ) {
-              localStorage.removeItem("email", email);
-              localStorage.removeItem("phone", password);
-            }
           }
+          // } else {
+          //   if (
+          //     localStorage.getItem("email") &&
+          //     localStorage.getItem("phone")
+          //   ) {
+          //     localStorage.removeItem("email");
+          //     localStorage.removeItem("phone");
+          //   }
+          // }
 
           dispatch(
             updateUsers({
@@ -143,10 +148,10 @@ export default function Login() {
             dispatch(
               updateNotifications({
                 type: "warning",
-                message: "Session expired, Login again.",
+                message: "Oops!",
               })
             );
-            navigate(`${userLang}/login`);
+            navigate(`${userLang}/?login`);
           }, 3600000);
         }
       } catch (err) {
@@ -225,13 +230,12 @@ export default function Login() {
                               value={email}
                               onChange={handleEmailChange}
                             />
-                            
                           </div>
                           {emailError && (
-                              <p className="text-red-600 font-semibold">
-                                {emailError}
-                              </p>
-                            )}
+                            <p className="text-red-600 font-semibold">
+                              {emailError}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="col-12">
@@ -261,14 +265,13 @@ export default function Login() {
                               onChange={handlePasswordChange}
                               value={password}
                             />
-                            
                           </div>
-                          {passwordError && (
-                              <p className="text-red-600 font-semibold">
-                                {passwordError}
-                              </p>
-                            )}
                         </div>
+                        {passwordError && (
+                          <p className="text-red-600 font-semibold">
+                            {passwordError}
+                          </p>
+                        )}
                       </div>
                       <div className="col-12">
                         <div className="d-flex flex-wrap align-items-center  justify-content-between text-center">
@@ -311,9 +314,10 @@ export default function Login() {
                           {loginSuccessMsg && (
                             <Alert
                               variant="outlined"
-                              severity="success"className="mt-2"
+                              severity="success"
+                              className="mt-2"
                             >
-                              <p className="text-green-600 font-semibold">
+                              <p className="text-green-900 font-semibold">
                                 {loginSuccessMsg}
                               </p>
                             </Alert>

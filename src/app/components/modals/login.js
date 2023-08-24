@@ -44,6 +44,7 @@ const LoginModal = ({ show, onHide }) => {
     if (localStorage.getItem("email") && localStorage.getItem("phone")) {
       setEmail(localStorage.getItem("email"));
       setPassword(localStorage.getItem("phone"));
+      setSavecredentials(true);
     }
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
@@ -58,7 +59,7 @@ const LoginModal = ({ show, onHide }) => {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -150,10 +151,10 @@ const LoginModal = ({ show, onHide }) => {
             dispatch(
               updateNotifications({
                 type: "warning",
-                message: "Session expired, Login again.",
+                message: "Oops!",
               })
             );
-            navigate(`${userLang}/login`);
+            navigate(`${userLang}/?login`);
           }, 3600000);
         }
       } catch (err) {
@@ -198,7 +199,6 @@ const LoginModal = ({ show, onHide }) => {
       // size="lg"
       className="!backdrop-blur-[1px] !overflow-auto !h-[100%] "
       dialogClassName="modal-25"
-      
       style={{ marginTop: "0 !important" }}
     >
       <Modal.Header closeButton={true} className="noBorderBottom  pt-[16px]">
@@ -316,13 +316,13 @@ const LoginModal = ({ show, onHide }) => {
                           onChange={handlePasswordChange}
                           value={password}
                         />
-                        {passwordError && (
-                          <p className="text-red-600 font-semibold">
-                            {passwordError}
-                          </p>
-                        )}
                       </div>
                     </div>
+                    {passwordError && (
+                      <p className="text-red-600 font-semibold">
+                        {passwordError}
+                      </p>
+                    )}
                   </div>
                   <div className="col-12">
                     <div className="d-flex flex-wrap align-items-center  justify-content-between text-center">
@@ -368,19 +368,23 @@ const LoginModal = ({ show, onHide }) => {
                         Login to Your Account
                       </button>
                       <div class="terms-tex mt-2 text-lg">
-							<p>By signing up, you agree to the <br></br> <a href="/terms">Terms of Service</a> and  <a href="/privacy">Privacy Policy</a>. </p>
-						</div>                      {loginSuccessMsg && (
+                        <p>
+                          By signing up, you agree to the <br></br>{" "}
+                          <a href="/terms">Terms of Service</a> and{" "}
+                          <a href="/privacy">Privacy Policy</a>.{" "}
+                        </p>
+                      </div>{" "}
+                      {loginSuccessMsg && (
                         <Alert
                           variant="outlined"
                           severity="success"
                           className="mt-2"
                         >
-                          <p className="text-green-600 font-semibold">
+                          <p className="text-green-900 font-semibold">
                             {loginSuccessMsg}
                           </p>
                         </Alert>
                       )}
-
                       {apiError?.length > 0 &&
                         apiError?.map((err, ind) => {
                           return (
@@ -391,7 +395,7 @@ const LoginModal = ({ show, onHide }) => {
                             >
                               <p
                                 key={ind}
-                                className="text-red-700 font-semibold"
+                                className="text-red-600 font-semibold"
                               >
                                 {err}
                               </p>

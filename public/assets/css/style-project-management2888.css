@@ -550,11 +550,13 @@ sub,
 sup {
   position: relative;
   font-size: 0.75em;
-  line-height: 0;
-  vertical-align: baseline;
+  line-height: 1 !important;
+  vertical-align: super !important;
 }
 sub {
   bottom: -0.25em;
+  line-height: 1 !important;
+
 }
 sup {
   top: -0.5em;

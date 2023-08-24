@@ -110,9 +110,7 @@ export default function Checkout() {
         dispatch(
           updateNotifications({
             type: "warning",
-            message: isLoggedIn
-              ? response?.data?.message
-              : "PLease Login to continue",
+            message: "Oops!",
           })
         );
         // navigate("/login")
@@ -385,6 +383,7 @@ export default function Checkout() {
           show={showModal}
           onHide={() => setShowModal(false)}
           type={fomrType}
+          addressType={addressUpdateType}
           data={
             fomrType === "add"
               ? []
@@ -401,6 +400,7 @@ export default function Checkout() {
           show={showModal}
           onHide={() => setShowModal(false)}
           type={fomrType}
+          addressType={addressUpdateType}
           data={
             fomrType === "add"
               ? []
@@ -490,7 +490,15 @@ export default function Checkout() {
                                         width="150px"
                                       />
                                       <div className="w-75">
-                                        <p className="prod-title mb-0">
+                                        <p
+                                          className="prod-title mb-0"
+                                          style={{
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            width: "90%",
+                                          }}
+                                        >
                                           {product?.product?.name}
                                         </p>
                                         {/* <p
@@ -589,7 +597,7 @@ export default function Checkout() {
                       <div className="text-center font-bold text-gray-700 ">
                         <p>no products found in cart</p>
                         <p
-                          className="nav-link text-green-600"
+                          className="nav-link text-green-900"
                           onClick={() => navigate("/")}
                         >
                           {" "}
@@ -611,10 +619,9 @@ export default function Checkout() {
                               {orderData?.order?.note}
                             </li>
                           </ul>
-                          
                         </div>
                       )}
-                      <Divider className="mt-2 mb-2"/>
+                      <Divider className="mt-2 mb-2" />
                       <h4 className="mb-3 !font-bold">Billing Address</h4>
                       <ul className="d-flex flex-column gap-2 pb-0">
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -633,7 +640,7 @@ export default function Checkout() {
                           </p>
                           <p className="m-0 fs-14 text-gray-1200 w-75">
                             {orderData?.order?.address_1},{" "}
-                            {orderData?.order?.address_2?.length> 0
+                            {orderData?.order?.address_2?.length > 0
                               ? `${orderData?.order?.address_2},  `
                               : ""}
                             {orderData?.order?.city}, {orderData?.order?.state},{" "}
@@ -1070,7 +1077,10 @@ export default function Checkout() {
                   </div>
                 </div>
                 <div class="col-lg-4 text-center text-lg-end">
-                  <a href={`${userLang}/contact`} class="btn btn-white fw-semiBold">
+                  <a
+                    href={`${userLang}/contact`}
+                    class="btn btn-white fw-semiBold"
+                  >
                     Contact Support
                   </a>
                 </div>

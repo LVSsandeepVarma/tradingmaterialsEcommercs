@@ -50,7 +50,7 @@ export default function Register() {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -64,11 +64,11 @@ export default function Register() {
     const phoneRegex = /^[0-9]+$/;
     if (phone?.length === 0) {
       setPhoneError("Phone number is required");
-    }else if (!phoneRegex.test(phone)) {
+    } else if (!phoneRegex.test(phone)) {
       setPhoneError("Invalid Phone number");
     } else if (phone?.length <= 7) {
       setPhoneError("Phone number should be atleast 8 digits");
-    }else if (phone?.length >15) {
+    } else if (phone?.length > 15) {
       setPhoneError("Phone number should be atmost 15 digits");
     } else {
       setPhoneError("");
@@ -173,7 +173,7 @@ export default function Register() {
             dispatch(
               updateNotifications({
                 type: "warning",
-                message: "Session expired, Login again",
+                message: "Oops!",
               })
             );
             navigate(`${userLang}/login`);
@@ -202,6 +202,11 @@ export default function Register() {
 
   return (
     <>
+      {loaderState && (
+        <div className="preloader !backdrop-blur-[1px]">
+          <div className="loader"></div>
+        </div>
+      )}
       <div className="nk-app-root !text-left">
         <main className="nk-pages">
           <div className="nk-split-page flex-column flex-xl-row">
@@ -320,7 +325,7 @@ export default function Register() {
                               onChange={handlePhoneChange}
                             />
                             {phoneError && (
-                              <p className="text-red-700 font-semibold">
+                              <p className="text-red-600 font-semibold">
                                 {phoneError}
                               </p>
                             )}
@@ -343,7 +348,7 @@ export default function Register() {
                               className="mt-2"
                               // className="mt-2"
                             >
-                              <p className="text-green-600 !text-center font-semibold">
+                              <p className="text-green-900 !text-center font-semibold">
                                 {signupSuccessMsg}
                               </p>
                             </Alert>
@@ -359,7 +364,7 @@ export default function Register() {
                                 >
                                   <p
                                     key={ind}
-                                    className="text-red-700 font-semibold"
+                                    className="text-red-600 font-semibold"
                                   >
                                     {err}
                                   </p>

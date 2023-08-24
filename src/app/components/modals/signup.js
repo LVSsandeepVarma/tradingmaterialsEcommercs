@@ -55,7 +55,7 @@ const SignupModal = ({ show, onHide }) => {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -69,11 +69,11 @@ const SignupModal = ({ show, onHide }) => {
     const phoneRegex = /^[0-9]+$/;
     if (phone?.length === 0) {
       setPhoneError("Phone number is required");
-    }else if (!phoneRegex.test(phone)) {
+    } else if (!phoneRegex.test(phone)) {
       setPhoneError("Invalid phone number");
     } else if (phone?.length <= 7) {
       setPhoneError("Phone number should be atleast 8 digits");
-    }else if (phone?.length >15) {
+    } else if (phone?.length > 15) {
       setPhoneError("Phone number should be atmost 15 digits");
     } else {
       setPhoneError("");
@@ -184,7 +184,7 @@ const SignupModal = ({ show, onHide }) => {
               dispatch(
                 updateNotifications({
                   type: "warning",
-                  message: "Session expired, Login again",
+                  message: "Oops!",
                 })
               );
               navigate(`${userLang}/login`);
@@ -398,7 +398,7 @@ const SignupModal = ({ show, onHide }) => {
                           className="mt-2"
                           // className="mt-2"
                         >
-                          <p className="text-green-600 !text-center font-semibold">
+                          <p className="text-green-900 !text-center font-semibold">
                             {signupSuccessMsg}
                           </p>
                         </Alert>
@@ -414,7 +414,7 @@ const SignupModal = ({ show, onHide }) => {
                             >
                               <p
                                 key={ind}
-                                className="text-red-700 font-semibold"
+                                className="text-red-600 font-semibold"
                               >
                                 {err}
                               </p>

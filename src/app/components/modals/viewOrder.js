@@ -12,6 +12,7 @@ import SnoozeIcon from "@mui/icons-material/Snooze";
 import MarkUnreadChatAltIcon from "@mui/icons-material/MarkUnreadChatAlt";
 import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 import PendingActionsSharpIcon from "@mui/icons-material/PendingActionsSharp";
+import ListAltSharpIcon from '@mui/icons-material/ListAltSharp';
 import AssignmentTurnedInSharpIcon from "@mui/icons-material/AssignmentTurnedInSharp";
 import {
   Box,
@@ -110,6 +111,9 @@ export default function ViewOrderModal({ show, onHide, orderId }) {
                   </p>
                 </div>
                 <Divider />
+                <div className="p-3">
+                <p className="font-bold"><ListAltSharpIcon className="mr-1"
+                      style={{ width: "20px" }}/> Order Items</p>
                 {orderData?.map((product, ind) => (
                   <CardActionArea
                     onClick={() =>
@@ -136,7 +140,7 @@ export default function ViewOrderModal({ show, onHide, orderId }) {
                           height={75}
                         />
                         <div >
-                          <p className="font-bold ml-2 truncate w-[50%] md:w-[95%]">
+                          <p className="font-bold ml-2 truncate w-[100px] md:w-[145px]">
                             {product?.product?.name}
                           </p>
                         </div>
@@ -155,6 +159,7 @@ export default function ViewOrderModal({ show, onHide, orderId }) {
                     </div>
                   </CardActionArea>
                 ))}
+                </div>
 
                 <Divider />
                 <h3 className="!font-bold p-2 pb-0">Order Summary</h3>

@@ -44,7 +44,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -223,7 +223,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                           severity="success"
                           className="mt-2"
                         >
-                          <p className="text-green-600 font-semibold">
+                          <p className="text-green-900 font-semibold">
                             {emailSentMsg}
                           </p>
                         </Alert>
@@ -239,7 +239,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                             >
                               <p
                                 key={ind}
-                                className="text-red-700 font-semibold"
+                                className="text-red-600 font-semibold"
                               >
                                 {err}
                               </p>

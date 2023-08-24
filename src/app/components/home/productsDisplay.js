@@ -24,6 +24,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation, Autoplay } from "swiper/modules";
 import { useSpring, animated } from "react-spring";
 import CryptoJS from "crypto-js";
+import { Ribbon, RibbonContainer } from "react-ribbons";
 
 // Import Swiper styles
 import "swiper/css";
@@ -33,6 +34,7 @@ import { t } from "i18next";
 import { useTranslation } from "react-i18next";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { Box, Skeleton } from "@mui/material";
+import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 
 export default function ProductsDisplay() {
   const { t } = useTranslation();
@@ -54,7 +56,7 @@ export default function ProductsDisplay() {
   const [subCatProducts, setSubCatProducts] = useState([]);
   const [bundleSubCategoryIDs, setBundleSubCategoryIds] = useState([]);
   const [filteredSubcatProducts, setFilteredSubcatproducts] = useState({});
-  const [sorting, setSorting] = useState("default");
+  const [sorting, setSorting] = useState("Newest");
   const [stockCount, setStockCount] = useState("inStock");
   const [isSearchResult, setIsSearchResult] = useState(false);
   const [resultsCount, setResultsCount] = useState(0);
@@ -68,15 +70,18 @@ export default function ProductsDisplay() {
     localStorage.getItem("i18nextLng")
   );
 
+  const location = useLocation();
   const navigate = useNavigate();
   const positions = useSelector((state) => state?.position?.value);
   console.log(positions, positions?.cartTop, positions?.cartRight);
+  const dispatch = useDispatch();
+  console.log(location?.search);
 
   useEffect(() => {
     setCurrentUserLang(localStorage.getItem("i18nextLng"));
   }, [userLang]);
 
-  const location = useLocation();
+  // const location = useLocation();
 
   useEffect(() => {
     const hash = location.hash;
@@ -85,6 +90,17 @@ export default function ProductsDisplay() {
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }
+    }
+    if (location.search === "?login") {
+      dispatch(
+        usersignupinModal({
+          showSignupModal: false,
+          showLoginModal: true,
+          showforgotPasswordModal: false,
+          showOtpModal: false,
+          showNewPasswordModal: false,
+        })
+      );
     }
   }, [location, window]);
 
@@ -132,8 +148,6 @@ export default function ProductsDisplay() {
       dispatch(hideLoader());
     }
   };
-
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const timoeOut = setTimeout(() => {
@@ -222,16 +236,21 @@ export default function ProductsDisplay() {
   function ratingStars(number) {
     const elemetns = Array.from({ length: 5 }, (_, index) => (
       <>
-        {index < number && (
+        {index+1 <= number && (
           <li key={index}>
             <em className="icon ni ni-star-fill text-yellow"></em>
           </li>
         )}
-        {index >= number && (
+        {index+1 > number && ((index+1-number !==0  && index+1-number < 1) ? (
           <li key={index}>
-            <em className="icon ni ni-star-fill text-gray-700"></em>
+            <em class="icon ni ni-star-half-fill text-yellow"></em>
           </li>
-        )}
+        ) :  (
+          <li key={index}>
+            <em className="icon ni ni-star-fill text-gray-700 "></em>
+          </li>
+        ))}
+        {/* <em class="icon ni ni-star-half-fill"></em> */}
       </>
     ));
 
@@ -240,9 +259,9 @@ export default function ProductsDisplay() {
 
   // function for filtering single products
   function addFilterProducts(subCategoryName, subCategoryId) {
-    setStockCount("inStock")
+    setStockCount("inStock");
     setShowPlaceHolderLoader(true);
-    console.log(subCategoryName, subCategoryId,subCategoryIds, subId);
+    console.log(subCategoryName, subCategoryId, subCategoryIds, subId);
     const subIDs = [...subCategoryIds];
     let filterProducts = { ...filteredProducts };
     console.log(subIDs, filterProducts, subId?.name);
@@ -253,7 +272,7 @@ export default function ProductsDisplay() {
       : true;
 
     const ind = subIDs.indexOf(subCategoryId);
-    console.log(ind)
+    console.log(ind);
     if (ind !== -1) {
       subIDs?.splice(ind, 1);
       const fp = filteredProductsByIds(products, subIDs);
@@ -263,7 +282,7 @@ export default function ProductsDisplay() {
     }
 
     if (filterProducts[subCategoryName]) {
-      console.log(subCategoryName, filterProducts)
+      console.log(subCategoryName, filterProducts);
       subIDs.push(subCategoryId);
       // if(subIDs?.includes(0)){
       //   console.log(subIDs)
@@ -288,7 +307,7 @@ export default function ProductsDisplay() {
     }
 
     setSubCategoryIds([...subIDs]);
-    console.log(filterProducts)
+    console.log(filterProducts);
     // checks if all the filter options are false
     if (Object.values(filterProducts).every((value) => value === false)) {
       filterProducts["all"] = true;
@@ -303,8 +322,8 @@ export default function ProductsDisplay() {
       setAllProducts(fp);
       console.log(subIDs, subCategoryId);
     }
-    console.log(filterProducts)
-    console.log(subCategoryName)
+    console.log(filterProducts);
+    console.log(subCategoryName);
     if (subCategoryName === "all") {
       const keys = Object.keys(filterProducts);
       // Iterate through the keys and set all values to false except for the "all" key
@@ -316,14 +335,14 @@ export default function ProductsDisplay() {
 
       // const allProducts = products
     }
-    console.log(filterProducts)
+    console.log(filterProducts);
     setFilteredProducts({ ...filterProducts });
     setShowPlaceHolderLoader(false);
   }
 
   // filtering buldle products
   function filtersubcatProducts(subCategoryName, subCategoryId) {
-    setStockCount("inStock")
+    setStockCount("inStock");
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId);
     const subIDs = [...bundleSubCategoryIDs];
@@ -419,13 +438,16 @@ export default function ProductsDisplay() {
       currentActiveCheckbox === "inStock"
         ? completeProducts?.filter((product) => product?.stock?.stock > 0)
         : completeProducts?.filter((product) => product?.stock?.stock === 0);
-        const result =
-        currentActiveCheckbox === "inStock"
-          ? outOfStockBundleProducts?.filter((product) => product?.stock?.stock > 0)
-          : outOfStockBundleProducts?.filter((product) => product?.stock?.stock === 0);
+    const result =
+      currentActiveCheckbox === "inStock"
+        ? outOfStockBundleProducts?.filter(
+            (product) => product?.stock?.stock > 0
+          )
+        : outOfStockBundleProducts?.filter(
+            (product) => product?.stock?.stock === 0
+          );
     setAllProducts(res);
-    setSubCatProducts(result)
-
+    setSubCatProducts(result);
 
     console.log(res);
   }
@@ -459,6 +481,7 @@ export default function ProductsDisplay() {
   }
 
   function handleSortingProducts(value) {
+    setSorting(value)
     const combinedProducts = [...products?.products];
     console.log(combinedProducts[0], typeof combinedProducts);
     console.log(value);
@@ -622,7 +645,7 @@ export default function ProductsDisplay() {
     <>
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
-          <div class="loader"></div>
+          <div className="loader"></div>
         </div>
       )}
       {/* {loaderState && (
@@ -933,7 +956,7 @@ export default function ProductsDisplay() {
                                 aria-selected="true"
                               >
                                 <span className="fs-14 text-gray-1200">
-                                  Default Sorting
+                                  {sorting}
                                 </span>
                               </li>
                               <li>
@@ -985,14 +1008,13 @@ export default function ProductsDisplay() {
                       </div>
                     </div>
                     <div className="row gy-5">
-                      {isNoProducts  ||
+                      {isNoProducts ||
                         (allProducts?.length === 0 && (
                           <p className="font-bold">No products to Display</p>
                         ))}
-                        {isSearchResult  &&
-                        (resultsCount === 0 && (
-                          <p className="font-bold">No products to Display</p>
-                        ))}
+                      {isSearchResult && resultsCount === 0 && (
+                        <p className="font-bold">No products to Display</p>
+                      )}
                       {products !== {} &&
                         !isNoProducts &&
                         allProducts?.map((product, ind) => {
@@ -1064,7 +1086,8 @@ export default function ProductsDisplay() {
                                     className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
                                     id={`img-${product?.id}`}
                                   >
-                                    <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                    <div className="nk-card overflow-hidden rounded-3 h-100 border text-left ">
+                                      {/* <div class="ribbon ribbon-bottom-right 	"><span style={{transform: "rotate(180 deg)"}}>25%</span></div> */}
                                       <div className="nk-card-img ">
                                         <a
                                           href={`${userLang}/product-detail/${
@@ -1147,140 +1170,385 @@ export default function ProductsDisplay() {
 
                                           <span className="fs-14 text-gray-800">
                                             {" "}
-                                            ({product?.rating} Reviews){" "}
+                                            ({
+                                              product?.total_reviews
+                                            } Reviews){" "}
                                           </span>
                                         </div>
                                         <div className="d-flex align-items-center justify-content-start">
                                           {product?.prices?.map(
                                             (price, ind) => (
                                               <>
-                                                {(currentUserlang=== "en" && price?.INR) && <p className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}>
-                                                {currentUserlang === "en"
-                                                  ? price?.INR &&
-                                                    `₹${Number.parseFloat(
-                                                      price?.INR
-                                                    )}`
-                                                  : price?.USD &&
-                                                    `$${Number.parseFloat(
-                                                      price?.USD
-                                                    )}`}
-                                                {currentUserlang === "en"
-                                                  ? price?.INR && (
-                                                      <del className="text-gray-800 !ml-2">
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? "₹ "
-                                                          : "$ "}
-                                                        {getRandomNumberWithOffset(
-                                                          price?.INR
-                                                        )}
-                                                      </del>
-                                                    )
-                                                  : price?.USD && (
-                                                      <del className="text-gray-800 block !ml-2">
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? "₹ "
-                                                          : "$ "}
-                                                        {getRandomNumberWithOffset(
-                                                          Number.parseFloat(
+                                                {currentUserlang === "en" &&
+                                                  price?.INR && (
+                                                    <p
+                                                      className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                                    >
+                                                      {currentUserlang === "en"
+                                                        ? price?.INR && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              ₹
+                                                            </sub>
+                                                          )
+                                                        : price?.USD && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              $
+                                                            </sub>
+                                                          )}
+
+                                                      {currentUserlang === "en"
+                                                        ? price?.INR && (
+                                                            <>
+                                                              {
+                                                                (
+                                                                  Number.parseFloat(
+                                                                    price?.INR
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )?.split(".")[0]
+                                                              }
+                                                              <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              >
+                                                                {
+                                                                  (
+                                                                    Number.parseFloat(
+                                                                      price?.INR
+                                                                    )?.toFixed(
+                                                                      2
+                                                                    ) + ""
+                                                                  )?.split(
+                                                                    "."
+                                                                  )[1]
+                                                                }
+                                                              </sub>
+                                                            </>
+                                                          )
+                                                        : price?.USD &&
+                                                          `${Number.parseFloat(
                                                             price?.USD
-                                                          ).toFixed(2)
-                                                        )}
-                                                      </del>
-                                                    )}
-                                              </p>}
-                                              {(currentUserlang!== "en" && price?.USD) && <p className={`flex fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}>
-                                                {currentUserlang === "en"
-                                                  ? price?.INR &&
-                                                    `₹${Number.parseFloat(
-                                                      price?.INR
-                                                    )}`
-                                                  : price?.USD &&
-                                                    `$${Number.parseFloat(
-                                                      price?.USD.toFixed(2)
-                                                    )}`}
-                                                {currentUserlang === "en"
-                                                  ? price?.INR && (
-                                                      <del className="text-gray-800 !ml-2">
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? "₹ "
-                                                          : "$ "}
-                                                        {getRandomNumberWithOffset(
-                                                          price?.INR
-                                                        )}
-                                                      </del>
-                                                    )
-                                                  : price?.USD && (
-                                                      <del className="text-gray-800 block !ml-2">
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? "₹ "
-                                                          : "$ "}
-                                                        {getRandomNumberWithOffset(
-                                                          Number.parseFloat(
-                                                            price?.USD
-                                                          ).toFixed(2)
-                                                        )}
-                                                      </del>
-                                                    )}
-                                              </p>}
+                                                          )}`}
+
+                                                      {currentUserlang === "en"
+                                                        ? price?.INR && (
+                                                            <>
+                                                              <del className="text-gray-800 !ml-2">
+                                                                {currentUserlang ===
+                                                                "en"
+                                                                  ? price?.INR && (
+                                                                      <sub
+                                                                        style={{
+                                                                          verticalAlign:
+                                                                            "super",
+                                                                        }}
+                                                                      >
+                                                                        ₹
+                                                                      </sub>
+                                                                    )
+                                                                  : price?.USD && (
+                                                                      <sub
+                                                                        style={{
+                                                                          verticalAlign:
+                                                                            "super",
+                                                                        }}
+                                                                      >
+                                                                        $
+                                                                      </sub>
+                                                                    )}
+                                                                {getRandomNumberWithOffset(
+                                                                  price?.INR
+                                                                )}
+                                                                <sub
+                                                                  style={{
+                                                                    verticalAlign:
+                                                                      "super",
+                                                                  }}
+                                                                >
+                                                                  00
+                                                                </sub>
+                                                              </del>
+                                                            </>
+                                                          )
+                                                        : price?.USD && (
+                                                            <>
+                                                              <del className="text-gray-800 block !ml-2">
+                                                                {currentUserlang ===
+                                                                "en"
+                                                                  ? price?.INR && (
+                                                                      <sub
+                                                                        style={{
+                                                                          verticalAlign:
+                                                                            "super",
+                                                                        }}
+                                                                      >
+                                                                        ₹
+                                                                      </sub>
+                                                                    )
+                                                                  : price?.USD && (
+                                                                      <sub
+                                                                        style={{
+                                                                          verticalAlign:
+                                                                            "super",
+                                                                        }}
+                                                                      >
+                                                                        $
+                                                                      </sub>
+                                                                    )}
+                                                                {getRandomNumberWithOffset(
+                                                                  Number.parseFloat(
+                                                                    price?.USD
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) +
+                                                                    ""?.split(
+                                                                      "."
+                                                                    )[0]
+                                                                )}
+                                                              </del>
+                                                            </>
+                                                          )}
+                                                    </p>
+                                                  )}
+                                                {currentUserlang !== "en" &&
+                                                  price?.USD && (
+                                                    <p
+                                                      className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                                    >
+                                                      {currentUserlang === "en"
+                                                        ? price?.INR && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              ₹
+                                                            </sub>
+                                                          )
+                                                        : price?.USD && (
+                                                            <sub
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            >
+                                                              $
+                                                            </sub>
+                                                          )}
+
+                                                      {currentUserlang === "en"
+                                                        ? price?.INR && (
+                                                            <>
+                                                              {
+                                                                (
+                                                                  Number.parseFloat(
+                                                                    price?.INR
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )?.split(".")[0]
+                                                              }
+                                                              <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              >
+                                                                {
+                                                                  (
+                                                                    Number.parseFloat(
+                                                                      price?.INR
+                                                                    )?.toFixed(
+                                                                      2
+                                                                    ) + ""
+                                                                  )?.split(
+                                                                    "."
+                                                                  )[1]
+                                                                }
+                                                              </sub>
+                                                            </>
+                                                          )
+                                                        : price?.USD &&
+                                                        <>
+                                                        {
+                                                          (
+                                                            Number.parseFloat(
+                                                              price?.USD
+                                                            )?.toFixed(
+                                                              2
+                                                            ) + ""
+                                                          )?.split(".")[0]
+                                                        }
+                                                        <sub
+                                                          style={{
+                                                            verticalAlign:
+                                                              "super",
+                                                          }}
+                                                        >
+                                                          {
+                                                            (
+                                                              Number.parseFloat(
+                                                                price?.USD
+                                                              )?.toFixed(
+                                                                2
+                                                              ) + ""
+                                                            )?.split(
+                                                              "."
+                                                            )[1]
+                                                          }
+                                                        </sub>
+                                                      </>}
+
+                                                      {currentUserlang === "en"
+                                                        ? price?.INR && (
+                                                            <>
+                                                              <del className="text-gray-800 !ml-2">
+                                                                {currentUserlang ===
+                                                                "en"
+                                                                  ? price?.INR && (
+                                                                      <sub
+                                                                        style={{
+                                                                          verticalAlign:
+                                                                            "super",
+                                                                        }}
+                                                                      >
+                                                                        ₹
+                                                                      </sub>
+                                                                    )
+                                                                  : price?.USD && (
+                                                                      <sub
+                                                                        style={{
+                                                                          verticalAlign:
+                                                                            "super",
+                                                                        }}
+                                                                      >
+                                                                        $
+                                                                      </sub>
+                                                                    )}
+                                                                {getRandomNumberWithOffset(
+                                                                  price?.INR
+                                                                )}
+                                                                <sub
+                                                                  style={{
+                                                                    verticalAlign:
+                                                                      "super",
+                                                                  }}
+                                                                >
+                                                                  00
+                                                                </sub>
+                                                              </del>
+                                                            </>
+                                                          )
+                                                        : price?.USD && (
+                                                            <>
+                                                              <del className="text-gray-800 !ml-2">
+                                                                {currentUserlang ===
+                                                                "en"
+                                                                  ? price?.INR && (
+                                                                      <sub
+                                                                        style={{
+                                                                          verticalAlign:
+                                                                            "super",
+                                                                        }}
+                                                                      >
+                                                                        ₹
+                                                                      </sub>
+                                                                    )
+                                                                  : price?.USD && (
+                                                                      <sub
+                                                                        style={{
+                                                                          verticalAlign:
+                                                                            "super",
+                                                                        }}
+                                                                      >
+                                                                        $
+                                                                      </sub>
+                                                                    )}
+                                                                {getRandomNumberWithOffset(
+                                                                  Number.parseFloat(
+                                                                    price?.USD
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) +
+                                                                    ""?.split(
+                                                                      "."
+                                                                    )[0]
+                                                                )}
+                                                              </del>
+                                                            </>
+                                                          )}
+                                                    </p>
+                                                  )}
                                               </>
                                             )
                                           )}
+                                          <div className="flex justify-start items-center">
+                                            <button
+                                              className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center  !text-right"
+                                              style={{
+                                                display: "flex",
+                                                justifyContent: "end",
+                                                marginRight: "5px",
+                                              }}
+                                              onClick={() => {
+                                                isLoggedIn
+                                                  ? handleAddToWishList(
+                                                      product?.id
+                                                    )
+                                                  : dispatch(showPopup());
+                                              }}
+                                            >
+                                              <FaRegHeart size={18} />
+                                            </button>
 
-                                          <button
-                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center  !text-right"
-                                            style={{
-                                              display: "flex",
-                                              justifyContent: "end",
-                                              marginRight: "5px",
-                                            }}
-                                            onClick={() => {
-                                              isLoggedIn
-                                                ? handleAddToWishList(
-                                                    product?.id
-                                                  )
-                                                : dispatch(showPopup());
-                                            }}
-                                          >
-                                            <FaRegHeart size={18} />
-                                          </button>
-
-                                          <button
-                                            className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
-                                            onClick={(event) => {
-                                              return isLoggedIn
-                                                ? (handleAddToCart(product?.id),
-                                                  handleCartPosition(event))
-                                                : dispatch(showPopup());
-                                            }}
-                                          >
-                                            {/* product animation starts */}
-                                            {/* {animateProductId === product?.id && (
-                                        <AnimatedDiv className="">
-
-                                      <img
-    src={product?.img_1}
-    alt="Animated Product"
-    // className="w-25 h-25 object-contain"
-  />
-                                      </AnimatedDiv>
-
-                                      )} */}
-                                            {/* product animation ends */}
-
-                                            {animateProductId ===
-                                            product?.id ? (
-                                              <img
-                                                src="/images/addedtocart.gif"
-                                                className="max-w-[45px]"
-                                              />
-                                            ) : (
-                                              <em className="icon ni ni-cart text-2xl "></em>
-                                            )}
-                                          </button>
+                                            <button
+                                              className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                              onClick={(event) => {
+                                                return isLoggedIn
+                                                  ? (handleAddToCart(
+                                                      product?.id
+                                                    ),
+                                                    handleCartPosition(event))
+                                                  : dispatch(showPopup());
+                                              }}
+                                            >
+                                              {animateProductId ===
+                                              product?.id ? (
+                                                <img
+                                                  src="/images/addedtocart.gif"
+                                                  className="max-w-[45px]"
+                                                />
+                                              ) : (
+                                                <em className="icon ni ni-cart text-2xl "></em>
+                                              )}
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="flex justify-end items-end  !m-0 !p-0 !mt-2">
+                                        <div className="flex absolute items-center justify-center img-box">
+                                          <img
+                                            src="/images/offerLabel2.png"
+                                            alt="ffer_label"
+                                            width={65}
+                                          ></img>
+                                          <label className="absolute !font-bold text-black !text-xs">
+                                            25% OFF
+                                          </label>
                                         </div>
                                       </div>
                                     </div>
@@ -1309,14 +1577,13 @@ export default function ProductsDisplay() {
               </div>
             </div>
             <div className="row gy-5 justify-between overflow-auto !max-h-[354px] sm:!max-h-[500px] lg:!max-h-[670px]">
-            {/* {subCatProducts ||
+              {/* {subCatProducts ||
                         (subCatProducts?.length === 0 && (
                           <p className="font-bold">No products to Display</p>
                         ))} */}
-                        {
-                          subCatProducts?.length === 0 &&
-                          <p className="font-bold">No products to Display</p>
-                        }
+              {subCatProducts?.length === 0 && (
+                <p className="font-bold">No products to Display</p>
+              )}
               {subCatProducts?.length !== 0 &&
                 subCatProducts?.map((product, indx) => {
                   if (product?.combo) {
@@ -1420,42 +1687,261 @@ export default function ProductsDisplay() {
                                   {ratingStars(product?.rating)}
                                   <span className="fs-14 text-gray-800">
                                     {" "}
-                                    {product?.rating} Reviews{" "}
+                                    {product?.total_reviews} Reviews{" "}
                                   </span>
                                 </div>
-                                <div className="d-flex align-items-center justify-content-between">
+                                <div className="d-flex align-items-center justify-content-between mb-2" >
                                   {product?.prices?.map((price, ind) => (
-                                    <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                      {currentUserlang === "en"
-                                        ? price?.INR && `₹${price?.INR}`
-                                        : price?.USD &&
-                                          `$${Number.parseFloat(
-                                            price?.USD
-                                          ).toFixed(2)}`}
-                                      {currentUserlang === "en"
-                                        ? price?.INR && (
-                                            <del className="text-gray-800 !ml-2">
-                                              {currentUserlang === "en"
-                                                ? "₹"
-                                                : "$"}
-                                              {getRandomNumberWithOffset(
+                                    <>
+                                    {currentUserlang === "en" &&
+                                      price?.INR && (
+                                        <p
+                                          className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                        >
+                                          {currentUserlang === "en"
+                                            ? price?.INR && (
+                                                <sub
+                                                  style={{
+                                                    verticalAlign:
+                                                      "super",
+                                                  }}
+                                                >
+                                                  ₹
+                                                </sub>
+                                              )
+                                            : price?.USD && (
+                                                <sub
+                                                  style={{
+                                                    verticalAlign:
+                                                      "super",
+                                                  }}
+                                                >
+                                                  $
+                                                </sub>
+                                              )}
+
+                                          {currentUserlang === "en"
+                                            ? price?.INR && (
+                                                <>
+                                                  {
+                                                    (
+                                                      Number.parseFloat(
+                                                        price?.INR
+                                                      )?.toFixed(
+                                                        2
+                                                      ) + ""
+                                                    )?.split(".")[0]
+                                                  }
+                                                  <sub
+                                                    style={{
+                                                      verticalAlign:
+                                                        "super",
+                                                    }}
+                                                  >
+                                                    {
+                                                      (
+                                                        Number.parseFloat(
+                                                          price?.INR
+                                                        )?.toFixed(
+                                                          2
+                                                        ) + ""
+                                                      )?.split(
+                                                        "."
+                                                      )[1]
+                                                    }
+                                                  </sub>
+                                                </>
+                                              )
+                                            : price?.USD &&
+                                              `${Number.parseFloat(
+                                                price?.USD
+                                              )}`}
+
+                                          {currentUserlang === "en"
+                                            ? price?.INR && (
+                                                <>
+                                                  <del className="text-gray-800 !ml-2">
+                                                    {currentUserlang ===
+                                                    "en"
+                                                      ? price?.INR && (
+                                                          <sub
+                                                            style={{
+                                                              verticalAlign:
+                                                                "super",
+                                                            }}
+                                                          >
+                                                            ₹
+                                                          </sub>
+                                                        )
+                                                      : price?.USD && (
+                                                          <sub
+                                                            style={{
+                                                              verticalAlign:
+                                                                "super",
+                                                            }}
+                                                          >
+                                                            $
+                                                          </sub>
+                                                        )}
+                                                    {getRandomNumberWithOffset(
+                                                      price?.INR
+                                                    )}
+                                                    <sub
+                                                      style={{
+                                                        verticalAlign:
+                                                          "super",
+                                                      }}
+                                                    >
+                                                      00
+                                                    </sub>
+                                                  </del>
+                                                </>
+                                              )
+                                            : price?.USD && (
+                                                <>
+                                                  <del className="text-gray-800 block !ml-2">
+                                                    {currentUserlang ===
+                                                    "en"
+                                                      ? price?.INR && (
+                                                          <sub
+                                                            style={{
+                                                              verticalAlign:
+                                                                "super",
+                                                            }}
+                                                          >
+                                                            ₹
+                                                          </sub>
+                                                        )
+                                                      : price?.USD && (
+                                                          <sub
+                                                            style={{
+                                                              verticalAlign:
+                                                                "super",
+                                                            }}
+                                                          >
+                                                            $
+                                                          </sub>
+                                                        )}
+                                                    {getRandomNumberWithOffset(
+                                                      Number.parseFloat(
+                                                        price?.USD
+                                                      )?.toFixed(
+                                                        2
+                                                      ) +
+                                                        ""?.split(
+                                                          "."
+                                                        )[0]
+                                                    )}
+                                                  </del>
+                                                </>
+                                              )}
+                                        </p>
+                                      )}
+                                    {currentUserlang !== "en" &&
+                                      price?.USD && (
+                                        <p
+                                          className={`flex fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                        >
+                                          {currentUserlang === "en"
+                                            ? price?.INR && (
+                                                <sub
+                                                  style={{
+                                                    verticalAlign:
+                                                      "super",
+                                                  }}
+                                                >
+                                                  ₹
+                                                </sub>
+                                              )
+                                            : price?.USD && (
+                                                <sub
+                                                  style={{
+                                                    verticalAlign:
+                                                      "super",
+                                                  }}
+                                                >
+                                                  $
+                                                </sub>
+                                              )}
+                                          {currentUserlang === "en"
+                                            ? price?.USD &&
+                                              `${Number.parseFloat(
                                                 price?.INR
+                                              )}`
+                                            : price?.USD && (
+                                                <>
+                                                  {(Number.parseFloat(
+                                                        price?.USD
+                                                      )?.toFixed(
+                                                        2
+                                                      ) + ""
+                                                    )?.split(".")[0]}
+                                                  <sub style={{
+                                                    verticalAlign:"super"
+                                                  }}>
+                                                    {(Number.parseFloat(
+                                                        price?.USD
+                                                      )?.toFixed(
+                                                        2
+                                                      ) + ""
+                                                    )?.split(".")[1]}
+                                                  </sub>
+                                                </>
                                               )}
-                                            </del>
-                                          )
-                                        : price?.USD && (
-                                            <del className="text-gray-800 !ml-2">
-                                              {currentUserlang === "en"
-                                                ? "₹"
-                                                : "$"}
-                                              {getRandomNumberWithOffset(
-                                                Number.parseFloat(
-                                                  price?.USD
-                                                ).toFixed(2)
+                                          {currentUserlang === "en"
+                                            ? price?.INR && (
+                                                <>
+                                                  <del className="text-gray-800 !ml-2">
+                                                    {currentUserlang ===
+                                                    "en"
+                                                      ? "₹ "
+                                                      : "$ "}
+                                                    {getRandomNumberWithOffset(
+                                                      price?.INR
+                                                    )}
+                                                  </del>
+                                                </>
+                                              )
+                                            : price?.USD && (
+                                                <>
+                                                  <del className="text-gray-800 block !ml-2">
+                                                  {currentUserlang === "en"
+                                            ? price?.INR && (
+                                                <sub
+                                                  style={{
+                                                    verticalAlign:
+                                                      "super",
+                                                  }}
+                                                >
+                                                  ₹
+                                                </sub>
+                                              )
+                                            : price?.USD && (
+                                                <sub
+                                                  style={{
+                                                    verticalAlign:
+                                                      "super",
+                                                  }}
+                                                >
+                                                  $
+                                                </sub>
                                               )}
-                                            </del>
-                                          )}
-                                    </p>
+                                                    {getRandomNumberWithOffset(
+                                                      Number.parseFloat(
+                                                        price?.USD
+                                                      ).toFixed(2)
+                                                    )+""?.split(".")[0]}
+                                                    <sub style={{
+                                                      verticalAlign:"super"
+                                                    }}>
+                                                      00
+                                                    </sub>
+                                                  </del>
+                                                </>
+                                              )}
+                                        </p>
+                                      )}
+                                  </>
                                   ))}
                                   <button
                                     className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
@@ -1496,7 +1982,10 @@ export default function ProductsDisplay() {
                                     {/* product animation ends */}
 
                                     {animateProductId === product?.id ? (
-                                      <img src="/images/addedtocart.gif" />
+                                      <img
+                                        src="/images/addedtocart.gif"
+                                        className="max-w-[45px]"
+                                      />
                                     ) : (
                                       <em className="icon ni ni-cart text-2xl"></em>
                                     )}
@@ -1504,6 +1993,18 @@ export default function ProductsDisplay() {
                                 </div>
                               </div>
                             </div>
+                            <div className="flex justify-end items-end  !m-0 !p-0 ">
+                                        <div className="flex absolute items-center justify-center img-box">
+                                          <img
+                                            src="/images/offerLabel2.png"
+                                            alt="ffer_label"
+                                            width={65}
+                                          ></img>
+                                          <label className="absolute !font-bold text-black !text-xs">
+                                            25% OFF
+                                          </label>
+                                        </div>
+                                      </div>
                           </div>
                         )}
                       </>
@@ -1513,20 +2014,20 @@ export default function ProductsDisplay() {
             </div>
           </div>
         </section>
-        <section class="nk-section-testimonials pt-lg-3 pb-lg-6">
-          <div class="container">
-            <div class="row justify-content-center">
-              <div class="col-lg-6">
-                <div class="nk-section-head text-center">
-                  <h2 class="nk-section-title !font-bold">
+        <section className="nk-section-testimonials pt-lg-3 pb-lg-6">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-lg-6">
+                <div className="nk-section-head text-center">
+                  <h2 className="nk-section-title !font-bold">
                     {t("Stories_From_Our_Customers")}
                   </h2>
-                  <p class="nk-section-text">{t("stories_desc")}</p>
+                  <p className="nk-section-text">{t("stories_desc")}</p>
                 </div>
               </div>
             </div>
-            {/* <div class="swiper swiper-init nk-swiper nk-swiper-s4 pt-5 pt-lg-0" data-autoplay="true" data-space-between="30" data-breakpoints='{                    "0":{"slidesPerView":1,"slidesPerGroup":1 },                    "991":{"slidesPerView":2,"slidesPerGroup":1}                 }'>
-                        <div class="swiper-wrapper has-pagination"> */}
+            {/* <div className="swiper swiper-init nk-swiper nk-swiper-s4 pt-5 pt-lg-0" data-autoplay="true" data-space-between="30" data-breakpoints='{                    "0":{"slidesPerView":1,"slidesPerGroup":1 },                    "991":{"slidesPerView":2,"slidesPerGroup":1}                 }'>
+                        <div className="swiper-wrapper has-pagination"> */}
             <Swiper
               slidesPerView={2}
               spaceBetween={30}
@@ -1561,75 +2062,75 @@ export default function ProductsDisplay() {
               data-autoplay="true"
               data-space-between="30"
             >
-              <SwiperSlide class="swiper-slide h-auto">
-                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
-                  <div class="nk-testimonial-content">
+              <SwiperSlide className="swiper-slide h-auto">
+                <div className="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                  <div className="nk-testimonial-content">
                     <div>
-                      <ul class="d-flex aling-items-center gap-1 mb-2">
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                      <ul className="d-flex aling-items-center gap-1 mb-2">
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
                       </ul>
                     </div>
                     <div>
-                      <h5 class="mb-2 !font-bold text-left !text-xl">
+                      <h5 className="mb-2 !font-bold text-left !text-xl">
                         Chadha Acharya
                       </h5>
-                      <p class="fs-14 line-clamp-3 text-left">
+                      <p className="fs-14 line-clamp-3 text-left">
                         "Thank you for your kind words! We strive to provide
                         brilliant solutions for our customers. If there's
                         anything else we can assist you with, please let us
                         know."
                       </p>
                     </div>
-                    {/* <!--<div class="media-group align-items-center pt-4">
-                                            <div class="media media-circle"><img src="images/avatar/a.jpg" alt="avatar"/></div>
-                                            <div class="media-text">
-                                                <h5 class="mb-0">John Carter</h5><span class="small text fw-medium">Financial Analyst</span></div>
+                    {/* <!--<div className="media-group align-items-center pt-4">
+                                            <div className="media media-circle"><img src="images/avatar/a.jpg" alt="avatar"/></div>
+                                            <div className="media-text">
+                                                <h5 className="mb-0">John Carter</h5><span className="small text fw-medium">Financial Analyst</span></div>
                                         </div>--> */}
                   </div>
                 </div>
               </SwiperSlide>
-              <SwiperSlide class="swiper-slide h-auto">
-                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
-                  <div class="nk-testimonial-content">
+              <SwiperSlide className="swiper-slide h-auto">
+                <div className="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                  <div className="nk-testimonial-content">
                     <div>
-                      <ul class="d-flex aling-items-center gap-1 mb-2">
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                      <ul className="d-flex aling-items-center gap-1 mb-2">
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
                       </ul>
                     </div>
 
                     <div>
-                      <h5 class="mb-2 !font-bold text-left !text-xl">
+                      <h5 className="mb-2 !font-bold text-left !text-xl">
                         Barman Agarwal
                       </h5>
-                      <p class="fs-14 line-clamp-3 text-left">
+                      <p className="fs-14 line-clamp-3 text-left">
                         "Thank you for your kind words! We strive to provide
                         brilliant solutions for our customers. If there's
                         anything else we can assist you with, please let us
@@ -1639,33 +2140,33 @@ export default function ProductsDisplay() {
                   </div>
                 </div>
               </SwiperSlide>
-              <SwiperSlide class="swiper-slide h-auto">
-                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
-                  <div class="nk-testimonial-content">
+              <SwiperSlide className="swiper-slide h-auto">
+                <div className="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                  <div className="nk-testimonial-content">
                     <div>
-                      <ul class="d-flex aling-items-center gap-1 mb-2">
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                      <ul className="d-flex aling-items-center gap-1 mb-2">
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
                       </ul>
                     </div>
 
-                    <h5 class="mb-2 !font-bold text-left !text-xl">
+                    <h5 className="mb-2 !font-bold text-left !text-xl">
                       Aadarsh Chopra
                     </h5>
-                    <p class="fs-14 line-clamp-3 text-left">
+                    <p className="fs-14 line-clamp-3 text-left">
                       "Thank you for your feedback! We're glad to hear that you
                       find our platform to be the best for learning. We are
                       committed to providing high-quality educational resources
@@ -1674,32 +2175,32 @@ export default function ProductsDisplay() {
                   </div>
                 </div>
               </SwiperSlide>
-              <SwiperSlide class="swiper-slide h-auto">
-                <div class="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
-                  <div class="nk-testimonial-content">
+              <SwiperSlide className="swiper-slide h-auto">
+                <div className="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
+                  <div className="nk-testimonial-content">
                     <div>
-                      <ul class="d-flex aling-items-center gap-1 mb-2">
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                      <ul className="d-flex aling-items-center gap-1 mb-2">
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
-                        <li class="text-green-2">
-                          <em class="icon ni ni-star-fill"></em>
+                        <li className="text-green-2">
+                          <em className="icon ni ni-star-fill"></em>
                         </li>
                       </ul>
                     </div>
-                    <h5 class="mb-2 !font-bold text-left !text-xl">
+                    <h5 className="mb-2 !font-bold text-left !text-xl">
                       Farhan Aktar
                     </h5>
-                    <p class="fs-14 text-left">
+                    <p className="fs-14 text-left">
                       "Thanks to Trading Materials, our application is
                       undergoing significant improvements, resulting in a better
                       user experience and enhanced features."
@@ -1709,42 +2210,42 @@ export default function ProductsDisplay() {
               </SwiperSlide>
             </Swiper>
             {/* </div>
-                        <div class="swiper-pagination d-block d-lg-none"></div>
-                        <div class="swiper-button-group d-none d-lg-block">
-                            <div class="swiper-button-prev"></div>
-                            <div class="swiper-button-next"></div>
+                        <div className="swiper-pagination d-block d-lg-none"></div>
+                        <div className="swiper-button-group d-none d-lg-block">
+                            <div className="swiper-button-prev"></div>
+                            <div className="swiper-button-next"></div>
                         </div> */}
             {/* </div> */}
           </div>
         </section>
 
-        <section class="nk-section nk-cta-section nk-section-content-1">
-          <div class="container">
+        <section className="nk-section nk-cta-section nk-section-content-1">
+          <div className="container">
             <div
-              class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+              className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
               data-aos="fade-up"
               data-aos-delay="100"
             >
-              <div class="row g-gs align-items-center">
-                <div class="col-lg-8">
-                  <div class="media-group flex-column flex-lg-row align-items-center">
-                    <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
-                      <em class="icon ni ni-chat-fill"></em>
+              <div className="row g-gs align-items-center">
+                <div className="col-lg-8">
+                  <div className="media-group flex-column flex-lg-row align-items-center">
+                    <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                      <em className="icon ni ni-chat-fill"></em>
                     </div>
-                    <div class="text-center text-lg-start">
-                      <h3 class="text-capitalize m-0 !text-3xl !font-bold">
+                    <div className="text-center text-lg-start">
+                      <h3 className="text-capitalize m-0 !text-3xl !font-bold">
                         {t("Chat_With_Our_Support_Team")}
                       </h3>
-                      <p class="fs-16 opacity-75 !text-lg mt-1">
+                      <p className="fs-16 opacity-75 !text-lg mt-1">
                         {t("chat_team_desc")}
                       </p>
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-4 text-center text-lg-end">
+                <div className="col-lg-4 text-center text-lg-end">
                   <a
                     href={`${userLang}/contact`}
-                    class="btn btn-white fw-semiBold"
+                    className="btn btn-white fw-semiBold"
                   >
                     {t("Contact_support")}
                   </a>
@@ -1754,7 +2255,7 @@ export default function ProductsDisplay() {
           </div>
         </section>
       </div>
-      <div class="nk-sticky-badge">
+      <div className="nk-sticky-badge cursor-pointer">
         <ul>
           <li>
             <a
@@ -1762,23 +2263,23 @@ export default function ProductsDisplay() {
               className="nk-sticky-badge-icon nk-sticky-badge-home"
               data-bs-toggle="tooltip"
               data-bs-placement="right"
-              data-bs-custom-class="nk-tooltip"
+              data-bs-custom-className="nk-tooltip"
               data-bs-title="View Demo"
             >
-              <em class="icon ni ni-home-fill"></em>
+              <em className="icon ni ni-home-fill"></em>
             </a>
           </li>
           <li>
             <a
-              onClick={() => navigate(`${userLang}/cart`)}
+              onClick={() => isLoggedIn ?  navigate(`${userLang}/cart`) : dispatch(showPopup())}
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               id="cart-button"
               data-bs-toggle="tooltip"
-              data-bs-custom-class="nk-tooltip"
+              data-bs-custom-className="nk-tooltip"
               data-bs-title="Purchase Now"
               aria-label="Purchase Now"
             >
-              <em class="icon ni ni-cart-fill"></em>
+              <em className="icon ni ni-cart-fill"></em>
             </a>
           </li>
         </ul>

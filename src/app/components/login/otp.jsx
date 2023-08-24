@@ -90,7 +90,7 @@ export default function Otp() {
         if (response?.data?.status) {
           setSuccessMessage(response?.data?.message);
           console.log(response?.data);
-          localStorage.setItem("passHash", params?.hash)
+          localStorage.setItem("passHash", params?.hash);
 
           navigate(`${userLang}/reset-password/new-password?:${params?.hash}`);
         }
@@ -189,7 +189,7 @@ export default function Otp() {
                           </button>
 
                           {/* {successMEssage && (
-                        <p className="text-green-600 font-semibold">
+                        <p className="text-green-900 font-semibold">
                           {successMEssage}
                         </p>
                       )} */}
@@ -204,7 +204,7 @@ export default function Otp() {
                                 >
                                   <p
                                     key={ind}
-                                    className="text-red-700 font-semibold"
+                                    className="text-red-600 font-semibold"
                                   >
                                     {err}
                                   </p>
