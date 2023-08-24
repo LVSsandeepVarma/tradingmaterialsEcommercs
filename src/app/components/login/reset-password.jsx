@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { userLanguage } from "../../../features/userLang/userLang";
 import { updateclientType } from "../../../features/clientType/clientType";
 import { Alert } from "@mui/material";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 
 export default function NewPassword() {
   const { t } = useTranslation();

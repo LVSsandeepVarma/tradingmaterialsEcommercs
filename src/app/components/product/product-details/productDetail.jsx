@@ -381,11 +381,11 @@ function handleHelpfulDialog() {
   return (
     <>
       <Helmet data-react-helmet="true">
-        <meta name="image" property="og:image"  content={`${product?.product?.img_1}`} />
-        <meta name="type" property="og:type" content="website"></meta>
-        <meta name="title" property="og:title" content={`${product?.product?.name}`}/>
-        <meta name="description" property="og:description" content="trading desc"/>
-        <meta name="url" property="og:url" content={`${window.location.href}`}></meta>
+        <meta name="image" property="og:image"  content={`${product?.product?.img_1}`} async />
+        <meta name="type" property="og:type" content="website" async></meta>
+        <meta name="title" property="og:title" content={`${product?.product?.name}`} async/>
+        <meta name="description" property="og:description" content="trading desc" async/>
+        <meta name="url" property="og:url" content={`${window.location.href}`} async></meta>
       </Helmet>
       {openReviewDialog && (
         <ReviewDialog
