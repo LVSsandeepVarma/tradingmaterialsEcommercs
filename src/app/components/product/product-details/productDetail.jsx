@@ -381,9 +381,11 @@ function handleHelpfulDialog() {
   return (
     <>
       <Helmet>
-        <meta property="og:image" content="/images/tm-logo-1.png" />
-        <meta property="og:name" content="trading product"/>
-        <meta property="og:description" content="trading desc"/>
+        <meta name="image" property="og:image"  content={`${product?.product?.img_1}`} />
+        <meta name="type" property="og:type" content="website"></meta>
+        <meta name="title" property="og:title" content={`${product?.product?.name}`}/>
+        <meta name="description" property="og:description" content="trading desc"/>
+        <meta name="url" property="og:url" content={`${window.location.href}`}></meta>
       </Helmet>
       {openReviewDialog && (
         <ReviewDialog
