@@ -26,7 +26,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import LoginModal from "../modals/login";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import ForgotPasswordModal from "../modals/forgotPassword";
-import KeyboardReturnIcon from '@mui/icons-material/KeyboardReturn';
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -90,7 +90,6 @@ export default function Header() {
       document.body.style.overflow = "auto";
     }
   }, [popup]);
-
 
   const getUserInfo = async () => {
     console.log(location.pathname.includes("/product-detail"));
@@ -232,9 +231,9 @@ export default function Header() {
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
         dispatch(updateNotifications({ type: "", message: "" }));
-
-        // window.location.reload();
         navigate(`${userLang}/`);
+        window.location.reload();
+        
       }
     } catch (err) {
       console.log("err", err);
@@ -257,7 +256,7 @@ export default function Header() {
         // timer: 1000,
         timerProgressBar: true,
         icon: notifications?.type,
-        html:`<a className="swalLink" style="font-weight: bold;
+        html: `<a className="swalLink" style="font-weight: bold;
         cursor: pointer;
         box-shadow: none !important;
         outline: none !important;
@@ -326,12 +325,12 @@ export default function Header() {
           onHide={() => handleCloseModals}
         />
       )}
-      {
-        modals?.showforgotPasswordModal === true && 
-          <ForgotPasswordModal show={modals?.showforgotPasswordModal}
-          onHide={() => handleCloseModals}/>
-        
-      }
+      {modals?.showforgotPasswordModal === true && (
+        <ForgotPasswordModal
+          show={modals?.showforgotPasswordModal}
+          onHide={() => handleCloseModals}
+        />
+      )}
       <Modal
         show={popup}
         onHide={() => dispatch(hidePopup())}
@@ -555,10 +554,10 @@ export default function Header() {
                                               className="nk-nav-link "
                                             >
                                               <div className="text-primary me-3">
-                                                  <ArrowForwardIcon
-                                                    style={{ fontSize: "18px" }}
-                                                  />
-                                                </div>
+                                                <ArrowForwardIcon
+                                                  style={{ fontSize: "18px" }}
+                                                />
+                                              </div>
                                               {product?.name}
                                             </a>
                                           </li>
@@ -614,7 +613,7 @@ export default function Header() {
                                     <a
                                       href={`${
                                         clientType === "lead"
-                                          ? "/profile"
+                                          ? "/profile?"
                                           : "https://client.tradingmaterials.com/"
                                       }`}
                                       className="nk-nav-link"
@@ -714,6 +713,13 @@ export default function Header() {
                     <ul className="nk-btn-group sm justify-content-center">
                       <li className="flex items-center">
                         <button
+                          onClick={() => {
+                            if (isLoggedIn) {
+                              navigate(`${userLang}/profile?wishlist`);
+                            } else {
+                              dispatch(showPopup());
+                            }
+                          }}
                           type="button"
                           className="relative inline-flex items-center text-lg font-medium text-center rounded-lg  focus:outline-none "
                         >
@@ -806,45 +812,6 @@ export default function Header() {
                           </div>
                         </button>
                       </li>
-                      {/* {isLoggedIn && (
-                    <li className="nk-nav-item has-sub">
-                      <a className="nk-nav-link nk-nav-toggle">
-                        <span className="nk-nav-text">
-                          {userData?.client?.first_name}
-                        </span>
-                      </a>
-                      <ul className="nk-nav-sub">
-                        <li className="nk-nav-item col-lg-12">
-                          <ul className="row px-3 px-lg-0 mx-auto">
-                            <li className="col-lg-12 p-0">
-                              <a href={`${userLang}/`} className="nk-nav-link">
-                                Profile
-                              </a>
-                            </li>
-                            <li className="col-lg-12 p-0">
-                              <a href={`${userLang}/`} className="nk-nav-link">
-                                inbox
-                              </a>
-                            </li>
-                            <li className="col-lg-12 p-0">
-                              <a className="nk-nav-link" onClick={handleLogout}>
-                                logout
-                              </a>
-                            </li>
-                          </ul>
-                        </li>
-                      </ul>
-                    </li>
-                  )}
-
-                  {!isLoggedIn && (
-                    <li className="flex items-center">
-                      <a href={`${userLang}/login`}>
-                        <span className="nk-nav-text">Login</span>
-                      </a>
-                    </li>
-                  )} */}
-
                       <li
                         className="nk-navbar-toggle"
                         onClick={() => setToggleNavbar(true)}

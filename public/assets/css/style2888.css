@@ -34281,7 +34281,7 @@ button.swiper-pagination-bullet {
     }
 }
 
-@media(min-width: 992px) {
+@media(min-width: 1200px) {
     .nk-nav {
         flex-direction: row;
         padding: 0;
@@ -34368,6 +34368,8 @@ button.swiper-pagination-bullet {
         min-width: 214px;
         display: block
     }
+
+    
 }
 
 @media(max-width: 991.98px) {
@@ -47749,3 +47751,38 @@ h6,
     font-size: 14px;
     line-height: 1.5
 }
+
+
+.ss4-button-2 {
+    cursor:pointer;
+    animation: animate 8s linear infinite;
+    padding:15px 30px;
+    text-align: center;
+    font-family: 'Ubuntu', sans-serif;
+    font-weight: 600;
+    text-decoration: none;
+    color: #000;
+    font-size: 16px;
+    border-radius: 5px;
+    outline: none;
+    border: 1px solid #fff;
+    background: linear-gradient(90deg, #fbd78b, #b4c3fc, #eec1d8, #fbd78b);
+    background-size: 400%;
+    box-shadow: 0px 0px 12px 0px #91a2db;
+    -webkit-transition: all .3s;
+      -o-transition: all .3s;
+      transition: all .3s;
+  }
+  
+  .ss4-button-2:hover { 
+    animation: animate 8s linear infinite;
+  }
+  
+  @keyframes animate {
+    0% {
+      background-position: 0;
+    }
+    100% {
+      background-position: 400%;
+    }
+  }

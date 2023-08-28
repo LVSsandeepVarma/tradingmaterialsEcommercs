@@ -35,11 +35,11 @@ import CryptoJS from "crypto-js";
 import { Avatar, Button, Divider, Skeleton } from "@mui/material";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import ReviewDialog from "../../modals/reviewDialog";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 // import { delay } from "@reduxjs/toolkit/dist/utils";
 
@@ -57,16 +57,16 @@ export default function ProductDetails() {
   const [animateProductId, setAnimateProductId] = useState("");
   const [tabValue, setTabValue] = React.useState(1);
   const [openReviewDialog, setOpenReviewDialog] = useState(false);
-  const [openHelpfulDialog, setOpenHelpfulDialog] = useState(false)
+  const [openHelpfulDialog, setOpenHelpfulDialog] = useState(false);
   const [product, setProduct] = useState({});
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [subCatProducts, setSubCatProducts] = useState([]);
   const [qunatity, setQuantity] = useState(1);
   const [total, setTotal] = useState(0);
   const [dialogType, setDialogType] = useState("helpful");
-  const [apiError, setApiError] = useState([])
-    const [apiSuccess, setApiSuccess] = useState("")
-    const [reviewIdErr, setReviewIdErr] = useState("")
+  const [apiError, setApiError] = useState([]);
+  const [apiSuccess, setApiSuccess] = useState("");
+  const [reviewIdErr, setReviewIdErr] = useState("");
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
@@ -333,78 +333,98 @@ export default function ProductDetails() {
   function handleCloseReviewDialog() {
     setOpenReviewDialog(false);
   }
-function handleHelpfulDialog() {
+  function handleHelpfulDialog() {
     setOpenHelpfulDialog(false);
   }
 
   async function reviewHelpfulReport(id) {
-    console.log(id)
+    console.log(id);
     setApiError([]);
-    setReviewIdErr("")
-      try {
-        dispatch(showLoader());
+    setReviewIdErr("");
+    try {
+      dispatch(showLoader());
 
-        const response = await axios.post(
-          "https://admin.tradingmaterials.com/api/lead/product/review-report",
-          {
-            review_id: id,
-            type: "helpfull",
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/lead/product/review-report",
+        {
+          review_id: id,
+          type: "helpfull",
+        },
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+            Accept: "application/json",
           },
-          {
-            headers: {
-              "access-token": localStorage.getItem("client_token"),
-              Accept: "application/json",
-            },
-          }
-        );
-        if (response?.data?.status) {
-          setOpenHelpfulDialog(true)
-          setTimeout(() => {
-            setOpenHelpfulDialog(false)
-          }, 5000);
         }
-      } catch (err) {
-        console.log(err);
-        if (err?.response?.data?.errors) {
-          setReviewIdErr(err?.response?.data?.errors["review_id"]);
-        } else {
-          setApiError([err?.response?.data?.message]);
-          setTimeout(()=>{
-              setApiError([])
-          }, 5000)
-        }
-      } finally {
-        dispatch(hideLoader());
+      );
+      if (response?.data?.status) {
+        setOpenHelpfulDialog(true);
+        setTimeout(() => {
+          setOpenHelpfulDialog(false);
+        }, 5000);
+      }
+    } catch (err) {
+      console.log(err);
+      if (err?.response?.data?.errors) {
+        setReviewIdErr(err?.response?.data?.errors["review_id"]);
+      } else {
+        setApiError([err?.response?.data?.message]);
+        setTimeout(() => {
+          setApiError([]);
+        }, 5000);
+      }
+    } finally {
+      dispatch(hideLoader());
     }
   }
 
   return (
     <>
       <Helmet data-react-helmet="true">
-        <meta name="image" property="og:image"  content={`${product?.product?.img_1}`} async />
+        <meta
+          name="image"
+          property="og:image"
+          content={`${product?.product?.img_1}`}
+          async
+        />
         <meta name="type" property="og:type" content="website" async></meta>
-        <meta name="title" property="og:title" content={`${product?.product?.name}`} async/>
-        <meta name="description" property="og:description" content="trading desc" async/>
-        <meta name="url" property="og:url" content={`${window.location.href}`} async></meta>
+        <meta
+          name="title"
+          property="og:title"
+          content={`${product?.product?.name}`}
+          async
+        />
+        <meta
+          name="description"
+          property="og:description"
+          content="trading desc"
+          async
+        />
+        <meta
+          name="url"
+          property="og:url"
+          content={`${window.location.href}`}
+          async
+        ></meta>
       </Helmet>
       {openReviewDialog && (
         <ReviewDialog
           open={openReviewDialog}
           handleClose={handleCloseReviewDialog}
           type={dialogType}
-          reviewId = {reviewId}
+          reviewId={reviewId}
         />
       )}
 
-{openHelpfulDialog && (
+      {openHelpfulDialog && (
         <ReviewDialog
           open={openHelpfulDialog}
           handleClose={handleHelpfulDialog}
           type={dialogType}
-          reviewId = {reviewId}
+          reviewId={reviewId}
         />
       )}
-      
+
       <div className="nk-body">
         <div className="nk-body-root">
           {loaderState && (
@@ -825,13 +845,21 @@ function handleHelpfulDialog() {
                           <div className="d-flex gap-4  pt-1">
                             <div className="d-flex gap-1">
                               {ratingStars(product?.rating)}
-                              
-                              <a className="fs-14 text-gray-800 cursor-pointer hover:!text-red-800 hover:font-semibold" href="#product_reviews" onClick={()=>setTabValue(2)} >
+
+                              <a
+                                className="fs-14 text-gray-800 cursor-pointer hover:!text-red-800 "
+                                href="#product_reviews"
+                                onClick={() => setTabValue(2)}
+                              >
                                 {" "}
                                 ({product?.product?.total_reviews} Reviews){" "}
                               </a>
                             </div>
-                            <a href="#" className="d-flex    text-gray-1200">
+                            <a href="#" className="d-flex    text-gray-1200" onClick={()=>{
+                              if(!isLoggedIn){
+                                dispatch(showPopup())
+                              }
+                            }}>
                               <em className="icon ni ni-edit-alt text-gray-800"></em>
                               <span className="fs-14 ms-1">Write A Review</span>
                             </a>
@@ -1011,7 +1039,7 @@ function handleHelpfulDialog() {
                         </a>
                       </li>
                       <li className="nav-item" onClick={() => setTabValue(2)}>
-                        <a 
+                        <a
                           href="#"
                           className={`${
                             tabValue === 2 ? "nav-link active" : "nav-link"
@@ -1133,11 +1161,11 @@ function handleHelpfulDialog() {
                       </div>
                     )}
                     {tabValue === 2 && (
-                      <div className="tab-content pt-5"  id="product-reviews">
+                      <div className="tab-content pt-5" id="product-reviews">
                         <div className="container   ">
                           <h1 className="!font-bold text-gray-800">
                             {product?.product?.total_reviews === 0 &&
-                              "No Reviews for this product."}
+                              "No reviews for this product."}
                           </h1>
                           {product?.product?.total_reviews > 0 && (
                             <>
@@ -1200,13 +1228,13 @@ function handleHelpfulDialog() {
                                           size="small"
                                           variant="outlined"
                                           onClick={() => {
-                                            if(isLoggedIn){
-                                            // setOpenHelpfulDialog(true);
-                                            setDialogType("helpful");
-                                            setReviewId(review?.id);
-                                            reviewHelpfulReport(review?.id)
-                                            }else{
-                                              dispatch(showPopup())
+                                            if (isLoggedIn) {
+                                              // setOpenHelpfulDialog(true);
+                                              setDialogType("helpful");
+                                              setReviewId(review?.id);
+                                              reviewHelpfulReport(review?.id);
+                                            } else {
+                                              dispatch(showPopup());
                                             }
                                           }}
                                         >
@@ -1216,29 +1244,35 @@ function handleHelpfulDialog() {
                                         <span
                                           className="font-bold ml-2 cursor-pointer hover:text-gray-800"
                                           onClick={() => {
-                                            if(isLoggedIn){
-                                            setOpenReviewDialog(true);
-                                            setDialogType("report");
-                                            setReviewId(review?.id);
-                                            }else{
-                                              dispatch(showPopup())
+                                            if (isLoggedIn) {
+                                              setOpenReviewDialog(true);
+                                              setDialogType("report");
+                                              setReviewId(review?.id);
+                                            } else {
+                                              dispatch(showPopup());
                                             }
                                           }}
                                         >
                                           Report
                                         </span>
-                                        {reviewId===review?.id && apiError?.length > 0 &&
-                        apiError?.map((err, ind) => {
-                          return (
-                              <p
-                                key={ind}
-                                className="text-red-700 !text-xs"
-                              >
-                                {err}
-                              </p>
-                          );
-                        })}
-                        {reviewId===review?.id && reviewIdErr !== "" && <p className="text-red-700 !text-xs " >{reviewIdErr}</p>}
+                                        {reviewId === review?.id &&
+                                          apiError?.length > 0 &&
+                                          apiError?.map((err, ind) => {
+                                            return (
+                                              <p
+                                                key={ind}
+                                                className="text-red-700 !text-xs"
+                                              >
+                                                {err}
+                                              </p>
+                                            );
+                                          })}
+                                        {reviewId === review?.id &&
+                                          reviewIdErr !== "" && (
+                                            <p className="text-red-700 !text-xs ">
+                                              {reviewIdErr}
+                                            </p>
+                                          )}
                                       </div>
                                       <div className="!w-fit">
                                         <span className="text-sm">
@@ -1399,8 +1433,10 @@ function handleHelpfulDialog() {
                                                   price?.USD
                                                 )}`}
 
-                                            {currentUserlang === "en"
-                                              ? price?.INR && (
+                                            {currentUserlang === "en" &&
+                                            product?.discount > 0
+                                              ? price?.INR &&
+                                                product?.discount > 0 && (
                                                   <>
                                                     <del className="text-gray-800 !ml-2">
                                                       {currentUserlang === "en"
@@ -1424,21 +1460,40 @@ function handleHelpfulDialog() {
                                                               $
                                                             </sub>
                                                           )}
-                                                      {getRandomNumberWithOffset(
-                                                        price?.INR
-                                                      )}
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR *
+                                                              (100 /
+                                                                product?.discount)
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[0]
+                                                      }
                                                       <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
                                                       >
-                                                        00
+                                                        {
+                                                          (
+                                                            parseFloat(
+                                                              price?.INR *
+                                                                (100 /
+                                                                  product?.discount)
+                                                            )?.toFixed(2) + ""
+                                                          )
+                                                            .toString()
+                                                            .split(".")[1]
+                                                        }
                                                       </sub>
                                                     </del>
                                                   </>
                                                 )
-                                              : price?.USD && (
+                                              : price?.USD &&
+                                                product?.discount > 0 && (
                                                   <>
                                                     <del className="text-gray-800 block !ml-2">
                                                       {currentUserlang === "en"
@@ -1462,12 +1517,35 @@ function handleHelpfulDialog() {
                                                               $
                                                             </sub>
                                                           )}
-                                                      {getRandomNumberWithOffset(
-                                                        Number.parseFloat(
-                                                          price?.USD
-                                                        )?.toFixed(2) +
-                                                          ""?.split(".")[0]
-                                                      )}
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.USD *
+                                                              (100 /
+                                                                product?.discount)
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[0]
+                                                      }
+                                                      <sub
+                                                        style={{
+                                                          verticalAlign:
+                                                            "super",
+                                                        }}
+                                                      >
+                                                        {
+                                                          (
+                                                            parseFloat(
+                                                              price?.USD *
+                                                                (100 /
+                                                                  product?.discount)
+                                                            )?.toFixed(2) + ""
+                                                          )
+                                                            .toString()
+                                                            .split(".")[1]
+                                                        }
+                                                      </sub>
                                                     </del>
                                                   </>
                                                 )}
@@ -1503,10 +1581,12 @@ function handleHelpfulDialog() {
                                                   <>
                                                     {
                                                       (
-                                                        Number.parseFloat(
+                                                        parseFloat(
                                                           price?.INR
                                                         )?.toFixed(2) + ""
-                                                      )?.split(".")[0]
+                                                      )
+                                                        .toString()
+                                                        .split(".")[0]
                                                     }
                                                     <sub
                                                       style={{
@@ -1515,10 +1595,12 @@ function handleHelpfulDialog() {
                                                     >
                                                       {
                                                         (
-                                                          Number.parseFloat(
+                                                          parseFloat(
                                                             price?.INR
                                                           )?.toFixed(2) + ""
-                                                        )?.split(".")[1]
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
                                                       }
                                                     </sub>
                                                   </>
@@ -1527,10 +1609,12 @@ function handleHelpfulDialog() {
                                                   <>
                                                     {
                                                       (
-                                                        Number.parseFloat(
+                                                        parseFloat(
                                                           price?.USD
                                                         )?.toFixed(2) + ""
-                                                      )?.split(".")[0]
+                                                      )
+                                                        .toString()
+                                                        .split(".")[0]
                                                     }
                                                     <sub
                                                       style={{
@@ -1539,17 +1623,21 @@ function handleHelpfulDialog() {
                                                     >
                                                       {
                                                         (
-                                                          Number.parseFloat(
+                                                          parseFloat(
                                                             price?.USD
                                                           )?.toFixed(2) + ""
-                                                        )?.split(".")[1]
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
                                                       }
                                                     </sub>
                                                   </>
                                                 )}
 
-                                            {currentUserlang === "en"
-                                              ? price?.INR && (
+                                            {currentUserlang === "en" &&
+                                            product?.discount > 0
+                                              ? price?.INR &&
+                                                product?.discount > 0 && (
                                                   <>
                                                     <del className="text-gray-800 !ml-2">
                                                       {currentUserlang === "en"
@@ -1573,21 +1661,40 @@ function handleHelpfulDialog() {
                                                               $
                                                             </sub>
                                                           )}
-                                                      {getRandomNumberWithOffset(
-                                                        price?.INR
-                                                      )}
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR *
+                                                              (100 /
+                                                                product?.discount)
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[0]
+                                                      }
                                                       <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
                                                       >
-                                                        00
+                                                        {
+                                                          (
+                                                            parseFloat(
+                                                              price?.INR *
+                                                                (100 /
+                                                                  product?.discount)
+                                                            )?.toFixed(2) + ""
+                                                          )
+                                                            .toString()
+                                                            .split(".")[1]
+                                                        }
                                                       </sub>
                                                     </del>
                                                   </>
                                                 )
-                                              : price?.USD && (
+                                              : price?.USD &&
+                                                product?.discount > 0 && (
                                                   <>
                                                     <del className="text-gray-800 !ml-2">
                                                       {currentUserlang === "en"
@@ -1611,12 +1718,35 @@ function handleHelpfulDialog() {
                                                               $
                                                             </sub>
                                                           )}
-                                                      {getRandomNumberWithOffset(
-                                                        Number.parseFloat(
-                                                          price?.USD
-                                                        )?.toFixed(2) +
-                                                          ""?.split(".")[0]
-                                                      )}
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.USD *
+                                                              (100 /
+                                                                product?.discount)
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[0]
+                                                      }
+                                                      <sub
+                                                        style={{
+                                                          verticalAlign:
+                                                            "super",
+                                                        }}
+                                                      >
+                                                        {
+                                                          (
+                                                            parseFloat(
+                                                              price?.USD *
+                                                                (100 /
+                                                                  product?.discount)
+                                                            )?.toFixed(2) + ""
+                                                          )
+                                                            .toString()
+                                                            .split(".")[1]
+                                                        }
+                                                      </sub>
                                                     </del>
                                                   </>
                                                 )}
@@ -1644,18 +1774,25 @@ function handleHelpfulDialog() {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex justify-end items-end  !m-0 !p-0 ">
-                              <div className="flex absolute items-center justify-center img-box">
-                                <img
-                                  src="/images/offerLabel2.png"
-                                  alt="ffer_label"
-                                  width={65}
-                                ></img>
-                                <label className="absolute !font-bold text-black !text-xs">
-                                  25% OFF
-                                </label>
+                            {product?.discount > 0 && (
+                              <div className="flex justify-end items-end ">
+                                <div
+                                  className="flex absolute items-center justify-center img-box !drop-shadow-lg
+
+"
+                                >
+                                  <img
+                                    src="/images/sale-2.png"
+                                    alt="ffer_label"
+                                    width={65}
+                                    className="drop-shadow-lg"
+                                  ></img>
+                                  <label className="absolute !font-bold text-white !text-xs right-1">
+                                    {product?.discount}%
+                                  </label>
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </div>
                           // ))
                         );

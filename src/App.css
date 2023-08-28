@@ -12,7 +12,6 @@
   border-radius: 10px;
 }
 
-
 /* Firefox */
 /* Customize the scrollbar track and thumb */
 /* For Firefox, we use scrollbar-width */
@@ -55,22 +54,21 @@ html {
   opacity: 1;
 }
 
-
 .App {
   text-align: center;
 }
 
-td{
+td {
   vertical-align: middle;
   font-size: 14px;
 }
-.mr-2{
-  margin-right: 0.75rem!important;
+.mr-2 {
+  margin-right: 0.75rem !important;
 }
 .prod-title {
   font-size: 16px;
   font-weight: 600;
-  color: #03A9F4!important;
+  color: #03a9f4 !important;
 }
 .prod-desc {
   font-size: 13px;
@@ -79,13 +77,13 @@ td{
 .pb-300 {
   padding-bottom: 300px;
 }
-.total{
-  background: linear-gradient(45deg, #FFC107, #FF9800);
+.total {
+  background: linear-gradient(45deg, #ffc107, #ff9800);
   font-size: 12px;
   padding: 2px 5px;
   color: #fff;
   border-radius: 3px;
-  border: 1px solid #FF9800;
+  border: 1px solid #ff9800;
   margin-right: 0.5rem;
 }
 .nk-counter span {
@@ -112,18 +110,19 @@ td{
   }
 }
 
- 
- .btn-close{
+.btn-close {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") !important;
 }
 
-
-@keyframes  moveToCart {
+@keyframes moveToCart {
   from {
-     transform: translate(0, 0);
-     transform: scale(3); }
-  to { transform: translate(100px, -700px);
-    transform: scale(1); }
+    transform: translate(0, 0);
+    transform: scale(3);
+  }
+  to {
+    transform: translate(100px, -700px);
+    transform: scale(1);
+  }
 }
 
 @keyframes moveProductToCart {
@@ -134,7 +133,6 @@ td{
     transform: scale(1);
   }
 }
-
 
 .tp-header-action-badge {
   position: absolute;
@@ -147,7 +145,7 @@ td{
   text-align: center;
   border-radius: 50%;
   background-color: black;
-  color:white;
+  color: white;
   font-size: 12px;
   font-weight: 700;
   border: 2px solid white;
@@ -175,55 +173,51 @@ td{
   margin-right: 10px;
 }
 
-
-.css-12i7wg6-MuiPaper-root-MuiDrawer-paper{
+.css-12i7wg6-MuiPaper-root-MuiDrawer-paper {
   /* position: relative !important; */
   top: 100px !important;
   height: auto !important;
-  left:auto !important;
+  left: auto !important;
   z-index: 999 !important;
 }
 
-.css-1l8j5k8{
+.css-1l8j5k8 {
   top: 100px !important;
   height: auto !important;
-  left:auto !important;
+  left: auto !important;
   z-index: 999 !important;
 }
-.css-1191obr-MuiPaper-root-MuiAppBar-root{
+.css-1191obr-MuiPaper-root-MuiAppBar-root {
   /* position: relative !important; */
   top: 100px !important;
 }
 
 .css-19z1ozs-MuiPaper-root-MuiAppBar-root {
-  top:100px !important;
+  top: 100px !important;
   left: auto !important;
 }
 
-.css-k008qs{ 
+.css-k008qs {
   position: relative !important;
   top: 100px !important;
 }
 
-.css-1r9jet7{
+.css-1r9jet7 {
   min-height: 15px !important;
   justify-content: flex-start !important;
 }
 
-.css-10hburv-MuiTypography-root{
+.css-10hburv-MuiTypography-root {
   font-size: 0.75rem !important;
   font-weight: bold !important;
 }
 
-.css-100u9pv-MuiDrawer-docked .MuiDrawer-paper{
-  overflow-x: hidden !important
+.css-100u9pv-MuiDrawer-docked .MuiDrawer-paper {
+  overflow-x: hidden !important;
 }
 
-
 @media only screen and (max-width: 720px) {
-
-
-  .css-100u9pv-MuiDrawer-docked{
+  .css-100u9pv-MuiDrawer-docked {
     height: fit-content !important;
     width: 100% !important;
   }
@@ -231,45 +225,38 @@ td{
   .css-100u9pv-MuiDrawer-docked .MuiDrawer-paper {
     width: 100% !important;
     height: fit-content !important;
-    position:  absolute!important;
+    position: absolute !important;
   }
-  .css-100u9pv-MuiDrawer-docked .MuiBox-root .css-k008qs{
+  .css-100u9pv-MuiDrawer-docked .MuiBox-root .css-k008qs {
     height: 0px !important;
     width: 100% !important;
-    
   }
 
- .css-1ibjhk8{
+  .css-1ibjhk8 {
     top: 390px !important;
     position: absolute !important;
     left: 0px !important;
     padding: 0px !important;
     width: 100%;
   }
-  
-  .css-nukr7r .MuiDrawer-paper{
+
+  .css-nukr7r .MuiDrawer-paper {
     width: 100% !important;
   }
-  
-  .css-k008qs{
+
+  .css-k008qs {
     height: fit-content !important;
-
   }
 
-  .css-12i7wg6-MuiPaper-root-MuiDrawer-paper{
-    top: 0!important;
+  .css-12i7wg6-MuiPaper-root-MuiDrawer-paper {
+    top: 0 !important;
   }
-
-
-
 }
-
-
 
 .modal-25 {
   /* max-width: 25% !important; */
   right: 0% !important;
-  transform: translateX(100%)!important;
+  transform: translateX(100%) !important;
   transition: transform 2s ease !important;
   z-index: 99999;
   /* height: 100vh; */
@@ -287,13 +274,12 @@ td{
   filter: blur(1px) !important;
 }
 
-.modal{
+.modal {
   z-index: 999999;
 }
 
-
 .ss4-button-2:before {
-  content: '';
+  content: "";
   position: absolute !important;
   top: -5px !important;
   right: -5px !important;
@@ -310,10 +296,11 @@ td{
 
 .ss4-button-2 {
   cursor: pointer !important;
-  animation: animate 8s linear infinite !important;
+  animation: animate 6s linear infinite;
+  /* animation: animate 15s ease infinite; */
   padding: 15px 30px !important;
   text-align: center !important;
-  font-family: 'Ubuntu', sans-serif !important;
+  font-family: "Ubuntu", sans-serif !important;
   font-weight: 600 !important;
   text-decoration: none !important;
   color: #000 !important;
@@ -321,15 +308,22 @@ td{
   border-radius: 5px !important;
   outline: none !important;
   border: 1px solid #fff;
-  background: linear-gradient(90deg, #fbd78b, #b4c3fc, #eec1d8, #fbd78b) !important;
+  background-image: linear-gradient(
+    90deg,
+    #fbd78b,
+    #b4c3fc,
+    #eec1d8,
+    #fbd78b
+  ) !important;
+  background-image: transparent !important;
   background-size: 400% !important;
   box-shadow: 0px 0px 12px 0px #91a2db !important;
-  -webkit-transition: all .3s !important;
-  -o-transition: all .3s !important;
-  transition: all .3s !important;
+  -webkit-transition: all 0.3s !important;
+  -o-transition: all 0.3s !important;
+  transition: all 0.3s !important;
   transform: translate(0%, 0%) !important;
-    overflow: hidden !important;
-    display: inline-block !important;
+  overflow: hidden !important;
+  display: inline-block !important;
 }
 
 .ss4-button-2 span {
@@ -341,7 +335,13 @@ td{
   left: 0px !important;
   width: 100% !important;
   height: 2px !important;
-  background: -webkit-gradient(linear, right top, left top, from(rgba(8, 20, 43, 0)), to(#2b5cfd)) !important;
+  background: -webkit-gradient(
+    linear,
+    right top,
+    left top,
+    from(rgba(8, 20, 43, 0)),
+    to(#2b5cfd)
+  ) !important;
   background: linear-gradient(to left, rgba(8, 20, 43, 0), #2b5cfd) !important;
   -webkit-animation: 2s animateTop linear infinite !important;
   animation: 2s animateTop linear infinite !important;
@@ -352,7 +352,13 @@ td{
   right: 0px !important;
   height: 100% !important;
   width: 2px !important;
-  background: -webkit-gradient(linear, left bottom, left top, from(rgba(8, 20, 43, 0)), to(#000)) !important;
+  background: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    from(rgba(8, 20, 43, 0)),
+    to(#000)
+  ) !important;
   background: linear-gradient(to top, rgba(8, 20, 43, 0), #000) !important;
   -webkit-animation: 2s animateRight linear -1s infinite !important;
   animation: 2s animateRight linear -1s infinite !important;
@@ -362,7 +368,13 @@ td{
   left: 0px !important;
   width: 100% !important;
   height: 2px !important;
-  background: -webkit-gradient(linear, left top, right top, from(rgba(8, 20, 43, 0)), to(#2b5cfd)) !important;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    from(rgba(8, 20, 43, 0)),
+    to(#2b5cfd)
+  ) !important;
   background: linear-gradient(to right, rgba(8, 20, 43, 0), #2b5cfd) !important;
   -webkit-animation: 2s animateBottom linear infinite !important;
   animation: 2s animateBottom linear infinite !important;
@@ -373,7 +385,13 @@ td{
   left: 0px !important;
   height: 100% !important;
   width: 2px !important;
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(8, 20, 43, 0)), to(#000)) !important;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    from(rgba(8, 20, 43, 0)),
+    to(#000)
+  ) !important;
   background: linear-gradient(to bottom, rgba(8, 20, 43, 0), #000) !important;
   -webkit-animation: 2s animateLeft linear -1s infinite !important;
   animation: 2s animateLeft linear -1s infinite !important;
@@ -387,7 +405,7 @@ td{
   text-align: center !important;
   font-size: 25px !important;
   font-weight: 700 !important;
-  font-family: 'Tinos', serif !important;
+  font-family: "Tinos", serif !important;
 }
 
 /* td{
@@ -404,57 +422,59 @@ td{
 }
 } */
 
-
-@keyframes animateTop{
+@keyframes animateTop {
   0% {
     -webkit-transform: translateX(100%);
     transform: translateX(100%);
-}
-100% {
+  }
+  100% {
     -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
-}
+  }
 }
 
 @keyframes animateRight {
   0% {
     -webkit-transform: translateY(100%);
     transform: translateY(100%);
-}
-100% {
+  }
+  100% {
     -webkit-transform: translateY(-100%);
     transform: translateY(-100%);
-}
+  }
 }
 
 @keyframes animateBottom {
   0% {
     -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
-}
-100% {
+  }
+  100% {
     -webkit-transform: translateX(100%);
     transform: translateX(100%);
-}
+  }
 }
 
-@keyframes animateLeft{
+@keyframes animateLeft {
   0% {
     -webkit-transform: translateY(-100%);
     transform: translateY(-100%);
-}
-100% {
+  }
+  100% {
     -webkit-transform: translateY(100%);
     transform: translateY(100%);
-}
+  }
 }
 
 @keyframes animate {
   0% {
-    background-position: 0;
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
   100% {
-    background-position: 400%;
+    background-position: 0% 50%;
   }
 }
 
@@ -462,9 +482,7 @@ td span {
   font-family: "Plus Jakarta Sans", sans-serif !important;
 }
 
-
-
-.noBorderBottom{
+.noBorderBottom {
   border-bottom: 0 !important;
 }
 
@@ -487,15 +505,14 @@ td span {
   margin-left: 10px;
 }
 
-.nomarginTop{
+.nomarginTop {
   margin-top: 0 !important;
 }
 
-
-.text-sm table{
+.text-sm table {
   width: 100% !important;
 }
-.css-1ri6ub7-MuiPaper-root-MuiCard-root{
+.css-1ri6ub7-MuiPaper-root-MuiCard-root {
   max-width: 100% !important;
 }
 
@@ -506,7 +523,7 @@ td span {
   text-align: center;
   font-weight: 400;
   padding: 0px;
-  font-family: 'Plus Jakarta Sans', serif;
+  font-family: "Plus Jakarta Sans", serif;
 }
 
 .terms-tex p a {
@@ -517,14 +534,14 @@ td span {
   font-weight: 600;
   padding: 0px;
   text-decoration: underline;
-  -webkit-transition: all .3s ease 0s;
-  -o-transition: all .3s ease 0s;
-  transition: all .3s ease 0s;
-  font-family: 'Plus Jakarta Sans', serif;
+  -webkit-transition: all 0.3s ease 0s;
+  -o-transition: all 0.3s ease 0s;
+  transition: all 0.3s ease 0s;
+  font-family: "Plus Jakarta Sans", serif;
 }
 
-.form-control{
-  padding: 0.3rem !important
+.form-control {
+  padding: 0.3rem !important;
 }
 
 .swalLink a ::before {
@@ -538,13 +555,13 @@ td span {
 }
 
 /* common */
-.ribbon-box{
+.ribbon-box {
   position: relative;
   max-width: 600px;
   width: 90%;
   height: 400px;
   background: #fff;
-  box-shadow: 0 0 15px rgba(0,0,0,.1);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
 .ribbon {
@@ -557,7 +574,7 @@ td span {
 .ribbon::after {
   position: absolute;
   z-index: -1;
-  content: '';
+  content: "";
   display: block;
   border: 5px solid #2980b9;
 }
@@ -567,10 +584,10 @@ td span {
   width: 225px;
   padding: 15px 0;
   background-color: #e0e40c;
-  box-shadow: 0 5px 10px rgba(0,0,0,.1);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
   color: #000;
-  font: 700 18px/1 'Lato', sans-serif;
-  text-shadow: 0 1px 1px rgba(0,0,0,.2);
+  font: 700 18px/1 "Lato", sans-serif;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   text-transform: uppercase;
   text-align: center;
   transform: rotate(180);
@@ -600,13 +617,13 @@ td span {
   transform: rotate(-225deg);
 }
 
-.img-box{
+.img-box {
   animation: bg-spin 3s linear infinite;
 }
 
 .img-box:hover {
   -webkit-animation-play-state: paused;
-          animation-play-state: paused;
+  animation-play-state: paused;
 }
 
 @property --border-angle {
@@ -620,4 +637,3 @@ td span {
     --border-angle: 1turn;
   }
 }
-

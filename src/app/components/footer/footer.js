@@ -113,7 +113,7 @@ export default function Footer() {
                         <em className="icon ni ni-map-pin-fill text-primary"></em>
                         <span className="text-lowercase ">
                           {" "}
-                          140/142, 2 Nd Flr, Govind Building, Princess Street,
+                          140/142, 2 Nd Floor, Govind Building, Princess Street,
                           Near Imperial Hotel, Residency Road, India{" "}
                         </span>
                       </li>

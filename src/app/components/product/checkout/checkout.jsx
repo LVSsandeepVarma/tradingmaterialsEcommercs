@@ -446,11 +446,11 @@ export default function Checkout() {
                 <div className="col-lg-8 col-xxl-5 text-left">
                   <div>
                     <a
-                      onClick={() => navigate("/cart")}
+                      onClick={() => navigate(`${userLang}/`)}
                       className="btn-link mb-2 !inline-flex !items-center !text-large !font-semibold"
                     >
                       <em className="icon ni ni-arrow-left  !inline-flex !items-center !text-large !font-semibold"></em>
-                      <span>Back to Cart</span>
+                      <span>Back to Home</span>
                     </a>
                     <h1 className="mb-3 font-bold !text-4xl">Order Summary</h1>
                     {/* <!-- <ul className="d-flex align-items-center gap-5 mb-5">

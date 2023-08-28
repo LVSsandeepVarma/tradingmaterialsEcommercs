@@ -1,7 +1,7 @@
 import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -17,9 +17,13 @@ export default function Invoices() {
   const [showModal, setShowModal] = useState(false)
   const [orders, setOrders] = useState([]);
   const [orderId, setOrderId] = useState();
+  const loaderState = useSelector((state) => state?.loader?.value);
+
   useEffect(() => {
     const fetchOrders = async () => {
+      
       try {
+        
         dispatch(showLoader());
         const response = await axios.get(
           "https://admin.tradingmaterials.com/api/lead/product/checkout/order-list",
@@ -66,7 +70,13 @@ data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
   return (
     <>
+    {loaderState && (
+            <div className="preloader !backdrop-blur-[1px]">
+              <div className="loader"></div>
+            </div>
+          )}
     {showModal && <ViewOrderModal show={showModal} onHide={hideModal} orderId={orderId}/>}
+    {orders?.length ===0 && <p>Your Orders are empty</p>}
       <div className="!bg-gray-800 max-h-[550px] overflow-auto">
         <div className="grid !bg-gray-500 !text-left">
           {orders?.length > 0 &&
