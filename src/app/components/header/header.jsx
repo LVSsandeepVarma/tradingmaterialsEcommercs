@@ -131,6 +131,8 @@ export default function Header() {
             localStorage.removeItem("client_token");
             dispatch(logoutUser());
           } else {
+
+            
             dispatch(
               updateNotifications({
                 type: "warning",
@@ -231,7 +233,7 @@ export default function Header() {
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
         dispatch(updateNotifications({ type: "", message: "" }));
-        navigate(`${userLang}/`);
+        navigate(`${userLang}/`)
         window.location.reload();
         
       }
@@ -352,17 +354,17 @@ export default function Header() {
 
               <div className="offer-tex">
                 <h3
-                  className="!font-bold"
+                  className="!font-bold text-center"
                   style={{ fontSize: "75px", height: "100%" }}
                 >
                   10% off
                 </h3>
                 <p>On cash on delivery</p>
 
-                <div className="tb-space mt-[22px] mb-[12px]">
+                <div className="tb-space flex justify-center mt-[22px] mb-[12px]">
                   <button
                     type="button"
-                    className="ss4-button-2"
+                    className="ss4-button-2 "
                     onClick={() => {
                       setShowModal(true);
                       dispatch(
@@ -426,15 +428,15 @@ export default function Header() {
                   </div>
                   {toggleNavbar && (
                     <div
-                      className="navbar-overlay"
+                      className={`${toggleNavbar ? "navbar-overlay h-[100vh]":""}`}
                       onClick={() => {
                         setToggleNavbar(false);
                       }}
                     ></div>
                   )}
                   <nav
-                    className={`nk-header-menu nk-navbar ${
-                      toggleNavbar ? "navbar-active" : ""
+                    className={`nk-header-menu nk-navbar  ${
+                      toggleNavbar ? "navbar-active h-[100vh]" : ""
                     }`}
                   >
                     <div>

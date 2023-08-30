@@ -20,6 +20,9 @@ import { FaCreditCard, FaCalendarAlt, FaLock, FaClock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { Divider } from "@mui/material";
 import CryptoJS from "crypto-js";
+import ClearIcon from "@mui/icons-material/Clear";
+import CheckIcon from "@mui/icons-material/Check";
+import ConfettiExplosion from "react-confetti-explosion";
 
 export default function Checkout() {
   const params = useParams();
@@ -42,6 +45,7 @@ export default function Checkout() {
   const [expiry, setExpiry] = useState("");
   const [cvv, setCVV] = useState("");
   const [nameOnCard, setNameOnCard] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
 
   const [cardNumberError, setCardNumberError] = useState("");
   const [expiryError, setExpiryError] = useState("");
@@ -58,12 +62,14 @@ export default function Checkout() {
   const [activeBillingAddfreeChecked, setActiveBillingAddressChecked] =
     useState(0);
   const [addressUpdateType, setAddressUpdateType] = useState("");
-  const [activePaymentMethod, setActivePaymentMethod] = useState("razorpay");
+  const [activePaymentMethod, setActivePaymentMethod] = useState("Razor_Pay");
   // State variable to track quantities for each product
   const [quantities, setQuantities] = useState({});
   const [promocode, setPromocode] = useState("");
   const [orderId, setOrderId] = useState(localStorage.getItem("order_id"));
   const [orderData, setOrderData] = useState({});
+  const [paymentVerification, setPaymentVerification] = useState(false);
+  const [time, setTime] = useState(5)
 
   // State variable to store prices for each product
   const [prices, setPrices] = useState({});
@@ -128,8 +134,24 @@ export default function Checkout() {
     }
   };
 
+  useEffect(() => {
+    if(paymentStatus === "success" ){
+      console.log(time)
+      const interval = setInterval(()=> {
+        setTime(time-1)
+        if(time === 1){
+          clearInterval(interval);
+          window.location.href="https://client.tradingmaterials.com/dashboard/"
+        }
+      },1000)
+
+      return () => clearInterval(interval)
+    }
+  }, [paymentStatus, time]);
+
   const fetchOrderdetails = async () => {
     try {
+      console.log(localStorage.getItem("client_token"));
       dispatch(showLoader());
       const response = await axios.get(
         `https://admin.tradingmaterials.com/api/lead/product/checkout/view-order?order_id=${decryptedId}`,
@@ -349,28 +371,107 @@ export default function Checkout() {
   };
 
   const handlePaymentMethod = (paymentType) => {
+    console.log(paymentType);
     setActivePaymentMethod(paymentType);
   };
 
-  // const handlePromoCodeChange=(e)=>{
-  //   setPromocode(e?.target?.value)
-  // }
+  //payment verification
+  async function handleBookingPaymentResponse(res) {
+    console.log(res);
+    const token = localStorage.getItem("client_token");
+    console.log(token);
+    // setRid(res.razorpay_order_id);
+    sessionStorage.setItem("order_id", res.razorpay_order_id);
+    try {
+      setPaymentVerification(true);
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/lead/product/checkout/verify-payment",
+        {
+          order_id: res.razorpay_order_id,
+          payment_id: res.razorpay_payment_id,
+          signature: res.razorpay_signature,
+          payment_type: "Razor_Pay",
+        },
+        {
+          headers: {
+            "access-token": token,
+          },
+        }
+      );
+      if (response.data.status) {
+        console.log(response?.data);
+        setPaymentStatus("success");
+        localStorage.setItem("client_type", "client");
 
-  // const applyPromoCode=async ()=>{
-  //   try{
-  //     const token = localStorage.getItem("client_token")
-  //     const response = await axios.get(
-  //       "https://admin.tradingmaterials.com/api/lead/product/apply-register-promo-code",
-  //       {
-  //         headers: {
-  //           "access-token": token,
-  //         },
-  //       }
-  //     );
-  //   }catch(err){
-  //     console.log(err, "err")
-  //   }
-  // }
+        // sendDetails();
+      }
+    } catch (error) {
+      console.log(error);
+      setPaymentStatus("failed");
+    } finally {
+      setPaymentVerification(false);
+    }
+  }
+
+  //razorpay window
+  function handleRazorpayPayment(res) {
+    console.log(res);
+    var options = {
+      key_id: res?.client_id,
+      amount: res?.total,
+      currency: "INR",
+      name: "Trading Materials",
+      description: "Booking Request amount for Trading Materials",
+      image: "https://stage.tradingmaterials.com/images/tm-logo-1.png",
+      order_id: res?.order_id,
+      handler: handleBookingPaymentResponse,
+      prefill: {
+        name: userData?.client?.first_name,
+        email: userData?.client?.email,
+        contact: userData?.client?.phone,
+      },
+      notes: {
+        address: "note value",
+      },
+      theme: {
+        color: " #0000FF",
+      },
+    };
+
+    let rzp = new window.Razorpay(options);
+    rzp.open();
+  }
+
+  // create order
+  async function createOrder(id, total, client_id) {
+    try {
+      dispatch(showLoader());
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
+        {
+          payment_type: "Razor_Pay",
+          client_id: client_id,
+          order_id: id,
+          total: total,
+        },
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+
+      if (response?.data?.status) {
+        console.log(response?.data);
+        handleRazorpayPayment(response?.data?.data);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
+    }
+  }
+
   return (
     <>
       {loaderState && (
@@ -446,22 +547,17 @@ export default function Checkout() {
                 <div className="col-lg-8 col-xxl-5 text-left">
                   <div>
                     <a
-                      onClick={() => navigate(`${userLang}/`)}
+                      onClick={() => {
+                        if(paymentStatus !== "success"){
+                          navigate(`${userLang}/`)
+                        }
+                      }}
                       className="btn-link mb-2 !inline-flex !items-center !text-large !font-semibold"
                     >
                       <em className="icon ni ni-arrow-left  !inline-flex !items-center !text-large !font-semibold"></em>
                       <span>Back to Home</span>
                     </a>
                     <h1 className="mb-3 font-bold !text-4xl">Order Summary</h1>
-                    {/* <!-- <ul className="d-flex align-items-center gap-5 mb-5">
-                                        <li>
-                                            <p className="fs-14 text-gray-1200 fw-semibold text-uppercase"><em className="icon ni ni-clock-fill"></em><span className="ms-1">Full Time</span></p>
-                                        </li>
-                                        <li>
-                                            <p className="fs-14 text-gray-1200 fw-semibold text-uppercase"><em className="icon ni ni-map-pin-fill"></em><span className="ms-1">San Francisco</span></p>
-                                        </li>
-                                    </ul>
-                                    <a href="#" className="btn btn-primary"> Apply Now </a> --> */}
                   </div>
                 </div>
               </div>
@@ -501,13 +597,7 @@ export default function Checkout() {
                                         >
                                           {product?.product?.name}
                                         </p>
-                                        {/* <p
-                                          className="prod-desc mb-0"
-                                          dangerouslySetInnerHTML={{
-                                            __html:
-                                              product?.product?.description,
-                                          }}
-                                        /> */}
+
                                         <p className="prod-desc mb-1 text-success">
                                           In Stock
                                         </p>
@@ -527,50 +617,6 @@ export default function Checkout() {
                                             </span>{" "}
                                           </div>
                                         </div>
-
-                                        {/* <div
-                                          className="d-flex align-items-center "
-                                          style={{ marginTop: "2rem" }}
-                                        >
-                                          <div
-                                            id="counter"
-                                            className="nk-counter"
-                                          >
-                                            <span id="count">
-                                              {quantities[product.product_id] ||
-                                                1}
-                                            </span>
-                                          </div>
-                                          <div
-                                            className="!ml-8"
-                                            style={{ marginLeft: "1rem" }}
-                                          >
-                                            <span className="total">
-                                              ₹ {prices[product?.product_id]}
-                                            </span>{" "}
-                                            <a
-                                              className="cursor-pointer"
-                                              onClick={() => {
-                                                handleDeleteFromCart(
-                                                  product?.id
-                                                );
-                                              }}
-                                              style={{ color: " #8812a1" }}
-                                            >
-                                              Delete &nbsp; |{" "}
-                                            </a>{" "}
-                                            <a
-                                              className="cursor-pointer"
-                                              href={`/product-detail/${product?.product_id}`}
-                                              style={{
-                                                color: " #8812a1",
-                                                marginLeft: "8px",
-                                              }}
-                                            >
-                                              View
-                                            </a>
-                                          </div>
-                                        </div> */}
                                       </div>
                                       <div className="d-flex align-items-center w-25">
                                         <img
@@ -656,98 +702,22 @@ export default function Checkout() {
                           </p>
                         </li>
                       </ul>
-                      {/* <button
-                        className="btn btn-sm btn-warning mt-2 mb-2"
-                        variant="warning"
-                        color="warning"
-                        onClick={() => {
-                          setShowModal(true);
-                          setFormType("update");
-                          setAddressUpdateType("billing");
-                        }}
-                        style={{
-                          background: "#54a8c7",
-                          border: "#54a8c7",
-                          color: "#fff",
-                        }}
-                      >
-                        Update address
-                      </button> */}
-                      {/* <button
-                        className="btn btn-warning mb-2 mt-2 ml-2"
-                        variant="warning"
-                        color="warning"
-                        onClick={() => {
-                          setShowModal(true);
-                          setFormType("add");
-                        }}
-                      >
-                        Add address
-                      </button> */}
+
                       <div>
                         <hr className="mr-2 mt-2" />
                       </div>
                       <div className="nk-section-blog-details mt-3"></div>
                     </div>
                   ) : (
-                    <div className="nk-section-blog-details mt-3">
-                      {/* <Button
-                        className="btn btn-warning mb-2"
-                        variant="warning"
-                        color="warning"
-                        onClick={() => {
-                          setShowModal(true);
-                          setFormType("add");
-                          setAddressUpdateType("shipping");
-                        }}
-                        style={{
-                          background: "#54a8c7 ",
-                          border: "#54a8c7",
-                          color: "#fff",
-                        }}
-                      >
-                        Add address
-                      </Button> */}
-                    </div>
+                    <div className="nk-section-blog-details mt-3"></div>
                   )}
                   <div className="nk-section-blog-details mt-3">
                     <div className="max-h-[100px] md:max-h-[225px] overflow-y-auto">
                       <h4 className="mb-3 !font-bold">Shipping Address</h4>
 
                       <ul className="d-flex flex-column gap-2 pb-0">
-                        {/* {userData?.client?.address?.map((add, ind) => ( */}
                         <div className="mb-1">
-                          {/* <li className="d-flex align-items-center ">
-                              <div className="!block">
-                                <input
-                                  type="checkbox"
-                                  checked={ind === activeShippingAddressChecked}
-                                  onChange={() =>
-                                    handleShippingAddressChange(ind)
-                                  }
-                                  className="form-check-input"
-                                />
-                                <span
-                                  className="ml-3  font-semibold fs-14"
-                                  style={{ color: "#0167f3" }}
-                                >
-                                  {activeShippingAddressChecked === ind
-                                    ? "[Selected]"
-                                    : ""}
-                                </span>
-                              </div>
-                            </li> */}
-
                           <li className="d-flex align-items-center gap-5 text-gray-1200">
-                            {/* <div className="!block">
-                          <input
-                type="checkbox"
-                checked={ind === activeShippingAddressChecked}
-                onChange={() => handleShippingAddressChange(ind)}
-                className="form-check-input"
-              />
-                          </div> */}
-
                             <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                               Full Name:
                             </p>
@@ -784,45 +754,15 @@ export default function Checkout() {
                         {/* // ))} */}
                       </ul>
                     </div>
-
-                    {/* <button
-                      className="btn btn-sm btn-warning mt-2 mb-2 "
-                      onClick={() => {
-                        setShowModal(true);
-                        setFormType("update");
-                        setAddressUpdateType("shipping");
-                      }}
-                      style={{
-                        backgroundColor: "#54a8c7",
-                        border: "#54a8c7",
-                        color: "#fff",
-                      }}
-                    >
-                      Update address
-                    </button>
-                    <button
-                      className="btn btn-sm btn-warning mb-2 mt-2 ml-2"
-                      variant="warning"
-                      color="warning"
-                      onClick={() => {
-                        setShowModal(true);
-                        setFormType("add");
-                      }}
-                      style={{
-                        background: "#54a8c7",
-                        border: "#54a8c7",
-                        color: "#fff",
-                      }}
-                    >
-                      Add address
-                    </button> */}
                   </div>
                 </div>
               </div>
-              <div className="col-lg-4 ps-lg-0">
-                <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
-                  <h4 className="!font-bold">Payment Method</h4>
-                  {/* <form onSubmit={handleSubmit}>
+              <div className="col-lg-4 ps-lg-0 mt-5 md:mt-0">
+                {paymentStatus === "" && paymentVerification === false && (
+                  <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
+                    <h4 className="!font-bold">Payment Method</h4>
+                    {/* 
+                  <form onSubmit={handleSubmit}>
                     <label className="font-bold !text-sm mt-3 m-0">
                       Card Number
                     </label>
@@ -927,29 +867,52 @@ export default function Checkout() {
                       {/* </Form.Group> 
                     </div>
                   </form> */}
-                  <div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        checked={activePaymentMethod === "razorpay"}
-                        onChange={() => handlePaymentMethod("razorpay")}
-                      />
-                      <label className="ml-2"> Razorpay</label>
-                    </div>
-                    <div>
+                    <div className="flex flex-wrap items-center">
+                      {userData?.client?.payment_types?.map(
+                        (paymentType, ind) => (
+                          <div className="flex">
+                            <input
+                              type="checkbox"
+                              checked={
+                                activePaymentMethod === paymentType?.name
+                              }
+                              onChange={() =>
+                                handlePaymentMethod(`${paymentType?.name}`)
+                              }
+                            />
+
+                            {/* <label className="ml-2"> {paymentType?.name}</label> */}
+                            {paymentType?.name === "Razor_Pay" && (
+                              <img
+                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/razorpay.png`}
+                                className="ml-2 mr-2 "
+                                alt={`${paymentType?.name}`}
+                              />
+                            )}
+                            {paymentType?.name !== "Razor_Pay" && (
+                              <img
+                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/stripe.png`}
+                                className="ml-2"
+                                alt={`${paymentType?.name}`}
+                              />
+                            )}
+                          </div>
+                        )
+                      )}
+                      {/* <div>
                       <input
                         type="checkbox"
                         checked={activePaymentMethod === "stripe"}
                         onChange={() => handlePaymentMethod("stripe")}
                       />
                       <label className="ml-2"> Stripe</label>
+                    </div> */}
                     </div>
-                  </div>
-                  <hr className="mt-3" />
-                  <div className="nk-section-blog-details">
-                    <h4 className="mb-3 !font-bold">Order Summary</h4>
-                    <div className="pt-0 mb-3">
-                      {/* <div className="d-flex w-75">
+                    <hr className="mt-3" />
+                    <div className="nk-section-blog-details">
+                      <h4 className="mb-3 !font-bold">Order Summary</h4>
+                      <div className="pt-0 mb-3">
+                        {/* <div className="d-flex w-75">
                         {clientType === "client" && <input
                           type="text"
                           className="form-control rounded-0 py-0 px-2"
@@ -967,17 +930,17 @@ export default function Checkout() {
                           Apply
                         </button>
                       </div> */}
-                    </div>
-                    <ul className="d-flex flex-column gap-2 pb-5">
-                      <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                          Sub Total:
-                        </p>
-                        <p className="m-0 fs-14 text-gray-1200 w-75">
-                          ₹ {orderData?.order?.sub_total}
-                        </p>
-                      </li>
-                      {/* <li className="d-flex align-items-center gap-5 text-gray-1200">
+                      </div>
+                      <ul className="d-flex flex-column gap-2 pb-5">
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Sub Total:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            ₹ {orderData?.order?.sub_total}
+                          </p>
+                        </li>
+                        {/* <li className="d-flex align-items-center gap-5 text-gray-1200">
                         <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                           Shipping:
                         </p>
@@ -985,101 +948,210 @@ export default function Checkout() {
                           {allProducts?.length > 0 ? "₹ 10.00" : "₹ 0.00"}
                         </p>
                       </li> */}
-                      <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                          Tax:
-                        </p>
-                        <p className="m-0 fs-14 text-gray-1200 w-75">
-                          {orderData?.order?.total_tax}
-                        </p>
-                      </li>
-                      <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                          Discount:
-                        </p>
-                        <p className="m-0 fs-14 text-danger w-75">
-                          {orderData?.order?.discount_type === "percentage"
-                            ? orderData?.order?.discount + "%"
-                            : "₹" + orderData?.order?.discount_amount}
-                        </p>
-                      </li>
-                      <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-16 fw-semibold text-uppercase w-25">
-                          Total:
-                        </p>
-                        <p className="m-0 fs-16 fw-semibold text-dark w-75">
-                          ₹ {orderData?.order?.total}
-                        </p>
-                      </li>
-                    </ul>
-                    <div className="!flex !justify-start items-center !text-sm">
-                      <FaLock size={10} className="mb-2 mr-1" />
-                      <span
-                        className="w-fit text-center mb-2"
-                        style={{ fontSize: "12px" }}
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Tax:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            {orderData?.order?.total_tax}
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Discount:
+                          </p>
+                          <p className="m-0 fs-14 text-danger w-75">
+                            {orderData?.order?.discount_type === "percentage"
+                              ? orderData?.order?.discount + "%"
+                              : "₹" + orderData?.order?.discount_amount}
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-16 fw-semibold text-uppercase w-25">
+                            Total:
+                          </p>
+                          <p className="m-0 fs-16 fw-semibold text-dark w-75">
+                            ₹ {orderData?.order?.total}
+                          </p>
+                        </li>
+                      </ul>
+                      <div className="!flex !justify-start items-center !text-sm">
+                        <FaLock size={10} className="mb-2 mr-1" />
+                        <span
+                          className="w-fit text-center mb-2"
+                          style={{ fontSize: "12px" }}
+                        >
+                          The payment is secure and data are not saved for your
+                          privacy.
+                        </span>
+                      </div>
+                      <button
+                        disabled={allProducts?.length > 0 ? false : true}
+                        className="btn btn-primary w-100"
+                        type="submit"
+                        onClick={() =>
+                          createOrder(
+                            orderData?.order_id,
+                            orderData?.order?.total,
+                            orderData?.client_id
+                          )
+                        }
                       >
-                        The payment is secure and data are not saved for your
-                        privacy.
-                      </span>
-                    </div>
-                    <button
-                      disabled={allProducts?.length > 0 ? false : true}
-                      className="btn btn-primary w-100"
-                      type="submit"
-                      onClick={handleSubmit}
-                    >
-                      Proceed to Pay
-                    </button>
-                    <Divider className="mt-2" />
-                    <div className="flex  w-full mt-3">
-                      <img
-                        className="flex justify-start"
-                        src="/images/paymentMethods.jpg"
-                        alt="payment methods"
-                        style={{ width: "45%" }}
-                      ></img>
-                      <div className="w-full flex justify-end">
+                        Proceed to Pay
+                      </button>
+                      <Divider className="mt-2" />
+                      <div className="flex  w-full mt-3">
                         <img
-                          className=" "
-                          src="/images/stripe.png"
-                          width={45}
+                          className="flex justify-start"
+                          src="/images/paymentMethods.jpg"
+                          alt="payment methods"
+                          style={{ width: "45%" }}
                         ></img>
+                        <div className="w-full flex justify-end">
+                          <img
+                            className=" "
+                            src="/images/stripe.png"
+                            width={45}
+                          ></img>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
+                {paymentStatus !== "" && (
+                  <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
+                    <div className="paper-container !text-center ">
+                      <div className="printer-bottom"></div>
+
+                      <div className="paper drop-shadow-lg">
+                        <div className="main-contents">
+                          <div
+                            class={`flex items-center justify-center ${
+                              paymentStatus === "success"
+                                ? "success-icon "
+                                : "fail-icon"
+                            }`}
+                          >
+                            {paymentStatus === "success" && (
+                              <CheckIcon fontSize="large" />
+                            )}
+                            {paymentStatus === "failure" && (
+                              <ClearIcon
+                                fontSize="large"
+                                className="!font-bold"
+                              />
+                            )}
+                          </div>
+                          <div className="success-title !text-xl">
+                            {paymentStatus === "success"
+                              ? "Payment Successful"
+                              : "Payment Failure"}
+                          </div>
+
+                          <div className="success-description">
+                            {paymentStatus === "success"
+                              ? `Thank you for your payment made on , your complaint number is `
+                              : `There was some internal issue with the payment on ${new Date().toLocaleDateString(
+                                  "en-GB"
+                                )}`}
+                          </div>
+                          <div className="order-details"></div>
+                          {paymentStatus === "success" ? (
+                            <>
+                              <div className="order-footer text-gray-700">
+                                Thankyou
+                                {/* <ConfettiExplosion
+                                  zIndex={999}
+                                  force={0.8}
+                                  duration={3000}
+                                  particleCount={250}
+                                  width={1000}
+                                  defaultValue={4}
+                                /> */}
+                              </div>
+                              <small
+                                className="cursor-pointer hover:text-green-600  font-bold "
+                                onClick={() => navigate("/order-tracking")}
+                              >Do not Refresh the page, we will redirect to your orders in {time}
+                              </small>
+                            </>
+                          ) : (
+                            <div className="order-footer">
+                              <Button
+                                variant="contained"
+                                onClick={() => navigate("/")}
+                                type="button"
+                                className="!bg-[#009688] !border-[#009688] text-white w-[50%] p-2 mr-1 !rounded-none"
+                              >
+                                Retry
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        <div className="jagged-edge"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {paymentVerification === true && (
+                  <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5 ">
+                    <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
+                      <div className="paper-container !text-center ">
+                        <div className="printer-bottom"></div>
+
+                        <div className="paper !h-full">
+                          <div className="main-contents h-[40vh] flex items-center justify-center text-2xl">
+                            <div className="payment-loading drop-shadow-lg ">
+                              <span className="v">V</span>
+                              <span className="e">e</span>
+                              <span className="r">r</span>
+                              <span className="f">f</span>
+                              <span className="y">y</span>
+                              <span className="i">i</span>
+                              <span className="n">n</span>
+                              <span className="g">g</span>
+                              <span className="d1">.</span>
+                              <span className="d2">.</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </section>
-        <section class="nk-section nk-cta-section">
-          <div class="container">
+        <section className="nk-section nk-cta-section">
+          <div className="container">
             <div
-              class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+              className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
               data-aos="fade-up"
               data-aos-delay="100"
             >
-              <div class="row g-gs align-items-center">
-                <div class="col-lg-8">
-                  <div class="media-group flex-column flex-lg-row align-items-center">
-                    <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
-                      <em class="icon ni ni-chat-fill"></em>
+              <div className="row g-gs align-items-center">
+                <div className="col-lg-8">
+                  <div className="media-group flex-column flex-lg-row align-items-center">
+                    <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                      <em className="icon ni ni-chat-fill"></em>
                     </div>
-                    <div class="text-center text-lg-start">
-                      <h3 class="text-capitalize m-0">
+                    <div className="text-center text-lg-start">
+                      <h3 className="text-capitalize m-0">
                         Chat with our support team!
                       </h3>
-                      <p class="fs-16 opacity-75">
+                      <p className="fs-16 opacity-75">
                         Get in touch with our support team if you still can’t
                         find your answer.
                       </p>
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-4 text-center text-lg-end">
+                <div className="col-lg-4 text-center text-lg-end">
                   <a
                     href={`${userLang}/contact`}
-                    class="btn btn-white fw-semiBold"
+                    className="btn btn-white fw-semiBold"
                   >
                     Contact Support
                   </a>

@@ -140,8 +140,8 @@ const LoginModal = ({ show, onHide }) => {
           dispatch(updateclientType(response?.data?.type));
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
-          if (response?.data?.data?.type === "client") {
-            navigate(`https://client.tradingmaterials.com/dashboard/`);
+          if (response?.data?.type === "client") {
+            window.location.href = `https://client.tradingmaterials.com/dashboard/`;
           } else {
             navigate(`${userLang}/profile`);
           }
@@ -158,18 +158,20 @@ const LoginModal = ({ show, onHide }) => {
           }, 3600000);
         }
       } catch (err) {
+        
         console.log("err", err);
         if (err?.response?.data?.errors) {
           setEmailError(err?.response?.data?.errors["email"]);
           setPasswordError(err?.response?.data?.errors["password"]);
           // setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
+          console.log(err?.response)
           setApiError([err?.response?.data?.message]);
         }
         setTimeout(() => {
           setApiError([]);
           setLoginsuccessMsg("");
-        }, 8000);
+        }, 80000);
       } finally {
         // dispatch(hideLoader());
         setLocalLoader(false);
@@ -385,6 +387,7 @@ const LoginModal = ({ show, onHide }) => {
                           </p>
                         </Alert>
                       )}
+                      {console.log(apiError, "err")}
                       {apiError?.length > 0 &&
                         apiError?.map((err, ind) => {
                           return (
@@ -397,7 +400,7 @@ const LoginModal = ({ show, onHide }) => {
                                 key={ind}
                                 className="text-red-600 font-semibold"
                               >
-                                {err}
+                                {apiError?.length}
                               </p>
                             </Alert>
                           );

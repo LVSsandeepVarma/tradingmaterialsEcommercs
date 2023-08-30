@@ -18,28 +18,32 @@ export default function Invoices() {
   const [orders, setOrders] = useState([]);
   const [orderId, setOrderId] = useState();
   const loaderState = useSelector((state) => state?.loader?.value);
-
+  const userData = useSelector((state) => state?.user?.value);
   useEffect(() => {
     const fetchOrders = async () => {
       
       try {
         
         dispatch(showLoader());
+        const token = localStorage.getItem("client_token");
+        console.log(token)
         const response = await axios.get(
           "https://admin.tradingmaterials.com/api/lead/product/checkout/order-list",
           {
             headers: {
-              "access-token": localStorage.getItem("client_token"),
+              "access-token": token,
             },
           }
         );
         if (response?.data?.status) {
           console.log(response?.data);
+
           const data = response?.data?.data?.order
           // Sort the array in descending order based on 'created_at'
 data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
           setOrders(data);
+
         }
       } catch (err) {
         console.log(err);
@@ -68,6 +72,96 @@ data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   const hideModal = ()=>{
     setShowModal(false)
   }
+
+  //payment verification
+  async function handleBookingPaymentResponse(res) {
+    console.log(res);
+    const token = localStorage.getItem("client_token");
+    console.log(token);
+    // setRid(res.razorpay_order_id);
+    sessionStorage.setItem("order_id", res.razorpay_order_id);
+    try {
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/lead/product/checkout/verify-payment",
+        {
+          order_id: res.razorpay_order_id,
+          payment_id: res.razorpay_payment_id,
+          signature: res.razorpay_signature,
+          payment_type: 1,
+        },
+        {
+          headers: {
+            "access-token": token,
+          },
+        }
+      );
+      if (response.data.status) {
+        console.log(response?.data);
+        // sendDetails();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  //razorpay window 
+  function handleRazorpayPayment(res){
+    var options = {
+      key_id: res?.client_id,
+      amount: res?.total,
+      currency: "INR",
+      name: "Trading Materials",
+      description: "Booking Request amount for Trading Materials",
+      image: "https://stage.tradingmaterials.com/images/tm-logo-1.png",
+      order_id: res?.order_id,
+      handler: handleBookingPaymentResponse,
+      prefill:{
+        name: userData?.client?.first_name,
+        email:userData?.client?.email,
+        contact:userData?.client?.phone,
+      },
+      notes: {
+        address: "note value",
+      },
+      theme: {
+        color: " #0000FF",
+      },
+    }
+
+    let rzp = new window.Razorpay(options);
+    rzp.open();
+  }
+
+  // create order
+  async function createOrder(id,total,client_id){
+    try{
+      dispatch(showLoader())
+      const response = await axios.post("https://admin.tradingmaterials.com/api/lead/product/checkout/create-order", {
+        payment_type: "Razor_Pay",
+        client_id: client_id,
+        order_id: id,
+        total: total
+      },
+      {
+        headers:{
+          "access-token": localStorage.getItem("client_token")
+        }
+      });
+
+      if(response?.data?.status){
+        console.log(response?.data)
+        handleRazorpayPayment(response?.data?.data)
+      }
+
+
+    }catch(err){
+      console.log(err)
+    }finally{
+      dispatch(hideLoader())
+    }
+  }
+
+
   return (
     <>
     {loaderState && (
@@ -96,7 +190,7 @@ data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                       <Chip
                         className="ml-2 text-sm"
                         label={`${
-                          order?.amount_paid === order?.balance
+                          (order?.amount_paid === order?.balance )&& order?.balance > 0 
                             ? "Paid"
                             : order?.amount_paid !== 0
                             ? "Partially Paid"
@@ -175,6 +269,18 @@ data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                       >
                         Pay now
                       </Button>
+                      {/* <Button
+                        type="submit"
+                        style={{
+                          backgroundColor: "green",
+                          border: "green",
+                          color: "#fff",
+                        }}
+                        className="!ml-2"
+                        
+                        onClick={() => createOrder(order?.id,order?.balance, order?.client_id)}>
+                        Pay with Razorpay
+                      </Button> */}
                     </p>
                   </div>
                   <Button

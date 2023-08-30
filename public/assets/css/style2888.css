@@ -34037,7 +34037,8 @@ button.swiper-pagination-bullet {
     z-index: 99999;
     padding: .8438rem 0px;
     transition: padding .2s linear;
-    background-color: #fff;
+    background-color:rgba(251,251,253,0.8);
+    backdrop-filter: blur(4px);
     position: fixed
 }
 

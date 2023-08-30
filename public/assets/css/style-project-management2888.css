@@ -31253,6 +31253,7 @@ button.swiper-pagination-bullet {
   padding: 0.8438rem 0px;
   transition: padding 0.2s linear;
   background-color: #fff;
+  backdrop-filter: blur(4px);
   position: fixed;
 }
 .nk-header-main.has-separate {

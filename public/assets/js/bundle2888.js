@@ -17915,40 +17915,6 @@ var Filterizr = (function (e) {
   var t, n;
 });
 const $ = (e) => document.querySelector(e),
-  countdown = function (e) {
-    const t = $(e.target).getAttribute("data-date").split("-"),
-      n = parseInt(t[0]),
-      i = parseInt(t[1]),
-      r = parseInt(t[2]);
-    let s,
-      o,
-      a = $(e.target).getAttribute("data-time");
-    null != a &&
-      ((a = a.split(":")), (s = parseInt(a[0])), (o = parseInt(a[1])));
-    new Date().getFullYear();
-    let l = new Date();
-    l.getDate(), l.getMonth(), l.getFullYear(), l.getHours(), l.getMinutes();
-    const c = new Date(r, i - 1, n, s, o, 0, 0).getTime();
-    ($(e.target + " .day .word").innerHTML = e.dayWord),
-      ($(e.target + " .hour .word").innerHTML = e.hourWord),
-      ($(e.target + " .min .word").innerHTML = e.minWord),
-      ($(e.target + " .sec .word").innerHTML = e.secWord);
-    const d = () => {
-      const t = new Date().getTime(),
-        n = c - t,
-        i = Math.floor(n / 864e5),
-        r = Math.floor((n % 864e5) / 36e5),
-        s = Math.floor((n % 36e5) / 6e4),
-        o = Math.floor((n % 6e4) / 1e3);
-      requestAnimationFrame(d),
-        ($(e.target + " .day .num").innerHTML = addZero(i)),
-        ($(e.target + " .hour .num").innerHTML = addZero(r)),
-        ($(e.target + " .min .num").innerHTML = addZero(s)),
-        ($(e.target + " .sec .num").innerHTML = addZero(o)),
-        n < 0 && ($(".countdown").innerHTML = "EXPIRED");
-    };
-    d();
-  },
   addZero = (e) => (e < 10 && e >= 0 ? "0" + e : e);
 !(function (e, t) {
   "object" == typeof exports && "object" == typeof module

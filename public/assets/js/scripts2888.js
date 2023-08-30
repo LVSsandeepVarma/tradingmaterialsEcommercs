@@ -53,7 +53,7 @@
           item.addEventListener("click", function (e) {
             e.preventDefault(),
             console.log("clicked")
-              NioApp.Win.width < eval("NioApp.Break." + navbarCollapse) &&
+              NioApp.Win.width < eval("NioApp.Break" + navbarCollapse) &&
                 (NioApp.Dropdown.toggle(item, active),
                 NioApp.Dropdown.closeSiblings(
                   item,
@@ -295,19 +295,7 @@
       };
       null !== s && s.addEventListener("input", c);
     }),
-    (NioApp.Custom.showHidePassword = function (e) {
-      let t = document.querySelectorAll(e);
-      t &&
-        t.forEach((e) => {
-          e.addEventListener("click", function (t) {
-            t.preventDefault();
-            let o = document.getElementById(e.getAttribute("href"));
-            "password" == o.type
-              ? ((o.type = "text"), e.classList.add("is-shown"))
-              : ((o.type = "password"), e.classList.remove("is-shown"));
-          });
-        });
-    }),
+
     (NioApp.Custom.backToTop = function (e) {
       let t = document.querySelector(e);
       window.addEventListener("scroll", () => {
@@ -469,17 +457,17 @@
         });
       }
     }),
-    (NioApp.Addons.countDown = function () {
-      if (document.querySelector(".nk-countdown")) {
-        new countdown({
-          target: ".nk-countdown",
-          dayWord: "Days",
-          hourWord: "Hours",
-          minWord: "Min",
-          secWord: "Sec",
-        });
-      }
-    }),
+    // (NioApp.Addons.countDown = function () {
+      // if (document.querySelector(".nk-countdown")) {
+      //   new countdown({
+      //     target: ".nk-countdown",
+      //     dayWord: "Days",
+      //     hourWord: "Hours",
+      //     minWord: "Min",
+      //     secWord: "Sec",
+      //   });
+      // }
+    // }),
     (NioApp.Custom.submitForm = function (e) {
       let t = document.querySelectorAll(e);
       t &&
@@ -549,7 +537,7 @@
         NioApp.Custom.backToTop(".scroll-top"),
         NioApp.Custom.currentYear("#currentYear"),
         NioApp.Custom.submitForm(".form-submit-init"),
-        NioApp.Custom.showHidePassword(".password-toggle"),
+        // NioApp.Custom.showHidePassword(".password-toggle"),
         NioApp.Custom.Clipboard(".js-copy"),
         NioApp.Custom.counterButton(),
         NioApp.Custom.setbgImage("data-bg-image"),
@@ -563,7 +551,7 @@
           NioApp.Addons.aos();
         }, 300),
         NioApp.Addons.filterTab(),
-        NioApp.Addons.countDown(),
+        // NioApp.Addons.countDown(),
         NioApp.Custom.priceToggle(".price-toggle-input", ".nk-pricing"),
         NioApp.Custom.characterCounter(
           "textarea-box",
