@@ -3,6 +3,8 @@ import logo from "./logo.svg";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NewPassword from "./app/components/login/reset-password";
+import PaymentVerifyStripe from "./app/components/product/checkout/paymentVerifyStipe";
+import Orders from "./app/components/product/orders/orders";
 const Home = lazy(() => import("./app/components/home/home"));
 // import Home from "./app/components/home/home";
 const About = lazy(() => import("./app/components/about-us/about"));
@@ -65,6 +67,8 @@ function App() {
               element={<NewPassword />}
             ></Route>
             <Route path="/profile" element={<Sidebar />}></Route>
+            <Route path="/payment-status/:id" element={<PaymentVerifyStripe/>}></Route>
+            <Route path="/orders/:client_id" element={<Orders/>}></Route>
             {/* malay */}
             <Route path="/ms/" element={<Home />}></Route>
             <Route path="/ms/about" element={<About />}></Route>

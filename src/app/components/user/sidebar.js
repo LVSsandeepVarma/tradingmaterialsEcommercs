@@ -297,7 +297,16 @@ export default function SideBar() {
   };
 
   const handleActiveTab = (index) => {
-    setActiveIndex(index);
+    if(index !== 3){
+      setActiveIndex(index);
+    }else{
+      navigate(`/orders/${CryptoJS?.AES?.encrypt(
+        `${userData?.client?.id}`, "order_details"
+      )?.toString()
+      .replace(/\//g, "_")
+      .replace(/\+/g, "-")}`, "_blank")
+    }
+    
   };
 
   return (

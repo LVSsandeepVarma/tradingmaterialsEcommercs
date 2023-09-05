@@ -138,7 +138,7 @@ export default function Login() {
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
           if (response?.data?.data?.type === "client") {
-            navigate(`https://client.tradingmaterials.com/dashboard/`);
+            navigate(`http://localhost:3000/auto-login/${localStorage.getItem("client_token")}`);
           } else {
             navigate(`${userLang}/profile`);
           }

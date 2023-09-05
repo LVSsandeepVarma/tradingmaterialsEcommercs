@@ -141,7 +141,7 @@ const LoginModal = ({ show, onHide }) => {
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
           if (response?.data?.type === "client") {
-            window.location.href = `https://client.tradingmaterials.com/dashboard/`;
+            window.location.href = `http://localhost:3000/auto-login/${localStorage.getItem("client_token", "_blank")}`;
           } else {
             navigate(`${userLang}/profile`);
           }
@@ -400,7 +400,7 @@ const LoginModal = ({ show, onHide }) => {
                                 key={ind}
                                 className="text-red-600 font-semibold"
                               >
-                                {apiError?.length}
+                                {err}
                               </p>
                             </Alert>
                           );

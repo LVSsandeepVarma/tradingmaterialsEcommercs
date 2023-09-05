@@ -15,6 +15,7 @@ import { updateUsers } from "../../../features/users/userSlice";
 import { Form } from "react-bootstrap";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import { Alert } from "@mui/material";
+import { updateclientType } from "../../../features/clientType/clientType";
 
 const SignupModal = ({ show, onHide }) => {
   const { t } = useTranslation();
@@ -166,6 +167,7 @@ const SignupModal = ({ show, onHide }) => {
           if (response?.data?.status) {
             setSignupSuccessMsg(response?.data?.message);
             localStorage.setItem("client_token", response?.data?.token);
+            localStorage.setItem("client_type", "lead");
             console.log(response?.data?.first_name);
             handleHide();
             dispatch(
@@ -177,6 +179,8 @@ const SignupModal = ({ show, onHide }) => {
               })
             );
             dispatch(loginUser());
+            dispatch(updateclientType("lead"));
+
             navigate(`${userLang}/`);
 
             setTimeout(() => {
