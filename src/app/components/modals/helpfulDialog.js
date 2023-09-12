@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import * as React from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -116,7 +117,7 @@ export default function HelpfullDialog({ type, open, handleClose, ReviewId }) {
               {apiError?.length > 0 &&
                 apiError?.map((err, ind) => {
                   return (
-                    <Alert variant="outlined" severity="error" className="mt-2">
+                    <Alert key={ind*5} variant="outlined" severity="error" className="mt-2">
                       <p key={ind} className="text-red-600 font-semibold">
                         {err}
                       </p>
@@ -134,7 +135,7 @@ export default function HelpfullDialog({ type, open, handleClose, ReviewId }) {
               {apiError?.length > 0 &&
                 apiError?.map((err, ind) => {
                   return (
-                    <Alert variant="outlined" severity="error" className="mt-2">
+                    <Alert key={ind} variant="outlined" severity="error" className="mt-2">
                       <p key={ind} className="text-red-600 font-semibold">
                         {err}
                       </p>
@@ -146,7 +147,10 @@ export default function HelpfullDialog({ type, open, handleClose, ReviewId }) {
           <Button onClick={handleClose}>
             {type === "report" ? "Cancel" : "Close"}
           </Button>
-          {type === "report" && <Button onClick={handleSubmit}>Report</Button>}
+          
+          {type === "report" &&
+          // eslint-disable-next-line no-undef
+           <Button onClick={handleSubmit}>Report</Button>}
         </DialogActions>
       </Dialog>
     </div>

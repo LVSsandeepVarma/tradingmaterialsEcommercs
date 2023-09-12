@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 // ShippingAddressModal.js
 import React from "react";
 import { Modal } from "react-bootstrap";

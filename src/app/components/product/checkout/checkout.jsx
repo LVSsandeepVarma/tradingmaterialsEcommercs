@@ -1,3 +1,5 @@
+/* eslint-disable no-unsafe-optional-chaining */
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../header/header";
@@ -6,39 +8,30 @@ import {
   hideLoader,
   showLoader,
 } from "../../../../features/loader/loaderSlice";
-import { fetchAllProducts } from "../../../../features/products/productsSlice";
 import axios from "axios";
 import ShippingAddressModal from "../../modals/address";
 import { Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { updateUsers } from "../../../../features/users/userSlice";
-import { updateCart } from "../../../../features/cartItems/cartSlice";
-import { updateNotifications } from "../../../../features/notifications/notificationSlice";
-import { updateCartCount } from "../../../../features/cartWish/focusedCount";
 import Form from "react-bootstrap/Form";
-import { FaCreditCard, FaCalendarAlt, FaLock, FaClock } from "react-icons/fa";
+import { FaCreditCard, FaCalendarAlt, FaLock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { Alert, Divider } from "@mui/material";
 import CryptoJS from "crypto-js";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
-import ConfettiExplosion from "react-confetti-explosion";
 
 export default function Checkout() {
-  const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const products = useSelector((state) => state?.products?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const userData = useSelector((state) => state?.user?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
   const userLang = useSelector((state) => state?.lang?.value);
-  const clientType = useSelector((state) => state?.clientType?.value);
 
   const [showModal, setShowModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [isFailure, setIsFailure] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
   const [cardNumber, setCardNumber] = useState("");
@@ -64,9 +57,7 @@ export default function Checkout() {
   const [addressUpdateType, setAddressUpdateType] = useState("");
   const [activePaymentMethod, setActivePaymentMethod] = useState("Razor_Pay");
   // State variable to track quantities for each product
-  const [quantities, setQuantities] = useState({});
-  const [promocode, setPromocode] = useState("");
-  const [orderId, setOrderId] = useState(localStorage.getItem("order_id"));
+
   const [orderData, setOrderData] = useState({});
   const [paymentVerification, setPaymentVerification] = useState(false);
   const [clientToken, setClientToken] = useState("");
@@ -74,7 +65,6 @@ export default function Checkout() {
   const [apiError, setApiError] = useState([])
 
   // State variable to store prices for each product
-  const [prices, setPrices] = useState({});
   const [subTotal, setSubTotal] = useState(0);
 
   const { id } = useParams();
@@ -87,67 +77,6 @@ export default function Checkout() {
 
   console.log(cartProducts, "gggggggg");
 
-  const getUserInfo = async () => {
-    try {
-      const url =
-        clientType === "client"
-          ? "https://admin.tradingmaterials.com/api/get-user-info"
-          : "https://admin.tradingmaterials.com/api/lead/get-user-info";
-      const headerData =
-        clientType === "client"
-          ? {
-              headers: {
-                Authorization: `Bearer ` + localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            }
-          : {
-              headers: {
-                "access-token": localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            };
-
-      const response = await axios.get(url, headerData);
-      if (response?.data?.status) {
-        console.log(response?.data);
-        dispatch(updateUsers(response?.data?.data));
-        dispatch(updateCart(response?.data?.data?.client?.cart));
-        setAllProducts(response?.data?.data?.client?.cart);
-      } else {
-        console.log(response?.data);
-        dispatch(
-          updateNotifications({
-            type: "warning",
-            message: "Oops!",
-          })
-        );
-        // navigate("/login")
-      }
-    } catch (err) {
-      console.log(err);
-      dispatch(
-        updateNotifications({
-          type: "error",
-          message: err?.response?.data?.message,
-        })
-      );
-    } finally {
-      dispatch(hideLoader());
-    }
-  };
-
-  // function timerRedirect(token){
-  //   console.log(token, "actoken")
-  //   const interval = setInterval(()=> {
-  //     setTime(time-1)
-  //     if(time === 1){
-  //       clearInterval(interval);
-  //       console.log(clientToken, "actoken")
-  //       window.location.href=`http://localhost:3000/auto-login/${token}`
-  //     }
-  //   },1000)
-  // }
 
   useEffect(() => {
     if (paymentStatus === "success") {
@@ -159,11 +88,11 @@ export default function Checkout() {
           console.log(clientToken, "actoken");
           console.log(localStorage.getItem("tmToken"));
           if (clientToken === undefined || clientToken === "") {
-            window.location.href = `http://localhost:3000/auto-login/${localStorage.getItem(
+            window.location.href = `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
               "client_token"
             )}`;
           } else {
-            window.location.href = `http://localhost:3000/auto-login/${clientToken}`;
+            window.location.href = `https://client.tradingmaterials.com/auto-login/${clientToken}`;
           }
         }
       }, 1000);
@@ -344,12 +273,8 @@ export default function Checkout() {
     return value.match(/^[a-zA-Z ]+$/);
   };
 
-  const handleShippingAddressChange = (id) => {
-    setActiveShippingAddress(userData?.client?.address[id]);
-    setActiveShippingaddressChecked(id);
-  };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async () => {
     // event.preventDefault();
     const isNameValid = validateName(nameOnCard);
     const isCardNumberValid = validateCardNumber(cardNumber);
@@ -388,7 +313,7 @@ export default function Checkout() {
       }
     } else {
       if (nameOnCard === "") {
-        setNameErr("name is required");
+        setNameErr("Name is required");
       }
       if (cardNumber === "") {
         setCardNumberError("Card number is required");
@@ -480,20 +405,7 @@ export default function Checkout() {
     rzp.open();
   }
 
-  //Stripe Payment
-  // function handleStripePayment(res) {
-  //   if(nameErr === "" && expiryError === "" && cvvError==="" && cardNumberError ==="" && nameOnCard !== "" && expiry !== "" && cvv !== "" && expiry!==""){
-  //     try{
-  //       dispatch(showLoader());
-  //       //api call and redirect
-        
-  //     }catch(err){
-  //       console.log(err)
-  //     }finally{
-  //       dispatch(hideLoader())
-  //     }
-  //   }
-  // }
+
 
   // create order for razorpay
   async function createOrder(id, total, client_id) {
@@ -554,7 +466,7 @@ export default function Checkout() {
           cvc: cvv,
           name_on_card: nameOnCard,
           currency: "INR",
-          call_back_url: "http://localhost:3001/payment-status/"
+          call_back_url: "https://stage.tradingmaterials.com/payment-status/"
       }
       const response = await axios.post(
         "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
@@ -689,7 +601,7 @@ export default function Checkout() {
                           {allProducts?.length &&
                             allProducts?.map((product, ind) => {
                               return (
-                                <tr>
+                                <tr key={ind}>
                                   <td className="w-50">
                                     <div className="d-flex align-items-start">
                                       <img
@@ -754,7 +666,7 @@ export default function Checkout() {
                       </table>
                     ) : (
                       <div className="text-center font-bold text-gray-700 ">
-                        <p>no products found in cart</p>
+                        <p>No products found in cart</p>
                         <p
                           className="nav-link text-green-900"
                           onClick={() => navigate("/")}
@@ -877,8 +789,8 @@ export default function Checkout() {
 
                     <div className="flex flex-wrap items-center">
                       {userData?.client?.payment_types?.map(
-                        (paymentType, ind) => (
-                          <div className="flex">
+                        (paymentType,ind) => (
+                          <div key={ind} className="flex">
                             <input
                               type="checkbox"
                               checked={
@@ -1081,7 +993,7 @@ export default function Checkout() {
                           </p>
                           <p className="m-0 fs-14 text-danger w-75">
                             {orderData?.order?.discount_type === "percentage"
-                              ? orderData?.order?.discount + "%"
+                              ?`₹ ${orderData?.order?.discount_amount} ( ${orderData?.order?.discount}%)`
                               : "₹" + orderData?.order?.discount_amount}
                           </p>
                         </li>
@@ -1137,6 +1049,7 @@ export default function Checkout() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
+                                key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="!mt-2"
@@ -1177,7 +1090,7 @@ export default function Checkout() {
                       <div className="paper drop-shadow-lg">
                         <div className="main-contents">
                           <div
-                            class={`flex items-center justify-center ${
+                            className={`flex items-center justify-center ${
                               paymentStatus === "success"
                                 ? "success-icon "
                                 : "fail-icon"
@@ -1201,12 +1114,8 @@ export default function Checkout() {
 
                           <div className="success-description">
                             {paymentStatus === "success"
-                              ? `Thank you for your payment made on  ${new Date(orderData?.payments[0]?.created_at).toLocaleDateString(
-                                "en-GB"
-                              )}`
-                              : `There was some internal issue with the payment on ${new Date(orderData?.payments[0]?.created_at).toLocaleDateString(
-                                  "en-GB"
-                                )}`}
+                              ? `Thank you for your payment.`
+                              : `There was some internal issue with the payment, please try again after some time`}
                           </div>
                           <div className="order-details"></div>
                           {paymentStatus === "success" ? (
@@ -1223,8 +1132,8 @@ export default function Checkout() {
                                 /> */}
                               </div>
                               <small
-                                className="cursor-pointer hover:text-green-600  font-bold "
-                                onClick={() => navigate("/order-tracking")}
+                                className="font-bold "
+                                
                               >
                                 Do not Refresh the page, we will redirect to
                                 your orders in {time}

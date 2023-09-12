@@ -1,13 +1,11 @@
 // ShippingAddressModal.js
 import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
-import Register from "../register/register";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { userLanguage } from "../../../features/userLang/userLang";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
-import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { loginUser } from "../../../features/login/loginSlice";
 import axios from "axios";
 import { updateUsers } from "../../../features/users/userSlice";
@@ -17,8 +15,9 @@ import { usersignupinModal } from "../../../features/signupinModals/signupinSlic
 import { Alert } from "@mui/material";
 import { updateclientType } from "../../../features/clientType/clientType";
 
+// eslint-disable-next-line react/prop-types, no-unused-vars
 const SignupModal = ({ show, onHide }) => {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -29,11 +28,9 @@ const SignupModal = ({ show, onHide }) => {
   const [lastNameError, setLastNameError] = useState("");
   const [apiError, setApiError] = useState([]);
   const [signupSuccessMsg, setSignupSuccessMsg] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [localLoader, setLocalLoader] = useState(false);
 
   const loginStatus = useSelector((state) => state?.login?.value);
-  const loaderState = useSelector((state) => state.loader?.value);
   console.log(loginStatus);
 
   const dispatch = useDispatch();
@@ -45,13 +42,10 @@ const SignupModal = ({ show, onHide }) => {
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
     }
   }, []);
 
@@ -249,7 +243,7 @@ const SignupModal = ({ show, onHide }) => {
         <div className="nk-split-col ">
           {localLoader && (
             <div className="preloader  !backdrop-blur-[1px]">
-              <div class="loader"></div>
+              <div className="loader"></div>
             </div>
           )}
           <div
@@ -259,9 +253,9 @@ const SignupModal = ({ show, onHide }) => {
             }}
             // data-aos="fade-up"
           >
-            <div class="account-steps">
-              <div class="step"></div>
-              <div class="step"></div>
+            <div className="account-steps">
+              <div className="step"></div>
+              <div className="step"></div>
             </div>
             <div className="card-body !text-left p-5">
               <div className="nk-form-card-head text-center pb-5">
@@ -412,6 +406,7 @@ const SignupModal = ({ show, onHide }) => {
                         apiError?.map((err, ind) => {
                           return (
                             <Alert
+                            key={ind}
                               variant="outlined"
                               severity="error"
                               className="mt-2"

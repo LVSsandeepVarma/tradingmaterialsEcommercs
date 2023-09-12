@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { userLanguage } from "../../../features/userLang/userLang";
 import axios from "axios";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
@@ -14,7 +14,6 @@ export default function ForgotPassword() {
   const [emailSentMsg, setEmailSentMsg] = useState("");
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const location = useLocation();
   const loaderState = useSelector((state) => state.loader?.value);
   const userLang = useSelector((state) => state?.lang?.value);
@@ -22,13 +21,10 @@ export default function ForgotPassword() {
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
     }
   }, []);
 
@@ -70,6 +66,7 @@ export default function ForgotPassword() {
       } catch (err) {
         console.log("err", err);
         if (err?.response?.data?.errors) {
+          // eslint-disable-next-line no-unsafe-optional-chaining
           setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
           setApiError([err?.response?.data?.message]);
@@ -117,7 +114,7 @@ export default function ForgotPassword() {
                       Password Forgotten?
                     </h3>
                     <p className="text">
-                      Shouldn't be here{" "}
+                      Shouldn&apos;t be here{" "}
                       <a href={`/login`} className="btn-link text-primary">
                         Login
                       </a>
@@ -169,6 +166,7 @@ export default function ForgotPassword() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
+                                  key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="!mt-2"

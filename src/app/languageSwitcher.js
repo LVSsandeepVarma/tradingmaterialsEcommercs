@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useRoutes } from 'react-router-dom';
 
+// eslint-disable-next-line react/prop-types
 const LanguageSwitcher = ({ children }) => {
   const { i18n } = useTranslation();
   const location = window.location.pathname

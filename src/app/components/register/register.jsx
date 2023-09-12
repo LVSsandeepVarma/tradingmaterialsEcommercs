@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { userLanguage } from "../../../features/userLang/userLang";
@@ -13,7 +12,6 @@ import { updateclientType } from "../../../features/clientType/clientType";
 import Alert from "@mui/material/Alert";
 
 export default function Register() {
-  const { t } = useTranslation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,7 +22,6 @@ export default function Register() {
   const [lastNameError, setLastNameError] = useState("");
   const [apiError, setApiError] = useState([]);
   const [signupSuccessMsg, setSignupSuccessMsg] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const loginStatus = useSelector((state) => state?.login?.value);
   const loaderState = useSelector((state) => state.loader?.value);
@@ -39,13 +36,10 @@ export default function Register() {
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
     }
   }, []);
 
@@ -304,19 +298,6 @@ export default function Register() {
                         <div className="form-group">
                           <label className="form-label">Phone</label>
                           <div className="form-control-wrap">
-                            {/* <a
-                              href="show-hide-password.html"
-                              className="form-control-icon end password-toggle"
-                              title="Toggle show/hide password"
-                            >
-                              <em className={`on icon ni ${
-                                  showPassword
-                                    ? "ni-eye-off-fill"
-                                    : "ni-eye-fill"
-                                } text-primary`}
-                                onClick={() => setShowPassword(!showPassword)}></em>
-                              <em className="off icon ni ni-eye-off-fill text-primary"></em>
-                            </a> */}
                             <input
                               id="show-hide-password"
                               type="text"
@@ -358,6 +339,7 @@ export default function Register() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
+                                key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"
@@ -375,10 +357,6 @@ export default function Register() {
                       </div>
                     </div>
                   </Form>
-                  {/* <!--<div className="pt-4 text-center">
-                                <div className="small overline-title-sep"><span className="bg-white px-2 text-base">or register with</span></div>
-                            </div>
-                            <div className="pt-4"><a href="#" className="btn btn-outline-gray-50 text-dark w-100"><img src="images/icon/a.png" alt="" className="icon"><span>Sign Up with Google</span></a></div>--> */}
                 </div>
               </div>
             </div>
@@ -422,34 +400,6 @@ export default function Register() {
         >
           <em className="icon ni ni-chevrons-up"></em>
         </a>
-        {/* <div className="nk-sticky-badge">
-          <ul>
-            <li>
-              <a
-                href={`${userLang}/`}
-                className="nk-sticky-badge-icon nk-sticky-badge-home"
-                data-bs-toggle="tooltip"
-                data-bs-placement="right"
-                data-bs-custom-className="nk-tooltip"
-                data-bs-title="View Demo"
-              >
-                <em className="icon ni ni-home-fill"></em>
-              </a>
-            </li>
-            <li>
-              <a
-                href="product-details.php"
-                className="nk-sticky-badge-icon nk-sticky-badge-purchase"
-                data-bs-toggle="tooltip"
-                data-bs-custom-className="nk-tooltip"
-                data-bs-title="Purchase Now"
-                aria-label="Purchase Now"
-              >
-                <em className="icon ni ni-cart-fill"></em>
-              </a>
-            </li>
-          </ul>
-        </div> */}
       </div>
     </>
   );

@@ -1,0 +1,13 @@
+{
+    "extends": [
+      "plugin:react/recommended"
+    ],
+    "rules": {
+      "no-unused-vars": "error"
+    },
+    "settings": {
+        "react": {
+          "version": "detect"
+        }
+      }
+  }

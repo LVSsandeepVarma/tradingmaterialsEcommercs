@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/no-unknown-property */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../header/header";
@@ -6,7 +8,6 @@ import {
   hideLoader,
   showLoader,
 } from "../../../../features/loader/loaderSlice";
-import { fetchAllProducts } from "../../../../features/products/productsSlice";
 import axios from "axios";
 import ShippingAddressModal from "../../modals/address";
 import { Button } from "react-bootstrap";
@@ -16,7 +17,6 @@ import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
 import CryptoJS from "crypto-js";
-import { Divider } from "@mui/material";
 
 export default function AddToCart() {
   const dispatch = useDispatch();
@@ -32,7 +32,6 @@ export default function AddToCart() {
   const [showModal, setShowModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
   const [promocode, setPromocode] = useState("");
@@ -43,10 +42,10 @@ export default function AddToCart() {
   const [activeBillingAddress, setActivebillingAddress] = useState(
     userData?.client?.address[0]
   );
+  // eslint-disable-next-line no-unused-vars
   const [activeShippingAddressChecked, setActiveShippingaddressChecked] =
     useState(0);
-  const [activeBillingAddfreeChecked, setActiveBillingAddressChecked] =
-    useState(0);
+
   const [addressUpdateType, setAddressUpdateType] = useState("");
 
   // State variable to track quantities for each product
@@ -201,40 +200,7 @@ export default function AddToCart() {
     setActiveShippingAddress(id);
     // setActiveShippingaddressChecked(id);
   };
-  // useEffect(() => {
-  //   async function fetchProducts() {
-  //     if (cartProducts?.length > 0) {
-  //       setAllProducts(cartProducts);
-  //     }
-  //     dispatch(showLoader());
-  //     try {
-  //       const response = await axios.get(
-  //         "https://admin.tradingmaterials.com/api/get/products",
-  //         {
-  //           headers: {
-  //             "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-  //             Accept: "application/json",
-  //           },
-  //         }
-  //       );
-  //       if (response?.data?.status) {
-  //         // setAllProducts(response?.data?.data?.products)
-  //         dispatch(fetchAllProducts(response?.data?.data));
-  //         // setSubCatProducts(response?.data?.data?.products)
-  //       }
-  //     } catch (err) {
-  //       console.log("err");
-  //     } finally {
-  //       dispatch(hideLoader());
-  //     }
-  //   }
 
-  //   fetchProducts();
-  // }, [cartProducts]);
-
-  useEffect(() => {
-    getUserInfo();
-  }, []);
 
   useEffect(() => {
     getUserInfo();
@@ -348,45 +314,7 @@ export default function AddToCart() {
   };
 
   // Calculate the total price for each product based on the quantity
-  const calculateTotalPrice = (product) => {
-    const quantity = quantities[product.id] || 1;
-    const price = product?.prices?.find((price) => {
-      return price?.USD;
-    });
-    console.log(price);
-    if (price) {
-      const totalPrice = quantity * price.USD;
-      // setPrices((prevPrices) => ({ ...prevPrices, [product.id]: totalPrice }));
-      return totalPrice.toFixed(2);
-    }
-    return "0.00";
-  };
 
-  const handleFormSubmit = async (values, actions) => {
-    setIsSuccess(false);
-    setIsFailure(false);
-    // Perform form submission logic here, e.g., sending data to the server
-    // For demonstration purposes, let's assume the submission is successful after 2 seconds
-    try {
-      const token = localStorage.getItem("client_token");
-      const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/client/add-new/address",
-        values,
-        {
-          headers: {
-            "access-token": token,
-          },
-        }
-      );
-    } catch (err) {
-      console.log(err, "error");
-    }
-
-    // setTimeout(() => {
-    //   setIsSuccess(false);
-    //   setIsFailure(false);
-    // }, 6000);
-  };
 
   const handleBillingSameAsShipping = () => {
     setBillingSameAsShipping(!billingSameAsShipping);
@@ -541,7 +469,7 @@ export default function AddToCart() {
               <div className="col-lg-8 pe-lg-0">
                 <div
                   className={`nk-entry pe-lg-5 py-lg-5 ${
-                    allProducts?.length ? "max-h-[50%]" : ""
+                    allProducts?.length ? "max-h-[65%]" : ""
                   }  overflow-y-auto`}
                 >
                   <div className="mb-5">
@@ -549,9 +477,9 @@ export default function AddToCart() {
                       <table className="table">
                         <tbody>
                           {allProducts?.length &&
-                            allProducts?.map((product, ind) => {
+                            allProducts?.map((product,ind) => {
                               return (
-                                <tr>
+                                <tr key={ind}>
                                   <td className="w-50">
                                     <div className="d-flex align-items-start">
                                       <img
@@ -863,7 +791,7 @@ export default function AddToCart() {
                                 // console.log(add?.id, activeBillingAddress)
                                 if (add?.id !== activeBillingAddress) {
                                   return (
-                                    <div className="">
+                                    <div className="" key={ind}>
                                       <li className="d-flex align-items-center ">
                                         <div className="!block">
                                           <input
@@ -891,15 +819,6 @@ export default function AddToCart() {
                                       </li>
 
                                       <li className="d-flex align-items-center gap-5 text-gray-1200">
-                                        {/* <div className="!block">
-                          <input
-                type="checkbox"
-                checked={ind === activeShippingAddressChecked}
-                onChange={() => handleShippingAddressChange(ind)}
-                className="form-check-input"
-              />
-                          </div> */}
-
                                         <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                                           Full Name:
                                         </p>
@@ -1039,7 +958,7 @@ export default function AddToCart() {
                   )}
                   <hr /> */}
                     <div className="nk-section-blog-details">
-                      <h4 className="mb-3">Order Summary</h4>
+                      <h4 className="mb-3 !font-bold">Order Summary</h4>
                       <div className="pt-0 mb-3">
                         {/* <!-- <h6 className="fs-18 mb-0">Promocode</h6> --> */}
                         <div className="d-flex w-75">
@@ -1092,7 +1011,7 @@ export default function AddToCart() {
                             Tax:
                           </p>
                           <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {allProducts?.length > 0 ? "₹ 40.00" : "₹ 0.00"}
+                            {allProducts?.length > 0 ? "₹ 0.00" : "₹ 0.00"}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -1100,7 +1019,7 @@ export default function AddToCart() {
                             Discount:
                           </p>
                           <p className="m-0 fs-14 text-danger w-75">
-                            {discount}
+                            {discount} ({discountPercentage}%)
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -1140,12 +1059,12 @@ export default function AddToCart() {
                       </button>
                       {userData?.client?.primary_address?.length === 0 && (
                         <span className="text-red-800 font-semibold">
-                          Please add Address before palcing order.
+                          Please add Address before placing order.
                         </span>
                       )}
                       {apiErr?.length > 0 &&
-                        apiErr?.map((err, ind) => (
-                          <span className="text-red-800 font-semibold">
+                        apiErr?.map((err,ind) => (
+                          <span key={ind} className="text-red-800 font-semibold">
                             {err}
                           </span>
                         ))}

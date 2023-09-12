@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 // AddressForm.js
 import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -15,6 +16,7 @@ const AddressSchema = Yup.object().shape({
   zip: Yup.string().required("Zipcode is required"),
 });
 
+// eslint-disable-next-line react/prop-types
 const AddressForm = ({ type, data, closeModal }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
@@ -43,6 +45,7 @@ const AddressForm = ({ type, data, closeModal }) => {
               zip: values?.zip,
             }
           : {
+              // eslint-disable-next-line react/prop-types
               id: data?.id,
               city: values?.city,
               state: values?.state,
@@ -135,12 +138,18 @@ const AddressForm = ({ type, data, closeModal }) => {
                 <label className="font-semibold" htmlFor="add_1">
                   Street Address 1
                 </label>
-                <Field
+                {type==="view" ? <Field
                   type="text"
                   name="add_1"
                   className="form-control"
                   placeholder="House number and street name"
-                />
+                  disabled
+                /> : <Field
+                type="text"
+                name="add_1"
+                className="form-control"
+                placeholder="House number and street name"
+              />}
                 <ErrorMessage
                   name="add_1"
                   component="div"
@@ -151,24 +160,36 @@ const AddressForm = ({ type, data, closeModal }) => {
                 <label className="font-semibold" htmlFor="add_2">
                   Street Address 2
                 </label>
-                <Field
+                { type==="view" ? <Field
                   type="text"
                   name="add_2"
                   className="form-control"
                   placeholder="Apartment, suite, unit...."
-                />
+                  disabled
+                /> : <Field
+                type="text"
+                name="add_2"
+                className="form-control"
+                placeholder="Apartment, suite, unit...."
+              />}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="city">
                     City
                   </label>
-                  <Field
+                  {type==="view" ? <Field
                     type="text"
                     name="city"
                     className="form-control"
                     placeholder="City"
-                  />
+                    disabled
+                  /> : <Field
+                  type="text"
+                  name="city"
+                  className="form-control"
+                  placeholder="City"
+                />}
                   <ErrorMessage
                     name="city"
                     component="div"
@@ -179,12 +200,18 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <label className="font-semibold" htmlFor="state">
                     State
                   </label>
-                  <Field
+                 {type==="view" ?  <Field
                     type="text"
                     name="state"
                     className="form-control"
                     placeholder="State"
-                  />
+                    disabled
+                  />: <Field
+                  type="text"
+                  name="state"
+                  className="form-control"
+                  placeholder="State"
+                />}
                   <ErrorMessage
                     name="state"
                     component="div"
@@ -197,12 +224,20 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <label className="font-semibold" htmlFor="country">
                     Country
                   </label>
-                  <Field
+                  {type=== "view" ? <Field
                     type="text"
                     name="country"
                     className="form-control"
                     placeholder="United States (US)"
-                  />
+                    disabled 
+                    
+
+                  /> : <Field
+                  type="text"
+                  name="country"
+                  className="form-control"
+                  placeholder="United States (US)"
+                />}
                   <ErrorMessage
                     name="country"
                     component="div"
@@ -213,12 +248,18 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <label className="font-semibold" htmlFor="zip">
                     Postcode Zip
                   </label>
-                  <Field
+                  {type==="view" ? <Field
                     type="text"
                     name="zip"
                     className="form-control"
                     placeholder="postal zip"
-                  />
+                    disabled
+                  /> :  <Field
+                  type="text"
+                  name="zip"
+                  className="form-control"
+                  placeholder="postal zip"
+                />}
                   <ErrorMessage
                     name="zip"
                     component="div"
@@ -226,9 +267,9 @@ const AddressForm = ({ type, data, closeModal }) => {
                   />
                 </div>
               </div>
-              <button type="submit" className="btn btn-primary mt-3">
+              {type!== "view" && <button type="submit" className="btn btn-primary mt-3">
                 Submit
-              </button>
+              </button>}
             </div>
           </Form>
         )}

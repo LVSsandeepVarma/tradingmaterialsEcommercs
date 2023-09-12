@@ -8,9 +8,9 @@ import OtpInput from "react-otp-input";
 import { Alert } from "@mui/material";
 
 export default function Otp() {
-  const [email, setEmail] = useState("");
   const [otpError, setotpError] = useState("");
   const [otp, setOtp] = useState("");
+  // eslint-disable-next-line no-unused-vars
   const [successMEssage, setSuccessMessage] = useState("");
   const [apiError, setApiError] = useState();
   const params = useParams();
@@ -26,8 +26,6 @@ export default function Otp() {
     const verifyHash = async () => {
       try {
         dispatch(showLoader());
-        const urlParameter = window.location.pathname;
-        const hash = urlParameter.substring(urlParameter.lastIndexOf("/") + 1);
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/lead/verify/hash",
           {
@@ -49,13 +47,12 @@ export default function Otp() {
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
+
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
+
     }
   }, []);
 
@@ -67,10 +64,6 @@ export default function Otp() {
     }
   }
 
-  const handleEmailChange = (e) => {
-    setOtp(e?.target?.value);
-    otpValidation(otp);
-  };
 
   async function handleFormSubmission() {
     setApiError([]);
@@ -97,6 +90,7 @@ export default function Otp() {
       } catch (err) {
         console.log("err", err);
         if (err?.response?.data?.errors) {
+          // eslint-disable-next-line no-unsafe-optional-chaining
           setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
           setApiError([err?.response?.data?.message]);
@@ -198,6 +192,7 @@ export default function Otp() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
+                                key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"

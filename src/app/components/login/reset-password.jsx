@@ -1,20 +1,21 @@
+/* eslint-disable no-unsafe-optional-chaining */
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { loginUser } from "../../../features/login/loginSlice";
+// import { loginUser } from "../../../features/login/loginSlice";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
-import { updateUsers } from "../../../features/users/userSlice";
-import { updateNotifications } from "../../../features/notifications/notificationSlice";
-import { useTranslation } from "react-i18next";
+// import { updateUsers } from "../../../features/users/userSlice";
+// import { updateNotifications } from "../../../features/notifications/notificationSlice";
+// import { useTranslation } from "react-i18next";
 import { userLanguage } from "../../../features/userLang/userLang";
-import { updateclientType } from "../../../features/clientType/clientType";
+// import { updateclientType } from "../../../features/clientType/clientType";
 import { Alert } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 
 export default function NewPassword() {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
 
   const [confirmPassword, setconfirmPassword] = useState("");
   const [password, setPassword] = useState("");
@@ -40,19 +41,19 @@ export default function NewPassword() {
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
+    
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
+      
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
+     
     }
   }, []);
 
   function confirmPasswordValidaiton(confirmPassword) {
-    const confirmPasswordRegex =
-      /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    // const confirmPasswordRegex =
+    //   /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (confirmPassword?.length === 0) {
       setconfirmPasswordError("confirm Password is required");
     } else if (confirmPassword !== password) {
@@ -334,6 +335,7 @@ export default function NewPassword() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
+                                key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"

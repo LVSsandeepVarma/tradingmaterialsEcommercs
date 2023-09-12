@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../header/header";
@@ -6,9 +7,7 @@ import {
   hideLoader,
   showLoader,
 } from "../../../../features/loader/loaderSlice";
-import { fetchAllProducts } from "../../../../features/products/productsSlice";
 import axios from "axios";
-import ShippingAddressModal from "../../modals/address";
 import { Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -16,22 +15,18 @@ import { Divider } from "@mui/material";
 import CryptoJS from "crypto-js";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
-import ConfettiExplosion from "react-confetti-explosion";
 
 export default function PaymentVerifyStripe() {
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const products = useSelector((state) => state?.products?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const userData = useSelector((state) => state?.user?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
   const userLang = useSelector((state) => state?.lang?.value);
-  const clientType = useSelector((state) => state?.clientType?.value);
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [paymentStatus, setPaymentStatus] = useState("loading");
   // State variable to track quantities for each product
-  const [orderId, setOrderId] = useState(localStorage.getItem("order_id"));
   const [orderData, setOrderData] = useState({});
   const [paymentVerification, setPaymentVerification] = useState(false);
   const [clientToken, setClientToken] = useState("");
@@ -60,11 +55,11 @@ export default function PaymentVerifyStripe() {
           console.log(clientToken, "actoken");
           console.log(localStorage.getItem("tmToken"));
           if (clientToken === undefined || clientToken === "") {
-            window.location.href = `http://localhost:3000/auto-login/${localStorage.getItem(
+            window.location.href = `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
               "client_token"
             )}`;
           } else {
-            window.location.href = `http://localhost:3000/auto-login/${clientToken}`;
+            window.location.href = `https://client.tradingmaterials.com/auto-login/${clientToken}`;
           }
         }
       }, 1000);
@@ -103,14 +98,6 @@ export default function PaymentVerifyStripe() {
     verifyPayment()
     fetchOrderdetails();
   }, []);
-
-
-
-
-
-
-
-
 
   //payment verification Stripe
   async function verifyPayment() {
@@ -178,11 +165,6 @@ export default function PaymentVerifyStripe() {
     }
   }
   
-
-
-
-
-
   return (
     <>
       {loaderState && (
@@ -226,9 +208,9 @@ export default function PaymentVerifyStripe() {
                       <table className="table">
                         <tbody>
                           {allProducts?.length &&
-                            allProducts?.map((product, ind) => {
+                            allProducts?.map((product,ind) => {
                               return (
-                                <tr>
+                                <tr key={ind}>
                                   <td className="w-50">
                                     <div className="d-flex align-items-start">
                                       <img
@@ -414,10 +396,10 @@ export default function PaymentVerifyStripe() {
                     <div className="paper-container !text-center ">
                       <div className="printer-bottom"></div>
 
-                      <div className="paper drop-shadow-lg">
-                        <div className="main-contents">
+                      <div className={`paper drop-shadow-lg `}>
+                        <div className={`main-contents ${paymentStatus==="failed" ? "!bg-gradient-to-tr from-red-600 to-red-200": paymentStatus==="success"? "!bg-gradient-to-tr from-green-600 to-green-200" : ""}`}>
                           <div
-                            class={`flex items-center justify-center ${
+                            className={`flex items-center justify-center ${
                               paymentStatus === "success"
                                 ? "success-icon "
                                 : "fail-icon"
@@ -433,13 +415,13 @@ export default function PaymentVerifyStripe() {
                               />
                             )}
                           </div>
-                          <div className="success-title !text-xl">
+                          <div className={`success-title !text-xl ${paymentStatus === "loading" ? "" : "!text-white"}`}>
                             {paymentStatus === "success"
                               ? "Payment Successful"
                               : "Payment Failure"}
                           </div>
 
-                          <div className="success-description">
+                          <div className={`success-description ${paymentStatus === "loading" ? "" : "!text-white"}`}>
                             {paymentStatus === "success"
                               ? `Thank you for your payment made on ${new Date().toLocaleDateString(
                                 "en-GB"
@@ -450,11 +432,11 @@ export default function PaymentVerifyStripe() {
                           <div className="order-details"></div>
                           {paymentStatus === "success" ? (
                             <>
-                              <div className="order-footer text-gray-700">
+                              <div className={`order-footer text-gray-700  ${paymentStatus === "loading" ? "" : "!text-white"}` }>
                                 Thankyou
                               </div>
                               <small
-                                className="cursor-pointer hover:text-green-600  font-bold "
+                                className={`cursor-pointer hover:text-green-600  font-bold  ${paymentStatus === "loading" ? "" : "!text-white"}`}
                                 onClick={() => navigate(`/order-tracking/${id}`)}
                               >
                                 Do not Refresh the page, we will redirect to
@@ -473,14 +455,14 @@ export default function PaymentVerifyStripe() {
                                   .replace(/\//g, "_")
                                   .replace(/\+/g, "-")}`} target="_blank"
                                 type="button"
-                                className="!bg-[#009688] !border-[#009688] text-white w-[50%] p-2 mr-1 !rounded-none"
+                                className="!bg-red-600 !border-red-600 drop-shadow-lg text-white w-[50%] p-2 mr-1 !rounded-none"
                               >
                                 Retry
                               </Button>
                             </div>
                           )}
                         </div>
-                        <div className="jagged-edge"></div>
+                        <div className={`jagged-edge ${paymentStatus === "success" ? "jagged-edge-success" : paymentStatus === "failed" ? "jagged-edge-failed" : "jagged-edge-loading"}`}></div>
                       </div>
                     </div>
                   </div>

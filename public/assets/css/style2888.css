@@ -2477,8 +2477,8 @@ progress {
 
 .table-success {
     --bs-table-color: #000;
-    --bs-table-bg: #d3f3df;
-    --bs-table-border-color: #bedbc9;
+    --bs-table-bg: #fff;
+    --bs-table-border-color: #f7f7f7;
     --bs-table-striped-bg: #c8e7d4;
     --bs-table-striped-color: #000;
     --bs-table-active-bg: #bedbc9;
@@ -10312,8 +10312,8 @@ fieldset:disabled .btn {
     pointer-events: auto;
     background-color: var(--bs-modal-bg);
     background-clip: padding-box;
-    border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
-    border-radius: var(--bs-modal-border-radius);
+    border:1px solid green;
+    border-radius: 0.75rem;
     outline: 0
 }
 

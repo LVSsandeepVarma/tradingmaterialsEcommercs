@@ -7,13 +7,13 @@ import { loginUser } from "../../../features/login/loginSlice";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { userLanguage } from "../../../features/userLang/userLang";
 import { updateclientType } from "../../../features/clientType/clientType";
 import { Alert } from "@mui/material";
 
 export default function Login() {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,13 +44,13 @@ export default function Login() {
     }
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
+
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
+     
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
+
     }
   }, []);
 
@@ -138,7 +138,7 @@ export default function Login() {
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
           if (response?.data?.data?.type === "client") {
-            navigate(`http://localhost:3000/auto-login/${localStorage.getItem("client_token")}`);
+            navigate(`https://client.tradingmaterials.com/${localStorage.getItem("client_token")}`);
           } else {
             navigate(`${userLang}/profile`);
           }
@@ -157,6 +157,7 @@ export default function Login() {
       } catch (err) {
         console.log("err", err);
         if (err?.response?.data?.errors) {
+          // eslint-disable-next-line no-unsafe-optional-chaining
           setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
           setApiError([err?.response?.data?.message]);
@@ -288,7 +289,7 @@ export default function Login() {
                             />
                             <label
                               className="form-check-label"
-                              for="rememberMe"
+                              htmlFor="rememberMe"
                             >
                               {" "}
                               Remember Me{" "}
@@ -327,6 +328,7 @@ export default function Login() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
+                                key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"

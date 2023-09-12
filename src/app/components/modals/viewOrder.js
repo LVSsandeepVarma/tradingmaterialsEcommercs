@@ -1,5 +1,6 @@
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
-import { Breadcrumb, Modal } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import axios from "axios";
@@ -16,13 +17,9 @@ import ListAltSharpIcon from '@mui/icons-material/ListAltSharp';
 import AssignmentTurnedInSharpIcon from "@mui/icons-material/AssignmentTurnedInSharp";
 import {
   Box,
-  Card,
   CardActionArea,
-  CardContent,
-  CardMedia,
   Chip,
   Divider,
-  Typography,
 } from "@mui/material";
 
 export default function ViewOrderModal({ show, onHide, orderId }) {
@@ -116,6 +113,7 @@ export default function ViewOrderModal({ show, onHide, orderId }) {
                       style={{ width: "20px" }}/> Order Items</p>
                 {orderData?.map((product, ind) => (
                   <CardActionArea
+                  key={ind*3}
                     onClick={() =>
                       navigate(
                         `${userLang}/product-detail/${
@@ -235,120 +233,7 @@ export default function ViewOrderModal({ show, onHide, orderId }) {
                 </div>
 
                 <Divider />
-                {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-5">
-                {orderData?.map((product, ind) => (
-                  <Card className="mt-5 " sx={{ maxWidth: 345 }}>
-                    <CardActionArea>
-                          <CardMedia
-                            component="img"
-                            height="140"
-                            image={product?.product?.img_1}
-                            alt="green iguana"
-                            className="sm:!h-[300px]"
-                            onClick={() =>
-                              navigate(
-                                `${userLang}/product-detail/${
-                                  product?.product?.slug
-                                }/${CryptoJS?.AES?.encrypt(
-                                  `${product?.product?.id}`,
-                                  "trading_materials"
-                                )
-                                  ?.toString()
-                                  .replace(/\//g, "_")
-                                  .replace(/\+/g, "-")}`
-                              )
-                            }
-                          />
-                          <CardContent>
-                            <Typography
-                              gutterBottom
-                              variant="h5"
-                              component="div"
-                            >
-                              <div className="nk-card-info bg-white p-4">
-                                <a
-                                  href={`${userLang}/product-detail/${
-                                    product?.slug
-                                  }/${CryptoJS?.AES?.encrypt(
-                                    `${product?.product?.id}`,
-                                    "trading_materials"
-                                  )
-                                    ?.toString()
-                                    .replace(/\//g, "_")
-                                    .replace(/\+/g, "-")}`}
-                                  className="d-inline-block mb-1 line-clamp-1 h5 !font-bold text-left"
-                                  style={{
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    width: "90%",
-                                  }}
-                                >
-                                  {product?.product?.name}
-                                  <br />
-                                  {/* <span className="text-xs !mt-1">
-                                    <p
-                                      onClick={() => {
-                                        navigate(
-                                          `${userLang}/product-detail/${
-                                            item?.product?.slug
-                                          }/${CryptoJS?.AES?.encrypt(
-                                            `${item?.product?.id}`,
-                                            "trading_materials"
-                                          )
-                                            ?.toString()
-                                            .replace(/\//g, "_")
-                                            .replace(/\+/g, "-")}`
-                                        );
-                                        dispatch(showLoader());
-                                      }}
-                                      className="!mt-5 text-gray-700  truncate"
-                                      dangerouslySetInnerHTML={{
-                                        __html:
-                                          product?.product?.description?.length > 55
-                                            ? `${product?.product?.description?.slice(
-                                                0,
-                                                55
-                                              )}...`
-                                            : product?.product?.description,
-                                      }}
-                                    />
-                                  </span> */}
-                {/* </a>
-                                <div className="d-flex align-items-center justify-content-start">
-                                  <p className="fs-16 m-0 text-gray-900 font-semibold text-start !mr-2 ">
-                                    Amount : <b className="text-black">₹{product?.price}</b>
-                                  </p>
-                                  </div>
-                                  <div className="d-flex align-items-center justify-content-start">
-                                  <p
-                                    className="fs-16 m-0 text-gray-900 font-semibold text-start !mr-2 "
-                                    
-                                  > */}
-                {/* <span className="text-base text-black font-semibold flex !items-left"> */}
-                {/* Qty: <b className="text-black">{product?.qty}</b> */}
-                {/* </span> */}
-
-                {/* </p>
-                                  </div>
-                                  <div className="d-flex align-items-center justify-content-start">
-                                  <p
-                                    className="fs-16 m-0 text-gray-900 font-semibold text-start !mr-2 "
-                                  > */}
-                {/* <span className="text-base text-black font-semibold flex !items-center"> */}
-                {/* Total:<b className="text-black">{product?.total}</b> */}
-                {/* </span> */}
-
-                {/* </p>
-                                </div>
-                              </div> */}
-                {/* </Typography> */}
-                {/* </CardContent> */}
-
-                {/* </CardActionArea> */}
-                {/* </Card> */}
-                {/* ))} */}
-                {/* </div> */}
+               
               </Box>
             </div>
           </>

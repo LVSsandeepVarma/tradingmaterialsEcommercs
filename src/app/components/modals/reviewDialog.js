@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -9,7 +10,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useDispatch } from 'react-redux';
 import { hideLoader, showLoader } from '../../../features/loader/loaderSlice';
 import { useState } from 'react';
-import { Alert } from '@mui/material';
 import axios from 'axios';
 
 export default function ReviewDialog({type, open, handleClose, reviewId}) {
