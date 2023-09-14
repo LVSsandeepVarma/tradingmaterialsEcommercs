@@ -13,7 +13,7 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import "animate.css";
 import { updateCartCount } from "../../../features/cartWish/focusedCount";
-import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
+// import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
 import { useTranslation } from "react-i18next";
 import { userLanguage } from "../../../features/userLang/userLang";
 import SignupModal from "../modals/signup";
@@ -24,6 +24,8 @@ import LoginModal from "../modals/login";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import ForgotPasswordModal from "../modals/forgotPassword";
 import Offer from "../forms/offer";
+import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
+import { Divider } from "@mui/material";
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -47,6 +49,27 @@ export default function Header() {
   const location = useLocation();
 
   const [toggleNavbar, setToggleNavbar] = useState(false);
+  const [greetUser, setGreetUser] = useState("Good Morning")
+  useEffect(()=>{
+    function updateGreeting() {
+      var currentTime = new Date();
+      var currentHour = currentTime.getHours();
+      var greeting;
+
+      if (currentHour < 12) {
+        greeting = "Good Morning";
+      } else if (currentHour < 18) {
+        greeting = "Good Afternoon";
+      } else if (currentHour < 22) {
+        greeting = "Good Evening";
+      } else {
+        greeting = "Good Night";
+      }
+      return greeting
+    }
+      const greet = updateGreeting()
+      setGreetUser(greet)
+  },[])
 
   console.log(notifications);
 
@@ -164,7 +187,14 @@ export default function Header() {
         dispatch(hideLoader());
       }
     }else{
-      dispatch(showPopup())
+      dispatch(
+        usersignupinModal({
+          showSignupModal: false,
+          showLoginModal: true,
+          showforgotPasswordModal: false,
+          showOtpModal: false,
+          showNewPasswordModal: false,
+        }))
     }
   };
 
@@ -367,6 +397,7 @@ export default function Header() {
         centered
         size="md"
         style={{borderRadius:"0.75rem"}}
+        className="offer"
         
       >
         {/* <Modal.Header className="!text-center w-full !text-white !font-bold text-2xl bg-[#8fd499] !fill-white-500 p-[8px]">
@@ -377,28 +408,28 @@ export default function Header() {
         </Modal.Header> */}
         <Modal.Body className="p-0 !rounded-xl bg-[#8fd499]" style={{borderRadius:"0.75rem", paddingLeft:"30px !important", paddingTop:"9px !important"}}>
           <div id="popup" className="!rounded-lg  !pl-5 !pt-5" style={{borderRadius:"0.75rem", paddingLeft:"30px !important", paddingTop:"9px !important", background:"linear-gradient(135deg, #227d22, lightgreen)"}}>
-          <div className="flex items-center ">
+          <div className="d-flex items-center ">
           <h3
                   className="!font-bold text-white text-left pl-3 pt-3 w-[50%]"
                   style={{ fontSize: "25px", height: "100%" }}
                 >
                   Get 10% off Now
                 </h3>
-                <div className="flex items-center justify-center w-[50%]">
+                <div className="d-flex items-center justify-center w-[50%]">
                 <img className="" src="/images/oneDayLeft.png" width={"50%"} alt="oneDayleft_png"></img>
                 </div>
           </div>
-            <div className=" flex items-center !justify-center  rounded-xl">
+            <div className=" d-flex items-center !justify-center  rounded-xl">
               <div className="popup-img  !text-left">
                 <img src="/images/offer-nobg.png" alt="offer-img" />
                 
               </div>
 
-              <div className="tb-space flex justify-center  mt-[22px] w-full ">
+              <div className="tb-space d-flex justify-center  mt-[22px] w-full ">
                 <div className="!inline ">
                   <div></div>
                 <Offer/>
-                <div className="">
+                {/* <div className="">
         <button
                     type="button "
                     className="ss4-button-2  !p-2  "
@@ -419,7 +450,7 @@ export default function Header() {
                     <span></span>
                     Claim Your Offer
                   </button>
-                  </div>
+                  </div> */}
                 </div>
 
                 
@@ -669,17 +700,24 @@ export default function Header() {
                             </span>
                           </a>
                         </li>
+                         
                         {isLoggedIn && (
                           <li className="nk-nav-item has-sub">
+                            <Divider orientation="vertical"/>
+                            <div className="text-left nk-nav-item  !block has-sub ">
+                              <p className="nk-nav-link pb-0  pt-0 !text-xs">{greetUser}</p>
+                            
                             <a
-                              className="nk-nav-link nk-nav-toggle cursor-pointer"
+                              className="nk-nav-link nk-nav-toggle cursor-pointer pt-0 pb-0 !text-blue-900"
+                              style={{width:"1px"}}
                               onClick={() =>
                                 activeDropDown === "profile"
                                   ? setActiveDropDown("")
                                   : setActiveDropDown("profile")
                               }
                             >
-                              <span className="nk-nav-text">
+                              
+                              <span className="nk-nav-text capitalize  !text-sm">
                                 {userData?.client?.first_name}
                               </span>
                             </a>
@@ -721,6 +759,7 @@ export default function Header() {
                                 </ul>
                               </li>
                             </ul>
+                            </div>
                           </li>
                         )}
 
@@ -798,7 +837,14 @@ export default function Header() {
                             if (isLoggedIn) {
                               navigate(`${userLang}/profile?wishlist`);
                             } else {
-                              dispatch(showPopup());
+                              dispatch(
+                                usersignupinModal({
+                                  showSignupModal: false,
+                                  showLoginModal: true,
+                                  showforgotPasswordModal: false,
+                                  showOtpModal: false,
+                                  showNewPasswordModal: false,
+                                }))
                             }
                           }}
                           type="button"
@@ -845,7 +891,14 @@ export default function Header() {
                             if (isLoggedIn) {
                               navigate(`${userLang}/cart`);
                             } else {
-                              dispatch(showPopup());
+                              dispatch(
+                                usersignupinModal({
+                                  showSignupModal: false,
+                                  showLoginModal: true,
+                                  showforgotPasswordModal: false,
+                                  showOtpModal: false,
+                                  showNewPasswordModal: false,
+                                }))
                             }
                           }}
                         >

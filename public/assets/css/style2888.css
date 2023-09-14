@@ -10312,9 +10312,13 @@ fieldset:disabled .btn {
     pointer-events: auto;
     background-color: var(--bs-modal-bg);
     background-clip: padding-box;
-    border:1px solid green;
+    
     border-radius: 0.75rem;
     outline: 0
+}
+
+.offer .modal-content{
+border:1px solid green;
 }
 
 .modal-backdrop {

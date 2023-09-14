@@ -184,12 +184,17 @@ export default function AddToCart() {
       if (response?.data?.status) {
         console.log(response?.data?.data);
         setSubTotal(response?.data?.data?.subtotal);
+        if(response?.data?.data?.discount !== undefined){
         setDiscount(response?.data?.data?.discount);
         setDiscountPercentage(
           response?.data?.data?.percentage !== null
             ? response?.data?.data?.percentage
             : 0
         );
+        }else{
+          setDiscount(0);
+          setDiscountPercentage(0)
+        }
       }
     } catch (err) {
       console.log(err, "err");
@@ -665,7 +670,7 @@ export default function AddToCart() {
                                 Full Name:
                               </p>
                               <p className="m-0 fs-14 text-gray-1200 w-75">
-                                {userData?.client?.first_name}
+                                {userData?.client?.first_name}&nbsp;{userData?.client?.last_name}
                               </p>
                             </li>
                             <li className="d-flex align-items-center gap-5 text-gray-1200">

@@ -8,13 +8,14 @@ import { useDispatch } from "react-redux";
 import { updateaddressStatus } from "../../../features/address/addressSlice";
 
 const AddressSchema = Yup.object().shape({
-  city: Yup.string().required("City is required"),
-  state: Yup.string().required("State is required"),
-  country: Yup.string().required("Country is required"),
+  city: Yup.string().matches( /^[A-Za-z ]+$/, "Invalid City").required("City is required"),
+  state: Yup.string().matches( /^[A-Za-z ]+$/, "Invalid State").required("State is required"),
+  country: Yup.string().matches( /^[A-Za-z ]+$/ , "Invalid Country").required("Country is required"),
   add_1: Yup.string().required("Street Address 1 is required"),
   add_2: Yup.string(),
-  zip: Yup.string().required("Zipcode is required"),
+  zip: Yup.string().matches(/^[0-9]{6}$|^[0-9]{3}\s[0-9]{3}$/, 'Invalid format').required("Zipcode is required"),
 });
+
 
 // eslint-disable-next-line react/prop-types
 const AddressForm = ({ type, data, closeModal }) => {

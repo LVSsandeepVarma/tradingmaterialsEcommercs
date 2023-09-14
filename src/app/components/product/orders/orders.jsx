@@ -14,9 +14,10 @@ import { Divider } from "@mui/material";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
-import { showPopup } from "../../../../features/popups/popusSlice";
+// import { showPopup } from "../../../../features/popups/popusSlice";
 import ShippingAddressModal from "../../modals/address";
 import { usersignupinModal } from "../../../../features/signupinModals/signupinSlice";
+import AddToFav from "../../modals/addToFav";
 
 export default function Orders() {
   const navigate = useNavigate();
@@ -31,6 +32,9 @@ export default function Orders() {
   const isLoggedIn = useSelector((state) => state?.login?.value);
   const [showModal, setShowModal] = useState(false);
   const [orderShippingAddress, setOrderShippingAddress] = useState([]);
+  const [addedToFavImg, setAddedToFavImg] = useState("")
+  const [showFavModal, setShowFavModal] = useState(false)
+  const [modalMessage, setModalMessage] = useState("")
 
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
@@ -79,7 +83,7 @@ export default function Orders() {
   }
 
   // function for handling add to cart animation
-  async function handleAddToCart(productId) {
+  async function handleAddToCart(productId, productImg) {
     try {
       //   setAnimateProductId(productId);
       const response = await axios?.post(
@@ -96,12 +100,10 @@ export default function Orders() {
         }
       );
       if (response?.data?.status) {
-        dispatch(
-          updateNotifications({
-            type: "success",
-            message: "Added to cart successfully",
-          })
-        );
+        setAddedToFavImg(productImg)
+        setShowFavModal(true)
+        setModalMessage("Added to your cart successfully")
+
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
       }
@@ -207,6 +209,12 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
     }
   };
 
+  const closeModal=()=>{
+    setShowFavModal(false);
+    setModalMessage("")
+    setAddedToFavImg("")
+  }
+
   return (
     <>
       {loaderState && (
@@ -214,6 +222,9 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
           <div className="loader"></div>
         </div>
       )}
+      {addedToFavImg!== "" && 
+        <AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} />
+      }
       <ShippingAddressModal
         show={showModal}
         onHide={() => setShowModal(false)}
@@ -942,8 +953,15 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
                                         style={{ fontSize: "12px" }}
                                         onClick={(event) => {
                                           return isLoggedIn
-                                            ? handleAddToCart(product?.id)
-                                            : dispatch(showPopup());
+                                            ? handleAddToCart(product?.id, product?.img_1)
+                                            : dispatch(
+                                              usersignupinModal({
+                                                showSignupModal: false,
+                                                showLoginModal: true,
+                                                showforgotPasswordModal: false,
+                                                showOtpModal: false,
+                                                showNewPasswordModal: false,
+                                              }))
                                         }}
                                       >
                                         Addto Cart

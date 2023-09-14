@@ -15,14 +15,14 @@ import { fetchAllProducts } from "../../../../features/products/productsSlice";
 import GitHubForkRibbon from 'react-github-fork-ribbon';
 import { updateUsers } from "../../../../features/users/userSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
-import {
-  updateNotifications,
-} from "../../../../features/notifications/notificationSlice";
+// import {
+//   updateNotifications,
+// } from "../../../../features/notifications/notificationSlice";
 import {
   updateCartCount,
   updateWishListCount,
 } from "../../../../features/cartWish/focusedCount";
-import { showPopup } from "../../../../features/popups/popusSlice";
+// import { showPopup } from "../../../../features/popups/popusSlice";
 // import Swiper from "swiper";
 import "swiper/css";
 import "swiper/css/free-mode";
@@ -36,6 +36,8 @@ import { Avatar, Button, Divider, Skeleton } from "@mui/material";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import ReviewDialog from "../../modals/reviewDialog";
 import { logoutUser } from "../../../../features/login/loginSlice";
+import { usersignupinModal } from "../../../../features/signupinModals/signupinSlice";
+import AddToFav from "../../modals/addToFav";
 
 // import { delay } from "@reduxjs/toolkit/dist/utils";
 
@@ -61,6 +63,9 @@ export default function ProductDetails() {
   const [dialogType, setDialogType] = useState("helpful");
   const [apiError, setApiError] = useState([]);
   const [reviewIdErr, setReviewIdErr] = useState("");
+  const [addedToFavImg, setAddedToFavImg] = useState("")
+  const [showFavModal, setShowFavModal] = useState(false)
+  const [modalMessage, setModalMessage] = useState("")
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
@@ -209,7 +214,7 @@ export default function ProductDetails() {
 
 
   // function for handling add to cart animation
-  async function handleAddToCart(productId) {
+  async function handleAddToCart(productId, productImg) {
     // setAnimateProductId(productId)
     try {
       // dispatch(showLoader());
@@ -227,12 +232,9 @@ export default function ProductDetails() {
         }
       );
       if (response?.data?.status) {
-        dispatch(
-          updateNotifications({
-            type: "success",
-            message: response?.data?.message,
-          })
-        );
+        setAddedToFavImg(productImg)
+        setShowFavModal(true)
+        setModalMessage("Added to your cart successfully")
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
         getUserInfo();
@@ -245,7 +247,7 @@ export default function ProductDetails() {
     // }
   }
 
-  async function handleAddToWishList(id) {
+  async function handleAddToWishList(id, productImg) {
     console.log(id);
     try {
       dispatch(showLoader());
@@ -275,12 +277,9 @@ export default function ProductDetails() {
         headerData
       );
       if (response?.data?.status) {
-        dispatch(
-          updateNotifications({
-            type: "success",
-            message: response?.data?.message,
-          })
-        );
+        setAddedToFavImg(productImg)
+        setShowFavModal(true)
+        setModalMessage("Added to your wishlist successfully")
         // dispatch(updateWis(response?.data?.data?.cart_details));
         dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
         getUserInfo();
@@ -342,6 +341,12 @@ export default function ProductDetails() {
     }
   }
 
+  const closeModal=()=>{
+    setShowFavModal(false);
+    setModalMessage("")
+    setAddedToFavImg("")
+  }
+
   return (
     <>
       <Helmet data-react-helmet="true">
@@ -388,6 +393,10 @@ export default function ProductDetails() {
           reviewId={reviewId}
         />
       )}
+
+{addedToFavImg!== "" && 
+        <AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} />
+      }
 
       <div className="nk-body">
         <div className="nk-body-root">
@@ -821,7 +830,14 @@ export default function ProductDetails() {
                             </div>
                             <a href="#" className="d-flex    text-gray-1200" onClick={()=>{
                               if(!isLoggedIn){
-                                dispatch(showPopup())
+                                dispatch(
+                                  usersignupinModal({
+                                    showSignupModal: false,
+                                    showLoginModal: true,
+                                    showforgotPasswordModal: false,
+                                    showOtpModal: false,
+                                    showNewPasswordModal: false,
+                                  }))
                               }
                             }}>
                               <em className="icon ni ni-edit-alt text-gray-800"></em>
@@ -914,8 +930,15 @@ export default function ProductDetails() {
                                 className="btn btn-white text-primary"
                                 onClick={() => {
                                   return isLoggedIn
-                                    ? handleAddToCart(product?.product_id)
-                                    : dispatch(showPopup());
+                                    ? handleAddToCart(product?.product_id, product?.product?.img_1)
+                                    :  dispatch(
+                                      usersignupinModal({
+                                        showSignupModal: false,
+                                        showLoginModal: true,
+                                        showforgotPasswordModal: false,
+                                        showOtpModal: false,
+                                        showNewPasswordModal: false,
+                                      }))
                                 }}
                               >
                                 Add To Cart
@@ -928,8 +951,15 @@ export default function ProductDetails() {
                               className="fs-16 fw-semibold text-gray-1200 cursor-pointer"
                               onClick={() => {
                                 isLoggedIn
-                                  ? handleAddToWishList(product?.product_id)
-                                  : dispatch(showPopup());
+                                  ? handleAddToWishList(product?.product_id, product?.product?.img_1)
+                                  : dispatch(
+                                    usersignupinModal({
+                                      showSignupModal: false,
+                                      showLoginModal: true,
+                                      showforgotPasswordModal: false,
+                                      showOtpModal: false,
+                                      showNewPasswordModal: false,
+                                    }))
                               }}
                             >
                               {" "}
@@ -1193,7 +1223,14 @@ export default function ProductDetails() {
                                               setReviewId(review?.id);
                                               reviewHelpfulReport(review?.id);
                                             } else {
-                                              dispatch(showPopup());
+                                              dispatch(
+                                                usersignupinModal({
+                                                  showSignupModal: false,
+                                                  showLoginModal: true,
+                                                  showforgotPasswordModal: false,
+                                                  showOtpModal: false,
+                                                  showNewPasswordModal: false,
+                                                }));
                                             }
                                           }}
                                         >
@@ -1208,7 +1245,14 @@ export default function ProductDetails() {
                                               setDialogType("report");
                                               setReviewId(review?.id);
                                             } else {
-                                              dispatch(showPopup());
+                                              dispatch(
+                                                usersignupinModal({
+                                                  showSignupModal: false,
+                                                  showLoginModal: true,
+                                                  showforgotPasswordModal: false,
+                                                  showOtpModal: false,
+                                                  showNewPasswordModal: false,
+                                                }));
                                             }
                                           }}
                                         >
@@ -1725,18 +1769,18 @@ export default function ProductDetails() {
                                     className="p-0 border-0 outline-none bg-transparent text-primary"
                                     onClick={() => {
                                       return isLoggedIn
-                                        ? handleAddToCart(product?.id)
-                                        : dispatch(showPopup());
+                                        ? handleAddToCart(product?.id, product?.img_1)
+                                        : dispatch(
+                                          usersignupinModal({
+                                            showSignupModal: false,
+                                            showLoginModal: true,
+                                            showforgotPasswordModal: false,
+                                            showOtpModal: false,
+                                            showNewPasswordModal: false,
+                                          }));
                                     }}
                                   >
-                                    {animateProductId === product?.id ? (
-                                      <img
-                                        src="/images/addedtocart.gif"
-                                        className="max-w-[45px]"
-                                      />
-                                    ) : (
-                                      <em className="icon ni ni-cart text-2xl"></em>
-                                    )}
+                                    <em className="icon ni ni-cart text-2xl"></em>
                                   </button>
                                 </div>
                               </div>
@@ -1828,7 +1872,14 @@ export default function ProductDetails() {
               onClick={() =>
                 isLoggedIn
                   ? navigate(`${userLang}/cart`)
-                  : dispatch(showPopup())
+                  : dispatch(
+                    usersignupinModal({
+                      showSignupModal: false,
+                      showLoginModal: true,
+                      showforgotPasswordModal: false,
+                      showOtpModal: false,
+                      showNewPasswordModal: false,
+                    }))
               }
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               id="cart-button"

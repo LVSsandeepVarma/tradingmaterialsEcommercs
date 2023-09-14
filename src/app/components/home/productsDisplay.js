@@ -10,13 +10,13 @@ import { updatePositions } from "../../../features/positions/positionsSlice";
 import axios from "axios";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
-import { updateNotifications } from "../../../features/notifications/notificationSlice";
+// import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import {
   updateCartCount,
   updateWishListCount,
 } from "../../../features/cartWish/focusedCount";
 import GitHubForkRibbon from 'react-github-fork-ribbon';
-import { showPopup } from "../../../features/popups/popusSlice";
+// import { showPopup } from "../../../features/popups/popusSlice";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation, Autoplay } from "swiper/modules";
 import CryptoJS from "crypto-js";
@@ -26,12 +26,13 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { useTranslation } from "react-i18next";
-import { FaRegHeart } from "react-icons/fa";
 import { Box, Fab, Skeleton, Tooltip } from "@mui/material";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import moment from "moment"
 // import FloatingForm from "../forms/floatingForm";
 import ChatForm from "../Chatbot/chatbot";
+import AddToFav from "../modals/addToFav";
+import { FaRegHeart } from "react-icons/fa";
 export default function ProductsDisplay() {
   const { t } = useTranslation();
 
@@ -62,6 +63,9 @@ export default function ProductsDisplay() {
   const [isNoProducts, setIsNoProducts] = useState(false);
   const [showPlaceHolderLoader, setShowPlaceHolderLoader] = useState(false);
   const [showFloatingForm, setShowFloatingForm] = useState(false)
+  const [addedToFavImg, setAddedToFavImg] = useState("")
+  const [showModal, setShowModal] = useState(false)
+  const [modalMessage, setModalMessage] = useState("")
 
   const [animateProductId, setAnimateProductId] = useState("");
   // eslint-disable-next-line no-unused-vars
@@ -85,11 +89,12 @@ export default function ProductsDisplay() {
 
     const incrementDate = () => {
       const today = new Date();
-      const nextDate = moment(megaDealTime).add(5, "days");
+      const nextDate = moment(today).add(5, "days");
       console.log(today.toISOString() , megaDealTime, "ttttt")
-      if (today.toISOString().split("T")[0] === megaDealTime.toString().split("T")[0]) {
+      // if (today.toISOString().split("T")[0] >= megaDealTime.toString().split("T")[0]) {
+      //   console.log(nextDate, "datee")
         setMegaDealTime(nextDate);
-      }
+      // }
 
     };
 
@@ -491,7 +496,7 @@ export default function ProductsDisplay() {
     setShowPlaceHolderLoader(false);
   }
 
-  async function handleAddToWishList(id) {
+  async function handleAddToWishList(id, productImg) {
     console.log(id);
     try {
       dispatch(showLoader());
@@ -521,13 +526,16 @@ export default function ProductsDisplay() {
         headerData
       );
       if (response?.data?.status) {
-        dispatch(
-          updateNotifications({
-            type: "success",
-            message: response?.data?.message,
-          })
-        );
+        // dispatch(
+        //   updateNotifications({
+        //     type: "success",
+        //     message: response?.data?.message,
+        //   })
+        // );
         // dispatch(updateWis(response?.data?.data?.cart_details));
+        setAddedToFavImg(productImg)
+        setShowModal(true)
+        setModalMessage("Added to your wishlist successfully")
         dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
         getUserInfo();
       }
@@ -539,7 +547,7 @@ export default function ProductsDisplay() {
   }
 
   // function for handling add to cart animation
-  async function handleAddToCart(productId) {
+  async function handleAddToCart(productId, productImg) {
     try {
       // setAnimateProductId(productId);
       dispatch(showLoader());
@@ -556,13 +564,16 @@ export default function ProductsDisplay() {
         }
       );
       if (response?.data?.status) {
-        setAnimateProductId(productId);
-        dispatch(
-          updateNotifications({
-            type: "success",
-            message: response?.data?.message,
-          })
-        );
+        setAddedToFavImg(productImg)
+        setShowModal(true)
+        setModalMessage("Added to your cart successfully")
+        // setAnimateProductId(productId);
+        // dispatch(
+        //   updateNotifications({
+        //     type: "success",
+        //     message: response?.data?.message,
+        //   })
+        // );
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
       }
@@ -611,6 +622,12 @@ export default function ProductsDisplay() {
   //   setShowFloatingForm(false)
   // }
 
+  const closeModal=()=>{
+    setShowModal(false);
+    setModalMessage("")
+    setAddedToFavImg("")
+  }
+
   return (
     <>
       {loaderState && (
@@ -618,18 +635,21 @@ export default function ProductsDisplay() {
           <div className="loader"></div>
         </div>
       )}
-      {showFloatingForm &&
-      <div className="" style={{position:"fixed", right:"75px", bottom:"15px",zIndex:"9999999"}}>
+      {addedToFavImg!== "" && 
+        <AddToFav showModal={showModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} />
+      }
+      {(!isLoggedIn && showFloatingForm) &&
+      <div className="" style={{position:"fixed", right:"75px", bottom:"45px",zIndex:"9999999"}}>
         <ChatForm />
       </div>
       }
-      <div>
+      { isLoggedIn === false && <div>
         <Tooltip title="Get 15% off on first purchase">
-        <Fab className="!mt-16 !bg-transparent !drop-shadow-none  " style={{position:"fixed", right:"75px", bottom:"15px"}} onClick={()=>setShowFloatingForm(true)}>
+        <Fab className="!mt-16 !bg-transparent !drop-shadow-none  " style={{position:"fixed", right:"75px", bottom:"15px"}} onClick={()=>setShowFloatingForm(!showFloatingForm)}>
           <img className="!w-full" src="/images/oneDayLeft.png" alt="one-day-offer-icon"/>
         </Fab>
         </Tooltip>
-      </div>
+      </div>}
       <div className="nk-pages">
         <section className="nk-banner nk-banner-shop">
           <div className="container">
@@ -1626,9 +1646,17 @@ export default function ProductsDisplay() {
                                               onClick={() => {
                                                 isLoggedIn
                                                   ? handleAddToWishList(
-                                                      product?.id
+                                                      product?.id,
+                                                      product?.img_1
                                                     )
-                                                  : dispatch(showPopup());
+                                                  : dispatch(
+                                                    usersignupinModal({
+                                                      showSignupModal: false,
+                                                      showLoginModal: true,
+                                                      showforgotPasswordModal: false,
+                                                      showOtpModal: false,
+                                                      showNewPasswordModal: false,
+                                                    }))
                                               }}
                                             >
                                               <FaRegHeart size={18} />
@@ -1639,10 +1667,17 @@ export default function ProductsDisplay() {
                                               onClick={(event) => {
                                                 return isLoggedIn
                                                   ? (handleAddToCart(
-                                                      product?.id
+                                                      product?.id,product?.img_1
                                                     ),
                                                     handleCartPosition(event))
-                                                  : dispatch(showPopup());
+                                                  :dispatch(
+                                                    usersignupinModal({
+                                                      showSignupModal: false,
+                                                      showLoginModal: true,
+                                                      showforgotPasswordModal: false,
+                                                      showOtpModal: false,
+                                                      showNewPasswordModal: false,
+                                                    }))
                                               }}
                                             >
                                               {animateProductId ===
@@ -2211,8 +2246,15 @@ export default function ProductsDisplay() {
                                     }}
                                     onClick={() => {
                                       isLoggedIn
-                                        ? handleAddToWishList(product?.id)
-                                        : dispatch(showPopup());
+                                        ? handleAddToWishList(product?.id, product?.img_1)
+                                        : dispatch(
+                                          usersignupinModal({
+                                            showSignupModal: false,
+                                            showLoginModal: true,
+                                            showforgotPasswordModal: false,
+                                            showOtpModal: false,
+                                            showNewPasswordModal: false,
+                                          }))
                                     }}
                                   >
                                     <FaRegHeart size={18} />
@@ -2221,9 +2263,16 @@ export default function ProductsDisplay() {
                                     className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
                                     onClick={(event) => {
                                       return isLoggedIn
-                                        ? (handleAddToCart(product?.id),
+                                        ? (handleAddToCart(product?.id, product?.img_1),
                                           handleCartPosition(event))
-                                        : dispatch(showPopup());
+                                        :dispatch(
+                                          usersignupinModal({
+                                            showSignupModal: false,
+                                            showLoginModal: true,
+                                            showforgotPasswordModal: false,
+                                            showOtpModal: false,
+                                            showNewPasswordModal: false,
+                                          }))
                                     }}
                                   >
                                     {animateProductId === product?.id ? (
@@ -2511,7 +2560,14 @@ export default function ProductsDisplay() {
               onClick={() =>
                 isLoggedIn
                   ? navigate(`${userLang}/cart`)
-                  : dispatch(showPopup())
+                  : dispatch(
+                    usersignupinModal({
+                      showSignupModal: false,
+                      showLoginModal: true,
+                      showforgotPasswordModal: false,
+                      showOtpModal: false,
+                      showNewPasswordModal: false,
+                    }))
               }
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               id="cart-button"

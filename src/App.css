@@ -175,7 +175,7 @@ td {
 
 .css-12i7wg6-MuiPaper-root-MuiDrawer-paper {
   /* position: relative !important; */
-  top: 100px !important;
+  /* top: 100px !important; */
   height: auto !important;
   left: auto !important;
   z-index: 999 !important;
@@ -189,7 +189,8 @@ td {
 }
 .css-1191obr-MuiPaper-root-MuiAppBar-root {
   /* position: relative !important; */
-  top: 100px !important;
+  /* top: 100px !important; */
+  width: 100% !important;
 }
 
 .css-19z1ozs-MuiPaper-root-MuiAppBar-root {
@@ -233,7 +234,7 @@ td {
   }
 
   .css-1ibjhk8 {
-    top: 390px !important;
+    top: 570px !important;
     position: absolute !important;
     left: 0px !important;
     padding: 0px !important;
@@ -250,6 +251,12 @@ td {
 
   .css-12i7wg6-MuiPaper-root-MuiDrawer-paper {
     top: 0 !important;
+  }
+}
+
+@media only screen and (max-width: 420px){
+  .css-1ibjhk8{
+    top:550px !important;
   }
 }
 
@@ -986,4 +993,16 @@ td span {
 
 .github-fork-ribbon a{
   border: none !important;
+}
+
+
+.css-100u9pv-MuiDrawer-docked .MuiDrawer-paper{
+  width: 100% !important;
+}
+
+.css-h4y409-MuiList-root{
+  padding-bottom: 0px !important;
+}
+.MuiDrawer-paperAnchorDockedLeft .css-1l8j5k8 {
+  width: 100% !important;
 }

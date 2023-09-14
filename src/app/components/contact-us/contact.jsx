@@ -31,6 +31,9 @@ export default function Contact() {
       return false;
     }
   }
+  
+
+
 
   function validEmail(email) {
     const emailPattern = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
