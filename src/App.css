@@ -179,6 +179,7 @@ td {
   height: auto !important;
   left: auto !important;
   z-index: 999 !important;
+  width: 100% !important;
 }
 
 .css-1l8j5k8 {
