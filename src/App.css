@@ -182,10 +182,11 @@ td {
 }
 
 .css-1l8j5k8 {
-  top: 100px !important;
+  /* top: 100px !important; */
   height: auto !important;
   left: auto !important;
   z-index: 999 !important;
+  width: 100%;
 }
 .css-1191obr-MuiPaper-root-MuiAppBar-root {
   /* position: relative !important; */
@@ -1005,4 +1006,8 @@ td span {
 }
 .MuiDrawer-paperAnchorDockedLeft .css-1l8j5k8 {
   width: 100% !important;
+}
+
+.css-1ontqvh{
+  padding-bottom: 0px !important;
 }
