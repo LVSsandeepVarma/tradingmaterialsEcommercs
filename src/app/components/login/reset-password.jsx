@@ -1,21 +1,15 @@
+/* eslint-disable no-unsafe-optional-chaining */
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { loginUser } from "../../../features/login/loginSlice";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
-import { updateUsers } from "../../../features/users/userSlice";
-import { updateNotifications } from "../../../features/notifications/notificationSlice";
-import { useTranslation } from "react-i18next";
 import { userLanguage } from "../../../features/userLang/userLang";
-import { updateclientType } from "../../../features/clientType/clientType";
 import { Alert } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 
 export default function NewPassword() {
-  const { t } = useTranslation();
-
   const [confirmPassword, setconfirmPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPasswordError, setconfirmPasswordError] = useState("");
@@ -33,6 +27,7 @@ export default function NewPassword() {
   const location = useLocation();
 
   const userLang = useSelector((state) => state?.lang?.value);
+  const userData = useSelector((state) => state?.user?.value);
 
   const url = location.search;
   console.log(url);
@@ -40,19 +35,14 @@ export default function NewPassword() {
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
     }
   }, []);
 
   function confirmPasswordValidaiton(confirmPassword) {
-    const confirmPasswordRegex =
-      /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (confirmPassword?.length === 0) {
       setconfirmPasswordError("confirm Password is required");
     } else if (confirmPassword !== password) {
@@ -92,58 +82,24 @@ export default function NewPassword() {
     console.log(confirmPassword, password);
     confirmPasswordValidaiton(confirmPassword);
     passwordValidation(password);
-    // if (
-    //   confirmPasswordError === "" &&
-    //   passwordError === "" &&
-    //   confirmPassword !== "" &&
-    //   password !== ""
-    // ) {
     try {
       dispatch(showLoader());
       const url = location.hash;
       console.log(url);
       const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/lead/reset/password",
+        "https://admin.tradingmaterials.com/api/client/reset/password",
         {
           confirm_password: confirmPassword,
           password: password,
           hash: localStorage.getItem("passHash"),
+          client_id: userData?.client?.id,
         }
       );
       if (response?.data?.status) {
         localStorage.removeItem("passHash");
         setLoginsuccessMsg(response?.data?.message);
-        //   localStorage.removeItem("client_token");
-        //   localStorage.setItem("client_token", response?.data?.token);
-        //   // localStorage
-        //   console.log(response?.data?.first_name);
-        //   dispatch(
-        //     updateUsers({
-        //       first_name: response?.data?.first_name,
-        //       last_name: response?.data?.last_name,
-        //       cart_count: response?.data?.cart_count,
-        //       wish_count: response?.data?.wish_count,
-        //     })
-        //   );
-        //   dispatch(updateclientType(response?.data?.type));
-        //   localStorage.setItem("client_type", response?.data?.type);
-        //   dispatch(loginUser());
-        //   if (response?.data?.data?.type === "client") {
-        //     navigate(`https://client.tradingmaterials.com/dashboard/`);
-        //   } else {
-        //     navigate(`${userLang}/profile`);
-        //   }
-
-        //   setTimeout(() => {
-        //     localStorage.removeItem("token");
-        //     dispatch(
-        //       updateNotifications({
-        //         type: "warning",
-        //         message: "Session expired, Login again.",
-        //       })
-        //     );
         setTimeout(() => {
-          navigate(`${userLang}/login`);
+          navigate(`/login`);
         }, 2000);
 
         //   }, 3600000);
@@ -334,6 +290,7 @@ export default function NewPassword() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
+                                  key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"

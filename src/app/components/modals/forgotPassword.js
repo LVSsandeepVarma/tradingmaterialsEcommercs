@@ -1,45 +1,37 @@
 // ShippingAddressModal.js
 import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
-import Register from "../register/register";
-import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { userLanguage } from "../../../features/userLang/userLang";
-import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
-import { loginUser } from "../../../features/login/loginSlice";
 import axios from "axios";
-import { updateUsers } from "../../../features/users/userSlice";
 // import AddressForm from '../forms/addressform';
 import { Form } from "react-bootstrap";
-import { updateclientType } from "../../../features/clientType/clientType";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import { Alert } from "@mui/material";
 
+// eslint-disable-next-line react/prop-types, no-unused-vars
 const ForgotPasswordModal = ({ show, onHide }) => {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [emailSentMsg, setEmailSentMsg] = useState("");
   const [apiError, setApiError] = useState();
+  // eslint-disable-next-line no-unused-vars
   const [localLoader, setLocalLoader] = useState(false);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const location = useLocation();
-  const loaderState = useSelector((state) => state.loader?.value);
   const userLang = useSelector((state) => state?.lang?.value);
+  const userData = useSelector((state) => state?.user?.value);
 
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
     }
   }, []);
 
@@ -68,19 +60,21 @@ const ForgotPasswordModal = ({ show, onHide }) => {
       try {
         dispatch(showLoader());
         const response = await axios.post(
-          "https://admin.tradingmaterials.com/api/lead/reset-password-link",
+          "https://admin.tradingmaterials.com/api/client/reset-password-link",
           {
             email: email,
+            client_id: userData?.client?.id,
           }
         );
         if (response?.data?.status) {
           setEmailSentMsg(response?.data?.message);
           console.log(response?.data);
-          // navigate(`${userLang}/login`);
+          // navigate(`/login`);
         }
       } catch (err) {
         console.log("err", err);
         if (err?.response?.data?.errors) {
+          // eslint-disable-next-line no-unsafe-optional-chaining
           setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
           setApiError([err?.response?.data?.message]);
@@ -131,7 +125,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
         <div className="nk-split-col ">
           {localLoader && (
             <div className="preloader  !backdrop-blur-[1px]">
-              <div class="loader"></div>
+              <div className="loader"></div>
             </div>
           )}
 
@@ -142,9 +136,9 @@ const ForgotPasswordModal = ({ show, onHide }) => {
             }}
             // data-aos="fade-up"
           >
-            <div class="account-steps">
-              <div class="step"></div>
-              <div class="step"></div>
+            <div className="account-steps">
+              <div className="step"></div>
+              <div className="step"></div>
             </div>
             <div className="card-body !text-left p-5">
               <div className="nk-form-card-head text-center pb-5">
@@ -233,6 +227,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                         apiError?.map((err, ind) => {
                           return (
                             <Alert
+                              key={ind}
                               variant="outlined"
                               severity="error"
                               className="!mt-2"

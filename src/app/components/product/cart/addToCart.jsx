@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../header/header";
@@ -6,7 +7,6 @@ import {
   hideLoader,
   showLoader,
 } from "../../../../features/loader/loaderSlice";
-import { fetchAllProducts } from "../../../../features/products/productsSlice";
 import axios from "axios";
 import ShippingAddressModal from "../../modals/address";
 import { Button } from "react-bootstrap";
@@ -16,7 +16,6 @@ import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
 import CryptoJS from "crypto-js";
-import { Divider } from "@mui/material";
 
 export default function AddToCart() {
   const dispatch = useDispatch();
@@ -30,9 +29,10 @@ export default function AddToCart() {
   const addressStatus = useSelector((state) => state?.addressStatus?.value);
 
   const [showModal, setShowModal] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [isSuccess, setIsSuccess] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [isFailure, setIsFailure] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
   const [promocode, setPromocode] = useState("");
@@ -43,10 +43,10 @@ export default function AddToCart() {
   const [activeBillingAddress, setActivebillingAddress] = useState(
     userData?.client?.address[0]
   );
+  // eslint-disable-next-line no-unused-vars
   const [activeShippingAddressChecked, setActiveShippingaddressChecked] =
     useState(0);
-  const [activeBillingAddfreeChecked, setActiveBillingAddressChecked] =
-    useState(0);
+
   const [addressUpdateType, setAddressUpdateType] = useState("");
 
   // State variable to track quantities for each product
@@ -64,26 +64,16 @@ export default function AddToCart() {
 
   const getUserInfo = async () => {
     try {
-      const url =
-        clientType === "client"
-          ? "https://admin.tradingmaterials.com/api/get-user-info"
-          : "https://admin.tradingmaterials.com/api/lead/get-user-info";
-      const headerData =
-        clientType === "client"
-          ? {
-              headers: {
-                Authorization: `Bearer ` + localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            }
-          : {
-              headers: {
-                "access-token": localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            };
 
-      const response = await axios.get(url, headerData);
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/client/get-user-info",
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
       if (response?.data?.status) {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
@@ -135,15 +125,16 @@ export default function AddToCart() {
     try {
       dispatch(showLoader());
       const response = await axios?.post(
-        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+        "https://admin.tradingmaterials.com/api/client/product/add-to-cart",
         {
           product_id: productId,
           qty: quantities[productId],
           status: status,
+          client_id: userData?.client?.id
         },
         {
           headers: {
-            "access-token": localStorage.getItem("client_token"),
+           Authorization : `Bearer ` + localStorage.getItem("client_token"),
           },
         }
       );
@@ -152,7 +143,7 @@ export default function AddToCart() {
         dispatch(updateCartCount(response?.data?.data?.cart_count));
         setAllProducts(response?.data?.data?.cart_details);
         // getUserInfo();
-        applyPromoCode();
+        // applyPromoCode();
       }
     } catch (err) {
       console.log(err);
@@ -177,6 +168,11 @@ export default function AddToCart() {
       const response = await axios.get(
         "https://admin.tradingmaterials.com/api/lead/product/apply-register-promo-code",
         {
+          params: {
+            client_id: userData?.client_id,
+          },
+        },
+        {
           headers: {
             "access-token": token,
           },
@@ -199,42 +195,13 @@ export default function AddToCart() {
 
   const handleShippingAddressChange = (id) => {
     setActiveShippingAddress(id);
-    // setActiveShippingaddressChecked(id);
+    setActiveShippingaddressChecked(id);
   };
+
+
   // useEffect(() => {
-  //   async function fetchProducts() {
-  //     if (cartProducts?.length > 0) {
-  //       setAllProducts(cartProducts);
-  //     }
-  //     dispatch(showLoader());
-  //     try {
-  //       const response = await axios.get(
-  //         "https://admin.tradingmaterials.com/api/get/products",
-  //         {
-  //           headers: {
-  //             "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-  //             Accept: "application/json",
-  //           },
-  //         }
-  //       );
-  //       if (response?.data?.status) {
-  //         // setAllProducts(response?.data?.data?.products)
-  //         dispatch(fetchAllProducts(response?.data?.data));
-  //         // setSubCatProducts(response?.data?.data?.products)
-  //       }
-  //     } catch (err) {
-  //       console.log("err");
-  //     } finally {
-  //       dispatch(hideLoader());
-  //     }
-  //   }
-
-  //   fetchProducts();
-  // }, [cartProducts]);
-
-  useEffect(() => {
-    getUserInfo();
-  }, []);
+  //   getUserInfo();
+  // }, []);
 
   useEffect(() => {
     getUserInfo();
@@ -290,15 +257,15 @@ export default function AddToCart() {
   };
 
   //deleting from the cart
-  const handleDeleteFromCart = async (id) => {
+  const handleDeleteFromCart = async (id, clientId) => {
     try {
       dispatch(showLoader());
       const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/lead/product/remove-cart-item",
-        { item_id: id },
+        "https://admin.tradingmaterials.com/api/client/product/remove-cart-item",
+        { item_id: id, client_id:clientId },
         {
           headers: {
-            "access-token": localStorage.getItem("client_token"),
+            Authorization: `Bearer ${localStorage.getItem("client_token")}`,
           },
         }
       );
@@ -307,7 +274,7 @@ export default function AddToCart() {
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
         setAllProducts(response?.data?.data?.cart_details);
-        applyPromoCode();
+        // applyPromoCode();
       } else {
         console.log(response?.data);
         dispatch(
@@ -348,53 +315,15 @@ export default function AddToCart() {
   };
 
   // Calculate the total price for each product based on the quantity
-  const calculateTotalPrice = (product) => {
-    const quantity = quantities[product.id] || 1;
-    const price = product?.prices?.find((price) => {
-      return price?.USD;
-    });
-    console.log(price);
-    if (price) {
-      const totalPrice = quantity * price.USD;
-      // setPrices((prevPrices) => ({ ...prevPrices, [product.id]: totalPrice }));
-      return totalPrice.toFixed(2);
-    }
-    return "0.00";
-  };
-
-  const handleFormSubmit = async (values, actions) => {
-    setIsSuccess(false);
-    setIsFailure(false);
-    // Perform form submission logic here, e.g., sending data to the server
-    // For demonstration purposes, let's assume the submission is successful after 2 seconds
-    try {
-      const token = localStorage.getItem("client_token");
-      const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/client/add-new/address",
-        values,
-        {
-          headers: {
-            "access-token": token,
-          },
-        }
-      );
-    } catch (err) {
-      console.log(err, "error");
-    }
-
-    // setTimeout(() => {
-    //   setIsSuccess(false);
-    //   setIsFailure(false);
-    // }, 6000);
-  };
 
   const handleBillingSameAsShipping = () => {
     setBillingSameAsShipping(!billingSameAsShipping);
-    if (!billingSameAsShipping) {
+    if (billingSameAsShipping) {
       setActiveShippingAddress(activeBillingAddress);
     } else {
       if (userData?.client?.address?.length > 1)
         setActiveShippingAddress(userData?.client?.address[1]?.id);
+        setActiveShippingaddressChecked(1)
     }
   };
 
@@ -413,6 +342,7 @@ export default function AddToCart() {
             shipping_address: billingSameAsShipping ? 1 : 0,
             s_address_id: activeBillingAddress,
             note: optionalNotes,
+            client_id: userData?.client?.id
           }
         : {
             total: (subTotal - discount).toFixed(2),
@@ -423,15 +353,16 @@ export default function AddToCart() {
             shipping_address: billingSameAsShipping ? 0 : 1,
             s_address_id: activeShippingAddress,
             note: optionalNotes,
+            client_id: userData?.client?.id
           };
 
       console.log(data);
       const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/lead/product/checkout/place-order",
+        "https://admin.tradingmaterials.com/api/client/product/checkout/place-order",
         data,
         {
           headers: {
-            "access-token": localStorage.getItem("client_token"),
+            Authorization: `Bearer `+localStorage.getItem("client_token"),
           },
         }
       );
@@ -475,7 +406,7 @@ export default function AddToCart() {
         onHide={() => setShowModal(false)}
         type={fomrType}
         addressType={addressUpdateType}
-        data={fomrType === "add" ? [] : userData?.client?.primary_address[0]}
+        data={fomrType === "add" ? [] : userData?.client?.address[activeShippingAddressChecked]}
         // handleFormSubmit={handleFormSubmit}
       />
 
@@ -551,7 +482,7 @@ export default function AddToCart() {
                           {allProducts?.length &&
                             allProducts?.map((product, ind) => {
                               return (
-                                <tr>
+                                <tr key={ind}>
                                   <td className="w-50">
                                     <div className="d-flex align-items-start">
                                       <img
@@ -660,7 +591,8 @@ export default function AddToCart() {
                                               className="cursor-pointer"
                                               onClick={() => {
                                                 handleDeleteFromCart(
-                                                  product?.id
+                                                  product?.id,
+                                                  userData?.client?.id
                                                 );
                                               }}
                                               style={{ color: " #8812a1" }}
@@ -770,9 +702,11 @@ export default function AddToCart() {
                           <div>
                             <button
                               className="btn btn-sm btn-warning mt-2 mb-2"
+                              // eslint-disable-next-line react/no-unknown-property
                               variant="warning"
                               color="warning"
                               onClick={() => {
+                                setActiveShippingaddressChecked(0)
                                 setShowModal(true);
                                 setFormType("update");
                                 setAddressUpdateType("Billing");
@@ -799,6 +733,7 @@ export default function AddToCart() {
                         ) : (
                           <button
                             className="btn btn-sm btn-warning mt-2 mb-2"
+                            // eslint-disable-next-line react/no-unknown-property
                             variant="warning"
                             color="warning"
                             onClick={() => {
@@ -815,17 +750,6 @@ export default function AddToCart() {
                             Add address
                           </button>
                         )}
-                        {/* <button
-                        className="btn btn-warning mb-2 mt-2 ml-2"
-                        variant="warning"
-                        color="warning"
-                        onClick={() => {
-                          setShowModal(true);
-                          setFormType("add");
-                        }}
-                      >
-                        Add address
-                      </button> */}
                         <div>
                           <hr className="mr-2" />
                         </div>
@@ -863,7 +787,7 @@ export default function AddToCart() {
                                 // console.log(add?.id, activeBillingAddress)
                                 if (add?.id !== activeBillingAddress) {
                                   return (
-                                    <div className="">
+                                    <div key={ind} className="">
                                       <li className="d-flex align-items-center ">
                                         <div className="!block">
                                           <input
@@ -871,10 +795,12 @@ export default function AddToCart() {
                                             checked={
                                               add?.id === activeShippingAddress
                                             }
-                                            onChange={() =>
+                                            onChange={() =>{
                                               handleShippingAddressChange(
                                                 add?.id
-                                              )
+                                              );
+                                              setActiveShippingaddressChecked(ind)
+                                            }
                                             }
                                             className="form-check-input"
                                           />
@@ -891,15 +817,6 @@ export default function AddToCart() {
                                       </li>
 
                                       <li className="d-flex align-items-center gap-5 text-gray-1200">
-                                        {/* <div className="!block">
-                          <input
-                type="checkbox"
-                checked={ind === activeShippingAddressChecked}
-                onChange={() => handleShippingAddressChange(ind)}
-                className="form-check-input"
-              />
-                          </div> */}
-
                                         <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                                           Full Name:
                                         </p>
@@ -1039,7 +956,7 @@ export default function AddToCart() {
                   )}
                   <hr /> */}
                     <div className="nk-section-blog-details">
-                      <h4 className="mb-3">Order Summary</h4>
+                      <h4 className="mb-3 !font-bold">Order Summary</h4>
                       <div className="pt-0 mb-3">
                         {/* <!-- <h6 className="fs-18 mb-0">Promocode</h6> --> */}
                         <div className="d-flex w-75">
@@ -1092,7 +1009,7 @@ export default function AddToCart() {
                             Tax:
                           </p>
                           <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {allProducts?.length > 0 ? "₹ 40.00" : "₹ 0.00"}
+                            {allProducts?.length > 0 ? "₹ 0.00" : "₹ 0.00"}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -1100,7 +1017,7 @@ export default function AddToCart() {
                             Discount:
                           </p>
                           <p className="m-0 fs-14 text-danger w-75">
-                            {discount}
+                            {discount} ({discountPercentage}%)
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -1140,12 +1057,12 @@ export default function AddToCart() {
                       </button>
                       {userData?.client?.primary_address?.length === 0 && (
                         <span className="text-red-800 font-semibold">
-                          Please add Address before palcing order.
+                          Please add Address before placing order.
                         </span>
                       )}
                       {apiErr?.length > 0 &&
                         apiErr?.map((err, ind) => (
-                          <span className="text-red-800 font-semibold">
+                          <span key={ind} className="text-red-800 font-semibold">
                             {err}
                           </span>
                         ))}

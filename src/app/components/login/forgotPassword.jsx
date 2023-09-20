@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { userLanguage } from "../../../features/userLang/userLang";
 import axios from "axios";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
@@ -14,21 +14,18 @@ export default function ForgotPassword() {
   const [emailSentMsg, setEmailSentMsg] = useState("");
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const location = useLocation();
   const loaderState = useSelector((state) => state.loader?.value);
   const userLang = useSelector((state) => state?.lang?.value);
+  const userData = useSelector((state) => state?.user?.value);
 
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
     }
   }, []);
 
@@ -57,20 +54,22 @@ export default function ForgotPassword() {
       try {
         dispatch(showLoader());
         const response = await axios.post(
-          "https://admin.tradingmaterials.com/api/lead/reset-password-link",
+          "https://admin.tradingmaterials.com/api/client/reset-password-link",
           {
             email: email,
+            client_id: userData?.client?.id,
           }
         );
         if (response?.data?.status) {
           setEmailSentMsg(response?.data?.message);
           console.log(response?.data);
-          // navigate(`${userLang}/login`);
+          // navigate(`/login`);
         }
       } catch (err) {
         console.log("err", err);
         if (err?.response?.data?.errors) {
-          setApiError([...Object?.values(err?.response?.data?.errors)]);
+          // eslint-disable-next-line no-unsafe-optional-chaining
+          setEmailError(err?.response?.data?.errors["email"]);
         } else {
           setApiError([err?.response?.data?.message]);
         }
@@ -117,7 +116,7 @@ export default function ForgotPassword() {
                       Password Forgotten?
                     </h3>
                     <p className="text">
-                      Shouldn't be here{" "}
+                      Shouldn&apos;t be here{" "}
                       <a href={`/login`} className="btn-link text-primary">
                         Login
                       </a>
@@ -169,6 +168,7 @@ export default function ForgotPassword() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
+                                  key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="!mt-2"
@@ -229,34 +229,6 @@ export default function ForgotPassword() {
         >
           <em className="icon ni ni-chevrons-up"></em>
         </a>
-        {/* <div className="nk-sticky-badge">
-          <ul>
-            <li>
-              <a
-                href="/"
-                className="nk-sticky-badge-icon nk-sticky-badge-home"
-                data-bs-toggle="tooltip"
-                data-bs-placement="right"
-                data-bs-custom-className="nk-tooltip"
-                data-bs-title="View Demo"
-              >
-                <em className="icon ni ni-home-fill"></em>
-              </a>
-            </li>
-            <li>
-              <a
-                href="/"
-                className="nk-sticky-badge-icon nk-sticky-badge-purchase"
-                data-bs-toggle="tooltip"
-                data-bs-custom-className="nk-tooltip"
-                data-bs-title="Purchase Now"
-                aria-label="Purchase Now"
-              >
-                <em className="icon ni ni-cart-fill"></em>
-              </a>
-            </li>
-          </ul>
-        </div> */}
       </div>
     </>
   );

@@ -1,13 +1,10 @@
 // ShippingAddressModal.js
 import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
-import Register from "../register/register";
-import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { userLanguage } from "../../../features/userLang/userLang";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
-import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { loginUser } from "../../../features/login/loginSlice";
 import axios from "axios";
 import { updateUsers } from "../../../features/users/userSlice";
@@ -16,8 +13,8 @@ import { Form } from "react-bootstrap";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import { Alert } from "@mui/material";
 
-const SignupModal = ({ show, onHide }) => {
-  const { t } = useTranslation();
+// eslint-disable-next-line react/prop-types, no-unused-vars
+const SignupModal = ({ show }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,11 +25,9 @@ const SignupModal = ({ show, onHide }) => {
   const [lastNameError, setLastNameError] = useState("");
   const [apiError, setApiError] = useState([]);
   const [signupSuccessMsg, setSignupSuccessMsg] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [localLoader, setLocalLoader] = useState(false);
 
   const loginStatus = useSelector((state) => state?.login?.value);
-  const loaderState = useSelector((state) => state.loader?.value);
   console.log(loginStatus);
 
   const dispatch = useDispatch();
@@ -44,13 +39,10 @@ const SignupModal = ({ show, onHide }) => {
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
     }
   }, []);
 
@@ -187,7 +179,7 @@ const SignupModal = ({ show, onHide }) => {
                   message: "Oops!",
                 })
               );
-              navigate(`${userLang}/login`);
+              navigate(`/login`);
             }, 3600000);
           }
         } catch (err) {
@@ -245,7 +237,7 @@ const SignupModal = ({ show, onHide }) => {
         <div className="nk-split-col ">
           {localLoader && (
             <div className="preloader  !backdrop-blur-[1px]">
-              <div class="loader"></div>
+              <div className="loader"></div>
             </div>
           )}
           <div
@@ -255,9 +247,9 @@ const SignupModal = ({ show, onHide }) => {
             }}
             // data-aos="fade-up"
           >
-            <div class="account-steps">
-              <div class="step"></div>
-              <div class="step"></div>
+            <div className="account-steps">
+              <div className="step"></div>
+              <div className="step"></div>
             </div>
             <div className="card-body !text-left p-5">
               <div className="nk-form-card-head text-center pb-5">
@@ -408,6 +400,7 @@ const SignupModal = ({ show, onHide }) => {
                         apiError?.map((err, ind) => {
                           return (
                             <Alert
+                              key={ind}
                               variant="outlined"
                               severity="error"
                               className="mt-2"
@@ -425,10 +418,6 @@ const SignupModal = ({ show, onHide }) => {
                   </div>
                 </div>
               </Form>
-              {/* <!--<div className="pt-4 text-center">
-                                <div className="small overline-title-sep"><span className="bg-white px-2 text-base">or register with</span></div>
-                            </div>
-                            <div className="pt-4"><a href="#" className="btn btn-outline-gray-50 text-dark w-100"><img src="images/icon/a.png" alt="" className="icon"><span>Sign Up with Google</span></a></div>--> */}
             </div>
           </div>
         </div>

@@ -6,69 +6,69 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { useState } from "react";
 import { Alert } from "@mui/material";
 import axios from "axios";
 
+// eslint-disable-next-line react/prop-types
 export default function HelpfullDialog({ type, open, handleClose, ReviewId }) {
   const [report, setReport] = useState("");
   const [reportErr, setReportErr] = useState("");
   const [apiError, setApiError] = useState([]);
   const [apiSuccess, setApiSuccess] = useState("");
+  const userData = useSelector((state) => state?.user?.value);
   const dispatch = useDispatch();
 
-    React.useEffect(()=>{
+  React.useEffect(() => {
+    async function reviewHelpfulReport() {
+      setApiError([]);
+      setApiSuccess("");
+      console.log("hello");
+      if (report !== "" && reportErr === "") {
+        try {
+          dispatch(showLoader());
 
-        async function reviewHelpfulReport() {
-            setApiError([]);
-            setApiSuccess("");
-            console.log("hello")
-            if (report !== "" && reportErr === "") {
-              try {
-                dispatch(showLoader());
-        
-                const response = await axios.post(
-                  "https://admin.tradingmaterials.com/api/lead/product/review-report",
-                  {
-                    review_id: ReviewId,
-                    type: "helpfull",
-                  },
-                  {
-                    headers: {
-                      "access-token": localStorage.getItem("client_token"),
-                      Accept: "application/json",
-                    },
-                  }
-                );
-                if (response?.data?.status) {
-                  setApiSuccess(response?.data?.message);
-                  setTimeout(() => {
-                    handleClose();
-                  }, 5000);
-                }
-              } catch (err) {
-                console.log(err);
-                if (err?.response?.data?.errors) {
-                  setReportErr(err?.response?.data?.errors["description"]);
-                } else {
-                  setApiError([err?.response?.data?.message]);
-                  setTimeout(() => {
-                    setApiError([]);
-                  }, 5000);
-                }
-              } finally {
-                dispatch(hideLoader());
-              }
-            } else {
-              setReportErr("Reason for reporting is required");
+          const response = await axios.post(
+            "https://admin.tradingmaterials.com/api/client/product/review-report",
+            {
+              review_id: ReviewId,
+              type: "helpfull",
+              client_id: userData?.client?.id,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("client_token")}`,
+                Accept: "application/json",
+              },
             }
+          );
+          if (response?.data?.status) {
+            setApiSuccess(response?.data?.message);
+            setTimeout(() => {
+              handleClose();
+            }, 5000);
           }
-          reviewHelpfulReport()
-    },[])
-
-
+        } catch (err) {
+          console.log(err);
+          if (err?.response?.data?.errors) {
+            setReportErr(err?.response?.data?.errors["description"]);
+          } else {
+            setApiError([err?.response?.data?.message]);
+            setTimeout(() => {
+              setApiError([]);
+            }, 5000);
+          }
+        } finally {
+          dispatch(hideLoader());
+        }
+      } else {
+        setReportErr("Reason for reporting is required");
+      }
+    }
+    reviewHelpfulReport();
+  }, []);
 
   function handleReportUpdate(e) {
     console.log(e?.target?.value);
@@ -116,7 +116,7 @@ export default function HelpfullDialog({ type, open, handleClose, ReviewId }) {
               {apiError?.length > 0 &&
                 apiError?.map((err, ind) => {
                   return (
-                    <Alert variant="outlined" severity="error" className="mt-2">
+                    <Alert  key={ind} variant="outlined" severity="error" className="mt-2">
                       <p key={ind} className="text-red-600 font-semibold">
                         {err}
                       </p>
@@ -125,28 +125,30 @@ export default function HelpfullDialog({ type, open, handleClose, ReviewId }) {
                 })}
             </>
           )}
-           {apiSuccess && (
-                <Alert variant="outlined" severity="success" className="mt-2">
-                  <p className="text-green-900 font-semibold">{apiSuccess}</p>
-                </Alert>
-              )}
+          {apiSuccess && (
+            <Alert variant="outlined" severity="success" className="mt-2">
+              <p className="text-green-900 font-semibold">{apiSuccess}</p>
+            </Alert>
+          )}
 
-              {apiError?.length > 0 &&
-                apiError?.map((err, ind) => {
-                  return (
-                    <Alert variant="outlined" severity="error" className="mt-2">
-                      <p key={ind} className="text-red-600 font-semibold">
-                        {err}
-                      </p>
-                    </Alert>
-                  );
-                })}
+          {apiError?.length > 0 &&
+            apiError?.map((err, ind) => {
+              return (
+                <Alert key={ind+"ind"} variant="outlined" severity="error" className="mt-2">
+                  <p key={ind} className="text-red-600 font-semibold">
+                    {err}
+                  </p>
+                </Alert>
+              );
+            })}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>
             {type === "report" ? "Cancel" : "Close"}
           </Button>
-          {type === "report" && <Button onClick={handleSubmit}>Report</Button>}
+          {type === "report" && 
+          // eslint-disable-next-line no-undef
+          <Button onClick={handleSubmit}>Report</Button>}
         </DialogActions>
       </Dialog>
     </div>

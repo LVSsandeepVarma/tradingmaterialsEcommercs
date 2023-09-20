@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
@@ -26,8 +19,7 @@ import { updateNotifications } from "../../../features/notifications/notificatio
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
-import { Avatar, CardActionArea, CardHeader } from "@mui/material";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import { Avatar, CardActionArea } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import BusinessIcon from "@mui/icons-material/Business";
 import axios from "axios";
@@ -37,10 +29,13 @@ import Header from "../header/header";
 import { useNavigate } from "react-router-dom";
 import { FaMinusCircle } from "react-icons/fa";
 import CryptoJS from "crypto-js";
-import { red } from "@mui/material/colors";
-import { showPopup } from "../../../features/popups/popusSlice";
-import { updatePositions } from "../../../features/positions/positionsSlice";
 import Invoices from "./invoices";
+import { BsFillBoxSeamFill } from "react-icons/bs";
+import { MdOutlineAlternateEmail } from "react-icons/md";
+import { BiSolidPhoneCall } from "react-icons/bi";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { logoutUser } from "../../../features/login/loginSlice";
+// import { logoutUser } from "../../../features/login/loginSlice";
 
 const drawerWidth = 240;
 
@@ -74,24 +69,6 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -110,49 +87,31 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 export default function SideBar() {
-  const theme = useTheme();
+  // eslint-disable-next-line no-unused-vars
   const [open, setOpen] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [showModal, setShowModal] = useState(false);
   const [addressUpdateType, setAddressUpdateType] = useState();
   const [addressData, setAddressData] = useState();
   const userData = useSelector((state) => state?.user?.value);
-  const isLoggedIn = useSelector((state) => state?.login?.value);
   const tabs = ["Address", "Cart", "Wishlist", "Orders"];
-  const clientType = useSelector((state) => state?.clientType?.value);
   const [animateProductId, setAnimateProductId] = useState("");
-  const [cartPosition, setCartPosition] = useState({ x: 0, y: 0 });
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [formType, setFormType] = useState("add");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const userLang = useSelector((state) => state?.lang?.value);
-  const positions = useSelector((state) => state?.position?.value);
+  const clientType = useSelector((state) => state?.clientType?.value);
   const addressStatus = useSelector((state) => state?.addressStatus?.value);
-  const [currentUserlang, setCurrentUserLang] = useState(
-    localStorage.getItem("i18nextLng")
-  );
+
 
   useEffect(() => {
     if (window?.location?.search === "?wishlist") {
       setActiveIndex(2);
+    } else if (window.location.search === "?orders"){
+      setActiveIndex(3)
     }
   }, []);
 
-  function getRandomNumberWithOffset(number) {
-    // Define an array of possible offsets: 5, 10, and 20.
-    const offsets = [15, 50, 80];
-
-    // Generate a random index within the valid range of offsets array.
-    const randomIndex = Math.floor(Math.random() * offsets.length);
-
-    // Get the random offset based on the selected index.
-    const randomOffset = offsets[randomIndex];
-
-    // Add the random offset to the input number.
-    const result = parseInt(number) + randomOffset;
-    return result;
-  }
 
   //function for review stars
   function ratingStars(number) {
@@ -176,26 +135,13 @@ export default function SideBar() {
 
   const getUserInfo = async () => {
     try {
-      const url =
-        clientType === "client"
-          ? "https://admin.tradingmaterials.com/api/get-user-info"
-          : "https://admin.tradingmaterials.com/api/lead/get-user-info";
-      const headerData =
-        clientType === "client"
-          ? {
-              headers: {
-                Authorization: `Bearer ` + localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            }
-          : {
-              headers: {
-                "access-token": localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            };
 
-      const response = await axios.get(url, headerData);
+      const response = await axios.get("https://admin.tradingmaterials.com/api/client/get-user-info", {
+        headers: {
+          Authorization: `Bearer ` + localStorage.getItem("client_token"),
+          Accept: "application/json",
+        },
+      });
       if (response?.data?.status) {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
@@ -219,41 +165,6 @@ export default function SideBar() {
   };
 
   // function for handling add to cart animation
-  async function handleAddToCart(productId) {
-    // setAnimateProductId(productId)
-    try {
-      setAnimateProductId(productId);
-      // dispatch(showLoader());
-      const response = await axios?.post(
-        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
-        {
-          product_id: productId,
-          qty: 1,
-        },
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-          },
-        }
-      );
-      if (response?.data?.status) {
-        dispatch(
-          updateNotifications({
-            type: "success",
-            message: "Added to cart successfully",
-          })
-        );
-        dispatch(updateCart(response?.data?.data?.cart_details));
-        dispatch(updateCartCount(response?.data?.data?.cart_count));
-        // getUserInfo();
-      }
-    } catch (err) {
-      console.log(err);
-    }
-    // finally {
-    // dispatch(hideLoader());
-    // }
-  }
 
   useEffect(() => {
     const timoeOut = setTimeout(() => {
@@ -265,39 +176,69 @@ export default function SideBar() {
     };
   }, [animateProductId]);
 
-  const handleCartPosition = (event) => {
-    const cartButtonRect = document
-      ?.getElementById(`img-4`)
-      ?.getBoundingClientRect();
-    const top = cartButtonRect?.top;
-    const right = cartButtonRect?.left;
-    dispatch(
-      updatePositions({
-        cartTop: positions?.cartTop,
-        cartRight: positions?.cartRight,
-        productTop: top,
-        productRight: right,
-      })
-    );
-
-    // Animate the product's movement towards the cart button
-    setCartPosition({ top: `${top}px`, right: `${right}px` });
-  };
 
   useEffect(() => {
     getUserInfo();
   }, [addressStatus]);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
 
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
+
+  async function handleLogout() {
+    try {
+      dispatch(showLoader());
+      const url =
+        "https://admin.tradingmaterials.com/api/client/auth/logout"
+      const headerData =
+        clientType === "client"
+          ? {
+              headers: {
+                Authorization: `Bearer ` + localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            }
+          : {
+              headers: {
+                "access-token": localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            };
+      const response = await axios.post(url, {}, headerData);
+
+      if (response?.status) {
+        dispatch(logoutUser());
+        localStorage.removeItem("client_token");
+        dispatch(updateNotifications({ type: "", message: "" }));
+        navigate(`${userLang}/`)
+        window.location.reload();
+        
+      }
+    } catch (err) {
+      console.log("err", err);
+    } finally {
+      dispatch(hideLoader());
+    }
+  }
 
   const handleActiveTab = (index) => {
-    setActiveIndex(index);
+    if (index !== 3 && index !== 4) {
+      setActiveIndex(index);
+    } else {
+      if(index === 3){
+      window.open(
+        `/orders/${CryptoJS?.AES?.encrypt(
+          `${userData?.client?.id}`,
+          "order_details"
+        )
+          ?.toString()
+          .replace(/\//g, "_")
+          .replace(/\+/g, "-")}`,
+        "_blank"
+      );
+        }
+        else if(index === 4){
+          handleLogout()
+        }
+    }
   };
 
   return (
@@ -332,9 +273,16 @@ export default function SideBar() {
           
         </Toolbar>
       </AppBar> */}
-          <Drawer variant="permanent" open={open}>
+          <Drawer
+            variant="permanent"
+            className="drop-shadow-xl !w-[100%] sm:!w-[100%]  md:!w-[35%] lg:!w-[24%]"
+            open={open}
+          >
             <Divider />
-            <DrawerHeader>
+            <DrawerHeader
+              className="drop-shadow-xl !w-full"
+              style={{ width: "100% !important" }}
+            >
               <div
                 style={{
                   textOverflow: "ellipsis",
@@ -344,7 +292,7 @@ export default function SideBar() {
                 }}
               >
                 <p
-                  className="font-bold !text-left w-full ml-3 p-3"
+                  className="font-bold !text-left w-full ml-3 p-3 flex justify-center w-full"
                   style={{
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -352,13 +300,28 @@ export default function SideBar() {
                     width: "90%",
                   }}
                 >
-                  name:{" "}
+                  <Avatar
+                    alt="user profile"
+                    src="/images/blueProfile.png"
+                    sx={{ width: "40%", height: "40%" }}
+                    className=""
+                  ></Avatar>
+                </p>
+                <p
+                  className="font-bold text-lg !text-left w-full ml-3 p-1"
+                  style={{
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    width: "90%",
+                  }}
+                >
                   {userData?.client?.first_name?.charAt(0)?.toUpperCase() +
                     userData?.client?.first_name?.slice(1)}{" "}
                   {userData?.client?.last_name}
                 </p>
                 <p
-                  className="font-bold !text-left w-full ml-3 p-3  "
+                  className=" flex items-center font-bold text-sm !text-left w-full ml-3  p-1 pb-0"
                   style={{
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -366,10 +329,11 @@ export default function SideBar() {
                     width: "90%",
                   }}
                 >
-                  email: {userData?.client?.email}
+                  <MdOutlineAlternateEmail className="mr-1" size={16} />
+                  {userData?.client?.email}
                 </p>
                 <p
-                  className="font-bold !text-left w-full ml-3 p-3  "
+                  className="flex  items-center font-bold text-sm !text-left w-full ml-3 p-1 pt-0 "
                   style={{
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -377,7 +341,8 @@ export default function SideBar() {
                     width: "90%",
                   }}
                 >
-                  phone: {userData?.client?.phone}
+                  <BiSolidPhoneCall className="mr-1" size={16} />
+                  {userData?.client?.phone}
                 </p>
               </div>
               {/* <IconButton onClick={handleDrawerClose}>
@@ -387,84 +352,92 @@ export default function SideBar() {
             </DrawerHeader>
             <Divider />
             <List>
-              {["Address", "Cart", "Wishlist", "Orders"].map((text, index) => (
-                <ListItem key={text} disablePadding sx={{ display: "block" }}>
-                  <ListItemButton
-                    sx={{
-                      minHeight: 48,
-                      justifyContent: open ? "initial" : "center",
-                      px: 2.5,
-                      backgroundColor: activeIndex === index ? "skyblue" : "",
-                    }}
-                    color={`${activeIndex === index ? "blue" : ""} `}
-                    onClick={() => handleActiveTab(index)}
-                  >
-                    {text === "Orders" && (
-                      <ShoppingCartRoundedIcon
+              {["Address", "Cart", "Wishlist", "Orders", "Logout"].map(
+                (text, index) => (
+                  <ListItem key={text} disablePadding sx={{ display: "block" }}>
+                    <ListItemButton
+                      sx={{
+                        minHeight: 48,
+                        justifyContent: open ? "initial" : "center",
+                        px: 2.5,
+                        backgroundColor: activeIndex === index ? "skyblue" : "",
+                      }}
+                      color={`${activeIndex === index ? "blue" : ""} `}
+                      onClick={() => handleActiveTab(index)}
+                    >
+                      {text === "Logout" && (
+                        <LogoutIcon
+                        size={20}
+                        className="mr-7"
                         sx={{
                           minWidth: 0,
                           mr: open ? 3 : "auto",
-                          justifyContent: "center",
+                          justifyContent: "center"
                         }}
-                      >
-                        <MailIcon />
-                      </ShoppingCartRoundedIcon>
-                    )}
-                    {text === "Cart" && (
-                      <ShoppingCartRoundedIcon
-                        sx={{
-                          minWidth: 0,
-                          mr: open ? 3 : "auto",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <MailIcon />
-                      </ShoppingCartRoundedIcon>
-                    )}
-                    {/* {text === "Profile" && <PersonOutlineIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <MailIcon />
-                </PersonOutlineIcon>} */}
-                    {text === "Address" && (
-                      <BusinessIcon
-                        sx={{
-                          minWidth: 0,
-                          mr: open ? 3 : "auto",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <MailIcon />
-                      </BusinessIcon>
-                    )}
-                    {text === "Wishlist" && (
-                      <FavoriteBorderIcon
-                        sx={{
-                          minWidth: 0,
-                          mr: open ? 3 : "auto",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <MailIcon />
-                      </FavoriteBorderIcon>
-                    )}
-                    <ListItemText
-                      primary={text}
-                      sx={{ opacity: open ? 1 : 0 }}
-                    />
-                  </ListItemButton>
-                  <Divider />
-                </ListItem>
-              ))}
+                        >
+                        </LogoutIcon>
+                      )}
+                      {text === "Orders" && (
+                        <BsFillBoxSeamFill
+                          size={20}
+                          className="mr-7"
+                          sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : "auto",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <MailIcon />
+                        </BsFillBoxSeamFill>
+                      )}
+                      {text === "Cart" && (
+                        <ShoppingCartRoundedIcon
+                          sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : "auto",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <MailIcon />
+                        </ShoppingCartRoundedIcon>
+                      )}
+                      {text === "Address" && (
+                        <BusinessIcon
+                          sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : "auto",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <MailIcon />
+                        </BusinessIcon>
+                      )}
+                      {text === "Wishlist" && (
+                        <FavoriteBorderIcon
+                          sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : "auto",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <MailIcon />
+                        </FavoriteBorderIcon>
+                      )}
+                      <ListItemText
+                        primary={text}
+                        sx={{ opacity: open ? 1 : 0 }}
+                      />
+                    </ListItemButton>
+                    <Divider />
+                  </ListItem>
+                )
+              )}
             </List>
             {/* <Divider /> */}
           </Drawer>
           <Divider />
           <Box
+            className="drop-shadow-lg"
             component="main"
             sx={{
               flexGrow: 1,
@@ -479,7 +452,9 @@ export default function SideBar() {
               style={{ color: "darkgray" }}
             >
               {" "}
-              Profile Details &gt;{" "}
+              {activeIndex > 0
+                ? "Product details"
+                : "Profile Details"} &gt;{" "}
               <b style={{ color: "black" }}>{tabs[activeIndex]}</b>
             </p>
             <DrawerHeader />
@@ -508,7 +483,10 @@ export default function SideBar() {
                     <div className="flex overflow-x-auto">
                       {userData?.client?.primary_address?.map(
                         (address, ind) => (
-                          <div className="w-fit border border-1 p-3 text-left !min-w-[45%]  sm:!min-w-[25%] ml-5">
+                          <div
+                            key={ind * 3}
+                            className="w-fit border border-1 p-3  text-left !min-w-[45%]  sm:!min-w-[25%] sm:max-w-[40%]  mt-5 ml-5 gap-5"
+                          >
                             <CardActionArea
                               onClick={() => {
                                 setAddressUpdateType("billing");
@@ -523,7 +501,7 @@ export default function SideBar() {
                                 Address - {ind + 1}
                               </h3>
                               <p>{address?.add_1},</p>
-                              <p>{address?.add_2},</p>
+                              <p>{address?.add_2 !== null ? `${address?.add_2},` : ""}</p>
                               <p>{address?.city},</p>
                               <p>{address?.zip},</p>
                               <p>{address?.state},</p>
@@ -556,7 +534,10 @@ export default function SideBar() {
                     </small>
                     <div className="flex overflow-x-auto ">
                       {userData?.client?.address?.map((address, ind) => (
-                        <div className="w-fit border border-1 p-3 text-left !min-w-[45%]  sm:!min-w-[25%] mt-5 ml-5 gap-5">
+                        <div
+                          key={ind}
+                          className=" w-fit border border-1 p-3  text-left !min-w-[45%]  sm:!min-w-[25%] sm:max-w-[40%]  mt-5 ml-5 gap-5"
+                        >
                           <CardActionArea
                             onClick={() => {
                               setAddressUpdateType("shipping");
@@ -567,7 +548,7 @@ export default function SideBar() {
                           >
                             <h3 className="!font-bold">Address - {ind + 1}</h3>
                             <p>{address?.add_1},</p>
-                            <p>{address?.add_2},</p>
+                            <p>{address?.add_2 !== null ? `${address?.add_2},` : ""}</p>
                             <p>{address?.city},</p>
                             <p>{address?.zip},</p>
                             <p>{address?.state},</p>
@@ -629,7 +610,10 @@ export default function SideBar() {
                   {userData?.client?.cart?.length > 0 && (
                     <div className="row gy-5">
                       {userData?.client?.cart?.map((product, ind) => (
-                        <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                        <div
+                          key={ind * 2}
+                          className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
+                        >
                           <Card className="mt-5 " sx={{ maxWidth: 345 }}>
                             <CardActionArea>
                               <CardMedia
@@ -927,7 +911,10 @@ export default function SideBar() {
                       {userData?.client?.wishlist?.length > 0 && (
                         <div className="row">
                           {userData?.client?.wishlist?.map((product, ind) => (
-                            <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                            <div
+                              key={ind}
+                              className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
+                            >
                               <Card className="mt-5 " sx={{ maxWidth: 345 }}>
                                 <CardActionArea>
                                   <CardMedia
@@ -1019,8 +1006,7 @@ export default function SideBar() {
                                             {" "}
                                             ({
                                               product?.total_reviews
-                                            }{" "}
-                                            Reviews){" "}
+                                            } Reviews){" "}
                                           </span>
                                         </div>
                                         <div className="d-flex align-items-center justify-content-start">
@@ -1040,8 +1026,7 @@ export default function SideBar() {
                                                     parseFloat(
                                                       product?.price *
                                                         (100 /
-                                                          product
-                                                            ?.discount)
+                                                          product?.discount)
                                                     )?.toFixed(2) + ""
                                                   )
                                                     .toString()
@@ -1057,8 +1042,7 @@ export default function SideBar() {
                                                       parseFloat(
                                                         product?.price *
                                                           (100 /
-                                                            product
-                                                              ?.discount)
+                                                            product?.discount)
                                                       )?.toFixed(2) + ""
                                                     )
                                                       .toString()

@@ -1,40 +1,32 @@
 import React, { useEffect, useState } from "react";
 import Countdown from "./countdown";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  filteredProductsByIds,
-  updatingProducts,
-} from "../../../features/products/productsSlice";
-import styled, { keyframes } from "styled-components";
-import { AiFillCloseCircle } from "react-icons/ai";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { filteredProductsByIds } from "../../../features/products/productsSlice";
+import { useLocation, useNavigate } from "react-router-dom";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { loginUser, logoutUser } from "../../../features/login/loginSlice";
 import { updatePositions } from "../../../features/positions/positionsSlice";
 import axios from "axios";
+import moment from "moment";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
-import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import {
   updateCartCount,
   updateWishListCount,
 } from "../../../features/cartWish/focusedCount";
-import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
+import GitHubForkRibbon from "react-github-fork-ribbon";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation, Autoplay } from "swiper/modules";
-import { useSpring, animated } from "react-spring";
 import CryptoJS from "crypto-js";
-import { Ribbon, RibbonContainer } from "react-ribbons";
 
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import { t } from "i18next";
 import { useTranslation } from "react-i18next";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaRegHeart } from "react-icons/fa";
 import { Box, Skeleton } from "@mui/material";
-import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
+import AddToFav from "../modals/addToFav";
 
 export default function ProductsDisplay() {
   const { t } = useTranslation();
@@ -42,13 +34,14 @@ export default function ProductsDisplay() {
   const products = useSelector((state) => state?.products?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const isLoggedIn = useSelector((state) => state?.login?.value);
-  const popup = useSelector((state) => state?.popup?.value);
   const userLang = useSelector((state) => state?.lang?.value);
-  const clientType = useSelector((state) => state?.clientType?.value);
   const subId = useSelector((state) => state?.subId?.value);
+  const userData = useSelector((state) => state?.user?.value);
 
-  const [megaDealTime, setMegaDealTime] = useState("2023-08-31T00:00:00");
+  // eslint-disable-next-line no-unused-vars
+  const [megaDealTime, setMegaDealTime] = useState("2023-09-12T00:00:00");
   const [singleProductsCount, setSingleProductsCount] = useState(0);
+  // eslint-disable-next-line no-unused-vars
   const [bundleProductCount, setBundleProductCount] = useState(0);
   const [filteredProducts, setFilteredProducts] = useState({});
   const [subCategoryIds, setSubCategoryIds] = useState([]);
@@ -62,10 +55,13 @@ export default function ProductsDisplay() {
   const [resultsCount, setResultsCount] = useState(0);
   const [isNoProducts, setIsNoProducts] = useState(false);
   const [showPlaceHolderLoader, setShowPlaceHolderLoader] = useState(false);
-
+  const [addedToFavImg, setAddedToFavImg] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  // eslint-disable-next-line no-unused-vars
   const [animateProductId, setAnimateProductId] = useState("");
+  // eslint-disable-next-line no-unused-vars
   const [cartPosition, setCartPosition] = useState({ x: 0, y: 0 });
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
@@ -82,6 +78,20 @@ export default function ProductsDisplay() {
   }, [userLang]);
 
   useEffect(() => {
+    const incrementDate = () => {
+      const today = new Date();
+      const nextDate = moment(today).add(5, "days");
+      console.log(today.toISOString(), megaDealTime, "ttttt");
+      // if (today.toISOString().split("T")[0] >= megaDealTime.toString().split("T")[0]) {
+      //   console.log(nextDate, "datee")
+      setMegaDealTime(nextDate);
+      // }
+    };
+
+    incrementDate();
+  }, []);
+
+  useEffect(() => {
     const hash = location.hash;
     if (hash) {
       const element = document.querySelector(hash);
@@ -90,40 +100,21 @@ export default function ProductsDisplay() {
       }
     }
     if (location.search === "?login") {
-      dispatch(
-        usersignupinModal({
-          showSignupModal: false,
-          showLoginModal: true,
-          showforgotPasswordModal: false,
-          showOtpModal: false,
-          showNewPasswordModal: false,
-        })
-      );
+      navigate(`/login`);
     }
   }, [location, window]);
 
   const getUserInfo = async () => {
     try {
-      const url =
-        clientType === "client"
-          ? "https://admin.tradingmaterials.com/api/get-user-info"
-          : "https://admin.tradingmaterials.com/api/lead/get-user-info";
-      const headerData =
-        clientType === "client"
-          ? {
-              headers: {
-                Authorization: `Bearer ` + localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            }
-          : {
-              headers: {
-                "access-token": localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            };
-
-      const response = await axios.get(url, headerData);
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/client/get-user-info",
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
       if (response?.data?.status) {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
@@ -140,16 +131,6 @@ export default function ProductsDisplay() {
       dispatch(hideLoader());
     }
   };
-
-  useEffect(() => {
-    const timoeOut = setTimeout(() => {
-      setAnimateProductId("");
-    }, 3000);
-
-    return () => {
-      clearTimeout(timoeOut);
-    };
-  }, [animateProductId]);
 
   useEffect(() => {
     setShowPlaceHolderLoader(true);
@@ -170,7 +151,7 @@ export default function ProductsDisplay() {
     setSingleProductsCount(totalCount);
     console.log(totalCount);
 
-    products?.sub_categories?.map((product, ind) => {
+    products?.sub_categories?.map((product) => {
       console.log(product);
       productsFilter[product?.name] = false;
     });
@@ -201,22 +182,6 @@ export default function ProductsDisplay() {
     }
   }, [subId, products]);
 
-  //function for generating random discounted price
-  function getRandomNumberWithOffset(number) {
-    // Define an array of possible offsets: 5, 10, and 20.
-    const offsets = [15, 50, 80];
-
-    // Generate a random index within the valid range of offsets array.
-    const randomIndex = Math.floor(Math.random() * offsets.length);
-
-    // Get the random offset based on the selected index.
-    const randomOffset = offsets[randomIndex];
-
-    // Add the random offset to the input number.
-    const result = parseInt(number) + randomOffset;
-    return result;
-  }
-
   //function for review stars
   function ratingStars(number) {
     const elemetns = Array.from({ length: 5 }, (_, index) => (
@@ -229,7 +194,7 @@ export default function ProductsDisplay() {
         {index + 1 > number &&
           (index + 1 - number !== 0 && index + 1 - number < 1 ? (
             <li key={index}>
-              <em class="icon ni ni-star-half-fill text-yellow"></em>
+              <em className="icon ni ni-star-half-fill text-yellow"></em>
             </li>
           ) : (
             <li key={index}>
@@ -437,7 +402,7 @@ export default function ProductsDisplay() {
       setIsSearchResult(false);
     }
     const completeProducts = products?.products;
-    const timeInterval = setTimeout(() => {
+    setTimeout(() => {
       const res = completeProducts?.filter((product) =>
         product?.name?.toLowerCase()?.includes(searchText?.toLowerCase())
       );
@@ -455,6 +420,7 @@ export default function ProductsDisplay() {
 
   function handleSortingProducts(value) {
     setSorting(value);
+    // eslint-disable-next-line no-unsafe-optional-chaining
     const combinedProducts = [...products?.products];
     console.log(combinedProducts[0], typeof combinedProducts);
     console.log(value);
@@ -482,43 +448,27 @@ export default function ProductsDisplay() {
     setShowPlaceHolderLoader(false);
   }
 
-  async function handleAddToWishList(id) {
+  async function handleAddToWishList(id, productImg) {
     console.log(id);
     try {
       dispatch(showLoader());
-      const url =
-        clientType === "client"
-          ? "https://admin.tradingmaterials.com/api/product/add-to-wishlist"
-          : "https://admin.tradingmaterials.com/api/lead/product/add-to-wishlist";
-      const headerData =
-        clientType === "client"
-          ? {
-              headers: {
-                Authorization: `Bearer ` + localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            }
-          : {
-              headers: {
-                "access-token": localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            };
       const response = await axios.post(
-        url,
+        "https://admin.tradingmaterials.com/api/client/product/add-to-wishlist",
         {
           product_id: id,
+          client_id: userData?.client?.id,
         },
-        headerData
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
       );
       if (response?.data?.status) {
-        dispatch(
-          updateNotifications({
-            type: "success",
-            message: "Added to wishlist successfully",
-          })
-        );
-        // dispatch(updateWis(response?.data?.data?.cart_details));
+        setAddedToFavImg(productImg);
+        setShowModal(true);
+        setModalMessage("Added to your wishlist successfully");
         dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
         getUserInfo();
       }
@@ -529,43 +479,28 @@ export default function ProductsDisplay() {
     }
   }
 
-  const dynamicAnimation = keyframes`
-  from {
-    transform:  translate(0%,0%) scale(1);
-  },
-  to {
-   transform: translate(45%,80%) scale(0)
-  }
-
-`;
-
-  const AnimatedDiv = styled.div`
-    animation: ${dynamicAnimation} 2s forwards;
-  `;
-
   // function for handling add to cart animation
-  async function handleAddToCart(productId) {
+  async function handleAddToCart(productId, productImg) {
     try {
-      setAnimateProductId(productId);
+      // setAnimateProductId(productId);
       const response = await axios?.post(
-        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+        "https://admin.tradingmaterials.com/api/client/product/add-to-cart",
         {
           product_id: productId,
           qty: 1,
+          client_id: userData?.client?.id,
         },
         {
           headers: {
-            "access-token": localStorage.getItem("client_token"),
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
           },
         }
       );
       if (response?.data?.status) {
-        dispatch(
-          updateNotifications({
-            type: "success",
-            message: "Added to cart successfully",
-          })
-        );
+        setAddedToFavImg(productImg);
+        setShowModal(true);
+        setModalMessage("Added to your Cart successfully");
+        dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
       }
@@ -574,7 +509,7 @@ export default function ProductsDisplay() {
     }
   }
 
-  const handleCartPosition = (event) => {
+  const handleCartPosition = () => {
     const cartButtonRect = document
       ?.getElementById(`img-4`)
       ?.getBoundingClientRect();
@@ -588,9 +523,11 @@ export default function ProductsDisplay() {
         productRight: right,
       })
     );
-
-    // Animate the product's movement towards the cart button
-    setCartPosition({ top: `${top}px`, right: `${right}px` });
+  };
+  const closeModal = () => {
+    setShowModal(false);
+    setModalMessage("");
+    setAddedToFavImg("");
   };
 
   return (
@@ -599,6 +536,14 @@ export default function ProductsDisplay() {
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
         </div>
+      )}
+      {addedToFavImg !== "" && (
+        <AddToFav
+          showModal={showModal}
+          closeModal={closeModal}
+          modalMessage={modalMessage}
+          addedToFavImg={addedToFavImg}
+        />
       )}
       {}
       <div className="nk-pages">
@@ -612,7 +557,7 @@ export default function ProductsDisplay() {
                       <img
                         src="/images/shop/banner-cover.png"
                         alt="banner-cover"
-                        data-aos="zoom-in"
+                        // data-aos="zoom-in"
                         loading="lazy"
                         rel="preload"
                       />
@@ -667,7 +612,7 @@ export default function ProductsDisplay() {
                         <h6 className="mb-3 text-xl !font-bold text-left ">
                           {t("Trading_Materials")}
                         </h6>
-                        <ul className="d-flex gy-4 flex-column">
+                        <ul className="d-flex gy-4 flex-column !text-left">
                           <li>
                             <div className="form-check d-flex align-items-center">
                               <input
@@ -681,7 +626,7 @@ export default function ProductsDisplay() {
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
                                   className="form-check-label fs-14 text-gray-1200"
-                                  for="all-category"
+                                  htmlFor="all-category"
                                 >
                                   All Trading Materials
                                 </label>
@@ -810,7 +755,7 @@ export default function ProductsDisplay() {
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
                                   className="form-check-label fs-14 text-gray-1200"
-                                  for="in-stock"
+                                  htmlFor="in-stock"
                                 >
                                   In Stock
                                 </label>
@@ -835,7 +780,7 @@ export default function ProductsDisplay() {
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
                                   className="form-check-label fs-14 text-gray-1200"
-                                  for="out-stock"
+                                  htmlFor="out-stock"
                                 >
                                   Out Of Stock
                                 </label>
@@ -868,11 +813,14 @@ export default function ProductsDisplay() {
                             id="nk-sorting"
                             hidden
                           />
-                          <label for="nk-sorting" className="nk-dropdown-menu">
+                          <label
+                            htmlFor="nk-sorting"
+                            className="nk-dropdown-menu"
+                          >
                             <ul
                               className="nk-dropdown-filter"
                               role="listbox"
-                              tabindex="-1"
+                              tabIndex="-1"
                             >
                               <li
                                 className="nk-dropdown-filter-selected"
@@ -930,6 +878,150 @@ export default function ProductsDisplay() {
                         </div>
                       </div>
                     </div>
+                    {isNoProducts || !allProducts?.length && (
+                        <>
+                        <div className="row gy-5">
+                          <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                          <Box sx={{ pt: 0.5 }}>
+                            <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                              <Skeleton
+                                animation="wave"
+                                variant="rectangular"
+                                className="!w-full !h-[250px] sm:!h-[300px] "
+                                width="100%"
+                              />
+                              {/* <Skeleton animation="wave" /> */}
+                              <Skeleton
+                                animation="wave"
+                                width="80%"
+                                className="!mt-[2.5vh]"
+                              />
+                              <div className="flex !mt-[2.5vh]">
+                                <Skeleton
+                                  animation="wave"
+                                  width="30%"
+                                  className="mr-3"
+                                />
+                                <Skeleton animation="wave" width="20%" />
+                              </div>
+                              <div className="flex mt-2 mb-2  !w-full">
+                                <Skeleton
+                                  className="mr-2"
+                                  animation="wave"
+                                  width="50%"
+                                />
+                                <Skeleton
+                                  className="mr-2"
+                                  animation="wave"
+                                  width="50%"
+                                />
+                                <div className="flex !justify-end !w-full">
+                                  <Skeleton
+                                    animation="wave"
+                                    width="20%"
+                                    className="mr-2 ml-4"
+                                  />
+                                  <Skeleton animation="wave" width="20%" />
+                                </div>
+                              </div>
+                            </div>
+                          </Box>
+                        </div>
+                        <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                        <Box sx={{ pt: 0.5 }}>
+                          <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                            <Skeleton
+                              animation="wave"
+                              variant="rectangular"
+                              className="!w-full !h-[250px] sm:!h-[300px] "
+                              width="100%"
+                            />
+                            {/* <Skeleton animation="wave" /> */}
+                            <Skeleton
+                              animation="wave"
+                              width="80%"
+                              className="!mt-[2.5vh]"
+                            />
+                            <div className="flex !mt-[2.5vh]">
+                              <Skeleton
+                                animation="wave"
+                                width="30%"
+                                className="mr-3"
+                              />
+                              <Skeleton animation="wave" width="20%" />
+                            </div>
+                            <div className="flex mt-2 mb-2  !w-full">
+                              <Skeleton
+                                className="mr-2"
+                                animation="wave"
+                                width="50%"
+                              />
+                              <Skeleton
+                                className="mr-2"
+                                animation="wave"
+                                width="50%"
+                              />
+                              <div className="flex !justify-end !w-full">
+                                <Skeleton
+                                  animation="wave"
+                                  width="20%"
+                                  className="mr-2 ml-4"
+                                />
+                                <Skeleton animation="wave" width="20%" />
+                              </div>
+                            </div>
+                          </div>
+                        </Box>
+                      </div>
+                      <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                      <Box sx={{ pt: 0.5 }}>
+                        <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                          <Skeleton
+                            animation="wave"
+                            variant="rectangular"
+                            className="!w-full !h-[250px] sm:!h-[300px] "
+                            width="100%"
+                          />
+                          {/* <Skeleton animation="wave" /> */}
+                          <Skeleton
+                            animation="wave"
+                            width="80%"
+                            className="!mt-[2.5vh]"
+                          />
+                          <div className="flex !mt-[2.5vh]">
+                            <Skeleton
+                              animation="wave"
+                              width="30%"
+                              className="mr-3"
+                            />
+                            <Skeleton animation="wave" width="20%" />
+                          </div>
+                          <div className="flex mt-2 mb-2  !w-full">
+                            <Skeleton
+                              className="mr-2"
+                              animation="wave"
+                              width="50%"
+                            />
+                            <Skeleton
+                              className="mr-2"
+                              animation="wave"
+                              width="50%"
+                            />
+                            <div className="flex !justify-end !w-full">
+                              <Skeleton
+                                animation="wave"
+                                width="20%"
+                                className="mr-2 ml-4"
+                              />
+                              <Skeleton animation="wave" width="20%" />
+                            </div>
+                          </div>
+                        </div>
+                      </Box>
+                    </div>
+                    </div>
+                        </>
+                      )}
                     <div className="row gy-5">
                       {isNoProducts ||
                         (allProducts?.length === 0 && (
@@ -938,8 +1030,8 @@ export default function ProductsDisplay() {
                       {isSearchResult && resultsCount === 0 && (
                         <p className="font-bold">No products to Display</p>
                       )}
-                      {products !== {} &&
-                        !isNoProducts &&
+                      {!isNoProducts &&
+                        // eslint-disable-next-line array-callback-return
                         allProducts?.map((product, ind) => {
                           if (
                             product?.combo === 0 ||
@@ -950,7 +1042,10 @@ export default function ProductsDisplay() {
                               <>
                                 {/* placeholder laoder */}
                                 {showPlaceHolderLoader === true && (
-                                  <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                                  <div
+                                    key={ind}
+                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
+                                  >
                                     <Box sx={{ pt: 0.5 }}>
                                       <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
                                         <Skeleton
@@ -1005,11 +1100,11 @@ export default function ProductsDisplay() {
                                 )}
                                 {showPlaceHolderLoader === false && (
                                   <div
-                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
+                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px] group hover:drop-shadow-xl"
                                     id={`img-${product?.id}`}
                                   >
                                     <div className="nk-card overflow-hidden rounded-3 h-100 border text-left ">
-                                      <div className="nk-card-img ">
+                                      <div className="nk-card-img relative">
                                         <a
                                           href={`${userLang}/product-detail/${
                                             product?.slug
@@ -1024,9 +1119,19 @@ export default function ProductsDisplay() {
                                           <img
                                             src={product?.img_1}
                                             alt="product-image"
-                                            className="sm:!h-[300px] !w-full"
+                                            className="sm:!h-[300px] !w-full group-hover:scale-105 transition duration-500"
                                             loading="lazy"
                                           />
+                                          {product?.stock?.stock < 10 && (
+                                            <GitHubForkRibbon
+                                              className="drop-shadow-xl subpixel-antialiased"
+                                              color="orange"
+                                              position="left"
+                                            >
+                                              Only {product?.stock?.stock} left
+                                              !!
+                                            </GitHubForkRibbon>
+                                          )}
                                         </a>
                                       </div>
                                       <div className="nk-card-info bg-white p-4">
@@ -1097,6 +1202,7 @@ export default function ProductsDisplay() {
                                                 {currentUserlang === "en" &&
                                                   price?.INR && (
                                                     <p
+                                                      key={ind}
                                                       className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
                                                     >
                                                       {currentUserlang === "en"
@@ -1193,7 +1299,8 @@ export default function ProductsDisplay() {
                                                                     parseFloat(
                                                                       price?.INR *
                                                                         (100 /
-                                                                          product?.discount)
+                                                                          (100 -
+                                                                            product?.discount))
                                                                     )?.toFixed(
                                                                       2
                                                                     ) + ""
@@ -1214,7 +1321,8 @@ export default function ProductsDisplay() {
                                                                       parseFloat(
                                                                         price?.INR *
                                                                           (100 /
-                                                                            product?.discount)
+                                                                            (100 -
+                                                                              product?.discount))
                                                                       )?.toFixed(
                                                                         2
                                                                       ) + ""
@@ -1260,7 +1368,8 @@ export default function ProductsDisplay() {
                                                                     parseFloat(
                                                                       price?.USD *
                                                                         (100 /
-                                                                          product?.discount)
+                                                                          (100 -
+                                                                            product?.discount))
                                                                     )?.toFixed(
                                                                       2
                                                                     ) + ""
@@ -1281,7 +1390,8 @@ export default function ProductsDisplay() {
                                                                       parseFloat(
                                                                         price?.USD *
                                                                           (100 /
-                                                                            product?.discount)
+                                                                            (100 -
+                                                                              product?.discount))
                                                                       )?.toFixed(
                                                                         2
                                                                       ) + ""
@@ -1431,7 +1541,8 @@ export default function ProductsDisplay() {
                                                                     parseFloat(
                                                                       price?.INR *
                                                                         (100 /
-                                                                          product?.discount)
+                                                                          (100 -
+                                                                            product?.discount))
                                                                     )?.toFixed(
                                                                       2
                                                                     ) + ""
@@ -1452,7 +1563,8 @@ export default function ProductsDisplay() {
                                                                       parseFloat(
                                                                         price?.INR *
                                                                           (100 /
-                                                                            product?.discount)
+                                                                            (100 -
+                                                                              product?.discount))
                                                                       )?.toFixed(
                                                                         2
                                                                       ) + ""
@@ -1498,7 +1610,8 @@ export default function ProductsDisplay() {
                                                                     parseFloat(
                                                                       price?.USD *
                                                                         (100 /
-                                                                          product?.discount)
+                                                                          (100 -
+                                                                            product?.discount))
                                                                     )?.toFixed(
                                                                       2
                                                                     ) + ""
@@ -1519,7 +1632,8 @@ export default function ProductsDisplay() {
                                                                       parseFloat(
                                                                         price?.USD *
                                                                           (100 /
-                                                                            product?.discount)
+                                                                            (100 -
+                                                                              product?.discount))
                                                                       )?.toFixed(
                                                                         2
                                                                       ) + ""
@@ -1549,9 +1663,10 @@ export default function ProductsDisplay() {
                                               onClick={() => {
                                                 isLoggedIn
                                                   ? handleAddToWishList(
-                                                      product?.id
+                                                      product?.id,
+                                                      product?.img_1
                                                     )
-                                                  : dispatch(showPopup());
+                                                  : navigate(`/login`);
                                               }}
                                             >
                                               <FaRegHeart size={18} />
@@ -1562,10 +1677,11 @@ export default function ProductsDisplay() {
                                               onClick={(event) => {
                                                 return isLoggedIn
                                                   ? (handleAddToCart(
-                                                      product?.id
+                                                      product?.id,
+                                                      product?.img_1
                                                     ),
                                                     handleCartPosition(event))
-                                                  : dispatch(showPopup());
+                                                  : navigate(`/login`);
                                               }}
                                             >
                                               {animateProductId ===
@@ -1630,12 +1746,13 @@ export default function ProductsDisplay() {
                 <p className="font-bold">No products to Display</p>
               )}
               {subCatProducts?.length !== 0 &&
-                subCatProducts?.map((product, indx) => {
+                subCatProducts?.map((product) => {
                   if (product?.combo) {
                     return (
                       <>
-                        {showPlaceHolderLoader === true && (
-                          <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px] !pb-[27px]">
+                        {(showPlaceHolderLoader === true ||
+                          showLoader === true) && (
+                          <div className="col-xl-4 col-lg-4 col-md-6 !pb-[27px]">
                             <Box sx={{ pt: 0.5 }}>
                               <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
                                 <Skeleton
@@ -1652,13 +1769,9 @@ export default function ProductsDisplay() {
                           </div>
                         )}
                         {showPlaceHolderLoader === false && (
-                          <div
-                            className="col-xl-4 col-lg-4 col-md-6 !pb-[27px]"
-                            data-aos="fade-up"
-                            data-aos-delay="0"
-                          >
+                          <div className="col-xl-4 col-lg-4 col-md-6 !pb-[27px] group  hover:drop-shadow-xl">
                             <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
-                              <div className="nk-card-img">
+                              <div className="nk-card-img relative">
                                 <a
                                   href={`${userLang}/product-detail/${
                                     product?.slug
@@ -1673,9 +1786,18 @@ export default function ProductsDisplay() {
                                   <img
                                     src={product?.img_1}
                                     alt="product-image"
-                                    className="w-100"
-                                    loading="lazy"
+                                    className="w-100 group-hover:scale-105 transition duration-500"
+                                    // loading="lazy"
                                   />
+                                  {product?.stock?.stock < 10 && (
+                                    <GitHubForkRibbon
+                                      className="drop-shadow-xl subpixel-antialiased"
+                                      color="orange"
+                                      position="left"
+                                    >
+                                      Only {product?.stock?.stock} left !!
+                                    </GitHubForkRibbon>
+                                  )}
                                 </a>
                               </div>
                               <div className="nk-card-info bg-white p-4">
@@ -1736,7 +1858,7 @@ export default function ProductsDisplay() {
                                   </span>
                                 </div>
                                 <div className="d-flex align-items-center justify-content-between mb-2">
-                                  {product?.prices?.map((price, ind) => (
+                                  {product?.prices?.map((price) => (
                                     <>
                                       {currentUserlang === "en" &&
                                         price?.INR && (
@@ -1825,7 +1947,8 @@ export default function ProductsDisplay() {
                                                           parseFloat(
                                                             price?.INR *
                                                               (100 /
-                                                                product?.discount)
+                                                                (100 -
+                                                                  product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -1842,7 +1965,8 @@ export default function ProductsDisplay() {
                                                             parseFloat(
                                                               price?.INR *
                                                                 (100 /
-                                                                  product?.discount)
+                                                                  (100 -
+                                                                    product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -1880,9 +2004,10 @@ export default function ProductsDisplay() {
                                                       {
                                                         (
                                                           parseFloat(
-                                                            price?.USD *
+                                                            price?.INR *
                                                               (100 /
-                                                                product?.discount)
+                                                                (100 -
+                                                                  product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -1897,9 +2022,10 @@ export default function ProductsDisplay() {
                                                         {
                                                           (
                                                             parseFloat(
-                                                              price?.USD *
+                                                              price?.INR *
                                                                 (100 /
-                                                                  product?.discount)
+                                                                  (100 -
+                                                                    product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -2026,7 +2152,8 @@ export default function ProductsDisplay() {
                                                           parseFloat(
                                                             price?.INR *
                                                               (100 /
-                                                                product?.discount)
+                                                                (100 -
+                                                                  product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -2043,7 +2170,8 @@ export default function ProductsDisplay() {
                                                             parseFloat(
                                                               price?.INR *
                                                                 (100 /
-                                                                  product?.discount)
+                                                                  (100 -
+                                                                    product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -2098,9 +2226,10 @@ export default function ProductsDisplay() {
                                                         {
                                                           (
                                                             parseFloat(
-                                                              price?.USD *
+                                                              price?.INR *
                                                                 (100 /
-                                                                  product?.discount)
+                                                                  (100 -
+                                                                    product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -2123,8 +2252,11 @@ export default function ProductsDisplay() {
                                     }}
                                     onClick={() => {
                                       isLoggedIn
-                                        ? handleAddToWishList(product?.id)
-                                        : dispatch(showPopup());
+                                        ? handleAddToWishList(
+                                            product?.id,
+                                            product?.img_1
+                                          )
+                                        : navigate(`/login`);
                                     }}
                                   >
                                     <FaRegHeart size={18} />
@@ -2133,9 +2265,12 @@ export default function ProductsDisplay() {
                                     className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
                                     onClick={(event) => {
                                       return isLoggedIn
-                                        ? (handleAddToCart(product?.id),
+                                        ? (handleAddToCart(
+                                            product?.id,
+                                            product?.img_1
+                                          ),
                                           handleCartPosition(event))
-                                        : dispatch(showPopup());
+                                        : navigate(`/login`);
                                     }}
                                   >
                                     {animateProductId === product?.id ? (
@@ -2249,10 +2384,10 @@ export default function ProductsDisplay() {
                         Chadha Acharya
                       </h5>
                       <p className="fs-14 line-clamp-3 text-left">
-                        "Thank you for your kind words! We strive to provide
-                        brilliant solutions for our customers. If there's
-                        anything else we can assist you with, please let us
-                        know."
+                        &quot;Thank you for your kind words! We strive to
+                        provide brilliant solutions for our customers. If
+                        there&apos;s anything else we can assist you with,
+                        please let us know.&quot;
                       </p>
                     </div>
                   </div>
@@ -2286,10 +2421,10 @@ export default function ProductsDisplay() {
                         Barman Agarwal
                       </h5>
                       <p className="fs-14 line-clamp-3 text-left">
-                        "Thank you for your kind words! We strive to provide
-                        brilliant solutions for our customers. If there's
-                        anything else we can assist you with, please let us
-                        know."
+                        &quot;Thank you for your kind words! We strive to
+                        provide brilliant solutions for our customers. If
+                        there&apos;s anything else we can assist you with,
+                        please let us know.&quot;
                       </p>
                     </div>
                   </div>
@@ -2322,10 +2457,10 @@ export default function ProductsDisplay() {
                       Aadarsh Chopra
                     </h5>
                     <p className="fs-14 line-clamp-3 text-left">
-                      "Thank you for your feedback! We're glad to hear that you
-                      find our platform to be the best for learning. We are
-                      committed to providing high-quality educational resources
-                      and a user-friendly experience."
+                      &quot;Thank you for your feedback! We&apos;re glad to hear
+                      that you find our platform to be the best for learning. We
+                      are committed to providing high-quality educational
+                      resources and a user-friendly experience.&quot;
                     </p>
                   </div>
                 </div>
@@ -2356,9 +2491,9 @@ export default function ProductsDisplay() {
                       Farhan Aktar
                     </h5>
                     <p className="fs-14 text-left">
-                      "Thanks to Trading Materials, our application is
+                      &quot;Thanks to Trading Materials, our application is
                       undergoing significant improvements, resulting in a better
-                      user experience and enhanced features."
+                      user experience and enhanced features.&quot;
                     </p>
                   </div>
                 </div>
@@ -2420,9 +2555,7 @@ export default function ProductsDisplay() {
           <li>
             <a
               onClick={() =>
-                isLoggedIn
-                  ? navigate(`${userLang}/cart`)
-                  : dispatch(showPopup())
+                isLoggedIn ? navigate(`${userLang}/cart`) : navigate(`/login`)
               }
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               id="cart-button"

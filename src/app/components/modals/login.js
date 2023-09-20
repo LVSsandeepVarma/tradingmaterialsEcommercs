@@ -1,13 +1,10 @@
 // ShippingAddressModal.js
 import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
-import Register from "../register/register";
-import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { userLanguage } from "../../../features/userLang/userLang";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
-import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { loginUser } from "../../../features/login/loginSlice";
 import axios from "axios";
 import { updateUsers } from "../../../features/users/userSlice";
@@ -17,8 +14,8 @@ import { updateclientType } from "../../../features/clientType/clientType";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import { Alert } from "@mui/material";
 
+// eslint-disable-next-line react/prop-types, no-unused-vars
 const LoginModal = ({ show, onHide }) => {
-  const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,6 +25,7 @@ const LoginModal = ({ show, onHide }) => {
   const [apiError, setApiError] = useState([]);
   const [loginSuccessMsg, setLoginsuccessMsg] = useState("");
   const loginStatus = useSelector((state) => state?.login?.value);
+  // eslint-disable-next-line no-unused-vars
   const loaderState = useSelector((state) => state.loader?.value);
   const [showPassword, setShowPassword] = useState(false);
   const [saveCredentials, setSavecredentials] = useState(false);
@@ -48,13 +46,10 @@ const LoginModal = ({ show, onHide }) => {
     }
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
     }
   }, []);
 
@@ -140,11 +135,9 @@ const LoginModal = ({ show, onHide }) => {
           dispatch(updateclientType(response?.data?.type));
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
-          if (response?.data?.type === "client") {
-            window.location.href = `https://client.tradingmaterials.com/dashboard/`;
-          } else {
+          // if (response?.data?.type === "client") {
             navigate(`${userLang}/profile`);
-          }
+          // }
           handleHide();
           setTimeout(() => {
             localStorage.removeItem("token");
@@ -215,7 +208,7 @@ const LoginModal = ({ show, onHide }) => {
         <div className="nk-split-col ">
           {localLoader && (
             <div className="preloader  !backdrop-blur-[1px]">
-              <div class="loader"></div>
+              <div className="loader"></div>
             </div>
           )}
 
@@ -226,9 +219,9 @@ const LoginModal = ({ show, onHide }) => {
             }}
             // data-aos="fade-up"
           >
-            <div class="account-steps">
-              <div class="step"></div>
-              <div class="step"></div>
+            <div className="account-steps">
+              <div className="step"></div>
+              <div className="step"></div>
             </div>
             <div className="card-body !text-left p-5">
               <div className="nk-form-card-head text-center pb-5">
@@ -337,7 +330,7 @@ const LoginModal = ({ show, onHide }) => {
                           checked={saveCredentials}
                           onChange={() => setSavecredentials(!saveCredentials)}
                         />
-                        <label className="form-check-label" for="rememberMe">
+                        <label className="form-check-label" htmlFor="rememberMe">
                           {" "}
                           Remember Me{" "}
                         </label>
@@ -369,7 +362,7 @@ const LoginModal = ({ show, onHide }) => {
                       >
                         Login to Your Account
                       </button>
-                      <div class="terms-tex mt-2 text-lg">
+                      <div className="terms-tex mt-2 text-lg">
                         <p>
                           By signing up, you agree to the <br></br>{" "}
                           <a href="/terms">Terms of Service</a> and{" "}
@@ -392,6 +385,7 @@ const LoginModal = ({ show, onHide }) => {
                         apiError?.map((err, ind) => {
                           return (
                             <Alert
+                            key={ind}
                               variant="outlined"
                               severity="error"
                               className="mt-2"
@@ -400,7 +394,7 @@ const LoginModal = ({ show, onHide }) => {
                                 key={ind}
                                 className="text-red-600 font-semibold"
                               >
-                                {apiError?.length}
+                                {err}
                               </p>
                             </Alert>
                           );

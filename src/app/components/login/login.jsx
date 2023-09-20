@@ -7,13 +7,11 @@ import { loginUser } from "../../../features/login/loginSlice";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
-import { useTranslation } from "react-i18next";
 import { userLanguage } from "../../../features/userLang/userLang";
 import { updateclientType } from "../../../features/clientType/clientType";
 import { Alert } from "@mui/material";
 
 export default function Login() {
-  const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,13 +42,11 @@ export default function Login() {
     }
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
+      
     }
   }, []);
 
@@ -107,25 +103,23 @@ export default function Login() {
           }
         );
         if (response?.data?.status) {
+          if (saveCredentials) {
+            localStorage.setItem("email", email);
+            localStorage.setItem("phone", password);
+          } else {
+            if (
+              localStorage.getItem("email", email) &&
+              localStorage.getItem("phone", password)
+            ) {
+              localStorage.removeItem("email", email);
+              localStorage.removeItem("phone", password);
+            }
+          }
           setLoginsuccessMsg(response?.data?.message);
           localStorage.removeItem("client_token");
           localStorage.setItem("client_token", response?.data?.token);
           // localStorage
           console.log(response?.data?.first_name);
-          if (saveCredentials) {
-            localStorage.setItem("email", email);
-            localStorage.setItem("phone", password);
-          }
-          // } else {
-          //   if (
-          //     localStorage.getItem("email") &&
-          //     localStorage.getItem("phone")
-          //   ) {
-          //     localStorage.removeItem("email");
-          //     localStorage.removeItem("phone");
-          //   }
-          // }
-
           dispatch(
             updateUsers({
               first_name: response?.data?.first_name,
@@ -137,12 +131,9 @@ export default function Login() {
           dispatch(updateclientType(response?.data?.type));
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
-          if (response?.data?.data?.type === "client") {
-            navigate(`https://client.tradingmaterials.com/dashboard/`);
-          } else {
+          // if (response?.data?.type === "client") {
             navigate(`${userLang}/profile`);
-          }
-
+          // }
           setTimeout(() => {
             localStorage.removeItem("token");
             dispatch(
@@ -155,16 +146,20 @@ export default function Login() {
           }, 3600000);
         }
       } catch (err) {
+        
         console.log("err", err);
         if (err?.response?.data?.errors) {
-          setApiError([...Object?.values(err?.response?.data?.errors)]);
+          setEmailError(err?.response?.data?.errors["email"]);
+          setPasswordError(err?.response?.data?.errors["password"]);
+          // setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
+          console.log(err?.response)
           setApiError([err?.response?.data?.message]);
         }
         setTimeout(() => {
           setApiError([]);
           setLoginsuccessMsg("");
-        }, 8000);
+        }, 80000);
       } finally {
         dispatch(hideLoader());
       }
@@ -288,7 +283,7 @@ export default function Login() {
                             />
                             <label
                               className="form-check-label"
-                              for="rememberMe"
+                              htmlFor="rememberMe"
                             >
                               {" "}
                               Remember Me{" "}
@@ -327,6 +322,7 @@ export default function Login() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
+                                key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"
@@ -344,10 +340,7 @@ export default function Login() {
                       </div>
                     </div>
                   </Form>
-                  {/* <!--<div className="pt-4 text-center">
-                                <div className="small overline-title-sep"><span className="bg-white px-2 text-base">or login with</span></div>
-                            </div>
-                            <div className="pt-4"><a href="#" className="btn btn-outline-gray-50 text-dark w-100"><img src="/images/icon/a.png" alt="" className="icon"/><span>Login with Google</span></a></div>--> */}
+                  
                 </div>
               </div>
             </div>

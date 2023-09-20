@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../header/header";
@@ -6,39 +7,33 @@ import {
   hideLoader,
   showLoader,
 } from "../../../../features/loader/loaderSlice";
-import { fetchAllProducts } from "../../../../features/products/productsSlice";
 import axios from "axios";
 import ShippingAddressModal from "../../modals/address";
 import { Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { updateUsers } from "../../../../features/users/userSlice";
-import { updateCart } from "../../../../features/cartItems/cartSlice";
-import { updateNotifications } from "../../../../features/notifications/notificationSlice";
-import { updateCartCount } from "../../../../features/cartWish/focusedCount";
-import { Form } from "formik";
-import { FaCreditCard, FaCalendarAlt, FaLock, FaClock } from "react-icons/fa";
+import Form from "react-bootstrap/Form";
+import { FaCreditCard, FaCalendarAlt, FaLock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { Divider } from "@mui/material";
 import CryptoJS from "crypto-js";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
-import ConfettiExplosion from "react-confetti-explosion";
 
 export default function Checkout() {
-  const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const products = useSelector((state) => state?.products?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const userData = useSelector((state) => state?.user?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
   const userLang = useSelector((state) => state?.lang?.value);
-  const clientType = useSelector((state) => state?.clientType?.value);
+  const isLoggedIn = useSelector((state) => state.login?.value);
 
   const [showModal, setShowModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [clientToken, setClientToken] = useState("");
+  const [apiError, setApiError] = useState([])
+
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
   const [cardNumber, setCardNumber] = useState("");
@@ -64,18 +59,18 @@ export default function Checkout() {
   const [addressUpdateType, setAddressUpdateType] = useState("");
   const [activePaymentMethod, setActivePaymentMethod] = useState("Razor_Pay");
   // State variable to track quantities for each product
-  const [quantities, setQuantities] = useState({});
-  const [promocode, setPromocode] = useState("");
-  const [orderId, setOrderId] = useState(localStorage.getItem("order_id"));
+
   const [orderData, setOrderData] = useState({});
   const [paymentVerification, setPaymentVerification] = useState(false);
-  const [time, setTime] = useState(5)
+  const [time, setTime] = useState(5);
+  const [apiErr, setApiErr] = useState([]);
 
   // State variable to store prices for each product
   const [prices, setPrices] = useState({});
   const [subTotal, setSubTotal] = useState(0);
 
   const { id } = useParams();
+  const {encryptedrderId} = useParams();
   const decryptedId = CryptoJS.AES.decrypt(
     id.replace(/_/g, "/").replace(/-/g, "+"),
     "trading_materials_order"
@@ -84,88 +79,82 @@ export default function Checkout() {
 
   console.log(cartProducts, "gggggggg");
 
-  const getUserInfo = async () => {
-    try {
-      const url =
-        clientType === "client"
-          ? "https://admin.tradingmaterials.com/api/get-user-info"
-          : "https://admin.tradingmaterials.com/api/lead/get-user-info";
-      const headerData =
-        clientType === "client"
-          ? {
-              headers: {
-                Authorization: `Bearer ` + localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            }
-          : {
-              headers: {
-                "access-token": localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            };
+  console.log(userData, "ttttttttt");
 
-      const response = await axios.get(url, headerData);
-      if (response?.data?.status) {
-        console.log(response?.data);
-        dispatch(updateUsers(response?.data?.data));
-        dispatch(updateCart(response?.data?.data?.client?.cart));
-        setAllProducts(response?.data?.data?.client?.cart);
-      } else {
-        console.log(response?.data);
-        dispatch(
-          updateNotifications({
-            type: "warning",
-            message: "Oops!",
-          })
-        );
-        // navigate("/login")
-      }
-    } catch (err) {
-      console.log(err);
-      dispatch(
-        updateNotifications({
-          type: "error",
-          message: err?.response?.data?.message,
-        })
-      );
-    } finally {
-      dispatch(hideLoader());
-    }
-  };
 
-  useEffect(() => {
-    if(paymentStatus === "success" ){
-      console.log(time)
-      const interval = setInterval(()=> {
-        setTime(time-1)
-        if(time === 1){
-          clearInterval(interval);
-          window.location.href="https://client.tradingmaterials.com/dashboard/"
-        }
-      },1000)
+  // useEffect(() => {
+  //   if (paymentStatus === "success") {
+  //     console.log(time);
+  //     const interval = setInterval(() => {
+  //       setTime(time - 1);
+  //       if (time === 1) {
+  //         clearInterval(interval);
+  //         console.log(clientToken, "actoken");
+  //         console.log(localStorage.getItem("tmToken"));
+  //         if (clientToken === undefined || clientToken === "") {
+  //           window.location.href = `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
+  //             "client_token"
+  //           )}`;
+  //         } else {
+  //           window.location.href = `https://client.tradingmaterials.com/auto-login/${clientToken}`;
+  //         }
+  //       }
+  //     }, 1000);
 
-      return () => clearInterval(interval)
-    }
-  }, [paymentStatus, time]);
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [paymentStatus, time, clientToken]);
 
   const fetchOrderdetails = async () => {
     try {
-      console.log(localStorage.getItem("client_token"));
+      console.log(userData?.client?.id, "ttttttttt");
       dispatch(showLoader());
-      const response = await axios.get(
-        `https://admin.tradingmaterials.com/api/lead/product/checkout/view-order?order_id=${decryptedId}`,
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-          },
+      if(userData?.client?.id !== undefined){
+        const response = await axios.get(
+          `https://admin.tradingmaterials.com/api/client/product/checkout/view-order?order_id=${decryptedId}&client_id=${userData?.client?.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            },
+          }
+        );
+        if (response?.data?.status) {
+          setAllProducts(response?.data?.data?.items);
+          setSubTotal(response?.data?.data?.sub_total);
+          setOrderData(response?.data?.data);
+          console.log(response?.data?.data?.payments,response?.data?.data?.payments[0]?.status === 1)
+          if(response?.data?.data?.payments?.length > 0){
+            const latestPaymentIndex = response?.data?.data?.payments?.length
+            if(response?.data?.data?.payments[latestPaymentIndex-1]?.status === 1){
+              setPaymentStatus("success")
+              // setPaymentVerification(true)
+            }
+          }
         }
-      );
-      if (response?.data?.status) {
-        setAllProducts(response?.data?.data?.items);
-        setSubTotal(response?.data?.data?.sub_total);
-        setOrderData(response?.data?.data);
+      }else{
+        const response = await axios.get(
+          `https://admin.tradingmaterials.com/api/client/product/checkout/view-order?order_id=${decryptedId}&client_id=${localStorage.getItem("id")}`,
+          {
+            headers: {
+              Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            },
+          }
+        );
+        if (response?.data?.status) {
+          setAllProducts(response?.data?.data?.items);
+          setSubTotal(response?.data?.data?.sub_total);
+          setOrderData(response?.data?.data);
+          console.log(response?.data?.data?.payments,response?.data?.data?.payments?.length)
+          if(response?.data?.data?.payments?.length > 0){
+            const latestPaymentIndex = response?.data?.data?.payments?.length
+            if(response?.data?.data?.payments[latestPaymentIndex-1]?.status === 1){
+              setPaymentStatus("success")
+              // setPaymentVerification(true)
+            }
+          }
+        }
       }
+      
     } catch (err) {
       console.log(err);
     } finally {
@@ -174,11 +163,13 @@ export default function Checkout() {
   };
 
   useEffect(() => {
-    // setActiveShippingAddress(userData?.client?.address[0]);
-    // setActivebillingAddress(userData?.client?.primary_address[0]);
-    // getUserInfo();
+    console.log(userData, "ttttttttt", isLoggedIn);
     fetchOrderdetails();
-  }, []);
+  }, [userData]);
+
+  // useEffect(()=>{
+  //   fetchOrderdetails();
+  // },[])
 
   // Set initial quantity for all products to 1 in the useEffect hook
   // useEffect(() => {
@@ -229,6 +220,9 @@ export default function Checkout() {
     } else {
       setCVVError("");
     }
+    if(apiError?.length >0){
+      setApiError([])
+    }
   };
 
   const handleNameChage = (e) => {
@@ -240,7 +234,7 @@ export default function Checkout() {
       if (validateName(addName) !== null) {
         setNameErr("");
       } else {
-        setNameErr("invalid name");
+        setNameErr("Invalid name");
       }
     }
   };
@@ -275,7 +269,7 @@ export default function Checkout() {
     // Implement your card number validation logic here
     // For example, you can use a library like 'card-validator'
     // Return true if the card number is valid, otherwise false
-    return value?.length >= 18 && value?.length <= 19;
+    return value?.length >= 12 && value?.length <= 19;
   };
 
   const validateCVV = (value) => {
@@ -287,12 +281,16 @@ export default function Checkout() {
 
   const handleCardNumberChange = (event) => {
     const formattedValue = formatCardNumber(event.target.value);
+
     if (validateCardNumber(formattedValue)) {
       setCardNumberError("");
     } else {
       setCardNumberError("Please enter a valid card number.");
     }
     setCardNumber(formattedValue);
+    if(apiError?.length >0){
+      setApiError([])
+    }
   };
 
   const handleExpiryChange = (event) => {
@@ -303,6 +301,9 @@ export default function Checkout() {
       setExpiryError("Expiry field required");
     }
     setExpiry(formattedValue);
+    if(apiError?.length >0){
+      setApiError([])
+    }
   };
 
   const validateName = (value) => {
@@ -311,13 +312,8 @@ export default function Checkout() {
     return value.match(/^[a-zA-Z ]+$/);
   };
 
-  const handleShippingAddressChange = (id) => {
-    setActiveShippingAddress(userData?.client?.address[id]);
-    setActiveShippingaddressChecked(id);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async () => {
+    // event.preventDefault();
     const isNameValid = validateName(nameOnCard);
     const isCardNumberValid = validateCardNumber(cardNumber);
     const isExpiryValid = validateExpiry(expiry);
@@ -337,16 +333,17 @@ export default function Checkout() {
         isCVVValid !== false
       ) {
         console.log("all fields are validated and are valid");
+        
         // setIsSuccess(true)
       } else {
         if (isNameValid === null) {
-          setNameErr("invalid name");
+          setNameErr("Invalid name");
         }
         if (isCardNumberValid === false) {
           setCardNumberError("Card number is invalid");
         }
         if (isExpiryValid === null) {
-          setExpiryError("invalid card expiry");
+          setExpiryError("Invalid card expiry");
         }
         if (isCVVValid === false) {
           setCVVError("Invalid CVV");
@@ -355,7 +352,7 @@ export default function Checkout() {
       }
     } else {
       if (nameOnCard === "") {
-        setNameErr("name is required");
+        setNameErr("Name is required");
       }
       if (cardNumber === "") {
         setCardNumberError("Card number is required");
@@ -370,39 +367,41 @@ export default function Checkout() {
     }
   };
 
+  // function for updating choosen payment method
   const handlePaymentMethod = (paymentType) => {
-    console.log(paymentType);
+    console.log(paymentType, "paymentType");
     setActivePaymentMethod(paymentType);
   };
 
-  //payment verification
+ //payment verification razorpay
   async function handleBookingPaymentResponse(res) {
     console.log(res);
     const token = localStorage.getItem("client_token");
     console.log(token);
-    // setRid(res.razorpay_order_id);
     sessionStorage.setItem("order_id", res.razorpay_order_id);
     try {
       setPaymentVerification(true);
       const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/lead/product/checkout/verify-payment",
+        "https://admin.tradingmaterials.com/api/client/product/checkout/verify-payment",
         {
           order_id: res.razorpay_order_id,
           payment_id: res.razorpay_payment_id,
           signature: res.razorpay_signature,
           payment_type: "Razor_Pay",
+          client_id: userData?.client?.id,
         },
         {
           headers: {
-            "access-token": token,
+            Authorization: `Bearer ` + token,
           },
         }
       );
       if (response.data.status) {
         console.log(response?.data);
         setPaymentStatus("success");
+        setClientToken(response?.data?.token);
         localStorage.setItem("client_type", "client");
-
+        fetchOrderdetails()
         // sendDetails();
       }
     } catch (error) {
@@ -442,12 +441,12 @@ export default function Checkout() {
     rzp.open();
   }
 
-  // create order
+ // create order for razorpay
   async function createOrder(id, total, client_id) {
     try {
       dispatch(showLoader());
       const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
+        "https://admin.tradingmaterials.com/api/client/product/checkout/create-order",
         {
           payment_type: "Razor_Pay",
           client_id: client_id,
@@ -456,7 +455,7 @@ export default function Checkout() {
         },
         {
           headers: {
-            "access-token": localStorage.getItem("client_token"),
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
           },
         }
       );
@@ -467,10 +466,74 @@ export default function Checkout() {
       }
     } catch (err) {
       console.log(err);
+      if (err?.response?.data?.errors) {
+        setApiErr([Object.values(err?.response?.data?.errors)]);
+      } else {
+        setApiErr([err?.response?.data?.message]);
+      }
     } finally {
       dispatch(hideLoader());
     }
   }
+
+    //create order for stripe 
+    async function createOrderWithStripe(id, total, client_id,city, state,country,zipcode,address) {
+      handleSubmit()
+      if(nameErr === "" && expiryError === "" && cvvError==="" && cardNumberError ==="" && nameOnCard !== "" && expiry !== "" && cvv !== "" && expiry!==""){
+      try {
+        console.log(orderData?.order,"orderData")
+        dispatch(showLoader());
+        const paymentData = {
+          payment_type: "Stripe",
+            client_id: client_id,
+            order_id: id,
+            total: total,
+            amount: total,
+            city: orderData?.order?.city,
+            state: orderData?.order?.state,
+            address_1:  orderData?.order?.address_1,
+            zipcode: orderData?.order?.zip,
+            country: orderData?.order?.country,
+            card_number: cardNumber,
+            exp_month_year: expiry,
+            cvc: cvv,
+            name_on_card: nameOnCard,
+            currency: "INR",
+            call_back_url: "https://client.tradingmaterials.com/payment-status/"
+        }
+        const response = await axios.post(
+          "https://admin.tradingmaterials.com/api/client/product/checkout/create-order",
+          paymentData,
+          {
+            headers: {
+              Authorization: `Bearer `+localStorage.getItem("client_token"),
+            },
+          }
+        );
+  
+        if (response?.data?.status) {
+          console.log(response, "response")
+  
+          // console.log(response?.data);
+          localStorage.setItem("id", id)
+          localStorage.setItem("order_id",id )
+          window.location.replace(response?.data?.redirect_url);
+          // handleStripePayment(response?.data?.data);
+        }
+      } catch (err) {
+        console.log(err);
+        if (err?.response?.data?.errors) {
+          // eslint-disable-next-line no-unsafe-optional-chaining
+          setApiErr([...Object?.values(err?.response?.data?.errors)]);
+        } else {
+          setApiErr([err?.response?.data?.message]);
+        }
+        dispatch(hideLoader())
+      } finally {
+        // dispatch(hideLoader());
+      }
+    }
+    }
 
   return (
     <>
@@ -547,12 +610,8 @@ export default function Checkout() {
                 <div className="col-lg-8 col-xxl-5 text-left">
                   <div>
                     <a
-                      onClick={() => {
-                        if(paymentStatus !== "success"){
-                          navigate(`${userLang}/`)
-                        }
-                      }}
-                      className="btn-link mb-2 !inline-flex !items-center !text-large !font-semibold"
+                      href={`${userLang}/`}
+                      className="btn-link mb-2 !inline-flex !items-center !text-large !font-semibold cursor-pointer"
                     >
                       <em className="icon ni ni-arrow-left  !inline-flex !items-center !text-large !font-semibold"></em>
                       <span>Back to Home</span>
@@ -576,7 +635,7 @@ export default function Checkout() {
                           {allProducts?.length &&
                             allProducts?.map((product, ind) => {
                               return (
-                                <tr>
+                                <tr key={ind}>
                                   <td className="w-50">
                                     <div className="d-flex align-items-start">
                                       <img
@@ -641,7 +700,7 @@ export default function Checkout() {
                       </table>
                     ) : (
                       <div className="text-center font-bold text-gray-700 ">
-                        <p>no products found in cart</p>
+                        <p>No products found in cart</p>
                         <p
                           className="nav-link text-green-900"
                           onClick={() => navigate("/")}
@@ -761,116 +820,10 @@ export default function Checkout() {
                 {paymentStatus === "" && paymentVerification === false && (
                   <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
                     <h4 className="!font-bold">Payment Method</h4>
-                    {/* 
-                  <form onSubmit={handleSubmit}>
-                    <label className="font-bold !text-sm mt-3 m-0">
-                      Card Number
-                    </label>
-                    <div className="relative m-0">
-                      <input
-                        maxLength={19}
-                        type="text"
-                        className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                        placeholder="Enter card number"
-                        value={cardNumber}
-                        onChange={handleCardNumberChange}
-                        required
-                        isInvalid={
-                          cardNumber && !validateCardNumber(cardNumber)
-                        }
-                      />
-                      <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                        <FaCreditCard size={15} color="gray" />
-                      </div>
-                    </div>
-                    {cardNumberError ? (
-                      <p className="text-red-600 font-bold !text-sm !m-0 !p-0 !text-left">
-                        {cardNumberError}
-                      </p>
-                    ) : (
-                      ""
-                    )}
-                    <div className="">
-                      <label className="font-bold !text-sm mt-3 m-0 ">
-                        Expiry date
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                          placeholder="MM/YY"
-                          value={expiry}
-                          onChange={handleExpiryChange}
-                          required
-                          maxLength={5}
-                          isInvalid={expiry && !validateExpiry(expiry)}
-                        />
-                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                          <FaCalendarAlt size={15} color="gray" />
-                        </div>
-                      </div>
-                      {expiryError ? (
-                        <p className="text-red-600 font-bold !text-left !text-sm !m-0 !p-0">
-                          {expiryError}
-                        </p>
-                      ) : (
-                        ""
-                      )}
-                      {/* </Form.Group> 
-                      <label className="font-bold !text-sm mt-3 m-0">CVV</label>
-                      <div className="relative">
-                        <input
-                          type="password"
-                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                          placeholder="Enter CVV"
-                          value={cvv}
-                          onChange={handleCvvChange}
-                          required
-                          maxLength={3}
-                          isInvalid={cvv && !validateCVV(cvv)}
-                        />
-                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                          <FaLock size={15} color="gray" />
-                        </div>
-                      </div>
-                      {cvvError ? (
-                        <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
-                          {cvvError}
-                        </p>
-                      ) : (
-                        ""
-                      )}
-                      {/* </Form.Group> 
-                      <label className="font-bold !text-sm mt-3 m-0">
-                        Name on the card
-                      </label>
-                      <div className="relative">
-                        <input
-                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                          type="text"
-                          placeholder="Enter account holder name"
-                          value={nameOnCard}
-                          onChange={handleNameChage}
-                          // isInvalid={nameOnCard && !validateName(name)}
-                        />
-                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                          <MdOutlineAccountCircle size={20} color="gray" />
-                        </div>
-                      </div>
-                      {nameErr ? (
-                        <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
-                          {nameErr}
-                        </p>
-                      ) : (
-                        ""
-                      )}
-                      {/* </Form.Group> 
-                    </div>
-                  </form> */}
                     <div className="flex flex-wrap items-center">
                       {userData?.client?.payment_types?.map(
                         (paymentType, ind) => (
-                          <div className="flex">
+                          <div key={ind} className="flex">
                             <input
                               type="checkbox"
                               checked={
@@ -899,15 +852,122 @@ export default function Checkout() {
                           </div>
                         )
                       )}
-                      {/* <div>
-                      <input
-                        type="checkbox"
-                        checked={activePaymentMethod === "stripe"}
-                        onChange={() => handlePaymentMethod("stripe")}
-                      />
-                      <label className="ml-2"> Stripe</label>
-                    </div> */}
                     </div>
+
+                    {activePaymentMethod === "Stripe" && (
+                      <>
+                        <Divider className="mt-2" />
+                        <Form >
+                          <Form.Group>
+                            <label className="font-bold !text-sm mt-3 m-0">
+                              Card Number
+                            </label>
+                            <div className="relative m-0">
+                              <input
+                                maxLength={19}
+                                type="text"
+                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                placeholder="Enter card number"
+                                value={cardNumber}
+                                onChange={handleCardNumberChange}
+                                required
+                                
+                              />
+                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                <FaCreditCard size={15} color="gray" />
+                              </div>
+                            </div>
+                            {cardNumberError ? (
+                              <p className="text-red-600 font-bold !text-sm !m-0 !p-0 !text-left">
+                                {cardNumberError}
+                              </p>
+                            ) : (
+                              ""
+                            )}
+                          </Form.Group>
+                          <Form.Group>
+                            <label className="font-bold !text-sm mt-3 m-0 ">
+                              Expiry date
+                            </label>
+                            <div className="relative">
+                              <input
+                                type="text"
+                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                placeholder="MM/YY"
+                                value={expiry}
+                                onChange={handleExpiryChange}
+                                required
+                                maxLength={5}
+                              />
+                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                <FaCalendarAlt size={15} color="gray" />
+                              </div>
+                            </div>
+                            {expiryError ? (
+                              <p className="text-red-600 font-bold !text-left !text-sm !m-0 !p-0">
+                                {expiryError}
+                              </p>
+                            ) : (
+                              ""
+                            )}
+                          </Form.Group>
+                          <Form.Group>
+                            <label className="font-bold !text-sm mt-3 m-0">
+                              CVV
+                            </label>
+                            <div className="relative">
+                              <input
+                                type="password"
+                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                placeholder="Enter CVV"
+                                value={cvv}
+                                onChange={handleCvvChange}
+                                required
+                                maxLength={3}
+                              />
+                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                <FaLock size={15} color="gray" />
+                              </div>
+                            </div>
+                            {cvvError ? (
+                              <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
+                                {cvvError}
+                              </p>
+                            ) : (
+                              ""
+                            )}
+                          </Form.Group>
+                          <Form.Group>
+                            <label className="font-bold !text-sm mt-3 m-0">
+                              Name on the card
+                            </label>
+                            <div className="relative">
+                              <input
+                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                type="text"
+                                placeholder="Enter account holder name"
+                                value={nameOnCard}
+                                onChange={handleNameChage}
+                                // isInvalid={nameOnCard && !validateName(name)}
+                              />
+                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                <MdOutlineAccountCircle
+                                  size={20}
+                                  color="gray"
+                                />
+                              </div>
+                            </div>
+                            {nameErr ? (
+                              <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
+                                {nameErr}
+                              </p>
+                            ) : (
+                              ""
+                            )}
+                          </Form.Group>
+                        </Form>
+                      </>
+                    )}
                     <hr className="mt-3" />
                     <div className="nk-section-blog-details">
                       <h4 className="mb-3 !font-bold">Order Summary</h4>
@@ -961,8 +1021,8 @@ export default function Checkout() {
                             Discount:
                           </p>
                           <p className="m-0 fs-14 text-danger w-75">
-                            {orderData?.order?.discount_type === "percentage"
-                              ? orderData?.order?.discount + "%"
+                          {orderData?.order?.discount_type === "percentage"
+                              ?`₹ ${orderData?.order?.discount_amount} ( ${orderData?.order?.discount}%)`
                               : "₹" + orderData?.order?.discount_amount}
                           </p>
                         </li>
@@ -990,15 +1050,36 @@ export default function Checkout() {
                         className="btn btn-primary w-100"
                         type="submit"
                         onClick={() =>
-                          createOrder(
-                            orderData?.order_id,
-                            orderData?.order?.total,
-                            orderData?.client_id
-                          )
+                          {
+                            if(activePaymentMethod === "Razor_Pay"){
+                              createOrder(
+                                orderData?.order_id,
+                                orderData?.order?.total,
+                                orderData?.client_id
+                              )
+                            }else if(activePaymentMethod === "Stripe"){
+                              createOrderWithStripe(
+                                orderData?.order_id,
+                                orderData?.order?.total,
+                                orderData?.client_id,
+                                orderData?.city,
+                                orderData?.state,
+                                orderData?.country,
+                                orderData?.pincode,
+                                orderData?.address_1
+                              )
+                            }
+                          }
                         }
                       >
                         Proceed to Pay
                       </button>
+                      {apiErr?.length > 0 &&
+                        apiErr?.map((err, ind) => (
+                          <span key={ind} className="text-red-800 mt-2 font-semibold">
+                            {err}
+                          </span>
+                        ))}
                       <Divider className="mt-2" />
                       <div className="flex  w-full mt-3">
                         <img
@@ -1026,7 +1107,7 @@ export default function Checkout() {
                       <div className="paper drop-shadow-lg">
                         <div className="main-contents">
                           <div
-                            class={`flex items-center justify-center ${
+                            className={`flex items-center justify-center ${
                               paymentStatus === "success"
                                 ? "success-icon "
                                 : "fail-icon"
@@ -1049,17 +1130,19 @@ export default function Checkout() {
                           </div>
 
                           <div className="success-description">
-                            {paymentStatus === "success"
-                              ? `Thank you for your payment made on , your complaint number is `
-                              : `There was some internal issue with the payment on ${new Date().toLocaleDateString(
-                                  "en-GB"
-                                )}`}
+                          {paymentStatus === "success"
+                              ? `Thank you for your payment.`
+                              : `There was some internal issue with the payment, please try again after some time`}
                           </div>
                           <div className="order-details"></div>
                           {paymentStatus === "success" ? (
                             <>
                               <div className="order-footer text-gray-700">
-                                Thankyou
+                                {orderData?.payments?.length >0 && 
+                                <p>Your transaction ID : <b>{orderData?.payments[orderData?.payments?.length-1]?.transaction_id}</b></p>}
+                                {orderData?.payments?.length === 0 && 
+                                <p>Thank you</p>}
+                                
                                 {/* <ConfettiExplosion
                                   zIndex={999}
                                   force={0.8}
@@ -1069,11 +1152,13 @@ export default function Checkout() {
                                   defaultValue={4}
                                 /> */}
                               </div>
-                              <small
+                              {/* <small
                                 className="cursor-pointer hover:text-green-600  font-bold "
                                 onClick={() => navigate("/order-tracking")}
-                              >Do not Refresh the page, we will redirect to your orders in {time}
-                              </small>
+                              >
+                                Do not Refresh the page, we will redirect to
+                                your orders in {time}
+                              </small> */}
                             </>
                           ) : (
                             <div className="order-footer">

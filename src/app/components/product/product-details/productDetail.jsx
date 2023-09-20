@@ -12,17 +12,17 @@ import Header from "../../header/header";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchAllProducts } from "../../../../features/products/productsSlice";
+import GitHubForkRibbon from 'react-github-fork-ribbon';
 import { updateUsers } from "../../../../features/users/userSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
-import {
-  notifications,
-  updateNotifications,
-} from "../../../../features/notifications/notificationSlice";
+// import {
+//   updateNotifications,
+// } from "../../../../features/notifications/notificationSlice";
 import {
   updateCartCount,
   updateWishListCount,
 } from "../../../../features/cartWish/focusedCount";
-import { showPopup } from "../../../../features/popups/popusSlice";
+// import { showPopup } from "../../../../features/popups/popusSlice";
 // import Swiper from "swiper";
 import "swiper/css";
 import "swiper/css/free-mode";
@@ -35,11 +35,9 @@ import CryptoJS from "crypto-js";
 import { Avatar, Button, Divider, Skeleton } from "@mui/material";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import ReviewDialog from "../../modals/reviewDialog";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
+import { logoutUser } from "../../../../features/login/loginSlice";
+import { usersignupinModal } from "../../../../features/signupinModals/signupinSlice";
+import AddToFav from "../../modals/addToFav";
 
 // import { delay } from "@reduxjs/toolkit/dist/utils";
 
@@ -50,10 +48,11 @@ export default function ProductDetails() {
   const navigate = useNavigate();
   const products = useSelector((state) => state?.products?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
-  const clientType = useSelector((state) => state?.clientType?.value);
+  // const clientType = useSelector((state) => state?.clientType?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const userLang = useSelector((state) => state?.lang?.value);
   const isLoggedIn = useSelector((state) => state?.login?.value);
+  const userData = useSelector((state) => state?.user?.value)
   const [animateProductId, setAnimateProductId] = useState("");
   const [tabValue, setTabValue] = React.useState(1);
   const [openReviewDialog, setOpenReviewDialog] = useState(false);
@@ -62,17 +61,18 @@ export default function ProductDetails() {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const [subCatProducts, setSubCatProducts] = useState([]);
   const [qunatity, setQuantity] = useState(1);
-  const [total, setTotal] = useState(0);
   const [dialogType, setDialogType] = useState("helpful");
   const [apiError, setApiError] = useState([]);
-  const [apiSuccess, setApiSuccess] = useState("");
   const [reviewIdErr, setReviewIdErr] = useState("");
+  const [addedToFavImg, setAddedToFavImg] = useState("")
+  const [showFavModal, setShowFavModal] = useState(false)
+  const [modalMessage, setModalMessage] = useState("")
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
   const [reviewId, setReviewId] = useState("");
+  // eslint-disable-next-line no-unused-vars
   const [previewImage, setPreviewImage] = useState("/images/logo");
-  let count = 0;
   console.log(cartProducts, params);
 
   useEffect(() => {
@@ -91,45 +91,24 @@ export default function ProductDetails() {
 
   const getUserInfo = async () => {
     try {
-      const url =
-        clientType === "client"
-          ? "https://admin.tradingmaterials.com/api/get-user-info"
-          : "https://admin.tradingmaterials.com/api/lead/get-user-info";
-      const headerData =
-        clientType === "client"
-          ? {
-              headers: {
-                Authorization: `Bearer ` + localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            }
-          : {
-              headers: {
-                "access-token": localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            };
-
-      const response = await axios.get(url, headerData);
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/client/get-user-info",
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
       if (response?.data?.status) {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
-        navigate("/cart");
       } else {
         console.log(response?.data);
-        if (localStorage.getItem("client_token")) {
-          dispatch(
-            updateNotifications({
-              type: "warning",
-              message: response?.data?.message,
-            })
-          );
-        } else {
-          dispatch(showPopup());
-        }
 
-        // navigate("/login")
+        dispatch(logoutUser());
+        localStorage.removeItem("client_token");
       }
     } catch (err) {
       console.log(err);
@@ -138,20 +117,7 @@ export default function ProductDetails() {
     }
   };
 
-  function getRandomNumberWithOffset(number) {
-    // Define an array of possible offsets: 5, 10, and 20.
-    const offsets = [15, 50, 80];
 
-    // Generate a random index within the valid range of offsets array.
-    const randomIndex = Math.floor(Math.random() * offsets.length);
-
-    // Get the random offset based on the selected index.
-    const randomOffset = offsets[randomIndex];
-
-    // Add the random offset to the input number.
-    const result = parseInt(number) + randomOffset;
-    return result;
-  }
 
   function ratingStars(number) {
     const elemetns = Array.from({ length: 5 }, (_, index) => (
@@ -164,7 +130,7 @@ export default function ProductDetails() {
         {index + 1 > number &&
           (index + 1 - number !== 0 && index + 1 - number < 1 ? (
             <li key={index}>
-              <em class="icon ni ni-star-half-fill text-yellow"></em>
+              <em className="icon ni ni-star-half-fill text-yellow"></em>
             </li>
           ) : (
             <li key={index}>
@@ -245,33 +211,31 @@ export default function ProductDetails() {
   }, []);
 
   // function for handling add to cart animation
-  async function handleAddToCart(productId) {
+  async function handleAddToCart(productId, productImg) {
     // setAnimateProductId(productId)
     try {
       // dispatch(showLoader());
       setAnimateProductId(productId);
       const response = await axios?.post(
-        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+        "https://admin.tradingmaterials.com/api/client/product/add-to-cart",
         {
           product_id: productId,
           qty: qunatity,
+          client_id: userData?.client?.id,
         },
         {
           headers: {
-            "access-token": localStorage.getItem("client_token"),
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
           },
         }
       );
       if (response?.data?.status) {
-        dispatch(
-          updateNotifications({
-            type: "success",
-            message: "Added to cart successfully",
-          })
-        );
+        setAddedToFavImg(productImg)
+        setShowFavModal(true)
+        setModalMessage("Added to your cart successfully")
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
-        // getUserInfo();
+        getUserInfo();
       }
     } catch (err) {
       console.log(err);
@@ -281,42 +245,27 @@ export default function ProductDetails() {
     // }
   }
 
-  async function handleAddToWishList(id) {
+  async function handleAddToWishList(id, clientId, productImg) {
     console.log(id);
     try {
       dispatch(showLoader());
-      const url =
-        clientType === "client"
-          ? "https://admin.tradingmaterials.com/api/product/add-to-wishlist"
-          : "https://admin.tradingmaterials.com/api/lead/product/add-to-wishlist";
-      const headerData =
-        clientType === "client"
-          ? {
-              headers: {
-                Authorization: `Bearer ` + localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            }
-          : {
-              headers: {
-                "access-token": localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            };
       const response = await axios.post(
-        url,
+        "https://admin.tradingmaterials.com/api/client/product/add-to-wishlist",
         {
           product_id: id,
+          client_id: clientId,
         },
-        headerData
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
       );
       if (response?.data?.status) {
-        dispatch(
-          updateNotifications({
-            type: "success",
-            message: "Added to wishlist successfully",
-          })
-        );
+        setAddedToFavImg(productImg)
+        setShowFavModal(true)
+        setModalMessage("Added to your wishlist successfully")
         // dispatch(updateWis(response?.data?.data?.cart_details));
         dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
         getUserInfo();
@@ -345,14 +294,15 @@ export default function ProductDetails() {
       dispatch(showLoader());
 
       const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/lead/product/review-report",
+        "https://admin.tradingmaterials.com/api/client/product/review-report",
         {
           review_id: id,
           type: "helpfull",
+          client_id: userData?.client?.id,
         },
         {
           headers: {
-            "access-token": localStorage.getItem("client_token"),
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
             Accept: "application/json",
           },
         }
@@ -376,6 +326,11 @@ export default function ProductDetails() {
     } finally {
       dispatch(hideLoader());
     }
+  }
+  const closeModal=()=>{
+    setShowFavModal(false);
+    setModalMessage("")
+    setAddedToFavImg("")
   }
 
   return (
@@ -424,6 +379,10 @@ export default function ProductDetails() {
           reviewId={reviewId}
         />
       )}
+
+{addedToFavImg!== "" && 
+        <AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} />
+      }
 
       <div className="nk-body">
         <div className="nk-body-root">
@@ -661,7 +620,7 @@ export default function ProductDetails() {
                       >
                         {product?.product?.img_1 !== null && (
                           <SwiperSlide>
-                            {loaderState && (
+                            {/* {loaderState && (
                               <Skeleton
                                 animation="wave"
                                 variant="rectangular"
@@ -672,7 +631,7 @@ export default function ProductDetails() {
                                   height: "100%",
                                 }}
                               />
-                            )}
+                            )} */}
                             {!loaderState && (
                               <img
                                 className="w-100"
@@ -689,7 +648,7 @@ export default function ProductDetails() {
                         )}
                         {product?.product?.img_2 !== null && (
                           <SwiperSlide>
-                            {loaderState && (
+                            {/* {loaderState && (
                               <Skeleton
                                 animation="wave"
                                 variant="rectangular"
@@ -700,7 +659,7 @@ export default function ProductDetails() {
                                   height: "100%",
                                 }}
                               />
-                            )}
+                            )} */}
                             {!loaderState && (
                               <img
                                 className="w-100"
@@ -717,7 +676,7 @@ export default function ProductDetails() {
                         )}
                         {product?.product?.img_3 !== null && (
                           <SwiperSlide>
-                            {loaderState && (
+                            {/* {loaderState && (
                               <Skeleton
                                 animation="wave"
                                 variant="rectangular"
@@ -728,7 +687,7 @@ export default function ProductDetails() {
                                   height: "100%",
                                 }}
                               />
-                            )}
+                            )} */}
                             {!loaderState && (
                               <img
                                 className="w-100"
@@ -747,7 +706,7 @@ export default function ProductDetails() {
                         )}
                         {product?.product?.img_4 !== null && (
                           <SwiperSlide>
-                            {loaderState && (
+                            {/* {loaderState && (
                               <Skeleton
                                 animation="wave"
                                 variant="rectangular"
@@ -758,7 +717,7 @@ export default function ProductDetails() {
                                   height: "100%",
                                 }}
                               />
-                            )}
+                            )} */}
                             {!loaderState && (
                               <img
                                 className="w-100"
@@ -775,7 +734,7 @@ export default function ProductDetails() {
                         )}
                         {product?.product?.img_5 !== null && (
                           <SwiperSlide>
-                            {loaderState && (
+                            {/* {loaderState && (
                               <Skeleton
                                 animation="wave"
                                 variant="rectangular"
@@ -786,7 +745,7 @@ export default function ProductDetails() {
                                   height: "100%",
                                 }}
                               />
-                            )}
+                            )} */}
                             {!loaderState && (
                               <img
                                 className="w-100"
@@ -847,7 +806,7 @@ export default function ProductDetails() {
                               {ratingStars(product?.rating)}
 
                               <a
-                                className="fs-14 text-gray-800 cursor-pointer hover:!text-red-800 "
+                                className="fs-14 text-gray-800 cursor-pointer group hover:!text-red-800 "
                                 href="#product_reviews"
                                 onClick={() => setTabValue(2)}
                               >
@@ -857,7 +816,14 @@ export default function ProductDetails() {
                             </div>
                             <a href="#" className="d-flex    text-gray-1200" onClick={()=>{
                               if(!isLoggedIn){
-                                dispatch(showPopup())
+                                dispatch(
+                                  usersignupinModal({
+                                    showSignupModal: false,
+                                    showLoginModal: true,
+                                    showforgotPasswordModal: false,
+                                    showOtpModal: false,
+                                    showNewPasswordModal: false,
+                                  }))
                               }
                             }}>
                               <em className="icon ni ni-edit-alt text-gray-800"></em>
@@ -904,8 +870,8 @@ export default function ProductDetails() {
                         <div className="position-relative overflow-hidden bg-blue-300 rounded p-4">
                           <div className="flex justify-between">
                             <h4 className="mb-4 !text-2xl !font-bold !text-left">
-                              {product?.product?.prices?.map((price, ind) => (
-                                <p className=" m-0 text-gray-1200 text-start !text-xl !font-bold !mr-2 ">
+                              {product?.product?.prices?.map((price, _ind) => (
+                                <p key={_ind} className=" m-0 text-gray-1200 text-start !text-xl !font-bold !mr-2 ">
                                   {currentUserlang === "en"
                                     ? price?.INR &&
                                       `₹${Number.parseFloat(price?.INR).toFixed(
@@ -920,8 +886,8 @@ export default function ProductDetails() {
                             </h4>
                             <h4 className="mb-4 flex !text-xl !font-semibold !text-left">
                               Total:&nbsp;
-                              {product?.product?.prices?.map((price, ind) => (
-                                <p className=" m-0 text-start !text- !font-bold !mr-2 ">
+                              {product?.product?.prices?.map((price, _ind) => (
+                                <p key={_ind} className=" m-0 text-start !text- !font-bold !mr-2 ">
                                   {currentUserlang === "en"
                                     ? price?.INR &&
                                       `₹${Number.parseFloat(
@@ -948,10 +914,17 @@ export default function ProductDetails() {
                             <li>
                               <button
                                 className="btn btn-white text-primary"
-                                onClick={(event) => {
+                                onClick={() => {
                                   return isLoggedIn
-                                    ? handleAddToCart(product?.product_id)
-                                    : dispatch(showPopup());
+                                    ? handleAddToCart(product?.product_id, product?.product?.img_1)
+                                    :  dispatch(
+                                      usersignupinModal({
+                                        showSignupModal: false,
+                                        showLoginModal: true,
+                                        showforgotPasswordModal: false,
+                                        showOtpModal: false,
+                                        showNewPasswordModal: false,
+                                      }))
                                 }}
                               >
                                 Add To Cart
@@ -964,15 +937,19 @@ export default function ProductDetails() {
                               className="fs-16 fw-semibold text-gray-1200 cursor-pointer"
                               onClick={() => {
                                 isLoggedIn
-                                  ? handleAddToWishList(product?.id)
-                                  : dispatch(showPopup());
+                                  ? handleAddToWishList(product?.product_id, product?.product?.img_1)
+                                  : dispatch(
+                                    usersignupinModal({
+                                      showSignupModal: false,
+                                      showLoginModal: true,
+                                      showforgotPasswordModal: false,
+                                      showOtpModal: false,
+                                      showNewPasswordModal: false,
+                                    }))
                               }}
                             >
                               {" "}
                               Add to WishList{" "}
-                              {/* <span className="fs-14 text-gray-800 fw-normal">
-                                (32,145 Adds)
-                              </span> */}
                             </p>
                           </div>
                         </div>
@@ -1027,7 +1004,6 @@ export default function ProductDetails() {
                     <ul className="nav nav-tabs" id="product_reviews">
                       <li className="nav-item" onClick={() => setTabValue(1)}>
                         <a
-                          href="#"
                           className={`${
                             tabValue === 1 ? "nav-link active" : "nav-link"
                           }`}
@@ -1040,7 +1016,6 @@ export default function ProductDetails() {
                       </li>
                       <li className="nav-item" onClick={() => setTabValue(2)}>
                         <a
-                          href="#"
                           className={`${
                             tabValue === 2 ? "nav-link active" : "nav-link"
                           }`}
@@ -1072,7 +1047,7 @@ export default function ProductDetails() {
                         <div
                           className="tab-pane fade show active"
                           id="tab-1"
-                          tabindex="0"
+                          tabIndex="0"
                         >
                           <div>
                             {/* <h5 className="mb-2">Product Description</h5> */}
@@ -1181,8 +1156,8 @@ export default function ProductDetails() {
                                 </div>
                                 <Divider />
                                 <div className="max-h-[450px] overflow-y-auto">
-                                  {product?.reviews?.map((review, ind) => (
-                                    <div className="review mt-2">
+                                  {product?.reviews?.map((review, _ind) => (
+                                    <div key={_ind} className="review mt-2">
                                       <div className="flex items-center">
                                         <Avatar
                                           alt="customer-profile"
@@ -1234,7 +1209,14 @@ export default function ProductDetails() {
                                               setReviewId(review?.id);
                                               reviewHelpfulReport(review?.id);
                                             } else {
-                                              dispatch(showPopup());
+                                              dispatch(
+                                                usersignupinModal({
+                                                  showSignupModal: false,
+                                                  showLoginModal: true,
+                                                  showforgotPasswordModal: false,
+                                                  showOtpModal: false,
+                                                  showNewPasswordModal: false,
+                                                }));
                                             }
                                           }}
                                         >
@@ -1242,14 +1224,21 @@ export default function ProductDetails() {
                                         </Button>{" "}
                                         |{" "}
                                         <span
-                                          className="font-bold ml-2 cursor-pointer hover:text-gray-800"
+                                          className="font-bold ml-2 cursor-pointer group-hover:text-gray-800"
                                           onClick={() => {
                                             if (isLoggedIn) {
                                               setOpenReviewDialog(true);
                                               setDialogType("report");
                                               setReviewId(review?.id);
                                             } else {
-                                              dispatch(showPopup());
+                                              dispatch(
+                                                usersignupinModal({
+                                                  showSignupModal: false,
+                                                  showLoginModal: true,
+                                                  showforgotPasswordModal: false,
+                                                  showOtpModal: false,
+                                                  showNewPasswordModal: false,
+                                                }));
                                             }
                                           }}
                                         >
@@ -1307,18 +1296,18 @@ export default function ProductDetails() {
                 </div>
                 <div className="row gy-5 justify-between">
                   {subCatProducts?.length !== 0 &&
-                    subCatProducts?.map((product, indx) => {
-                      console.log(product);
+                    subCatProducts?.map((product, _indx) => {
                       if (product?.combo) {
                         return (
                           // product?.getproducts?.map((comboProduct, n)=>(
                           <div
-                            className="col-xl-4 col-lg-4 col-md-6"
+                          key={_indx}
+                            className="col-xl-4 col-lg-4 col-md-6 group hover:drop-shadow-xl"
                             // data-aos="fade-up"
                             // data-aos-delay="100"
                           >
                             <div className="nk-card overflow-hidden rounded-3 border h-100">
-                              <div className="nk-card-img">
+                            <div className="nk-card-img relative">
                                 <a
                                   href={`${userLang}/product-detail/${
                                     product?.slug
@@ -1333,9 +1322,16 @@ export default function ProductDetails() {
                                   <img
                                     src={product?.img_1}
                                     alt="product-image"
-                                    className="w-100"
-                                    loading="lazy"
+                                    className="w-100 group-hover:scale-105 transition duration-500"
+                                    // loading="lazy"
                                   />
+                                  {product?.stock?.stock <10 && <GitHubForkRibbon
+                                            className="drop-shadow-xl subpixel-antialiased"
+                                            color="orange"
+                                            position="left"
+                                          >
+                                            Only {product?.stock?.stock} left !!
+                                          </GitHubForkRibbon>}
                                 </a>
                               </div>
                               <div className="nk-card-info bg-white p-4">
@@ -1381,6 +1377,7 @@ export default function ProductDetails() {
                                       {currentUserlang === "en" &&
                                         price?.INR && (
                                           <p
+                                          key={ind}
                                             className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
                                           >
                                             {currentUserlang === "en"
@@ -1464,8 +1461,8 @@ export default function ProductDetails() {
                                                         (
                                                           parseFloat(
                                                             price?.INR *
-                                                              (100 /
-                                                                product?.discount)
+                                                            (100 /
+                                                              (100-product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -1481,8 +1478,8 @@ export default function ProductDetails() {
                                                           (
                                                             parseFloat(
                                                               price?.INR *
-                                                                (100 /
-                                                                  product?.discount)
+                                                              (100 /
+                                                                (100-product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -1520,9 +1517,9 @@ export default function ProductDetails() {
                                                       {
                                                         (
                                                           parseFloat(
-                                                            price?.USD *
-                                                              (100 /
-                                                                product?.discount)
+                                                            price?.INR *
+                                                            (100 /
+                                                              (100-product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -1537,9 +1534,9 @@ export default function ProductDetails() {
                                                         {
                                                           (
                                                             parseFloat(
-                                                              price?.USD *
-                                                                (100 /
-                                                                  product?.discount)
+                                                              price?.INR *
+                                                              (100 /
+                                                                (100-product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -1665,8 +1662,8 @@ export default function ProductDetails() {
                                                         (
                                                           parseFloat(
                                                             price?.INR *
-                                                              (100 /
-                                                                product?.discount)
+                                                            (100 /
+                                                              (100-product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -1682,8 +1679,8 @@ export default function ProductDetails() {
                                                           (
                                                             parseFloat(
                                                               price?.INR *
-                                                                (100 /
-                                                                  product?.discount)
+                                                              (100 /
+                                                                (100-product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -1721,9 +1718,9 @@ export default function ProductDetails() {
                                                       {
                                                         (
                                                           parseFloat(
-                                                            price?.USD *
-                                                              (100 /
-                                                                product?.discount)
+                                                            price?.INR *
+                                                            (100 /
+                                                              (100-product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -1738,9 +1735,9 @@ export default function ProductDetails() {
                                                         {
                                                           (
                                                             parseFloat(
-                                                              price?.USD *
-                                                                (100 /
-                                                                  product?.discount)
+                                                              price?.INR *
+                                                              (100 /
+                                                                (100-product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -1756,20 +1753,20 @@ export default function ProductDetails() {
                                   ))}
                                   <button
                                     className="p-0 border-0 outline-none bg-transparent text-primary"
-                                    onClick={(event) => {
+                                    onClick={() => {
                                       return isLoggedIn
-                                        ? handleAddToCart(product?.id)
-                                        : dispatch(showPopup());
+                                        ? handleAddToCart(product?.id, product?.img_1)
+                                        : dispatch(
+                                          usersignupinModal({
+                                            showSignupModal: false,
+                                            showLoginModal: true,
+                                            showforgotPasswordModal: false,
+                                            showOtpModal: false,
+                                            showNewPasswordModal: false,
+                                          }));
                                     }}
                                   >
-                                    {animateProductId === product?.id ? (
-                                      <img
-                                        src="/images/addedtocart.gif"
-                                        className="max-w-[45px]"
-                                      />
-                                    ) : (
-                                      <em className="icon ni ni-cart text-2xl"></em>
-                                    )}
+                                    <em className="icon ni ni-cart text-2xl"></em>
                                   </button>
                                 </div>
                               </div>
@@ -1802,33 +1799,33 @@ export default function ProductDetails() {
                 </div>
               </div>
             </section>
-            <section class="nk-section nk-cta-section nk-section-content-1">
-              <div class="container">
+            <section className="nk-section nk-cta-section nk-section-content-1">
+              <div className="container">
                 <div
-                  class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+                  className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
                   // data-aos="fade-up"
                   // data-aos-delay="100"
                 >
-                  <div class="row g-gs align-items-center">
-                    <div class="col-lg-8">
-                      <div class="media-group flex-column flex-lg-row align-items-center">
-                        <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
-                          <em class="icon ni ni-chat-fill"></em>
+                  <div className="row g-gs align-items-center">
+                    <div className="col-lg-8">
+                      <div className="media-group flex-column flex-lg-row align-items-center">
+                        <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                          <em className="icon ni ni-chat-fill"></em>
                         </div>
-                        <div class="text-center text-lg-start">
-                          <h3 class="text-capitalize m-0 !text-3xl !font-bold">
+                        <div className="text-center text-lg-start">
+                          <h3 className="text-capitalize m-0 !text-3xl !font-bold">
                             {t("Chat_With_Our_Support_Team")}
                           </h3>
-                          <p class="fs-16 opacity-75 !text-lg mt-1">
+                          <p className="fs-16 opacity-75 !text-lg mt-1">
                             {t("chat_team_desc")}
                           </p>
                         </div>
                       </div>
                     </div>
-                    <div class="col-lg-4 text-center text-lg-end">
+                    <div className="col-lg-4 text-center text-lg-end">
                       <a
                         href={`${userLang}/contact`}
-                        class="btn btn-white fw-semiBold"
+                        className="btn btn-white fw-semiBold"
                       >
                         {t("Contact_support")}
                       </a>
@@ -1861,7 +1858,14 @@ export default function ProductDetails() {
               onClick={() =>
                 isLoggedIn
                   ? navigate(`${userLang}/cart`)
-                  : dispatch(showPopup())
+                  : dispatch(
+                    usersignupinModal({
+                      showSignupModal: false,
+                      showLoginModal: true,
+                      showforgotPasswordModal: false,
+                      showOtpModal: false,
+                      showNewPasswordModal: false,
+                    }))
               }
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               id="cart-button"

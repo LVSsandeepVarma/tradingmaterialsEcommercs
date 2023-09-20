@@ -1,8 +1,12 @@
 import React, { Suspense, lazy } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NewPassword from "./app/components/login/reset-password";
+import OrderTacker from "./app/components/product/track-order/TrackOrder";
+import AutoLogin from "./app/components/home/autoLogin";
+import PaymentVerifyStripe from "./app/components/product/checkout/paymentVerifyStripe";
+import Orders from "./app/components/product/orders/orders";
+import Dashboard from "./app/components/home/dashboard";
 const Home = lazy(() => import("./app/components/home/home"));
 // import Home from "./app/components/home/home";
 const About = lazy(() => import("./app/components/about-us/about"));
@@ -39,7 +43,7 @@ function App() {
         <Suspense
           fallback={
             <div className="preloader !backdrop-blur-[1px] ">
-              <div class="loader"></div>
+              <div className="loader"></div>
             </div>
           }
         >
@@ -65,7 +69,14 @@ function App() {
               element={<NewPassword />}
             ></Route>
             <Route path="/profile" element={<Sidebar />}></Route>
+            <Route path="/track-order/:order_id" element={<OrderTacker/>}></Route>
+            <Route path="/auto-login/:access_token" element={<AutoLogin/>}></Route>
+            <Route path="/payment-status/:id" element={<PaymentVerifyStripe/>}></Route>
+            <Route path="/orders/:client_id" element={<Orders/>}></Route>
+            <Route path="/dashboard" element={<Dashboard/>}></Route>
+
             {/* malay */}
+
             <Route path="/ms/" element={<Home />}></Route>
             <Route path="/ms/about" element={<About />}></Route>
             <Route path="/ms/contact" element={<Contact />}></Route>
@@ -90,6 +101,8 @@ function App() {
               element={<NewPassword />}
             ></Route>
             <Route path="/ms/profile" element={<Sidebar />}></Route>
+            <Route path="/ms/track-order" element={<OrderTacker/>}></Route>
+            <Route path="/ms/dashboard" element={<Dashboard/>}></Route>
           </Routes>
         </Suspense>
       </BrowserRouter>

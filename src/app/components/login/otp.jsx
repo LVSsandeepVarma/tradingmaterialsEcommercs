@@ -1,3 +1,4 @@
+/* eslint-disable no-unsafe-optional-chaining */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -8,9 +9,9 @@ import OtpInput from "react-otp-input";
 import { Alert } from "@mui/material";
 
 export default function Otp() {
-  const [email, setEmail] = useState("");
   const [otpError, setotpError] = useState("");
   const [otp, setOtp] = useState("");
+  // eslint-disable-next-line no-unused-vars
   const [successMEssage, setSuccessMessage] = useState("");
   const [apiError, setApiError] = useState();
   const params = useParams();
@@ -21,17 +22,17 @@ export default function Otp() {
   const location = useLocation();
   const loaderState = useSelector((state) => state.loader?.value);
   const userLang = useSelector((state) => state?.lang?.value);
+  const userData = useSelector((state) => state?.user?.value);
 
   useEffect(() => {
     const verifyHash = async () => {
       try {
         dispatch(showLoader());
-        const urlParameter = window.location.pathname;
-        const hash = urlParameter.substring(urlParameter.lastIndexOf("/") + 1);
         const response = await axios.post(
-          "https://admin.tradingmaterials.com/api/lead/verify/hash",
+          "https://admin.tradingmaterials.com/api/client/verify/hash",
           {
             hash: params?.hash,
+            client_id: userData?.client?.id,
           }
         );
         console.log("response", response);
@@ -49,13 +50,12 @@ export default function Otp() {
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    let userLan = "";
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      userLan = "/ms";
+
     } else {
       dispatch(userLanguage(""));
-      userLan = "";
+
     }
   }, []);
 
@@ -67,11 +67,6 @@ export default function Otp() {
     }
   }
 
-  const handleEmailChange = (e) => {
-    setOtp(e?.target?.value);
-    otpValidation(otp);
-  };
-
   async function handleFormSubmission() {
     setApiError([]);
     setSuccessMessage("");
@@ -81,7 +76,7 @@ export default function Otp() {
       try {
         dispatch(showLoader());
         const response = await axios.post(
-          "https://admin.tradingmaterials.com/api/lead/verify/otp",
+          "https://admin.tradingmaterials.com/api/client/verify/otp",
           {
             hash: params?.hash,
             otp: otp,
@@ -198,6 +193,7 @@ export default function Otp() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
+                                key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"
@@ -211,17 +207,6 @@ export default function Otp() {
                                 </Alert>
                               );
                             })}
-
-                          {/* <p className="text">
-                            Shouldn't be here{" "}
-                            <a
-                              href={`/login`}
-                              className="btn-link text-primary"
-                            >
-                              Login
-                            </a>
-                            .
-                          </p> */}
                         </div>
                       </div>
                     </div>
@@ -269,34 +254,6 @@ export default function Otp() {
         >
           <em className="icon ni ni-chevrons-up"></em>
         </a>
-        {/* <div className="nk-sticky-badge">
-          <ul>
-            <li>
-              <a
-                href="index.php"
-                className="nk-sticky-badge-icon nk-sticky-badge-home"
-                data-bs-toggle="tooltip"
-                data-bs-placement="right"
-                data-bs-custom-className="nk-tooltip"
-                data-bs-title="View Demo"
-              >
-                <em className="icon ni ni-home-fill"></em>
-              </a>
-            </li>
-            <li>
-              <a
-                href="product-details.php"
-                className="nk-sticky-badge-icon nk-sticky-badge-purchase"
-                data-bs-toggle="tooltip"
-                data-bs-custom-className="nk-tooltip"
-                data-bs-title="Purchase Now"
-                aria-label="Purchase Now"
-              >
-                <em className="icon ni ni-cart-fill"></em>
-              </a>
-            </li>
-          </ul>
-        </div> */}
       </div>
     </>
   );

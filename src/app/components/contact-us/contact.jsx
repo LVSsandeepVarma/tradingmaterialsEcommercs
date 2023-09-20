@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../header/header";
 import { useDispatch, useSelector } from "react-redux";
 import { hideLoader } from "../../../features/loader/loaderSlice";
@@ -9,9 +9,107 @@ export default function Contact() {
   const loaderState = useSelector((state) => state?.loader?.value);
   const userLang = useSelector((state) => state?.lang?.value);
 
+  const [name, setName] = useState("");
+  const [nameErr, setNameErr] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailErr, setEmailErr] = useState("");
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [desc, setDesc] = useState("");
+  const [descErr, setDescErr] = useState("");
+
+  function validName(name) {
+    const namePattern = /^[A-Za-z ]+$/;
+    if (name === "") {
+      setNameErr("Full name is required");
+      return false;
+    } else if (namePattern.test(name)) {
+      setNameErr("");
+      return true;
+    } else {
+      setNameErr("Full name should contain only alphabets");
+      return false;
+    }
+  }
+
+  function validEmail(email) {
+    const emailPattern = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    if (email === "") {
+      setEmailErr("Email is required");
+      return false;
+    } else if (emailPattern.test(email)) {
+      setEmailErr("");
+      return true;
+    } else {
+      setEmailErr("Invalid Email");
+      return false;
+    }
+  }
+
+  function phoneValidation(phone) {
+    const phoneRegex = /^[0-9]+$/;
+    if (phone?.length === 0) {
+      setPhoneError("Phone number is required");
+      return false;
+    } else if (!phoneRegex.test(phone)) {
+      setPhoneError("Invalid phone number");
+      return false;
+    } else if (phone?.length <= 7) {
+      setPhoneError("Phone number should be atleast 8 digits");
+      return false;
+    } else if (phone?.length > 15) {
+      setPhoneError("Phone number should be atmost 15 digits");
+      return false;
+    } else {
+      setPhoneError("");
+      return true;
+    }
+  }
+
+  function descValidation(desc) {
+    if (desc?.length === 0) {
+      setDescErr("description is required");
+      return false;
+    }else if(desc?.length > 255){
+      setDescErr("description should contain maximum 255 charecters only")
+    } else {
+      setDescErr("");
+      return true;
+    }
+  }
+
+  function handleNameChange(e) {
+    setName(e.target.value);
+    validName(e.target.value);
+  }
+  function handleEmailChange(e) {
+    setEmail(e.target.value);
+    validEmail(e.target.value);
+  }
+  function handlePhoneChange(e) {
+    setPhone(e.target.value);
+    phoneValidation(e.target.value);
+  }
+  function handleDescChange(e) {
+    setDesc(e.target.value);
+    descValidation(e.target.value);
+  }
+
+  function handlesubmit(e) {
+    e.preventDefault();
+    validName(name);
+    validEmail(email);
+    phoneValidation(phone);
+    descValidation(desc);
+    if (nameErr === "" && emailErr === "" &&  phoneError === "" && descErr === "") {
+      console.log(name, email, phone, desc);
+    }
+  }
+
   useEffect(() => {
     dispatch(hideLoader);
   }, []);
+
   return (
     <>
       <div className="nk-body">
@@ -30,17 +128,11 @@ export default function Contact() {
                 <div className="row justify-content-center">
                   <div className="col-lg-8 col-xxl-6">
                     <div className="nk-section-head text-center">
-                      <span className="nk-section-subtitle" data-aos="fade-up">
-                        Need support
-                      </span>
+                      <span className="nk-section-subtitle">Need support</span>
                       <h2 className="nk-section-titl !text-4xl !font-bold !leading-loose">
                         Contact Us
                       </h2>
-                      <p
-                        className="nk-section-text"
-                        data-aos="fade-up"
-                        data-aos-delay="100"
-                      >
+                      <p className="nk-section-text">
                         {" "}
                         Contact us for any inquiries or support you may need.
                         Our dedicated team is ready to assist you and provide
@@ -50,11 +142,7 @@ export default function Contact() {
                   </div>
                 </div>
                 <div className="row gy-5 gy-xl-0">
-                  <div
-                    className="col-md-6 col-xl-4"
-                    data-aos="fade-up"
-                    data-aos-delay="150"
-                  >
+                  <div className="col-md-6 col-xl-4">
                     <div className="card h-100 bg-blue-300 border-0">
                       <div className="card-body d-flex flex-column justify-content-start !text-left gap g-5">
                         <div>
@@ -81,11 +169,7 @@ export default function Contact() {
                       </div>
                     </div>
                   </div>
-                  <div
-                    className="col-md-6 col-xl-4"
-                    data-aos="fade-up"
-                    data-aos-delay="200"
-                  >
+                  <div className="col-md-6 col-xl-4">
                     <div className="card h-100 bg-blue-300 border-0">
                       <div className="card-body d-flex flex-column justify-content-between !text-left gap g-5">
                         <div>
@@ -114,11 +198,7 @@ export default function Contact() {
                     </div>
                   </div>
                   <div className="col-md-6 col-xl-4">
-                    <div
-                      className="card h-100 bg-blue-300 border-0"
-                      data-aos="fade-up"
-                      data-aos-delay="250"
-                    >
+                    <div className="card h-100 bg-blue-300 border-0">
                       <div className="card-body d-flex flex-column justify-content-between !text-left gap g-5">
                         <div>
                           <div className="media media-lg media-middle media-circle text-bg-primary mb-3 mb-md-5">
@@ -164,8 +244,8 @@ export default function Contact() {
                         Get in touch
                       </h2>
                       <p className="nk-section-text">
-                        Get in touch for personalized assistance. We're here to
-                        help and provide solutions tailored to your
+                        Get in touch for personalized assistance. We&apos;re
+                        here to help and provide solutions tailored to your
                         requirements.
                       </p>
                     </div>
@@ -176,61 +256,74 @@ export default function Contact() {
                     <div className="card rounded-2">
                       <div className="card-body !text-left">
                         <form
-                          data-action="form/message-form.php"
-                          method="post"
                           className="form-submit-init"
+                          onSubmit={handlesubmit}
                         >
                           <div className="row g-gs !text-left">
                             <div className="col-12 ">
                               <div className="form-group">
-                                <label className="form-label">Full Name</label>
-                                <div className="form-control-wrap">
+                                <label className="form-label">Full Name <sup className="text-red-800 !font-bold">*</sup></label>
+                                <div className="form-control-">
                                   <input
-                                    type="text"
-                                    name="user-name"
-                                    className="form-control"
+                                    className={`form-control ${nameErr?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
                                     placeholder="Enter your name"
-                                    required
+                                    value={name}
+                                    onChange={handleNameChange}
                                   />
                                 </div>
+                                {nameErr && (
+                                  <p className="font-bold text-sm mt-1 mb-1 text-red-600">
+                                    {nameErr}
+                                  </p>
+                                )}
                               </div>
                             </div>
                             <div className="col-lg-6">
                               <div className="form-group">
-                                <label className="form-label">Email</label>
-                                <div className="form-control-wrap">
+                                <label className="form-label">Email <sup className="text-red-800 !font-bold">*</sup></label>
+                                <div className="">
                                   <input
                                     type="email"
-                                    name="user-email"
-                                    className="form-control"
+                                    className={`form-control ${emailErr?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
                                     placeholder="Enter your email"
-                                    required
+                                    value={email}
+                                    onChange={handleEmailChange}
                                   />
                                 </div>
+                                {emailErr && (
+                                  <p className="font-bold text-sm mt-1 mb-1 text-red-600">
+                                    {emailErr}
+                                  </p>
+                                )}
                               </div>
                             </div>
                             <div className="col-lg-6">
                               <div className="form-group">
-                                <label className="form-label">Phone</label>
-                                <div className="form-control-wrap">
+                                <label className="form-label">Phone <sup className="text-red-800 !font-bold">*</sup></label>
+                                <div className="">
                                   <input
                                     type="text"
-                                    name="user-phone"
-                                    className="form-control"
-                                    placeholder="(223) 456 - 789"
-                                    required
+                                    className={`form-control ${phoneError?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
+                                    placeholder="mobile number"
+                                    value={phone}
+                                    onChange={handlePhoneChange}
                                   />
                                 </div>
+                                {phoneError && (
+                                  <p className="font-bold text-sm mt-1 mb-1 text-red-600">
+                                    {phoneError}
+                                  </p>
+                                )}
                               </div>
                             </div>
                             <div className="col-12">
                               <div className="form-group">
                                 <div className="form-label-group">
                                   <label className="form-label">
-                                    Tell us a bit about your query
+                                    Tell us a bit about your query <sup className="text-red-800 !font-bold">*</sup>
                                   </label>
                                   <span>
-                                    <span id="char-count">0</span>/{" "}
+                                    <span id="char-count">{desc?.length}</span>/{" "}
                                     <span id="char-max" data-char-max="255">
                                       255
                                     </span>
@@ -239,12 +332,17 @@ export default function Contact() {
                                 <div className="form-control-wrap">
                                   <textarea
                                     id="textarea-box"
-                                    name="user-message"
-                                    className="form-control"
+                                    className={`form-control ${descErr?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
                                     placeholder="Enter your message"
-                                    required
+                                    value={desc}
+                                    onChange={handleDescChange}
                                   ></textarea>
                                 </div>
+                                {descErr && (
+                                  <p className="font-bold text-sm mt-1 mb-1 text-red-600">
+                                    {descErr}
+                                  </p>
+                                )}
                               </div>
                             </div>
                             <div className="col-12">
@@ -252,7 +350,7 @@ export default function Contact() {
                                 <button
                                   className="btn btn-primary"
                                   type="submit"
-                                  id="submit-btn"
+                                  onSubmit={handlesubmit}
                                 >
                                   Send Message
                                 </button>
@@ -265,11 +363,7 @@ export default function Contact() {
                   </div>
                   <div className="col-lg-4">
                     <div className="card-list">
-                      <div
-                        className="card rounded-2"
-                        data-aos="fade-up"
-                        data-aos-dela="0"
-                      >
+                      <div className="card rounded-2">
                         <div className="card-body !text-left">
                           <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-5">
                             <em className="icon ni ni-sign-usd"></em>
@@ -290,11 +384,7 @@ export default function Contact() {
                           </div>
                         </div>
                       </div>
-                      <div
-                        className="card rounded-2"
-                        data-aos="fade-up"
-                        data-aos-dela="50"
-                      >
+                      <div className="card rounded-2">
                         <div className="card-body !text-left">
                           <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-5">
                             <em className="icon ni ni-question"></em>
@@ -321,11 +411,7 @@ export default function Contact() {
             </section>
             <section className="nk-section nk-cta-section nk-section-content-1">
               <div className="container">
-                <div
-                  className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
-                  // data-aos="fade-up"
-                  // data-aos-delay="100"
-                >
+                <div className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7">
                   <div className="row g-gs align-items-center">
                     <div className="col-lg-8">
                       <div className="media-group flex-column flex-lg-row align-items-center">
