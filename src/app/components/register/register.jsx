@@ -208,7 +208,7 @@ export default function Register() {
               <div
                 className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-md-9 mx-xl-auto"
                 style={{ opacity: "1 !important" }}
-                // data-aos="fade-up"
+                data-aos="fade-up"
               >
                 <div className="card-body p-5">
                   <div className="nk-form-card-head text-center pb-5">

@@ -96,7 +96,7 @@ export default function ForgotPassword() {
             <div className="nk-split-col nk-auth-col justify-content-center">
               <div
                 className="nk-form-card card  p-0 card-gutter-md nk-auth-form-card mx-lg-9 mx-xl-auto"
-                // data-aos="fade-up"
+                data-aos="fade-up"
               >
                 <div className="card-body">
                   <div className="nk-form-card-head text-center pb-5">

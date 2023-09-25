@@ -66,6 +66,8 @@ export default function ProductDetails() {
   const [reviewIdErr, setReviewIdErr] = useState("");
   const [addedToFavImg, setAddedToFavImg] = useState("")
   const [showFavModal, setShowFavModal] = useState(false)
+  const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
+
   const [modalMessage, setModalMessage] = useState("")
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
@@ -91,6 +93,7 @@ export default function ProductDetails() {
 
   const getUserInfo = async () => {
     try {
+      setShowWishlistRemoveMsg(false)
       const response = await axios.get(
         "https://admin.tradingmaterials.com/api/client/get-user-info",
         {
@@ -104,6 +107,10 @@ export default function ProductDetails() {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
+        dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
+        dispatch(
+          updateWishListCount(response?.data?.data?.client?.wishlist_count)
+        );
       } else {
         console.log(response?.data);
 
@@ -116,8 +123,6 @@ export default function ProductDetails() {
       dispatch(hideLoader());
     }
   };
-
-
 
   function ratingStars(number) {
     const elemetns = Array.from({ length: 5 }, (_, index) => (
@@ -214,7 +219,7 @@ export default function ProductDetails() {
   async function handleAddToCart(productId, productImg) {
     // setAnimateProductId(productId)
     try {
-      // dispatch(showLoader());
+      dispatch(showLoader());
       setAnimateProductId(productId);
       const response = await axios?.post(
         "https://admin.tradingmaterials.com/api/client/product/add-to-cart",
@@ -233,16 +238,29 @@ export default function ProductDetails() {
         setAddedToFavImg(productImg)
         setShowFavModal(true)
         setModalMessage("Added to your cart successfully")
+       
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
-        getUserInfo();
+        getUserInfo()
+        if(userData?.client?.wishlist?.length >0){
+          const ids = userData?.client?.wishlist?.map(item =>item?.product_id)
+          const isPresent = ids?.includes(parseInt(productId))
+          console.log(isPresent,ids,parseInt(productId),"prest")
+          if(isPresent){
+            dispatch(updateWishListCount(userData?.client?.wishlist?.length -1))
+            setShowWishlistRemoveMsg(true)
+          }else{
+            setShowWishlistRemoveMsg(false)
+          }
+        }
+        
       }
     } catch (err) {
       console.log(err);
     }
-    // finally {
-    // dispatch(hideLoader());
-    // }
+    finally {
+    dispatch(hideLoader());
+    }
   }
 
   async function handleAddToWishList(id, clientId, productImg) {
@@ -263,10 +281,9 @@ export default function ProductDetails() {
         }
       );
       if (response?.data?.status) {
-        setAddedToFavImg(productImg)
-        setShowFavModal(true)
-        setModalMessage("Added to your wishlist successfully")
-        // dispatch(updateWis(response?.data?.data?.cart_details));
+        setAddedToFavImg(productImg);
+        setShowFavModal(true);
+        setModalMessage("Added to your wishlist successfully");
         dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
         getUserInfo();
       }
@@ -381,7 +398,7 @@ export default function ProductDetails() {
       )}
 
 {addedToFavImg!== "" && 
-        <AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} />
+        <AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} wishMsg= {showWishlistRemoveMsg} />
       }
 
       <div className="nk-body">
@@ -392,6 +409,53 @@ export default function ProductDetails() {
             </div>
           )}
           <Header />
+          {isLoggedIn && <section className="pt-100">
+          <div className="container">
+            <div className="row flex items-center">
+              <div className="col-lg-12 sbreadcrumb">
+                <div className="row flex items-center">
+                  <div className="col-lg-6 lcard text-left">
+                    <div className="flex  items-center gap-3 mb-3">
+                    {userData?.client?.profile?.profile_image?.length > 0 ? (
+                      <img src={userData?.client?.profile?.profile_image} alt="profile-pic" />
+                    ) : (
+                      <img src="/images/blueProfile.png" alt="profile-pic" />
+                    )}
+                      <div>
+                        <span>
+                        <strong>{userData?.client?.first_name} {userData?.client?.last_name}</strong>
+                      </span>
+                      <div>
+                      <span className="s-color"> {userData?.client?.email}</span>
+                      </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-6 rcard">
+                    <div className="">
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
+                        name="button"
+                      >
+                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
+                        Message
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
+                        name="button"
+                      >
+                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
+                        Setting
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>}
           <main className="nk-pages">
             <section className="nk-section nk-section-product-details pb-lg-7 pt-120 pt-lg-180">
               <div className="container">
@@ -937,7 +1001,7 @@ export default function ProductDetails() {
                               className="fs-16 fw-semibold text-gray-1200 cursor-pointer"
                               onClick={() => {
                                 isLoggedIn
-                                  ? handleAddToWishList(product?.product_id, product?.product?.img_1)
+                                  ? handleAddToWishList(product?.product_id,userData?.client?.id, product?.product?.img_1)
                                   : dispatch(
                                     usersignupinModal({
                                       showSignupModal: false,
@@ -1303,8 +1367,8 @@ export default function ProductDetails() {
                           <div
                           key={_indx}
                             className="col-xl-4 col-lg-4 col-md-6 group hover:drop-shadow-xl"
-                            // data-aos="fade-up"
-                            // data-aos-delay="100"
+                            data-aos="fade-up"
+                            data-aos-delay="100"
                           >
                             <div className="nk-card overflow-hidden rounded-3 border h-100">
                             <div className="nk-card-img relative">
@@ -1803,8 +1867,8 @@ export default function ProductDetails() {
               <div className="container">
                 <div
                   className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
-                  // data-aos="fade-up"
-                  // data-aos-delay="100"
+                  data-aos="fade-up"
+                  data-aos-delay="100"
                 >
                   <div className="row g-gs align-items-center">
                     <div className="col-lg-8">

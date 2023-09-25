@@ -28,15 +28,22 @@ export default function OrderTacker() {
   const [orderData, setOrderData] = useState([]);
   const [orderDetails, setOrderDetails] = useState();
   const [orderId, setOrderId] = useState("");
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const userLang = useSelector((state) => state?.lang?.value);
   const userData = useSelector((state) => state?.user?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const params = useParams()
   
   const clientId= userData?.client?.id
   const {order_id} = useParams()
+
+  useEffect(()=>{
+    if(!params?.order_id){
+      setShowModal(true)
+    }
+  },[])
 
   //fetching order details
   const fetchOrderData = async () => {
@@ -104,7 +111,7 @@ export default function OrderTacker() {
       )}
       <Header />
 
-      <div className="nk-pages text-left">
+      <div className="nk-pages text-left mt-80 sm:mt-60 md:mt-40">
         <section className="nk-banner nk-banner-career-job-details bg-gray">
           <div className="nk-banner-wrap pt-120 pt-lg-80 pb-[100px]">
             <div className="container">

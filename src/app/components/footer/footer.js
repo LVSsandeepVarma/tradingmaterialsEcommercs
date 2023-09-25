@@ -25,9 +25,13 @@ export default function Footer() {
                         </a>
                       </div>
                       <p className="!text-left">
-                        Discover the inspiring story behind NioLand - how a
-                        vision became a reality, empowering individuals and
-                        businesses to thrive in the digital world.
+                        At Trading Materials, we are dedicated to empowering
+                        traders of all levels with curated resources and
+                        insights to excel in the world of trading. Our mission
+                        is to provide you with top-notch materials that
+                        contribute to your trading success. Join us on this
+                        journey as we redefine trading education and support for
+                        a brighter trading future.
                       </p>
                     </div>
                     <ul className="nk-footer-social">
@@ -54,25 +58,25 @@ export default function Footer() {
                     </ul>
                   </div>
                 </div>
-                {/* 
+                
                     <div className="col-md-8 col-lg-2 col-xxl-2">
                         <div className="nk-footer-info">
                             <h5 className="title">Pages</h5>
                             <ul className="row gy-1 gy-sm-4">
-                                <li className="col-12"><a href="about-us.php">About Us</a></li>
-                                <li className="col-12"><a href="pricing.php">Pricing </a></li>
-                                <li className="col-12"><a href="product-details.php">Trading Materials</a></li>
-                                <li className="col-12"><a href="contact-us.html">Contact</a></li>
+                                <li className="col-12 !mt-[2.25rem]"><a href="/about">About Us</a></li>
+                                {/* <li className="col-12"><a href="pricing.php">Pricing </a></li> */}
+                                <li className="col-12"><a href="/">Trading Materials</a></li>
+                                <li className="col-12"><a href="/contact">Contact</a></li>
                             </ul>
                         </div>
                     </div>
 
-                    <div className="col-md-8 col-lg-2 col-xxl-2">
+                    {/* <div className="col-md-8 col-lg-2 col-xxl-2">
                         <div className="nk-footer-info">
                             <h5 className="title">Utility Pages</h5>
                             <ul className="row gy-1 gy-sm-4">
-                                <li className="col-12"><a href="login.php">Login</a></li>
-                                <li className="col-12"><a href="signup.php">Sign up</a></li>
+                                <li className="col-12"><a href="/login">Login</a></li>
+                                <li className="col-12"><a href="/signup">Sign up</a></li>
                                 <li className="col-12"><a href="forgot-password.php"> Forgot Password </a></li>
                                 <li className="col-12"><a href="reset-password.php">Reset Password</a></li>
                             </ul>
@@ -93,7 +97,7 @@ export default function Footer() {
                           <em className="icon ni ni-mail-fill text-primary"></em>
                           <span className="text-lowercase">
                             {" "}
-                            contact@nioland.com{" "}
+                            contact@domainname.com{" "}
                           </span>
                         </a>
                       </li>

@@ -245,7 +245,7 @@ const SignupModal = ({ show }) => {
             style={{
               border: 0,
             }}
-            // data-aos="fade-up"
+            data-aos="fade-up"
           >
             <div className="account-steps">
               <div className="step"></div>

@@ -1,12 +1,22 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import NewPassword from "./app/components/login/reset-password";
 import OrderTacker from "./app/components/product/track-order/TrackOrder";
 import AutoLogin from "./app/components/home/autoLogin";
 import PaymentVerifyStripe from "./app/components/product/checkout/paymentVerifyStripe";
 import Orders from "./app/components/product/orders/orders";
-import Dashboard from "./app/components/home/dashboard";
+import Dashboard from "./app/components/dashboard/Dashboard";
+// import ViewOrders from "./app/components/product/orders/viewOrders";
+import OrderDashboard from "./app/components/protectedRoutes/dashboard";
+import OrderView from "./app/components/protectedRoutes/viewOrders";
+// import Payments from "./app/components/payments/Payments";
+import PaymentsHistory from "./app/components/protectedRoutes/payments";
+import Terms from "./app/components/policies/Terms";
+import Privacy from "./app/components/policies/Privacy";
+import Refund from "./app/components/policies/Refund";
 const Home = lazy(() => import("./app/components/home/home"));
 // import Home from "./app/components/home/home";
 const About = lazy(() => import("./app/components/about-us/about"));
@@ -17,14 +27,14 @@ const ProductDetails = lazy(() =>
   import("./app/components/product/product-details/productDetail")
 );
 // import ProductDetails from "./app/components/product/product-details/productDetail";
-const AddToCart = lazy(() => import("./app/components/product/cart/addToCart"));
+const AddToCart = lazy(() => import("./app/components/product/cart_clone/addToCart"));
 // import AddToCart from "./app/components/product/cart/addToCart";
 const Login = lazy(() => import("./app/components/login/login"));
 // import Login from "./app/components/login/login";
 const Register = lazy(() => import("./app/components/register/register"));
 // import Register from "./app/components/register/register";
 const Checkout = lazy(() =>
-  import("./app/components/product/checkout/checkout")
+  import("./app/components/product/checkout_clone/checkout")
 );
 // import Checkout from "./app/components/product/checkout/checkout";
 const ForgotPassword = lazy(() =>
@@ -37,6 +47,10 @@ const Sidebar = lazy(() => import("./app/components/user/sidebar"));
 // import Sidebar from "./app/components/user/sidebar";
 
 function App() {
+  useEffect(() => {
+    AOS.init();
+    AOS.refresh();
+  }, []);
   return (
     <div className="App custom-scrollbar">
       <BrowserRouter>
@@ -48,7 +62,8 @@ function App() {
           }
         >
           <Routes>
-            <Route path="/" element={<Home />}></Route>
+            <Route path="/" element={<OrderDashboard />}></Route>
+            <Route path="/products" element={<Home/>}></Route>
             <Route path="/about" element={<About />}></Route>
             <Route path="/contact" element={<Contact />}></Route>
             <Route
@@ -73,7 +88,12 @@ function App() {
             <Route path="/auto-login/:access_token" element={<AutoLogin/>}></Route>
             <Route path="/payment-status/:id" element={<PaymentVerifyStripe/>}></Route>
             <Route path="/orders/:client_id" element={<Orders/>}></Route>
-            <Route path="/dashboard" element={<Dashboard/>}></Route>
+            <Route path="/view-order/:order_type" element={<OrderView/>}></Route>
+            <Route path="/dashboard" element={<OrderDashboard/>}></Route>
+            <Route path="/payments" element={<PaymentsHistory/>}></Route>
+            <Route path="/terms" element={<Terms/>}></Route>
+            <Route path="/privacy" element={<Privacy/>}></Route>
+            <Route path="/refund" element={<Refund/>}></Route>
 
             {/* malay */}
 

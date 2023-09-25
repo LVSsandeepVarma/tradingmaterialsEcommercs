@@ -147,7 +147,7 @@ const LoginModal = ({ show, onHide }) => {
                 message: "Oops!",
               })
             );
-            navigate(`${userLang}/?login`);
+            navigate(`${userLang}/login`);
           }, 3600000);
         }
       } catch (err) {
@@ -217,7 +217,7 @@ const LoginModal = ({ show, onHide }) => {
             style={{
               border: 0,
             }}
-            // data-aos="fade-up"
+            data-aos="fade-up"
           >
             <div className="account-steps">
               <div className="step"></div>

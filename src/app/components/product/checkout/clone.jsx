@@ -548,6 +548,53 @@ export default function Checkout() {
           <div className="loader"></div>
         </div>
       )}
+      <section className="pt-100">
+          <div className="container">
+            <div className="row flex items-center">
+              <div className="col-lg-12 sbreadcrumb">
+                <div className="row flex items-center">
+                  <div className="col-lg-6 lcard text-left">
+                    <div className="flex  items-center gap-3 mb-3">
+                    {userData?.client?.profile?.profile_image?.length > 0 ? (
+                      <img src={userData?.client?.profile?.profile_image} alt="profile-pic" />
+                    ) : (
+                      <img src="/images/blueProfile.png" alt="profile-pic" />
+                    )}
+                      <div>
+                        <span>
+                        <strong>{userData?.client?.first_name} {userData?.client?.last_name}</strong>
+                      </span>
+                      <div>
+                      <span className="s-color"> {userData?.client?.email}</span>
+                      </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-6 rcard">
+                    <div className="">
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
+                        name="button"
+                      >
+                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
+                        Message
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
+                        name="button"
+                      >
+                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
+                        Setting
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       {addressUpdateType === "shipping" && (
         <ShippingAddressModal
           show={showModal}

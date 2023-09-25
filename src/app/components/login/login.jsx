@@ -115,7 +115,7 @@ export default function Login() {
               localStorage.removeItem("phone", password);
             }
           }
-          setLoginsuccessMsg(response?.data?.message);
+          
           localStorage.removeItem("client_token");
           localStorage.setItem("client_token", response?.data?.token);
           // localStorage
@@ -131,9 +131,14 @@ export default function Login() {
           dispatch(updateclientType(response?.data?.type));
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
-          // if (response?.data?.type === "client") {
-            navigate(`${userLang}/profile`);
-          // }
+          if (response?.data?.type === "client") {
+            setLoginsuccessMsg(response?.data?.message)
+            window.location.href = `/auto-login/${localStorage.getItem("client_token")}`
+          }
+          if (response?.data?.type === "lead") {
+            setApiError["Unauthorized"]
+            window.location.href = `http://tradingmaterials.com`
+          }
           setTimeout(() => {
             localStorage.removeItem("token");
             dispatch(
@@ -142,7 +147,7 @@ export default function Login() {
                 message: "Oops!",
               })
             );
-            navigate(`${userLang}/?login`);
+            navigate(`${userLang}/login`);
           }, 3600000);
         }
       } catch (err) {
@@ -179,7 +184,7 @@ export default function Login() {
             <div className="nk-split-col nk-auth-col">
               <div
                 className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-md-9 mx-xl-auto"
-                // data-aos="fade-up"
+                data-aos="fade-up"
               >
                 <div className="card-body p-5">
                   <div className="nk-form-card-head !text-center pb-5">

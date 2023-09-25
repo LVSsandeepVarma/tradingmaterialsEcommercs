@@ -14,11 +14,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
-import { updateCartCount } from "../../../features/cartWish/focusedCount";
+import {
+  updateCartCount,
+  updateWishListCount,
+} from "../../../features/cartWish/focusedCount";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
+import GitHubForkRibbon from "react-github-fork-ribbon";
+
 import { Avatar, CardActionArea } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -35,6 +40,7 @@ import { MdOutlineAlternateEmail } from "react-icons/md";
 import { BiSolidPhoneCall } from "react-icons/bi";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { logoutUser } from "../../../features/login/loginSlice";
+import AddToFav from "../modals/addToFav";
 // import { logoutUser } from "../../../features/login/loginSlice";
 
 const drawerWidth = 240;
@@ -102,16 +108,67 @@ export default function SideBar() {
   const userLang = useSelector((state) => state?.lang?.value);
   const clientType = useSelector((state) => state?.clientType?.value);
   const addressStatus = useSelector((state) => state?.addressStatus?.value);
+  const [addedToFavImg, setAddedToFavImg] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
+  const isLoggedIn = useSelector((state) => state?.login?.value);
+  const [dialogShow, setDialogShow] = useState(false);
+  const [profileImage, setProfileImage] = useState("");
+  // eslint-disable-next-line no-unused-vars
+  const [showFileInput, setShowFileInput] = useState(false);
+  const [profileUploadErr, setProfileUploadErr] = useState("");
+  // const [profileuploadSucc, setProfileUploadSucc] = useState("");
 
+  // const closeModal = () => {
+  //   setShowModal(false);
+  //   setModalMessage("");
+  //   setAddedToFavImg("");
+  // };
+
+  const imageUpdate = async () => {
+    dispatch(showLoader());
+    const token = localStorage.getItem("client_token");
+    console.log();
+
+    try {
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/client/update-profile-image",
+        {
+          profile_image: profileImage,
+          client_id: userData?.client?.id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log(response);
+      if (response.data.status) {
+        window.location.reload()
+      }
+    } catch (error) {
+      setProfileUploadErr(error?.response?.data?.message);
+    } finally {
+      dispatch(hideLoader());
+    }
+  };
+
+  const closedialogModal = () => {
+    setDialogShow(false);
+    setModalMessage("");
+    setAddedToFavImg("");
+  };
 
   useEffect(() => {
     if (window?.location?.search === "?wishlist") {
       setActiveIndex(2);
-    } else if (window.location.search === "?orders"){
-      setActiveIndex(3)
+    } else if (window.location.search === "?orders") {
+      setActiveIndex(3);
     }
   }, []);
-
 
   //function for review stars
   function ratingStars(number) {
@@ -135,13 +192,15 @@ export default function SideBar() {
 
   const getUserInfo = async () => {
     try {
-
-      const response = await axios.get("https://admin.tradingmaterials.com/api/client/get-user-info", {
-        headers: {
-          Authorization: `Bearer ` + localStorage.getItem("client_token"),
-          Accept: "application/json",
-        },
-      });
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/client/get-user-info",
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
       if (response?.data?.status) {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
@@ -176,18 +235,14 @@ export default function SideBar() {
     };
   }, [animateProductId]);
 
-
   useEffect(() => {
     getUserInfo();
   }, [addressStatus]);
 
-
-
   async function handleLogout() {
     try {
       dispatch(showLoader());
-      const url =
-        "https://admin.tradingmaterials.com/api/client/auth/logout"
+      const url = "https://admin.tradingmaterials.com/api/client/auth/logout";
       const headerData =
         clientType === "client"
           ? {
@@ -208,9 +263,8 @@ export default function SideBar() {
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
         dispatch(updateNotifications({ type: "", message: "" }));
-        navigate(`${userLang}/`)
+        navigate(`${userLang}/`);
         window.location.reload();
-        
       }
     } catch (err) {
       console.log("err", err);
@@ -220,26 +274,97 @@ export default function SideBar() {
   }
 
   const handleActiveTab = (index) => {
-    if (index !== 3 && index !== 4) {
+    if (index !== 3 && index !== 4 && index !== 1) {
       setActiveIndex(index);
     } else {
-      if(index === 3){
-      window.open(
-        `/orders/${CryptoJS?.AES?.encrypt(
-          `${userData?.client?.id}`,
-          "order_details"
-        )
-          ?.toString()
-          .replace(/\//g, "_")
-          .replace(/\+/g, "-")}`,
-        "_blank"
-      );
-        }
-        else if(index === 4){
-          handleLogout()
-        }
+      if (index === 3) {
+        // `/orders/${CryptoJS?.AES?.encrypt(
+        //   `${userData?.client?.id}`,
+        //   "order_details"
+        // )
+        //   ?.toString()
+        //   .replace(/\//g, "_")
+        //   .replace(/\+/g, "-")}`
+        window.open(
+        " /view-order/placed",
+          "_blank"
+        );
+      } else if (index === 4) {
+        handleLogout();
+      } else if (index === 1) {
+        navigate("/cart");
+      }
     }
   };
+
+  // function for handling add to cart animation
+  async function handleAddToCart(productId, productImg) {
+    try {
+      // setAnimateProductId(productId);
+      dispatch(showLoader());
+      const response = await axios?.post(
+        "https://admin.tradingmaterials.com/api/client/product/add-to-cart",
+        {
+          product_id: productId,
+          qty: 1,
+          client_id: userData?.client?.id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+          },
+        }
+      );
+      if (response?.data?.status) {
+        setAddedToFavImg(productImg);
+        setDialogShow(true);
+        setModalMessage("Added to your Cart successfully");
+        dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
+        dispatch(updateCart(response?.data?.data?.cart_details));
+        dispatch(updateCartCount(response?.data?.data?.cart_count));
+        getUserInfo(productId);
+        if (userData?.client?.wishlist?.length > 0) {
+          const ids = userData?.client?.wishlist?.map(
+            (item) => item?.product_id
+          );
+          const isPresent = ids?.includes(productId);
+          console.log(isPresent, ids, productId, "prest");
+          if (isPresent) {
+            dispatch(
+              updateWishListCount(userData?.client?.wishlist?.length - 1)
+            );
+            setShowWishlistRemoveMsg(true);
+          } else {
+            setShowWishlistRemoveMsg(false);
+          }
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
+    }
+  }
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileImage(reader.result);
+      console.log(reader.result);
+      setShowFileInput(false);
+    };
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  useEffect(() => {
+    if (profileImage) {
+      console.log(profileImage);
+      imageUpdate();
+    }
+  }, [handleImageUpload]);
 
   return (
     <>
@@ -251,6 +376,15 @@ export default function SideBar() {
         type={formType}
         // handleFormSubmit={handleFormSubmit}
       />
+      {addedToFavImg !== "" && (
+        <AddToFav
+          showModal={dialogShow}
+          closeModal={closedialogModal}
+          modalMessage={modalMessage}
+          addedToFavImg={addedToFavImg}
+          wishMsg={showWishlistRemoveMsg}
+        />
+      )}
       <div className="container">
         <Header />
         <Box sx={{ display: "flex" }}>
@@ -292,7 +426,7 @@ export default function SideBar() {
                 }}
               >
                 <p
-                  className="font-bold !text-left w-full ml-3 p-3 flex justify-center w-full"
+                  className="font-bold !text-left w-full ml-3 p-3 flex justify-center w-full cursor-pointer"
                   style={{
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -300,13 +434,37 @@ export default function SideBar() {
                     width: "90%",
                   }}
                 >
-                  <Avatar
-                    alt="user profile"
-                    src="/images/blueProfile.png"
-                    sx={{ width: "40%", height: "40%" }}
-                    className=""
-                  ></Avatar>
+                  <label
+                    htmlFor="upload-button"
+                    className="  w-full flex justify-center !w-full !h-auto cursor-pointer"
+                  >
+                    {userData?.client?.profile?.profile_image?.length > 0 ? (
+                      <Avatar
+                        alt="user profile"
+                        src={userData?.client?.profile?.profile_image}
+                        sx={{ width: "140px", height: "140px" }}
+                        className=""
+                      ></Avatar>
+                    ) : (
+                      <Avatar
+                        alt="user profile"
+                        src="/images/blueProfile.png"
+                        sx={{ width: "50%", height: "100%" }}
+                        className=""
+                      ></Avatar>
+                    )}
+                  </label>
                 </p>
+                <input
+                  type="file"
+                  id="upload-button"
+                  onChange={handleImageUpload}
+                  className="opacity-0 visibility-0"
+                />
+                {profileUploadErr && (
+                  <p className="text-red-600">{profileUploadErr}</p>
+                )}
+                {/* {profileuploadSucc && <p>{profileuploadSucc}</p>} */}
                 <p
                   className="font-bold text-lg !text-left w-full ml-3 p-1"
                   style={{
@@ -367,15 +525,14 @@ export default function SideBar() {
                     >
                       {text === "Logout" && (
                         <LogoutIcon
-                        size={20}
-                        className="mr-7"
-                        sx={{
-                          minWidth: 0,
-                          mr: open ? 3 : "auto",
-                          justifyContent: "center"
-                        }}
-                        >
-                        </LogoutIcon>
+                          size={20}
+                          className="mr-7"
+                          sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : "auto",
+                            justifyContent: "center",
+                          }}
+                        ></LogoutIcon>
                       )}
                       {text === "Orders" && (
                         <BsFillBoxSeamFill
@@ -501,7 +658,11 @@ export default function SideBar() {
                                 Address - {ind + 1}
                               </h3>
                               <p>{address?.add_1},</p>
-                              <p>{address?.add_2 !== null ? `${address?.add_2},` : ""}</p>
+                              <p>
+                                {address?.add_2 !== null
+                                  ? `${address?.add_2},`
+                                  : ""}
+                              </p>
                               <p>{address?.city},</p>
                               <p>{address?.zip},</p>
                               <p>{address?.state},</p>
@@ -548,7 +709,11 @@ export default function SideBar() {
                           >
                             <h3 className="!font-bold">Address - {ind + 1}</h3>
                             <p>{address?.add_1},</p>
-                            <p>{address?.add_2 !== null ? `${address?.add_2},` : ""}</p>
+                            <p>
+                              {address?.add_2 !== null
+                                ? `${address?.add_2},`
+                                : ""}
+                            </p>
                             <p>{address?.city},</p>
                             <p>{address?.zip},</p>
                             <p>{address?.state},</p>
@@ -619,15 +784,17 @@ export default function SideBar() {
                               <CardMedia
                                 component="img"
                                 height="140"
-                                image={product?.product?.img_1}
+                                image={
+                                  product?.product?.product?.product?.img_1
+                                }
                                 alt="green iguana"
                                 className="sm:!h-[300px]"
                                 onClick={() =>
                                   navigate(
                                     `${userLang}/product-detail/${
-                                      product?.product?.slug
+                                      product?.product?.product?.product?.slug
                                     }/${CryptoJS?.AES?.encrypt(
-                                      `${product?.product?.id}`,
+                                      `${product?.product?.product?.product?.id}`,
                                       "trading_materials"
                                     )
                                       ?.toString()
@@ -652,24 +819,24 @@ export default function SideBar() {
                                       width: "90%",
                                     }}
                                   >
-                                    {product?.product?.name}
+                                    {product?.product?.product?.product?.name}
                                   </p>
                                 </div>
                                 <small className="font-bold block !w-full !text-left">
-                                  Qty : {product?.qty}{" "}
+                                  Qty : {product?.product?.qty}{" "}
                                 </small> */}
                                   <div className="nk-card-info bg-white p-4">
                                     {/* <a
                               href="/"
                               className="d-inline-block mb-1 line-clamp-1 h5"
                             >
-                               {product?.name}
+                               {product?.product?.name}
                             </a> */}
                                     <a
                                       href={`${userLang}/product-detail/${
-                                        product?.product?.slug
+                                        product?.product?.product?.product?.slug
                                       }/${CryptoJS?.AES?.encrypt(
-                                        `${product?.id}`,
+                                        `${product?.product?.id}`,
                                         "trading_materials"
                                       )
                                         ?.toString()
@@ -683,16 +850,17 @@ export default function SideBar() {
                                         width: "90%",
                                       }}
                                     >
-                                      {product?.product?.name}
+                                      {product?.product?.product?.product?.name}
                                       <br />
                                       <span className="text-xs !mt-1">
                                         <p
                                           onClick={() => {
                                             navigate(
                                               `${userLang}/product-detail/${
-                                                product?.product?.slug
+                                                product?.product?.product
+                                                  ?.product?.slug
                                               }/${CryptoJS?.AES?.encrypt(
-                                                `${product?.id}`,
+                                                `${product?.product?.id}`,
                                                 "trading_materials"
                                               )
                                                 ?.toString()
@@ -704,28 +872,28 @@ export default function SideBar() {
                                           className="!mt-5 text-gray-700  truncate"
                                           dangerouslySetInnerHTML={{
                                             __html:
-                                              product?.product?.description
-                                                ?.length > 55
-                                                ? `${product?.product?.description?.slice(
+                                              product?.product?.product?.product
+                                                ?.description?.length > 55
+                                                ? `${product?.product?.product?.product?.description?.slice(
                                                     0,
                                                     55
                                                   )}...`
-                                                : product?.product?.description,
+                                                : product?.product?.product
+                                                    ?.product?.description,
                                           }}
                                         />
                                       </span>
                                     </a>
                                     <div className="d-flex align-items-center text-lg mb-2 gap-1">
                                       {ratingStars(
-                                        product?.product?.rating
-                                          ? product?.product?.rating
-                                          : 0
+                                        product?.rating ? product?.rating : 0
                                       )}
 
                                       <span className=" fs-12 text-gray-800">
                                         {" "}
-                                        ({product?.product?.total_reviews}{" "}
-                                        Reviews){" "}
+                                        ({
+                                          product?.product?.review
+                                        } Reviews){" "}
                                       </span>
                                     </div>
                                     <div className="d-flex align-items-center justify-content-start">
@@ -737,118 +905,9 @@ export default function SideBar() {
                                         >
                                           ₹
                                         </sub>
-                                        {product?.price}
-                                        {product?.product?.discount > 0 && (
-                                          <del className="text-gray-800 !ml-2">
-                                            {
-                                              (
-                                                parseFloat(
-                                                  product?.price *
-                                                    (100 /
-                                                      product?.product
-                                                        ?.discount)
-                                                )?.toFixed(2) + ""
-                                              )
-                                                .toString()
-                                                .split(".")[0]
-                                            }
-                                            <sub
-                                              style={{
-                                                verticalAlign: "super",
-                                              }}
-                                            >
-                                              {
-                                                (
-                                                  parseFloat(
-                                                    product?.price *
-                                                      (100 /
-                                                        product?.product
-                                                          ?.discount)
-                                                  )?.toFixed(2) + ""
-                                                )
-                                                  .toString()
-                                                  .split(".")[1]
-                                              }
-                                            </sub>
-                                          </del>
-                                        )}
+                                        {product?.product?.price}
                                       </p>
 
-                                      {/* {product?.prices?.map(
-                                            (price, ind) => (
-                                              <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                                {currentUserlang === "en"
-                                                  ? price?.INR &&
-                                                    `₹${Number.parseFloat(
-                                                      price?.INR
-                                                    ).toFixed(2)}`
-                                                  : price?.USD &&
-                                                    `$${Number.parseFloat(
-                                                      price?.USD
-                                                    ).toFixed(2)}`}
-                                                {currentUserlang === "en"
-                                                  ? price?.INR && (
-                                                      <del className="text-gray-800 !ml-2">
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? "₹"
-                                                          : "$"}
-                                                        {getRandomNumberWithOffset(
-                                                          price?.INR
-                                                        )}
-                                                      </del>
-                                                    )
-                                                  : price?.USD && (
-                                                      <del className="text-gray-800 !ml-2">
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? "₹"
-                                                          : "$"}
-                                                        {getRandomNumberWithOffset(
-                                                          Number.parseFloat(
-                                                            price?.USD
-                                                          ).toFixed(2)
-                                                        )}
-                                                      </del>
-                                                    )}
-                                              </p>
-                                            )
-                                          )} */}
-
-                                      {/* <button
-                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
-                                            style={{
-                                              display: "flex",
-                                              justifyContent: "end",
-                                              marginRight: "5px",
-                                            }}
-                                            onClick={() => {
-                                              isLoggedIn
-                                                ? handleAddToWishList(
-                                                    product?.id
-                                                  )
-                                                : dispatch(showPopup());
-                                            }}
-                                          >
-                                            <FaRegHeart size={18} />
-                                          </button> */}
-
-                                      {/* <button
-                                            className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
-                                            onClick={(event) => {
-                                              return isLoggedIn
-                                                ? (handleAddToCart(product?.id),
-                                                  handleCartPosition(event))
-                                                : dispatch(showPopup());
-                                            }}
-                                          >
-                                            {animateProductId ===
-                                            product?.id ? (
-                                              <img src="/images/addedtocart.gif" />
-                                            ) : (
-                                              <em className="icon ni ni-cart text-2xl"></em>
-                                            )}
-                                          </button> */}
                                       <p
                                         className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
                                         style={{
@@ -860,18 +919,18 @@ export default function SideBar() {
                                         <span className="text-base text-black font-semibold flex !items-center">
                                           Qty:
                                         </span>
-                                        {product?.qty}
+                                        {product?.product?.qty}
                                       </p>
                                     </div>
                                   </div>
                                 </Typography>
                                 {/* <Typography variant="body2" color="text.secondary">
-                       <p dangerouslySetInnerHTML={{__html: product?.product?.description}}/>
+                       <p dangerouslySetInnerHTML={{__html: product?.product?.product?.product?.description}}/>
                     </Typography> */}
                               </CardContent>
                             </CardActionArea>
                           </Card>
-                          {product?.product?.discount > 0 && (
+                          {product?.discount > 0 && (
                             <div className="flex justify-end items-end ">
                               <div
                                 className="flex absolute items-center justify-center img-box !drop-shadow-lg
@@ -885,7 +944,8 @@ export default function SideBar() {
                                   className="drop-shadow-lg"
                                 ></img>
                                 <label className="absolute !font-bold text-white !text-xs right-1">
-                                  {product?.product?.discount}%
+                                  {product?.product?.product?.product?.discount}
+                                  %
                                 </label>
                               </div>
                             </div>
@@ -913,259 +973,158 @@ export default function SideBar() {
                           {userData?.client?.wishlist?.map((product, ind) => (
                             <div
                               key={ind}
-                              className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
+                              className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px] group hover:drop-shadow-xl"
+                              id={`img-${product?.product?.id}`}
                             >
-                              <Card className="mt-5 " sx={{ maxWidth: 345 }}>
-                                <CardActionArea>
-                                  <CardMedia
-                                    component="img"
-                                    height="140"
-                                    image={product?.product?.img_1}
-                                    alt="green iguana"
-                                    className="sm:!h-[300px]"
-                                    onClick={() =>
-                                      navigate(
-                                        `${userLang}/product-detail/${
-                                          product?.product?.slug
-                                        }/${CryptoJS?.AES?.encrypt(
-                                          `${product?.product?.id}`,
-                                          "trading_materials"
-                                        )
-                                          ?.toString()
-                                          .replace(/\//g, "_")
-                                          .replace(/\+/g, "-")}`
-                                      )
-                                    }
-                                  />
-                                  <CardContent>
-                                    <Typography
-                                      gutterBottom
-                                      variant="h5"
-                                      component="div"
-                                    >
-                                      <div>
-                                        <a
-                                          href={`${userLang}/product-detail/${
-                                            product?.product?.slug
-                                          }/${CryptoJS?.AES?.encrypt(
-                                            `${product?.product?.id}`,
-                                            "trading_materials"
-                                          )
-                                            ?.toString()
-                                            .replace(/\//g, "_")
-                                            .replace(/\+/g, "-")}`}
-                                          className="d-inline-block mb-1 line-clamp-1 h5 !font-bold text-left"
-                                          style={{
-                                            textOverflow: "ellipsis",
-                                            whiteSpace: "nowrap",
-                                            overflow: "hidden",
-                                            width: "90%",
-                                          }}
-                                        >
-                                          {product?.product?.name}
-                                          <br />
-                                          <span className="text-xs !mt-1">
-                                            <p
-                                              onClick={() => {
-                                                navigate(
-                                                  `${userLang}/product-detail/${
-                                                    product?.product?.slug
-                                                  }/${CryptoJS?.AES?.encrypt(
-                                                    `${product?.product?.id}`,
-                                                    "trading_materials"
-                                                  )
-                                                    ?.toString()
-                                                    .replace(/\//g, "_")
-                                                    .replace(/\+/g, "-")}`
-                                                );
-                                                dispatch(showLoader());
-                                              }}
-                                              className="!mt-5 text-gray-700  truncate"
-                                              dangerouslySetInnerHTML={{
-                                                __html:
-                                                  product?.product?.description
-                                                    ?.length > 55
-                                                    ? `${product?.product?.description?.slice(
-                                                        0,
-                                                        55
-                                                      )}...`
-                                                    : product?.product
-                                                        ?.description,
-                                              }}
-                                            />
-                                          </span>
-                                        </a>
-                                        <div className="d-flex align-items-center text-lg mb-2 gap-1">
-                                          {ratingStars(
-                                            product?.rating
-                                              ? product?.rating
-                                              : 0
-                                          )}
-
-                                          <span className=" fs-12 text-gray-800">
-                                            {" "}
-                                            ({
-                                              product?.total_reviews
-                                            } Reviews){" "}
-                                          </span>
-                                        </div>
-                                        <div className="d-flex align-items-center justify-content-start">
-                                          <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                            <sub
-                                              style={{
-                                                verticalAlign: "super",
-                                              }}
-                                            >
-                                              ₹
-                                            </sub>
-                                            {product?.price}
-                                            {product?.discount > 0 && (
-                                              <del className="text-gray-800 !ml-2">
-                                                {
-                                                  (
-                                                    parseFloat(
-                                                      product?.price *
-                                                        (100 /
-                                                          product?.discount)
-                                                    )?.toFixed(2) + ""
-                                                  )
-                                                    .toString()
-                                                    .split(".")[0]
-                                                }
-                                                <sub
-                                                  style={{
-                                                    verticalAlign: "super",
-                                                  }}
-                                                >
-                                                  {
-                                                    (
-                                                      parseFloat(
-                                                        product?.price *
-                                                          (100 /
-                                                            product?.discount)
-                                                      )?.toFixed(2) + ""
-                                                    )
-                                                      .toString()
-                                                      .split(".")[1]
-                                                  }
-                                                </sub>
-                                              </del>
-                                            )}
-                                          </p>
-
-                                          {/* {product?.prices?.map(
-                                            (price, ind) => (
-                                              <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                                {currentUserlang === "en"
-                                                  ? price?.INR &&
-                                                    `₹${Number.parseFloat(
-                                                      price?.INR
-                                                    ).toFixed(2)}`
-                                                  : price?.USD &&
-                                                    `$${Number.parseFloat(
-                                                      price?.USD
-                                                    ).toFixed(2)}`}
-                                                {currentUserlang === "en"
-                                                  ? price?.INR && (
-                                                      <del className="text-gray-800 !ml-2">
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? "₹"
-                                                          : "$"}
-                                                        {getRandomNumberWithOffset(
-                                                          price?.INR
-                                                        )}
-                                                      </del>
-                                                    )
-                                                  : price?.USD && (
-                                                      <del className="text-gray-800 !ml-2">
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? "₹"
-                                                          : "$"}
-                                                        {getRandomNumberWithOffset(
-                                                          Number.parseFloat(
-                                                            price?.USD
-                                                          ).toFixed(2)
-                                                        )}
-                                                      </del>
-                                                    )}
-                                              </p>
-                                            )
-                                          )} */}
-
-                                          {/* <button
-                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
-                                            style={{
-                                              display: "flex",
-                                              justifyContent: "end",
-                                              marginRight: "5px",
-                                            }}
-                                            onClick={() => {
-                                              isLoggedIn
-                                                ? handleAddToWishList(
-                                                    product?.id
-                                                  )
-                                                : dispatch(showPopup());
-                                            }}
-                                          >
-                                            <FaRegHeart size={18} />
-                                          </button> */}
-
-                                          {/* <button
-                                            className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
-                                            onClick={(event) => {
-                                              return isLoggedIn
-                                                ? (handleAddToCart(product?.id),
-                                                  handleCartPosition(event))
-                                                : dispatch(showPopup());
-                                            }}
-                                          >
-                                            {animateProductId ===
-                                            product?.id ? (
-                                              <img src="/images/addedtocart.gif" />
-                                            ) : (
-                                              <em className="icon ni ni-cart text-2xl"></em>
-                                            )}
-                                          </button> */}
-                                          {/* <p
-                                      className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
-                                      style={{
-                                        display: "flex",
-                                        justifyContent: "end",
-                                        marginRight: "5px",
-                                      }}
-                                    >
-                                      <span className="text-base text-black font-semibold flex !items-center">
-                                        Qty:
-                                      </span>
-                                      {product?.qty}
-                                    </p> */}
-                                        </div>
-                                      </div>
-                                    </Typography>
-                                  </CardContent>
-                                </CardActionArea>
-                              </Card>
-                              {product?.discount > 0 && (
-                                <div className="flex justify-end items-end ">
-                                  <div
-                                    className="flex absolute items-center justify-center img-box !drop-shadow-lg
-
-"
+                              <div className="nk-card overflow-hidden rounded-3 h-100 border text-left ">
+                                <div className="nk-card-img relative">
+                                  <a
+                                    href={`${userLang}/product-detail/${
+                                      product?.product?.slug
+                                    }/${CryptoJS?.AES?.encrypt(
+                                      `${product?.product?.id}`,
+                                      "trading_materials"
+                                    )
+                                      ?.toString()
+                                      .replace(/\//g, "_")
+                                      .replace(/\+/g, "-")}`}
                                   >
                                     <img
-                                      src="/images/sale-2.png"
-                                      alt="ffer_label"
-                                      width={65}
-                                      className="drop-shadow-lg"
-                                    ></img>
-                                    <label className="absolute !font-bold text-white !text-xs right-1">
-                                      {product?.discount}%
-                                    </label>
+                                      src={product?.product?.img_1}
+                                      alt="product-image"
+                                      className="sm:!h-[300px] !w-full group-hover:scale-105 transition duration-500"
+                                      loading="lazy"
+                                    />
+                                    {product?.product?.stock?.stock < 10 && (
+                                      <GitHubForkRibbon
+                                        className="drop-shadow-xl subpixel-antialiased"
+                                        color="orange"
+                                        position="left"
+                                      >
+                                        Only {product?.product?.stock?.stock}{" "}
+                                        left !!
+                                      </GitHubForkRibbon>
+                                    )}
+                                  </a>
+                                </div>
+                                <div className="nk-card-info bg-white p-4">
+                                  <a
+                                    href={`${userLang}/product-detail/${
+                                      product?.product?.slug
+                                    }/${CryptoJS?.AES?.encrypt(
+                                      `${product?.product?.id}`,
+                                      "trading_materials"
+                                    )
+                                      ?.toString()
+                                      .replace(/\//g, "_")
+                                      .replace(/\+/g, "-")}`}
+                                    className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                    style={{
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      width: "90%",
+                                    }}
+                                  >
+                                    {product?.product?.name}
+                                    <br />
+                                    <span className="text-xs !mt-1">
+                                      <p
+                                        onClick={() => {
+                                          navigate(
+                                            `${userLang}/product-detail/${
+                                              product?.product?.slug
+                                            }/${CryptoJS?.AES?.encrypt(
+                                              `${product?.product?.id}`,
+                                              "trading_materials"
+                                            )
+                                              ?.toString()
+                                              .replace(/\//g, "_")
+                                              .replace(/\+/g, "-")}`
+                                          );
+                                          dispatch(showLoader());
+                                        }}
+                                        className="!mt-5 text-gray-700  truncate"
+                                        dangerouslySetInnerHTML={{
+                                          __html:
+                                            product?.product?.description
+                                              ?.length > 55
+                                              ? `${product?.product?.description?.slice(
+                                                  0,
+                                                  55
+                                                )}...`
+                                              : product?.product?.description,
+                                        }}
+                                      />
+                                    </span>
+                                  </a>
+                                  <div className="d-flex align-items-center mb-2 gap-1">
+                                    {ratingStars(product?.product?.rating)}
+
+                                    <span className="fs-14 text-gray-800">
+                                      {" "}
+                                      ({product?.product?.total_reviews}{" "}
+                                      Reviews){" "}
+                                    </span>
+                                  </div>
+                                  <div className="d-flex align-items-center justify-content-start">
+                                    <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                      <sub
+                                        style={{
+                                          verticalAlign: "super",
+                                        }}
+                                      >
+                                        ₹
+                                      </sub>
+                                      {product?.price}
+                                    </p>
+
+                                    <div className="flex justify-start items-center">
+                                      <button
+                                        className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                        // eslint-disable-next-line no-unused-vars
+                                        onClick={(event) => {
+                                          return isLoggedIn
+                                            ? handleAddToCart(
+                                                product?.product?.id,
+                                                product?.product?.img_1
+                                              )
+                                            : navigate(`/login`);
+                                        }}
+                                      >
+                                        {animateProductId ===
+                                        product?.product?.id ? (
+                                          <img
+                                            src="/images/addedtocart.gif"
+                                            className="max-w-[45px]"
+                                          />
+                                        ) : (
+                                          <em className="icon ni ni-cart text-2xl "></em>
+                                        )}
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
-                              )}
+                                {product?.product?.discount > 0 && (
+                                  <div className="flex justify-end items-end   !mt-2">
+                                    <div
+                                      className="flex absolute items-center justify-center img-box !drop-shadow-lg
+
+"
+                                    >
+                                      <img
+                                        src="/images/sale-2.png"
+                                        alt="ffer_label"
+                                        width={65}
+                                        className="drop-shadow-lg"
+                                      ></img>
+                                      <label className="absolute !font-bold text-white !text-xs right-1">
+                                        {product?.product?.discount}%
+                                      </label>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>

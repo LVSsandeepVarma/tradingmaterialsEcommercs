@@ -121,7 +121,7 @@ export default function Contact() {
           )}
 
           <Header />
-          <main className="nk-pages">
+          <main className="nk-pages mt-40 sm:mt-60 md:mt-40">
             <section className="nk-section pt-120 pt-lg-160">
               <div className="nk-mask blur-1 left center"></div>
               <div className="container">
