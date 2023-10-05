@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="container">
             <div className="nk-footer-content">
               <div className="row gy-5 gy-xl-0 justify-content-start justify-content-xl-between">
-                <div className="col-md-8 col-lg-4 col-xxl-4">
+                <div className="col-md-8 col-lg-4 col-xxl-4 !mt-[100px] md:!mt-[106px] lg:!mt-[0px]">
                   <div className="nk-footer-brand pb-5 pb-lg-0">
                     <div className="nk-footer-brand-info mb-4">
                       <div className="nk-footer-logo flex !justify-start !text-left">
@@ -61,8 +61,8 @@ export default function Footer() {
                 </div>
 
                 <div className="col-md-8 col-lg-2 col-xxl-2">
-                  <div className="nk-footer-info">
-                    <h5 className="title">Pages</h5>
+                  <div className="nk-footer-info text-start">
+                    <h5 className="title !text-start !font-bold !mb-[24px]">Pages</h5>
                     <ul className="row gy-1 gy-sm-4">
                       <li className="col-12 !mt-[2.25rem]">
                         <a href="/about">About Us</a>
