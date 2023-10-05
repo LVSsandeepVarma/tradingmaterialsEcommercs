@@ -579,7 +579,7 @@ export default function SideBar() {
                         (address, ind) => (
                           <div
                             key={ind * 3}
-                            className="w-fit border border-1 p-3  text-left w-[95%] mt-5 ml-5 gap-5"
+                            className="w-fit border border-1 p-3  text-left !w-[95%] mt-5 ml-5 gap-5"
                           >
                             <CardActionArea
                               onClick={() => {
@@ -633,7 +633,7 @@ export default function SideBar() {
                       {userData?.client?.address?.map((address, ind) => (
                         <div
                           key={ind}
-                          className="col-sm-4  w-fit border border-1 p-3  text-left w-[95%]  mt-5 ml-5 gap-5"
+                          className="col-sm-4  w-fit border border-1 p-3  text-left !w-[95%]  mt-5 ml-5 gap-5"
                         >
                           {/* !min-w-[75%]  sm:!min-w-[25%] sm:max-w-[40%] */}
                           <CardActionArea

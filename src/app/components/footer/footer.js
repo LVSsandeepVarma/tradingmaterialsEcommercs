@@ -203,7 +203,7 @@ export default function Footer() {
                     </li>
                     <li>
                       <a className="nk-footer-text" href={`/refund-policy`}>
-                        Cancellation & Refund Policy
+                        Cancellation & Refund&nbsp;&nbsp;Policy
                       </a>
                     </li>
                   </ul>

@@ -29,7 +29,7 @@ import { usersignupinModal } from "../../../features/signupinModals/signupinSlic
 import ForgotPasswordModal from "../modals/forgotPassword";
 import Offer from "../forms/offer";
 import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
-import { Divider, Fab, Tooltip } from "@mui/material";
+import { Divider } from "@mui/material";
 import ChatForm from "../Chatbot/chatbot";
 import UpdateProfile from "../modals/updateProfile";
 import CookieBanner from "./cookiesBanner";
@@ -473,7 +473,7 @@ export default function Header() {
           <div className="loader"></div>
         </div>
       )} */}
-      {isLoggedIn === false && !sessionStorage.getItem("offerPhone") && (
+      {/* {isLoggedIn === false && !sessionStorage.getItem("offerPhone") && (
         <div className="block sm:!hidden">
           <Tooltip title="Get 10% off on first purchase">
             <Fab
@@ -489,7 +489,7 @@ export default function Header() {
             </Fab>
           </Tooltip>
         </div>
-      )}
+      )} */}
       {showNameModal && (
         <UpdateProfile open={showNameModal} handleClose={hideProfileModal} />
       )}
