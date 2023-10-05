@@ -52,8 +52,8 @@ function App() {
         <Suspense
           fallback={
             <div className="preloader !backdrop-blur-[1px] ">
-              <div className="loaders">Loading....</div>
-            </div>
+          <div className="loader"></div>
+        </div>
           }
         >
           <Routes>

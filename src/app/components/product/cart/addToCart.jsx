@@ -1072,7 +1072,7 @@ export default function AddToCart() {
                       >
                         Place Order
                       </button>
-                      {(userData?.client?.primary_address?.length === 0 || (userData?.client?.address?.length > 1 || !billingSameAsShipping)) && (
+                      {(userData?.client?.primary_address?.length === 0 || (userData?.client?.address?.length == 1 && !billingSameAsShipping)) && (
                         <span className="text-red-800 font-semibold">
                           Please add Address before placing order.
                         </span>
