@@ -1174,8 +1174,8 @@ export default function ProductDetails() {
                         >
                           <div>
                             {/* <h5 className="mb-2">Product Description</h5> */}
-                            <p
-                              className="fs-16 text-gray-1200 text-left"
+                            <div
+                              className="fs-16 !text-sm text-gray-1200 text-left container"
                               dangerouslySetInnerHTML={{
                                 __html: product?.product?.long_desc,
                               }}

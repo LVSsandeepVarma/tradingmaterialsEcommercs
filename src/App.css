@@ -1085,3 +1085,14 @@ td span {
   position:relative !important;
   margin-top : 20px !important
 }
+
+@media only screen and (max-width: 480px) {
+  div table{
+    overflow: auto;
+    width : 100%
+  }
+  
+  div table tr td span {
+    font-size: small !important;
+  }
+}
