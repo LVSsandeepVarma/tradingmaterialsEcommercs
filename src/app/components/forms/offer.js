@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { hidePopup } from "../../../features/popups/popusSlice";
 
 export default function Offer() {
@@ -11,11 +11,19 @@ export default function Offer() {
   const [phoneErr, setPhoneErr] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [apiErr, setApiErr] = useState([]);
+  const [userIp, setUserIp] = useState("");
 
+  const loaderState = useSelector((state) => state?.loader?.value);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then((response) => response.json())
+      .then((data) => setUserIp(data.ip));
+  }, []);
+
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailErr("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -43,7 +51,7 @@ export default function Offer() {
 
   const handleEmailChange = (e) => {
     setEmail(e?.target?.value);
-    emailValidaiton(email);
+    emailValidaiton(e?.target?.value);
   };
 
   const handlePhonechange = (e) => {
@@ -52,17 +60,27 @@ export default function Offer() {
   };
 
   const handleSubmit = async (e) => {
-    setApiErr([])
+    setApiErr([]);
     e.preventDefault();
     isValidMobile(phone);
     emailValidaiton(email);
-    console.log(emailErr , phoneErr)
-    if (emailErr === "" && email!== "" && phoneErr === "" && phone !== "" && apiErr?.length === 0) {
+    if (
+      emailErr === "" &&
+      email !== "" &&
+      phoneErr === "" &&
+      phone !== "" &&
+      apiErr?.length === 0
+    ) {
       try {
         dispatch(showLoader());
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/discount/store",
-          { email: email, phone: phone },
+          {
+            email: email,
+            phone: phone,
+            domain: window.location.href.split("https://")[1],
+            ip_add: userIp,
+          },
           {
             headers: {
               "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
@@ -72,15 +90,14 @@ export default function Offer() {
         );
         if (response?.data?.status) {
           setSuccessMsg(response?.data?.message);
-          setTimeout(()=>{
-            dispatch(hidePopup())
-          }, 2000)
+          setTimeout(() => {
+            dispatch(hidePopup());
+          }, 2000);
         }
       } catch (err) {
-        console.log(err?.response?.data?.errors);
         if (err?.response?.data?.errors) {
-          setEmailErr(err?.response?.data?.errors["email"])
-          setPhoneErr(err?.response?.data?.errors["phone"])
+          setEmailErr(err?.response?.data?.errors["email"]);
+          setPhoneErr(err?.response?.data?.errors["phone"]);
         } else {
           setApiErr([err?.response?.data?.message]);
         }
@@ -88,13 +105,16 @@ export default function Offer() {
         dispatch(hideLoader());
       }
     }
-    // Handle form submission here, e.g., send data to server
-    console.log("Message:", email, phone);
   };
 
   return (
     <>
-      <form className="form-group w-[100%]" >
+      {loaderState && (
+        <div className="preloader !backdrop-blur-[1px]">
+          <div className="loader"></div>
+        </div>
+      )}
+      <form className="form-group w-[100%]">
         <input
           className="form-control !border-b-1 !text-white !border-white  bg-transparent hover:dorp-shadow-lg  mb-2 !placeholder-white w-full"
           style={{
@@ -122,29 +142,31 @@ export default function Offer() {
           }}
         />
         {phoneErr && (
-          <p className="text-red-700 font-semibold mb-1  text-left">
+          <p className="text-red-700 font-semibold mb-1 text-sm  text-left">
             {phoneErr}
           </p>
         )}
 
         {successMsg?.length > 0 && (
-          <p className="text-green-900 font-semibold">{successMsg}</p>
+          <p className="text-green-900 text-sm font-semibold">{successMsg}</p>
         )}
         {apiErr?.length > 0 &&
           apiErr?.map((err, ind) => {
             return (
-              <p key={ind} className="text-red-600 font-semibold">
+              <p
+                key={ind}
+                className="text-red-600 text-sm font-semibold text-sm"
+              >
                 {err}
               </p>
             );
           })}
         <div className="">
-        <button
-                onClick={handleSubmit}
-                className="mt-2 px-4 py-2 !bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-              >
-                Sign Up
-              </button>
+          <div className="buttonss-off cursor-pointer">
+            <a className="cart-btn" onClick={handleSubmit}>
+              Sign Up
+            </a>
+          </div>
         </div>
       </form>
     </>

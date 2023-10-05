@@ -23,8 +23,8 @@ export default function About() {
           )}
 
           <Header />
-          <main className="nk-pages">
-            <section className="nk-section pt-120 pt-lg-160">
+          <main className="nk-pages mt-40 sm:mt-60 md:mt-20">
+            <section className="nk-section ">
               <div className="nk-mask blur-1 left center"></div>
               <div className="container">
                 <div className="row justify-content-center">
@@ -32,20 +32,17 @@ export default function About() {
                     <div className="nk-section-head text-center">
                       <span className="nk-section-subtitle">Our Story</span>
                       <h2 className="nk-section-title !font-bold">
-                        The Story Behind NioLand
+                        The Story Behind Trading Materials
                       </h2>
                       <p className="nk-section-text">
                         {" "}
-                        Discover the inspiring story behind NioLand - how a
-                        vision became a reality, empowering individuals and
-                        businesses to thrive in the digital world.{" "}
+                        From a spark of trading passion, Trading Material
+                        ignited to democratize knowledge, empowering traders to
+                        conquer markets with confidence.{" "}
                       </p>
                       <ul className="nk-btn-group justify-content-center pt-5">
                         <li>
-                          <a
-                            href={`${userLang}/login`}
-                            className="btn btn-lg btn-primary"
-                          >
+                          <a href={`/careers`} className="btn btn-lg btn-primary">
                             Join Our Team
                           </a>
                         </li>
@@ -102,7 +99,7 @@ export default function About() {
                 <div className="row gy-5">
                   <div className="col-md-6">
                     <div className="card">
-                      <div className="card-body">
+                      <div className="card-body !p-[30px]">
                         <div className="media-group gap-3 gap-md-4 flex-column flex-lg-row align-items-start align-items-lg-center">
                           <div className="media-text">
                             <div className="h1 text-primary !font-bold">
@@ -111,11 +108,12 @@ export default function About() {
                           </div>
                           <div className="media-text m-0">
                             <h4 className="text-capitalize !text-2xl !text-left !font-bold">
-                              Company growth
+                              Company Growth
                             </h4>
                             <p>
                               {" "}
-                              Unleashing exponential growth through innovation.{" "}
+                              Fostering exponential advancement by embracing
+                              innovation.
                             </p>
                           </div>
                         </div>
@@ -124,7 +122,7 @@ export default function About() {
                   </div>
                   <div className="col-md-6">
                     <div className="card">
-                      <div className="card-body">
+                      <div className="card-body !p-[30px]">
                         <div className="media-group gap-3 gap-md-4 flex-column flex-lg-row align-items-start align-items-lg-center">
                           <div className="media-text">
                             <div className="h1 text-warning !font-bold">
@@ -133,12 +131,11 @@ export default function About() {
                           </div>
                           <div className="media-text m-0">
                             <h4 className="text-capitalize !text-2xl !text-left !font-bold">
-                              Team members
+                              Team Members
                             </h4>
                             <p>
                               {" "}
-                              Our talented team members are the driving force
-                              behind.{" "}
+                              The dynamic prowess of our team fuels our journey.{" "}
                             </p>
                           </div>
                         </div>
@@ -147,7 +144,7 @@ export default function About() {
                   </div>
                   <div className="col-md-6">
                     <div className="card">
-                      <div className="card-body">
+                      <div className="card-body !p-[30px]">
                         <div className="media-group gap-3 gap-md-4 flex-column flex-lg-row align-items-start align-items-lg-center">
                           <div className="media-text">
                             <div className="h1 text-danger !font-bold">
@@ -156,12 +153,12 @@ export default function About() {
                           </div>
                           <div className="media-text m-0">
                             <h4 className="text-capitalize !text-2xl !text-left !font-bold">
-                              Active projects
+                              Ongoing Projects
                             </h4>
                             <p>
                               {" "}
-                              We have a diverse range of active projects that
-                              are driving.{" "}
+                              Diverse initiatives at play, propelling our
+                              mission forward.{" "}
                             </p>
                           </div>
                         </div>
@@ -170,7 +167,7 @@ export default function About() {
                   </div>
                   <div className="col-md-6">
                     <div className="card">
-                      <div className="card-body">
+                      <div className="card-body !p-[30px]">
                         <div className="media-group gap-3 gap-md-4 flex-column flex-lg-row align-items-start align-items-lg-center">
                           <div className="media-text">
                             <div className="h1 text-success !font-bold">
@@ -179,9 +176,11 @@ export default function About() {
                           </div>
                           <div className="media-text m-0">
                             <h4 className="text-capitalize !text-2xl !text-left !font-bold">
-                              Customer satisfaction
+                              Customer Delight
                             </h4>
-                            <p> Customer Satisfaction is our top priority. </p>
+                            <p>
+                              Our prime concern is ensuring customer happiness.
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -205,20 +204,17 @@ export default function About() {
                         </h2>
                         <p className="nk-section-text text-left">
                           {" "}
-                          The journey towards success for NioLand has been a
-                          remarkable one. It started with a vision to provide
-                          businesses with a comprehensive platform that
-                          simplifies collaboration and maximizes productivity.
-                          With a dedicated team and a customer-centric approach,
-                          NioLand has continuously evolved and improved its
-                          offerings to meet the changing needs of businesses.{" "}
+                          Embark on our compelling journey towards success,
+                          where dedication, innovation, and resilience converge.
+                          With each step, we&apos;ve ventured beyond limits,
+                          carving a trail of accomplishments driven by our
+                          passion for excellence. Join us as we continue to
+                          shape our remarkable narrative, destined for even
+                          greater heights.{" "}
                         </p>
                         <ul className="nk-btn-group pt-5">
                           <li>
-                            <a
-                              href={`${userLang}/login`}
-                              className="btn btn-primary"
-                            >
+                            <a href={`/careers`} className="btn btn-primary">
                               Join Our Team
                             </a>
                           </li>
@@ -236,16 +232,15 @@ export default function About() {
                           Behind the story
                         </span>
                         <h2 className="nk-section-title !text-left !font-bold">
-                          How NioLand Started
+                          How Trading Materials
                         </h2>
                         <p className="nk-section-text text-left">
                           {" "}
-                          NioLand started with a vision to revolutionize the way
-                          businesses connect and collaborate. It was founded by
-                          a group of passionate individuals who saw the need for
-                          a platform that seamlessly integrates different tools
-                          and channels, allowing teams to work together more
-                          effectively.{" "}
+                          Discover how Trading Materials came to life – born
+                          from a passion for trading, driven by the goal to
+                          empower traders worldwide. Our journey is marked by
+                          dedication, curating a diverse range of resources to
+                          fuel success in the trading realm.{" "}
                         </p>
                       </div>
                     </div>
@@ -259,16 +254,17 @@ export default function About() {
                   <div className="col-lg-8 col-xxl-6">
                     <div className="nk-section-head text-center ">
                       <span className="nk-section-subtitle !text-left">
-                        our values
+                        SHAPING OUR BELIEFS
                       </span>
                       <div>
                         <h2 className="nk-section-title !font-bold">
-                          Core Values we define
+                          Defining Our Core Principles
                         </h2>
                         <p className="nk-section-text">
-                          Innovation, Collaboration, Excellence. These core
-                          values guide us as we strive to deliver exceptional
-                          solutions and empower businesses.
+                          Innovation, Collaboration, and Excellence: Anchored in
+                          these beliefs, we pave the way for outstanding
+                          solutions and empower businesses through unwavering
+                          commitment.
                         </p>
                       </div>
                     </div>
@@ -277,105 +273,102 @@ export default function About() {
                 <div className="row gy-5">
                   <div className="col-md-6 col-lg-4">
                     <div className="card">
-                      <div className="card-body !text-left">
+                      <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-4 ">
                           <em className="icon ni ni-file-text-fill !text-left"></em>
                         </div>
                         <h5 className="!font-bold !text-left !text-xl">
-                          Result Matter
+                          Outcomes That Count
                         </h5>
                         <p className="text line-clamp-2 !text-left">
-                          At NioLand, we believe that results matter. We are
-                          committed to delivering tangible outcomes and
-                          measurable impact for our clients.{" "}
+                          At Trading Materials, we stand by the significance of
+                          results. We&apos;re dedicated to achieving concrete
+                          outcomes and measurable impact for our clients.{" "}
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
                     <div className="card">
-                      <div className="card-body !text-left">
+                      <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-info-soft mb-4">
                           <em className="icon ni ni-gift"></em>
                         </div>
                         <h5 className="!font-bold !text-left !text-xl">
-                          Commitment
+                          Devotion
                         </h5>
                         <p className="text line-clamp-2 !text-left">
-                          Commitment is one of our core values at NioLand. We
-                          are dedicated to providing exceptional service
+                          Devotion remains integral to our ethos at Trading
+                          Materials. Our pledge revolves around delivering
+                          exceptional service.
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
                     <div className="card">
-                      <div className="card-body !text-left">
+                      <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-warning-soft mb-4">
                           <em className="icon ni ni-growth-fill"></em>
                         </div>
                         <h5 className="!font-bold !text-left !text-xl">
-                          Growth
+                          Advancement
                         </h5>
                         <p className="text line-clamp-2 !text-left">
-                          {" "}
-                          Growth is a fundamental value at NioLand. We believe
-                          in continuously learning, improving, and expanding our
-                          capabilities.{" "}
+                          Advancement is deeply rooted in Trading Materials
+                          values. We embrace constant learning, enhancement, and
+                          broadening our capabilities.
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
                     <div className="card">
-                      <div className="card-body !text-left">
+                      <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-danger-soft mb-4">
                           <em className="icon ni ni-users-fill"></em>
                         </div>
                         <h5 className="!font-bold !text-left !text-xl">
-                          Team Work
+                          Collaboration
                         </h5>
                         <p className="text line-clamp-2">
-                          {" "}
-                          Teamwork is a core value at NioLand. We believe in the
-                          power of collaboration and synergy that comes from
-                          working together.{" "}
+                          Collaboration is a cornerstone at Trading Materials.
+                          We emphasize the potency of teamwork and the
+                          harmonious synergy that collective effort brings.
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
                     <div className="card">
-                      <div className="card-body !text-left">
+                      <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-4">
                           <em className="icon ni ni-bulb-fill"></em>
                         </div>
                         <h5 className="!font-bold !text-left !text-xl">
-                          Innovation
+                          Ingenuity
                         </h5>
                         <p className="text line-clamp-2">
-                          {" "}
-                          Innovation is at the heart of NioLand. We continuously
-                          strive to push boundaries and challenge the status
-                          quo.{" "}
+                          Ingenuity pulses through the veins of Trading
+                          Materials. We&apos;re relentless in our pursuit of
+                          pushing limits and questioning the status quo.
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
                     <div className="card">
-                      <div className="card-body !text-left">
+                      <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-success-soft mb-4">
                           <em className="icon ni ni-flag-fill"></em>
                         </div>
                         <h5 className="!font-bold !text-left !text-xl">
-                          Ownership
+                          Responsibility
                         </h5>
                         <p className="text line-clamp-2">
-                          {" "}
-                          Ownership is a core value at NioLand. We believe in
-                          taking responsibility for our actions, projects, and
-                          outcomes.{" "}
+                          Responsibility is foundational at Trading Materials.
+                          We firmly believe in taking ownership and being
+                          accountable.
                         </p>
                       </div>
                     </div>
@@ -388,20 +381,20 @@ export default function About() {
                 <div className="row justify-content-center">
                   <div className="col-lg-8 col-xxl-6">
                     <div className="nk-section-head text-center">
-                      <span className="nk-section-subtitle">team members</span>
+                      <span className="nk-section-subtitle">
+                        UNVEILING OUR TEAM
+                      </span>
                       <h2 className="nk-section-title !font-bold">
-                        The Team Behind NioLand
+                        Meet The Minds Shaping Trading Materials
                       </h2>
                       <p className="nk-section-text">
-                        Meet the dedicated team behind NioLand, working
-                        tirelessly to bring you the best experience.
+                        Get acquainted with the Committed Team Powering Trading
+                        Materials, diligently striving to provide you with an
+                        exceptional experience.
                       </p>
                       <ul className="nk-btn-group justify-content-center pt-5">
                         <li>
-                          <a
-                            href={`${userLang}/login`}
-                            className="btn btn-primary btn-lg"
-                          >
+                          <a href={`/careers`} className="btn btn-primary btn-lg">
                             Join Our Team
                           </a>
                         </li>
@@ -420,7 +413,7 @@ export default function About() {
                 <div className="row gy-5">
                   <div className="col-md-6 col-lg-4">
                     <div className="card border-0 bg-blue-300">
-                      <div className="card-body pb-0">
+                      <div className="card-body !p-[30px] pb-0">
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
@@ -442,7 +435,7 @@ export default function About() {
                   </div>
                   <div className="col-md-6 col-lg-4">
                     <div className="card border-0 bg-green-50">
-                      <div className="card-body pb-0">
+                      <div className="card-body !p-[30px] pb-0">
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
@@ -464,7 +457,7 @@ export default function About() {
                   </div>
                   <div className="col-md-6 col-lg-4">
                     <div className="card border-0 bg-yellow-50">
-                      <div className="card-body pb-0">
+                      <div className="card-body !p-[30px] pb-0">
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
@@ -487,18 +480,17 @@ export default function About() {
                 </div>
               </div>
             </section>
-            <section className="nk-section">
+            {/* <section className="nk-section">
               <div className="container">
                 <div className="row justify-content-center">
                   <div className="col-lg-8 col-xxl-6">
                     <div className="nk-section-head text-center">
-                      <span className="nk-section-subtitle">support From</span>
+                      <span className="nk-section-subtitle">PRESS & MEDIA</span>
                       <h2 className="nk-section-title !font-bold">
-                        Our Investors
+                      Trading Materials In The News
                       </h2>
                       <p className="nk-section-text">
-                        We are proud to have the support of our valued investors
-                        who believe in our vision and contribute to our growth.
+                      Catch Up on the Recent Developments and News Surrounding Trading Materials, Showcased Across Leading Publications and Media Platforms.
                       </p>
                     </div>
                   </div>
@@ -568,7 +560,7 @@ export default function About() {
                   </div>
                 </div>
               </div>
-            </section>
+            </section> */}
             <section className="nk-section">
               <div className="nk-mask blur-1 right center"></div>
               <div className="container">
@@ -579,11 +571,12 @@ export default function About() {
                         Press &amp; Media
                       </span>
                       <h2 className="nk-section-title !font-bold">
-                        NioLand In The News
+                        Trading Materials In The News
                       </h2>
                       <p className="nk-section-text">
-                        Discover the latest news and updates about NioLand,
-                        featured in top publications and media outlets.
+                        Catch Up on the Recent Developments and News Surrounding
+                        Trading Materials, Showcased Across Leading Publications
+                        and Media Platforms.
                       </p>
                     </div>
                   </div>
@@ -591,7 +584,7 @@ export default function About() {
                 <div className="row gy-5">
                   <div className="col-lg-6">
                     <div className="card card-gutter-lg bg-primary is-theme h-100">
-                      <div className="card-body p-5 p-md-7">
+                      <div className="card-body !p-[30px] p-5 p-md-7">
                         <div className="card-content h-100 d-flex flex-column justify-content-between">
                           <div className="card-image mb-3">
                             <a href="#">
@@ -603,22 +596,21 @@ export default function About() {
                             </a>
                           </div>
                           <h3 className="card-title text-capitalize !font-bold text-3xl !text-left !leading-relaxed ">
-                            {" "}
-                            NioLand raises $84M in Series C funding{" "}
+                            Trading Materials Raises $84M In Series C Funding
                           </h3>
                           <p className="text-left">
                             {" "}
-                            NioLand, a rapidly growing technology company,
-                            recently announced the successful completion of its
-                            Series C funding round, securing a substantial
-                            investment of $84 million. <br />
+                            Trading Materials, a rapidly growing technology
+                            company, recently announced the successful
+                            completion of its Series C funding round, securing a
+                            substantial investment of $84 million. <br />
                             <br /> The funding will be utilized to further
-                            enhance and expand NioLand&apos;s products and
+                            enhance and expand Trading Materials products and
                             services, solidifying its position as a market
                             leader in the industry. The significant investment
                             highlights the confidence and support from investors
-                            in NioLand&apos;s vision and potential for continued
-                            success.{" "}
+                            in Trading Materials vision and potential for
+                            continued success.{" "}
                           </p>
                           <br />
                           <div className="text-left">
@@ -635,7 +627,7 @@ export default function About() {
                     <div className="row gy-5">
                       <div className="col-12">
                         <div className="card card-gutter-md bg-blue-1400 is-theme">
-                          <div className="card-body p-5">
+                          <div className="card-body !p-[30px] p-5">
                             <div className="card-content">
                               <div className="card-image mb-3 mb-md-5 brand">
                                 <a href="#">
@@ -647,9 +639,8 @@ export default function About() {
                                 </a>
                               </div>
                               <h4 className="card-title text-capitalize mb-3 mb-md-5 !font-bold text-2xl !text-left !leading-relaxed">
-                                <a href="blog-single.html">
-                                  NioLand claims to be the #1 player in the
-                                  analytics industry
+                                <a href="/about">
+                                Trading Materials Claims To Be The #1 Player In The Analytics Industry
                                 </a>
                               </h4>
                               <div className="text-left">
@@ -664,7 +655,7 @@ export default function About() {
                       </div>
                       <div className="col-12">
                         <div className="card card-gutter-md bg-dark is-theme">
-                          <div className="card-body p-5">
+                          <div className="card-body !p-[30px] p-5">
                             <div className="card-content">
                               <div className="card-image mb-3 mb-md-5 brand">
                                 <a href="#">
@@ -676,9 +667,8 @@ export default function About() {
                                 </a>
                               </div>
                               <h4 className="card-title text-capitalize mb-3 mb-md-5 !font-bold text-2xl !text-left !leading-relaxed">
-                                <a href="blog-single.html">
-                                  NioLand CEO steps-back, new CEO comes in
-                                  September after the board decisions
+                                <a href="/about">
+                                Trading Materials CEO Steps-Back, New CEO Comes In September After The Board Decisions
                                 </a>
                               </h4>
                               <div className="text-left">

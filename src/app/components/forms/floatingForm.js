@@ -11,7 +11,7 @@ export default function FloatingForm(handleClose) {
     // const [phoneErr, setPhoneErr] = useState("")
   
     function emailValidaiton(email) {
-      const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+      const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
       if (email === "") {
         setEmailErr("Email is required");
       } else if (!emailRegex.test(email)) {
@@ -28,7 +28,7 @@ export default function FloatingForm(handleClose) {
 
   return (
     <>
-        <Card style={{background:"linear-gradient(135deg, rgb(34, 125, 34), lightgreen)"}}>
+        <Card >
             <CardActionArea>
             <CardContent>
                 <div className='flex  items-center !w-full'> 

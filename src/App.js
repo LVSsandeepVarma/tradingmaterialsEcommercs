@@ -1,13 +1,19 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NewPassword from "./app/components/login/reset-password";
 import PaymentVerifyStripe from "./app/components/product/checkout/paymentVerifyStipe";
 import Orders from "./app/components/product/orders/orders";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import ProtectedRoute from "./middleware";
 import Pagenotfound from "./app/components/undefinedRoutes/Pagenotfound";
-const Home = lazy(() => import("./app/components/home/home"));
-// import Home from "./app/components/home/home";
+// const Home = lazy(() => import("./app/components/home/home"));
+import Home from "./app/components/home/home";
+import Terms from "./app/components/policies/Terms";
+import Privacy from "./app/components/policies/Privacy";
+import Refund from "./app/components/policies/Refund"
+import Career from "./app/components/careers/Career";
 const About = lazy(() => import("./app/components/about-us/about"));
 // import About from "./app/components/about-us/about";
 const Contact = lazy(() => import("./app/components/contact-us/contact"));
@@ -36,13 +42,17 @@ const Sidebar = lazy(() => import("./app/components/user/sidebar"));
 // import Sidebar from "./app/components/user/sidebar";
 
 function App() {
+  useEffect(() => {
+    AOS.init();
+    AOS.refresh();
+  }, []);
   return (
     <div className="App custom-scrollbar">
       <BrowserRouter>
         <Suspense
           fallback={
             <div className="preloader !backdrop-blur-[1px] ">
-              <div className="loader"></div>
+              <div className="loaders">Loading....</div>
             </div>
           }
         >
@@ -109,7 +119,11 @@ function App() {
               }
               middleware
             ></Route>
-            <Route path="*" element={<Pagenotfound/>}></Route>
+            <Route path="/terms-and-conditions" element={<Terms/>}></Route>
+            <Route path="/privacy-policy" element={<Privacy/>}></Route>
+            <Route path="/refund-policy" element={<Refund/>}></Route>
+            <Route path="*" element={<Pagenotfound />}></Route>
+            <Route path="/careers" element={<Career/>}></Route>
 
             {/* malay */}
 
@@ -120,16 +134,23 @@ function App() {
               path="/ms/product-detail/:slug/:id"
               element={<ProductDetails />}
             ></Route>
-            <Route path="/ms/cart" element={<ProtectedRoute>
+            <Route
+              path="/ms/cart"
+              element={
+                <ProtectedRoute>
                   <AddToCart />
-                </ProtectedRoute>}></Route>
+                </ProtectedRoute>
+              }
+            ></Route>
             <Route path="/ms/login" element={<Login />}></Route>
             <Route path="/ms/signup" element={<Register />}></Route>
             <Route
               path="/ms/checkout/order_id/:id"
-              element={<ProtectedRoute>
-                <Checkout />
-              </ProtectedRoute>}
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              }
             ></Route>
             <Route
               path="/ms/reset-password/forgot-password"
@@ -140,10 +161,15 @@ function App() {
               path="/ms/reset-password/new-password"
               element={<NewPassword />}
             ></Route>
-            <Route path="/ms/profile" element={<ProtectedRoute>
+            <Route
+              path="/ms/profile"
+              element={
+                <ProtectedRoute>
                   <Sidebar />
-                </ProtectedRoute>}></Route>
-                <Route
+                </ProtectedRoute>
+              }
+            ></Route>
+            <Route
               path="/ms/orders/:client_id"
               element={
                 <ProtectedRoute>
@@ -153,7 +179,6 @@ function App() {
               middleware
             ></Route>
           </Routes>
-          
         </Suspense>
       </BrowserRouter>
     </div>

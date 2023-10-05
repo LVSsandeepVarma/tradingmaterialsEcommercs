@@ -13,7 +13,7 @@ import axios from "axios";
 import { Divider } from "@mui/material";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
-import { updateCartCount } from "../../../../features/cartWish/focusedCount";
+import { updateCartCount, updateWishListCount } from "../../../../features/cartWish/focusedCount";
 // import { showPopup } from "../../../../features/popups/popusSlice";
 import ShippingAddressModal from "../../modals/address";
 import { usersignupinModal } from "../../../../features/signupinModals/signupinSlice";
@@ -35,10 +35,12 @@ export default function Orders() {
   const [addedToFavImg, setAddedToFavImg] = useState("")
   const [showFavModal, setShowFavModal] = useState(false)
   const [modalMessage, setModalMessage] = useState("")
-
+  const [dateValue, setDateValue] = useState("")
+  const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false)
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
+  const userData = useSelector((state) => state?.user?.value)
 
   const decryptedId = CryptoJS.AES.decrypt(
     client_id.replace(/_/g, "/").replace(/-/g, "+"),
@@ -82,16 +84,15 @@ export default function Orders() {
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
 
-  // function for handling add to cart animation
   async function handleAddToCart(productId, productImg) {
     try {
-      //   setAnimateProductId(productId);
+      // setAnimateProductId(productId);
+      dispatch(showLoader());
       const response = await axios?.post(
         "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
         {
           product_id: productId,
           qty: 1,
-          // client_id: userData?.client?.id
         },
         {
           headers: {
@@ -101,14 +102,34 @@ export default function Orders() {
       );
       if (response?.data?.status) {
         setAddedToFavImg(productImg)
-        setShowFavModal(true)
+        setShowModal(true)
         setModalMessage("Added to your cart successfully")
-
+        // setAnimateProductId(productId);
+        // dispatch(
+        //   updateNotifications({
+        //     type: "success",
+        //     message: response?.data?.message,
+        //   })
+        // );
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
+        if(userData?.client?.wishlist?.length >0){
+          const ids = userData?.client?.wishlist?.map(item =>item?.product_id)
+          const isPresent = ids?.includes(productId)
+          console.log(isPresent,ids,productId,"prest")
+          if(isPresent){
+            dispatch(updateWishListCount(userData?.client?.wishlist?.length -1))
+            setShowWishlistRemoveMsg(true)
+          }else{
+            setShowWishlistRemoveMsg(false)
+          }
+        }
+        
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      dispatch(hideLoader());
     }
   }
 
@@ -171,16 +192,23 @@ export default function Orders() {
     }
   };
 
+  useEffect(()=>{
+    handleOrderSearchByDate(new Date().toISOString().slice(0, 10))
+    
+  },[orders])
+
   const handleOrderSearchByDate = async (order_date) => {
     try {
       dispatch(showLoader());
-      if (order_date?.target?.value !== "") {
+      setDateValue(order_date)
+      if (order_date !== "") {
+        console.log(order_date, "datettt")
         setIsSearching(true);
       } else {
         setIsSearching(false);
       }
-      console.log(order_date?.target?.value?.replaceAll("-", `/`), "ttttt");
-      const date = new Date(order_date?.target?.value);
+      console.log(order_date?.replaceAll("-", `/`),orders, "ttttt");
+      const date = new Date(order_date);
 const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date.getDate().toString().padStart(2, "0")}/${date.getFullYear()}`;
       const filterOrders = orders?.filter((order) => {
         console.log(
@@ -197,7 +225,7 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
-          }) === formattedDate
+          }) == formattedDate
         );
       });
       setFilteredOrders(filterOrders);
@@ -223,7 +251,7 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
         </div>
       )}
       {addedToFavImg!== "" && 
-        <AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} />
+        <AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} showWishlistRemove = {showWishlistRemoveMsg} />
       }
       <ShippingAddressModal
         show={showModal}
@@ -284,8 +312,9 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
                           name="search"
                           className="w-[100%]  form-control  !py-2 !ps-10 border"
                           placeholder="Search your orders with order date"
+                          value={dateValue}
                           required
-                          onChange={handleOrderSearchByDate}
+                          onChange={(e)=>{handleOrderSearchByDate(e.target.value)}}
                         />
                       </div>
                     </div>
@@ -308,6 +337,7 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
                         Your Orders are empty
                       </p>
                     )}
+                    
                     <div className="table-responsive">
                       {filteredOrders?.length > 0 &&
                         filteredOrders?.map((order, ind) => (
@@ -539,7 +569,7 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
 
                                   <div className="col-lg-7 ps-lg-0 !drop-shadow-lg">
                                     <div className="gap-5">
-                                      <p className="m-0 fs-16 w-100 td-text-3 group-hover:!font-bold group-hover:!text-black">
+                                      <p className="m-0 fs-16 w-100 td-text-3 !text-left group-hover:!font-bold group-hover:!text-black">
                                         {product?.name}
                                       </p>
                                     </div>

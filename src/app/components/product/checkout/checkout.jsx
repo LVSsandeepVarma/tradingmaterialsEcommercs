@@ -55,7 +55,7 @@ export default function Checkout() {
   const [activeBillingAddfreeChecked, setActiveBillingAddressChecked] =
     useState(0);
   const [addressUpdateType, setAddressUpdateType] = useState("");
-  const [activePaymentMethod, setActivePaymentMethod] = useState("Razor_Pay");
+  const [activePaymentMethod, setActivePaymentMethod] = useState("");
   // State variable to track quantities for each product
 
   const [orderData, setOrderData] = useState({});
@@ -76,6 +76,12 @@ export default function Checkout() {
   console.log(decryptedId);
 
   console.log(cartProducts, "gggggggg");
+
+  useEffect(()=>{
+    if(userData?.client?.payment_types?.length >0){
+      setActivePaymentMethod(userData?.client?.payment_types[0]?.name)
+    }
+  },[])
 
 
   useEffect(() => {
@@ -385,7 +391,7 @@ export default function Checkout() {
       currency: "INR",
       name: "Trading Materials",
       description: "Booking Request amount for Trading Materials",
-      image: "https://stage.tradingmaterials.com/images/tm-logo-1.png",
+      image: `https://${window.location.hostname}/images/tm-logo-1.png`,
       order_id: res?.order_id,
       handler: handleBookingPaymentResponse,
       prefill: {
@@ -466,7 +472,7 @@ export default function Checkout() {
           cvc: cvv,
           name_on_card: nameOnCard,
           currency: "INR",
-          call_back_url: "https://stage.tradingmaterials.com/payment-status/"
+          call_back_url: `https://${window.location.hostname}/payment-status/`
       }
       const response = await axios.post(
         "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
@@ -1016,7 +1022,7 @@ export default function Checkout() {
                           privacy.
                         </span>
                       </div>
-                      <button
+                      {userData?.client?.payment_types?.length >0 && <button
                         disabled={allProducts?.length > 0 ? false : true}
                         className="btn btn-primary w-100"
                         type="submit"
@@ -1044,7 +1050,15 @@ export default function Checkout() {
                         }
                       >
                         Proceed to Pay
-                      </button>
+                      </button>}
+                      {userData?.client?.payment_types?.length == 0 && <button
+                        disabled={allProducts?.length > 0 ? false : true}
+                        className="btn btn-primary w-100"
+                        type="submit"
+                        
+                      >
+                        Online Payment Not Available
+                      </button>}
                       {apiError?.length > 0 &&
                             apiError?.map((err, ind) => {
                               return (
@@ -1188,42 +1202,38 @@ export default function Checkout() {
             </div>
           </div>
         </section>
-        <section className="nk-section nk-cta-section">
-          <div className="container">
-            <div
-              className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
-              data-aos="fade-up"
-              data-aos-delay="100"
-            >
-              <div className="row g-gs align-items-center">
-                <div className="col-lg-8">
-                  <div className="media-group flex-column flex-lg-row align-items-center">
-                    <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
-                      <em className="icon ni ni-chat-fill"></em>
+        <section className="nk-section nk-cta-section nk-section-content-1">
+              <div className="container">
+                <div className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7">
+                  <div className="row g-gs align-items-center">
+                    <div className="col-lg-8">
+                      <div className="media-group flex-column flex-lg-row align-items-center">
+                        <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                          <em className="icon ni ni-chat-fill"></em>
+                        </div>
+                        <div className="text-center text-lg-start">
+                          <h3 className="text-capitalize m-0 !text-3xl !font-bold !leading-loose">
+                            Chat with our support team!
+                          </h3>
+                          <p className="fs-16 opacity-75">
+                            Get in touch with our support team if you still
+                            can’t find your answer.
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-center text-lg-start">
-                      <h3 className="text-capitalize m-0">
-                        Chat with our support team!
-                      </h3>
-                      <p className="fs-16 opacity-75">
-                        Get in touch with our support team if you still can’t
-                        find your answer.
-                      </p>
+                    <div className="col-lg-4 text-center text-lg-end">
+                      <a
+                        href={`${userLang}/contact`}
+                        className="btn btn-white fw-semiBold"
+                      >
+                        Contact Support
+                      </a>
                     </div>
                   </div>
                 </div>
-                <div className="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`${userLang}/contact`}
-                    className="btn btn-white fw-semiBold"
-                  >
-                    Contact Support
-                  </a>
-                </div>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
         <Footer />
       </div>
     </>

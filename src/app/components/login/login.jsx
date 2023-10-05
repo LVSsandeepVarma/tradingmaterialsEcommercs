@@ -34,6 +34,10 @@ export default function Login() {
   const userLang = useSelector((state) => state?.lang?.value);
 
   useEffect(() => {
+    dispatch(hideLoader());
+  }, []);
+
+  useEffect(() => {
     if (
       localStorage.getItem("email") !== "" &&
       localStorage.getItem("phone") !== ""
@@ -47,15 +51,13 @@ export default function Login() {
 
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-     
     } else {
       dispatch(userLanguage(""));
-
     }
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -138,7 +140,11 @@ export default function Login() {
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
           if (response?.data?.data?.type === "client") {
-            navigate(`https://client.tradingmaterials.com/${localStorage.getItem("client_token")}`);
+            navigate(
+              `https://client.tradingmaterials.com/${localStorage.getItem(
+                "client_token"
+              )}`
+            );
           } else {
             navigate(`${userLang}/profile`);
           }
@@ -185,7 +191,7 @@ export default function Login() {
             <div className="nk-split-col nk-auth-col">
               <div
                 className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-md-9 mx-xl-auto"
-                // data-aos="fade-up"
+                data-aos="fade-up"
               >
                 <div className="card-body p-5">
                   <div className="nk-form-card-head !text-center pb-5">
@@ -328,7 +334,7 @@ export default function Login() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
-                                key={ind}
+                                  key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"
@@ -365,22 +371,21 @@ export default function Login() {
                     <em className="icon ni ni-quote-left text-white"></em>
                   </div>
                   <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
-                    We’re building a better application now
+                    Join to all traders community
                   </h1>
                   <div className="nk-auth-quote ms-sm-5">
                     <div className="nk-auth-quote-inner">
                       <p className="small">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Venenatis magna massa semper tristique. Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit. Venenatis
-                        magna massa semper tristique dotset.
+                        The trading materials is about to have a twist on forum
+                        and community space for all who love to trade and make
+                        their own living.
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
                           <img src="/images/avatar/a.jpg" alt="avatar" />
                         </div>
                         <div className="media-text">
-                          <div className="h5 mb-0 !font-bold">Wade Warren</div>
+                          <div className="h5 mb-0 !font-bold">Founder</div>
                           <span className="small">3 months ago</span>
                         </div>
                       </div>

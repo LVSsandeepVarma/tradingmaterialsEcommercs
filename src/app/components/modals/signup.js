@@ -29,15 +29,22 @@ const SignupModal = ({ show, onHide }) => {
   const [apiError, setApiError] = useState([]);
   const [signupSuccessMsg, setSignupSuccessMsg] = useState("");
   const [localLoader, setLocalLoader] = useState(false);
+  const [useriP, setUserIp] = useState("");
 
   const loginStatus = useSelector((state) => state?.login?.value);
-  console.log(loginStatus);
+  console.log(loginStatus, window.location.host, window.location.hostname);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
   const userLang = useSelector((state) => state?.lang?.value);
+
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then((response) => response.json())
+      .then((data) => setUserIp(data.ip));
+  }, []);
 
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
@@ -50,7 +57,7 @@ const SignupModal = ({ show, onHide }) => {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -76,23 +83,31 @@ const SignupModal = ({ show, onHide }) => {
   }
 
   function firstNameVerification(name) {
-    const nameRegex = /^[a-zA-Z. ]+$/;
+    const namePattern = /^[A-Za-z ]+$/;
     if (name === "") {
       setFirstNameError("First name is required");
-    } else if (!nameRegex.test(name)) {
-      setFirstNameError("Invalid first name, only charecters are allowed");
-    } else {
+    }else if (!namePattern.test(name)) {
+      setFirstNameError("First name should contain only alphabets");
+    } else if (name?.length < 3) {
+      setFirstNameError("Min 3 characters are required");
+    } else if (name?.length > 50) {
+      setFirstNameError("Max 50 characters are required");
+    }  else {
       setFirstNameError("");
     }
   }
 
   function lastNameVerification(name) {
-    const nameRegex = /^[a-zA-Z. ]+$/;
+    const namePattern = /^[A-Za-z ]+$/;
     if (name === "") {
       setLastNameError("Last name is required");
-    } else if (!nameRegex.test(name)) {
-      setLastNameError("Invalid last name, only charecters are allowed");
-    } else {
+    }else if (!namePattern.test(name)) {
+      setLastNameError("Last name should contain only alphabets");
+    } else if (name?.length < 3) {
+      setLastNameError("Min 3 characters are required");
+    } else if (name?.length > 50) {
+      setLastNameError("Max 50 characters are required");
+    }  else {
       setLastNameError("");
     }
   }
@@ -150,6 +165,8 @@ const SignupModal = ({ show, onHide }) => {
               last_name: lastName,
               email: email,
               phone: phone,
+              domain: window.location.href.split("https://")[1],
+              ip_add: useriP
             },
             {
               headers: {
@@ -251,7 +268,7 @@ const SignupModal = ({ show, onHide }) => {
             style={{
               border: 0,
             }}
-            // data-aos="fade-up"
+            data-aos="fade-up"
           >
             <div className="account-steps">
               <div className="step"></div>
@@ -406,7 +423,7 @@ const SignupModal = ({ show, onHide }) => {
                         apiError?.map((err, ind) => {
                           return (
                             <Alert
-                            key={ind}
+                              key={ind}
                               variant="outlined"
                               severity="error"
                               className="mt-2"

@@ -9,10 +9,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Modal } from "react-bootstrap";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
+import moment from "moment";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import "animate.css";
-import { updateCartCount } from "../../../features/cartWish/focusedCount";
+import {
+  updateCartCount,
+  updateWishListCount,
+} from "../../../features/cartWish/focusedCount";
 // import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
 import { useTranslation } from "react-i18next";
 import { userLanguage } from "../../../features/userLang/userLang";
@@ -25,7 +29,10 @@ import { usersignupinModal } from "../../../features/signupinModals/signupinSlic
 import ForgotPasswordModal from "../modals/forgotPassword";
 import Offer from "../forms/offer";
 import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
-import { Divider } from "@mui/material";
+import { Divider, Fab, Tooltip } from "@mui/material";
+import ChatForm from "../Chatbot/chatbot";
+import UpdateProfile from "../modals/updateProfile";
+import CookieBanner from "./cookiesBanner";
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -33,7 +40,7 @@ export default function Header() {
   const positions = useSelector((state) => state?.position?.value);
   const isLoggedIn = useSelector((state) => state.login?.value);
   const userData = useSelector((state) => state?.user?.value);
-  const loaderState = useSelector((state) => state?.loader?.value);
+  // const loaderState = useSelector((state) => state?.loader?.value);
   const notifications = useSelector((state) => state?.notification?.value);
   const cartCounts = useSelector((state) => state?.saved?.value);
   const userLang = useSelector((state) => state?.lang?.value);
@@ -41,16 +48,88 @@ export default function Header() {
   const modals = useSelector((state) => state?.signupInModal?.value);
   const clientType = localStorage.getItem("client_type");
   const [activeDropDown, setActiveDropDown] = useState("");
+  // const [showFloatingForm, setShowFloatingForm] = useState(false)
   // eslint-disable-next-line no-unused-vars
   const [showModal, setShowModal] = useState(false);
-  // const saved = useSelector((state) => state?.saved?.value);
+  const [productClicked, setProductclicked] = useState(false);
+  const [bundleClicked, setBundleClicked] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [bottomOfferDisplay, setBottomOfferDisplay] = useState("block");
+  const [showOffer, setShowOffer] = useState(false);
+  const [cookieResponse, setCookieResponse] = useState(false);
 
   const { t } = useTranslation();
   const location = useLocation();
 
   const [toggleNavbar, setToggleNavbar] = useState(false);
-  const [greetUser, setGreetUser] = useState("Good Morning")
-  useEffect(()=>{
+  const [greetUser, setGreetUser] = useState("Good Morning");
+
+  useEffect(() => {
+    if (
+      userData?.client?.id !== undefined &&
+      userData?.client?.first_name == null
+    ) {
+      setShowNameModal(true);
+    } else {
+      setShowNameModal(false);
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    dispatch(showLoader())
+    try{
+    const offerPhone = sessionStorage.getItem("offerPhone");
+    const phone = userData?.client?.phone;
+    const email = localStorage.getItem("offerEmail")
+    console.log(phone, userData, "off--");
+    // const expiry = sessionStorage.getItem("expiry");
+    if (isLoggedIn == false) {
+      console.log(offerPhone, "off--");
+      if (offerPhone != undefined || offerPhone != null) {
+        console.log("inside, off--");
+        setShowOffer(false);
+        console.log("emmmmm")
+        setBottomOfferDisplay("none");
+      } else {
+        setShowOffer(true);
+        console.log("emmmmm")
+      }
+    } else if (isLoggedIn == true && userData?.client?.email != undefined) {
+      if (email == userData?.client?.email) {
+        setShowOffer(false)
+        console.log(email,userData?.client?.email,email == userData?.client?.email,"emmmmm")
+        // if (moment(expiry) > Date.now()) {
+        //   setShowOffer(false);
+        //   setBottomOfferDisplay("none");
+        // } else {
+        //   setShowOffer(true);
+        // }
+      }
+    }
+  }catch(err){
+    console.log(err)
+  }finally{
+    dispatch(hideLoader())
+  }
+    
+  }, [isLoggedIn, userData]);
+
+  // useEffect(() => {
+  //   const offerPhone = sessionStorage.getItem("offerPhone");
+  //   const phone = userData?.client?.phone;
+  //   console.log(phone, userData, "off--");
+  //   if (isLoggedIn == false) {
+  //     console.log(offerPhone, "off--");
+  //     if (offerPhone != undefined || offerPhone != null) {
+  //       console.log("inside, off--");
+  //       setShowOffer(false);
+  //     } else {
+  //       setShowOffer(true);
+  //     }
+  //   }
+  // }, []);
+
+  useEffect(() => {
     function updateGreeting() {
       var currentTime = new Date();
       var currentHour = currentTime.getHours();
@@ -65,13 +144,11 @@ export default function Header() {
       } else {
         greeting = "Good Night";
       }
-      return greeting
+      return greeting;
     }
-      const greet = updateGreeting()
-      setGreetUser(greet)
-  },[])
-
-  console.log(notifications);
+    const greet = updateGreeting();
+    setGreetUser(greet);
+  }, []);
 
   const navigate = useNavigate();
 
@@ -89,7 +166,6 @@ export default function Header() {
       dispatch(userLanguage("/ms"));
     } else {
       dispatch(userLanguage(""));
-      
     }
   }, []);
 
@@ -109,7 +185,9 @@ export default function Header() {
     }
   }, [popup]);
 
-
+  const hideProfileModal = () => {
+    setShowNameModal(false);
+  };
 
   const getUserInfo = async () => {
     console.log(location.pathname.includes("/product-detail"));
@@ -142,6 +220,9 @@ export default function Header() {
           dispatch(updateUsers(response?.data?.data));
           dispatch(updateCart(response?.data?.data?.client?.cart));
           dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
+          dispatch(
+            updateWishListCount(response?.data?.data?.client?.wishlist_count)
+          );
         } else {
           console.log(response?.data);
           if (
@@ -149,10 +230,10 @@ export default function Header() {
             location.pathname.includes("/product-detail")
           ) {
             localStorage.removeItem("client_token");
+            sessionStorage.removeItem("offerPhone");
+            sessionStorage.removeItem("expiry");
             dispatch(logoutUser());
           } else {
-
-            
             dispatch(
               updateNotifications({
                 type: "warning",
@@ -174,6 +255,8 @@ export default function Header() {
           location.pathname.includes("/about")
         ) {
           localStorage.removeItem("client_token");
+          sessionStorage.removeItem("offerPhone");
+          sessionStorage.removeItem("expiry");
           dispatch(logoutUser());
         } else {
           dispatch(
@@ -186,7 +269,7 @@ export default function Header() {
       } finally {
         dispatch(hideLoader());
       }
-    }else{
+    } else {
       dispatch(
         usersignupinModal({
           showSignupModal: false,
@@ -194,38 +277,37 @@ export default function Header() {
           showforgotPasswordModal: false,
           showOtpModal: false,
           showNewPasswordModal: false,
-        }))
+        })
+      );
     }
   };
 
-  const showSignupPopup = async ()=>{
- if(window.location.pathname === "/"){
-    if(!localStorage.getItem("client_token")){
-      await dispatch(showPopup())
+  const showSignupPopup = async () => {
+    if (window.location.pathname === "/") {
+      dispatch(showPopup());
     }
-  }
-  }
+  };
   const memoizedFetchProducts = useMemo(() => {
     const fetchProducts = async () => {
       // Fetch the data from the API.
-      try{
-      const response = await axios.get(
-        "https://admin.tradingmaterials.com/api/get/products",
-        {
-          headers: {
-            "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-            Accept: "application/json",
-            "access-token": localStorage.getItem("client_token"),
-          },
-        }
-      );
-      dispatch(fetchAllProducts(response?.data?.data))
-      return response?.data?.data;
-      }catch(err){
-        console.log(err)
+      try {
+        const response = await axios.get(
+          "https://admin.tradingmaterials.com/api/get/products",
+          {
+            headers: {
+              "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+              Accept: "application/json",
+              "access-token": localStorage.getItem("client_token"),
+            },
+          }
+        );
+        dispatch(fetchAllProducts(response?.data?.data));
+        return response?.data?.data;
+      } catch (err) {
+        console.log(err);
       }
     };
-  
+
     return fetchProducts;
   }, []);
 
@@ -233,7 +315,6 @@ export default function Header() {
     const fetchProducts = memoizedFetchProducts;
     fetchProducts();
   }, []);
-
 
   useEffect(() => {
     // dispatch(showLoader());
@@ -245,16 +326,31 @@ export default function Header() {
     // }
   }, [isLoggedIn]);
 
-  useEffect(()=>{
-    if(!localStorage.getItem("client_token")){
-      setTimeout(()=>{
-        showSignupPopup()
-      },5000)
-      
+  useEffect(() => {
+    if (
+      !localStorage.getItem("client_token") &&
+      modals?.showLoginModal === false
+    ) {
+      console.log("closed", modals?.showLoginModal);
+      const timeOut = setTimeout(() => {
+        if (modals?.showLoginModal === false) {
+          if (!isLoggedIn) {
+            showSignupPopup();
+          }
+        }
+      }, 5000);
+      if (
+        modals?.showLoginModal ||
+        modals?.showSignupModal ||
+        modals?.showforgotPasswordModal
+      ) {
+        clearTimeout(timeOut);
+      }
+      return () => {
+        clearTimeout(timeOut);
+      };
     }
-  },[isLoggedIn])
-
-
+  }, [isLoggedIn, modals]);
 
   // useEffect(() => {
   //   getUserInfo();
@@ -286,10 +382,11 @@ export default function Header() {
       if (response?.status) {
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
+        sessionStorage.removeItem("offerPhone");
+        sessionStorage.removeItem("expiry");
         dispatch(updateNotifications({ type: "", message: "" }));
-        navigate(`${userLang}/`)
+        navigate(`${userLang}/`);
         window.location.reload();
-        
       }
     } catch (err) {
       console.log("err", err);
@@ -303,6 +400,10 @@ export default function Header() {
       showAlert();
     }
   }, [notifications]);
+
+  const handleUserResponse = () => {
+    setCookieResponse(true);
+  };
 
   const showAlert = () => {
     if (notifications?.type === "warning") {
@@ -367,11 +468,57 @@ export default function Header() {
 
   return (
     <>
-    {loaderState && (
+      {/* {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
         </div>
+      )} */}
+      {isLoggedIn === false && !sessionStorage.getItem("offerPhone") && (
+        <div className="block sm:!hidden">
+          <Tooltip title="Get 10% off on first purchase">
+            <Fab
+              className="!mt-16 !bg-white !drop-shadow-none  "
+              style={{ position: "fixed", right: "75px", bottom: "15px" }}
+              onClick={() => setBottomOfferDisplay("block")}
+            >
+              <img
+                className="!w-full"
+                src="/images/oneDayLeft.png"
+                alt="one-day-offer-icon"
+              />
+            </Fab>
+          </Tooltip>
+        </div>
       )}
+      {showNameModal && (
+        <UpdateProfile open={showNameModal} handleClose={hideProfileModal} />
+      )}
+      {!modals?.showSignupModal &&
+        !modals?.showLoginModal &&
+        !modals?.showforgotPasswordModal && (
+          <div
+            className=""
+            style={{
+              position: "fixed",
+              right: "75px",
+              bottom: "45px",
+              zIndex: "9999999",
+            }}
+          >
+            {showOffer && (
+              <div
+                className={`${
+                  bottomOfferDisplay == "none" ? "hidden" : "block"
+                }`}
+              >
+                {(showOffer && cookieResponse) ||
+                  (localStorage.getItem("cookieStatus") != undefined) && 
+                     <ChatForm hide={setBottomOfferDisplay} />
+                  }
+              </div>
+            )}
+          </div>
+        )}
       {modals?.showSignupModal === true && (
         <SignupModal
           show={modals?.showSignupModal}
@@ -396,9 +543,8 @@ export default function Header() {
         onHide={() => dispatch(hidePopup())}
         centered
         size="md"
-        style={{borderRadius:"0.75rem"}}
+        style={{ borderRadius: "0.75rem" }}
         className="offer"
-        
       >
         {/* <Modal.Header className="!text-center w-full !text-white !font-bold text-2xl bg-[#8fd499] !fill-white-500 p-[8px]">
           Sign Up for Special Offer
@@ -406,91 +552,68 @@ export default function Header() {
             <CloseIcon className="!font-bold !text-4xl" />
           </div>
         </Modal.Header> */}
-        <Modal.Body className="p-0 !rounded-xl bg-[#8fd499]" style={{borderRadius:"0.75rem", paddingLeft:"30px !important", paddingTop:"9px !important"}}>
-          <div id="popup" className="!rounded-lg  !pl-5 !pt-5" style={{borderRadius:"0.75rem", paddingLeft:"30px !important", paddingTop:"9px !important", background:"linear-gradient(135deg, #227d22, lightgreen)"}}>
-          <div className="d-flex items-center ">
-          <h3
-                  className="!font-bold text-white text-left pl-3 pt-3 w-[50%]"
+        <Modal.Body
+          className="p-0 !rounded-xl "
+          style={{
+            borderRadius: "0.75rem",
+            paddingLeft: "30px !important",
+            paddingTop: "9px !important",
+          }}
+        >
+          <div
+            id="popup"
+            className="!rounded-l"
+            style={{
+              borderRadius: "0.75rem",
+              paddingLeft: "30px !important",
+              paddingTop: "9px !important",
+            }}
+          >
+            <div className="flex !shadow-xl">
+              <div
+                className="d-flex drop-shadow-lg shadow-lg flex-col w-[50%] items-center justify-center"
+                style={{
+                  background: "linear-gradient(45deg, #5582bf, transparent)",
+                }}
+              >
+                <div className="absolute"></div>
+                <h3
+                  className="!font-bold text-black text-left pl-3 pt-3 "
                   style={{ fontSize: "25px", height: "100%" }}
                 >
                   Get 10% off Now
                 </h3>
+                <div className="popup-img  !text-left">
+                  <img src="/images/offer-nobg.png" alt="offer-img" />
+                </div>
+                <div
+                  className="offer-tex  p-0 pb-2 flex items-center justify-center  rounded-xl"
+                  style={{ textAlign: "left !important" }}
+                >
+                  <div className=" !text-center">
+                    <h3 className="!font-bold text-black text-2xl text-left  ">
+                      on First Order
+                    </h3>
+                  </div>
+                </div>
+              </div>
+              <div className=" d-flex flex-col drop-shadow-xl w-[40%] items-center !justify-center  rounded-xl" onMouseOver={()=>{console.log("mouse..")}}>
                 <div className="d-flex items-center justify-center w-[50%]">
-                <img className="" src="/images/oneDayLeft.png" width={"50%"} alt="oneDayleft_png"></img>
+                  <img
+                    className=""
+                    src="/images/oneDayLeft.png"
+                    alt="oneDayleft_png"
+                  ></img>
                 </div>
-          </div>
-            <div className=" d-flex items-center !justify-center  rounded-xl">
-              <div className="popup-img  !text-left">
-                <img src="/images/offer-nobg.png" alt="offer-img" />
-                
+
+                <div className="tb-space d-flex justify-center  mt-[22px] w-full ">
+                  <div className="!inline ">
+                    <div></div>
+                    <Offer />
+                  </div>
+                </div>
               </div>
-
-              <div className="tb-space d-flex justify-center  mt-[22px] w-full ">
-                <div className="!inline ">
-                  <div></div>
-                <Offer/>
-                {/* <div className="">
-        <button
-                    type="button "
-                    className="ss4-button-2  !p-2  "
-                    // onClick={() => {
-                    //   setShowModal(true);
-                    //   dispatch(
-                    //     usersignupinModal({
-                    //       showSignupModal: true,
-                    //       showLoginModal: false,
-                    //     })
-                    //   );
-                    //   dispatch(hidePopup());
-                    // }}
-                  >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    Claim Your Offer
-                  </button>
-                  </div> */}
-                </div>
-
-                
-                </div>
-                
-                
-
-
-              
             </div>
-            <div className="offer-tex  p-0 pb-2 flex items-center justify-center  rounded-xl" style={{textAlign:"left !important"}}>
-              <div className="w-[50%] !text-center">
-                <h3 className="!font-bold text-white text-2xl text-left pl-3 ">on First Order</h3>
-                
-                </div>
-                <div className="!w-[50%]"></div>
-                {/* <div className="!w-[50%] flex ">
-                <button
-                    type="button "
-                    className="ss4-button-2  !p-2 "
-                    onClick={() => {
-                      setShowModal(true);
-                      dispatch(
-                        usersignupinModal({
-                          showSignupModal: true,
-                          showLoginModal: false,
-                        })
-                      );
-                      dispatch(hidePopup());
-                    }}
-                  >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    Claim Offer Code
-                  </button>
-                </div> */}
-              </div>
-            
           </div>
         </Modal.Body>
       </Modal>
@@ -538,7 +661,9 @@ export default function Header() {
                   </div>
                   {toggleNavbar && (
                     <div
-                      className={`${toggleNavbar ? "navbar-overlay h-[100vh]":""}`}
+                      className={`${
+                        toggleNavbar ? "navbar-overlay h-[100vh]" : ""
+                      }`}
                       onClick={() => {
                         setToggleNavbar(false);
                       }}
@@ -561,135 +686,150 @@ export default function Header() {
                             <span className="nk-nav-text">{t("About_Us")}</span>
                           </a>
                         </li>
-                        <li className="nk-nav-item has-sub ">
+                        <li
+                          className="nk-nav-item has-sub "
+                          onMouseEnter={() => {
+                            setProductclicked(false);
+                          }}
+                        >
                           <a
                             className="nk-nav-link nk-nav-toggle cursor-pointer"
-                            onClick={() =>
+                            onClick={() => {
                               activeDropDown === "trading"
                                 ? setActiveDropDown("")
-                                : setActiveDropDown("trading")
-                            }
+                                : setActiveDropDown("trading");
+                              setProductclicked(false);
+                            }}
                           >
                             <span className="nk-nav-text">
                               {t("Trading_Materials")}
                             </span>
                           </a>
                           <ul
-                            className={`nk-nav-sub ${
-                              activeDropDown === "trading" ? "!block" : ""
+                            className={`nk-nav-sub opacity-100 hover:visible
+                            ${productClicked ? "opacity-0 invisible " : ""}
+                            ${
+                              activeDropDown === "trading" ? "!block " : ""
                             }  nk-nav-mega nk-nav-mega-lg  nk-nav-mega-lg-home`}
                           >
                             <li className="nk-nav-item">
                               <ul className="row mx-auto">
-                                {products?.sub_categories?.map(
-                                  (product) => (
-                                    <>
-                                      {product?.combo == 0 && (
-                                        <>
-                                          <li className="col-lg-6 col-xl-4 p-0 cursor-pointer">
-                                            <a
-                                              onClick={() => {
-                                                dispatch(
-                                                  productsSubId({
-                                                    id: product?.id,
-                                                    name: product?.name,
-                                                    type: "single",
-                                                  })
-                                                );
-                                                navigate(
-                                                  `${userLang}/#products`
-                                                );
-                                              }}
-                                              className="nk-nav-link "
-                                            >
-                                              <div className="media-group">
-                                                <div className="text-primary me-3">
-                                                  <ArrowForwardIcon
-                                                    style={{ fontSize: "18px" }}
-                                                  />
-                                                </div>
-                                                <div className="media-text d-flex align-items-center sm">
-                                                  <h2 className="lead-text fs-14 text-capitalize m-0 !font-bold">
-                                                    {product?.name}
-                                                  </h2>
-                                                </div>
-                                              </div>
-                                            </a>
-                                          </li>
-                                        </>
-                                      )}
-                                    </>
-                                  )
-                                )}
-                              </ul>
-                            </li>
-                          </ul>
-                        </li>
-                        <li className="nk-nav-item has-sub">
-                          <a
-                            className="nk-nav-link nk-nav-toggle cursor-pointer"
-                            onClick={() =>
-                              activeDropDown === "bundle"
-                                ? setActiveDropDown("")
-                                : setActiveDropDown("bundle")
-                            }
-                          >
-                            <span className="nk-nav-text">{t("Bundles")}</span>
-                          </a>
-                          <ul
-                            className={`nk-nav-sub cursor-pointer ${
-                              activeDropDown === "bundle" ? "!block " : ""
-                            } nk-nav-mega  nk-nav-mega nk-nav-mega-home`}
-                          >
-                            <li className="nk-nav-item col-lg-8">
-                              <ul className="row px-3 px-lg-0 mx-auto">
-                                {products?.sub_categories?.map(
-                                  (product) => (
-                                    <>
-                                      {product?.combo == 1 && (
-                                        <>
-                                          <li className="col-lg-12 col-xl-12 p-0">
-                                            <a
-                                              // href = {`${userLang}/#bundles`}
-                                              onClick={() => {
-                                                dispatch(
-                                                  productsSubId({
-                                                    id: product?.id,
-                                                    name: product?.name,
-                                                    type: "combo",
-                                                  })
-                                                );
-                                                navigate(
-                                                  `${userLang}/#bundles`
-                                                );
-                                              }}
-                                              className="nk-nav-link "
-                                            >
+                                {products?.sub_categories?.map((product) => (
+                                  <>
+                                    {product?.combo == 0 && (
+                                      <>
+                                        <li className="col-lg-6 col-xl-4 p-0 cursor-pointer">
+                                          <a
+                                            onClick={() => {
+                                              dispatch(
+                                                productsSubId({
+                                                  id: product?.id,
+                                                  name: product?.name,
+                                                  type: "single",
+                                                })
+                                              );
+                                              navigate(`${userLang}/#products`);
+                                              setProductclicked(true);
+                                              setToggleNavbar(false);
+                                              setActiveDropDown("");
+                                            }}
+                                            className="nk-nav-link "
+                                          >
+                                            <div className="media-group">
                                               <div className="text-primary me-3">
                                                 <ArrowForwardIcon
                                                   style={{ fontSize: "18px" }}
                                                 />
                                               </div>
-                                              {product?.name}
-                                            </a>
-                                          </li>
-                                        </>
-                                      )}
-                                    </>
-                                  )
-                                )}
+                                              <div className="media-text d-flex align-items-center sm">
+                                                <h2 className="lead-text fs-14 text-capitalize m-0 !font-bold">
+                                                  {product?.name}
+                                                </h2>
+                                              </div>
+                                            </div>
+                                          </a>
+                                        </li>
+                                      </>
+                                    )}
+                                  </>
+                                ))}
+                              </ul>
+                            </li>
+                          </ul>
+                        </li>
+                        <li
+                          className="nk-nav-item has-sub"
+                          onMouseEnter={() => {
+                            setBundleClicked(false);
+                          }}
+                        >
+                          <a
+                            className="nk-nav-link nk-nav-toggle cursor-pointer"
+                            onClick={() => {
+                              activeDropDown === "bundle"
+                                ? setActiveDropDown("")
+                                : setActiveDropDown("bundle");
+                              setBundleClicked(false);
+                            }}
+                          >
+                            <span className="nk-nav-text">{t("Bundles")}</span>
+                          </a>
+                          <ul
+                            className={`
+                             nk-nav-sub  cursor-pointer opacity-100 hover:visible 
+                             ${bundleClicked ? "opacity-0 invisible " : ""}
+                            ${
+                              activeDropDown === "bundle" ? "!block " : ""
+                            } nk-nav-mega  nk-nav-mega nk-nav-mega-home`}
+                          >
+                            <li className="nk-nav-item col-lg-8">
+                              <ul className="row px-3 px-lg-0 mx-auto">
+                                {products?.sub_categories?.map((product) => (
+                                  <>
+                                    {product?.combo == 1 && (
+                                      <>
+                                        <li className="col-lg-12 col-xl-12 p-0">
+                                          <a
+                                            // href = {`${userLang}/#bundles`}
+                                            onClick={() => {
+                                              dispatch(
+                                                productsSubId({
+                                                  id: product?.id,
+                                                  name: product?.name,
+                                                  type: "combo",
+                                                })
+                                              );
+                                              navigate(`${userLang}/#bundles`);
+                                              setBundleClicked(true);
+                                              setToggleNavbar(false);
+                                              setActiveDropDown("");
+                                            }}
+                                            className="nk-nav-link "
+                                          >
+                                            <div className="text-primary me-3">
+                                              <ArrowForwardIcon
+                                                style={{ fontSize: "18px" }}
+                                              />
+                                            </div>
+                                            {product?.name}
+                                          </a>
+                                        </li>
+                                      </>
+                                    )}
+                                  </>
+                                ))}
                               </ul>
                             </li>
                           </ul>
                         </li>
 
-                        <li className="nk-nav-item">
+                        {/* <li className="nk-nav-item">
                           <a href={`${userLang}/#`} className="nk-nav-link">
                             <span className="nk-nav-text">
                               {t("Order_Tracking")}
                             </span>
                           </a>
-                        </li>
+                        </li> */}
                         <li className="nk-nav-item">
                           <a
                             href={`${userLang}/contact`}
@@ -700,65 +840,66 @@ export default function Header() {
                             </span>
                           </a>
                         </li>
-                         
+
                         {isLoggedIn && (
                           <li className="nk-nav-item has-sub">
-                            <Divider orientation="vertical"/>
+                            <Divider orientation="vertical" />
                             <div className="text-left nk-nav-item  !block has-sub ">
-                              <p className="nk-nav-link pb-0  pt-0 !text-xs">{greetUser}</p>
-                            
-                            <a
-                              className="nk-nav-link nk-nav-toggle cursor-pointer pt-0 pb-0 !text-blue-900"
-                              style={{width:"1px"}}
-                              onClick={() =>
-                                activeDropDown === "profile"
-                                  ? setActiveDropDown("")
-                                  : setActiveDropDown("profile")
-                              }
-                            >
-                              
-                              <span className="nk-nav-text capitalize  !text-sm">
-                                {userData?.client?.first_name}
-                              </span>
-                            </a>
-                            <ul
-                              className={`nk-nav-sub  ${
-                                activeDropDown === "profile" ? "!block" : ""
-                              } `}
-                            >
-                              <li className="nk-nav-item col-lg-12">
-                                <ul className="row px-3 px-lg-0 mx-auto">
-                                  <li className="col-lg-12 p-0">
-                                    <a
-                                      href={`${
-                                        clientType === "lead"
-                                          ? "/profile?"
-                                          : "https://client.tradingmaterials.com/"
-                                      }`}
-                                      className="nk-nav-link"
-                                    >
-                                      Profile
-                                    </a>
-                                  </li>
-                                  <li className="col-lg-12 p-0">
-                                    <a
-                                      href={`${userLang}/`}
-                                      className="nk-nav-link"
-                                    >
-                                      inbox
-                                    </a>
-                                  </li>
-                                  <li className="col-lg-12 p-0">
-                                    <a
-                                      className="nk-nav-link cursor-pointer"
-                                      onClick={handleLogout}
-                                    >
-                                      logout
-                                    </a>
-                                  </li>
-                                </ul>
-                              </li>
-                            </ul>
+                              <p className="nk-nav-link pb-0  pt-0 !text-xs">
+                                {greetUser}
+                              </p>
+
+                              <a
+                                className="nk-nav-link nk-nav-toggle cursor-pointer pt-0 pb-0 !text-blue-900"
+                                style={{ width: "1px" }}
+                                onClick={() =>
+                                  activeDropDown === "profile"
+                                    ? setActiveDropDown("")
+                                    : setActiveDropDown("profile")
+                                }
+                              >
+                                <span className="nk-nav-text capitalize  !text-sm">
+                                  {userData?.client?.first_name}
+                                </span>
+                              </a>
+                              <ul
+                                className={`nk-nav-sub  ${
+                                  activeDropDown === "profile" ? "!block" : ""
+                                } `}
+                              >
+                                <li className="nk-nav-item col-lg-12">
+                                  <ul className="row px-3 px-lg-0 mx-auto">
+                                    <li className="col-lg-12 p-0">
+                                      <a
+                                        href={`${
+                                          clientType === "lead"
+                                            ? "/profile?"
+                                            : "https://client.tradingmaterials.com/"
+                                        }`}
+                                        className="nk-nav-link"
+                                      >
+                                        Profile
+                                      </a>
+                                    </li>
+                                    <li className="col-lg-12 p-0">
+                                      <a
+                                        href={`${userLang}/`}
+                                        className="nk-nav-link"
+                                      >
+                                        inbox
+                                      </a>
+                                    </li>
+                                    <li className="col-lg-12 p-0">
+                                      <a
+                                        className="nk-nav-link cursor-pointer"
+                                        onClick={handleLogout}
+                                      >
+                                        logout
+                                      </a>
+                                    </li>
+                                  </ul>
+                                </li>
+                              </ul>
                             </div>
                           </li>
                         )}
@@ -766,7 +907,7 @@ export default function Header() {
                         {!isLoggedIn && (
                           <li className="flex items-center cursor-pointer">
                             <a
-                              onClick={() =>
+                              onClick={() => {
                                 dispatch(
                                   usersignupinModal({
                                     showSignupModal: false,
@@ -775,8 +916,8 @@ export default function Header() {
                                     showOtpModal: false,
                                     showNewPasswordModal: false,
                                   })
-                                )
-                              }
+                                );
+                              }}
                             >
                               <span className="nk-nav-text nk-nav-link">
                                 Login
@@ -836,6 +977,11 @@ export default function Header() {
                           onClick={() => {
                             if (isLoggedIn) {
                               navigate(`${userLang}/profile?wishlist`);
+                              if (
+                                window.location.pathname?.includes("/profile")
+                              ) {
+                                window.location.reload();
+                              }
                             } else {
                               dispatch(
                                 usersignupinModal({
@@ -844,7 +990,8 @@ export default function Header() {
                                   showforgotPasswordModal: false,
                                   showOtpModal: false,
                                   showNewPasswordModal: false,
-                                }))
+                                })
+                              );
                             }
                           }}
                           type="button"
@@ -876,9 +1023,7 @@ export default function Header() {
                           </svg>
                           <span className="sr-only">Notifications</span>
                           <div className="absolute inline-flex items-center justify-center w-6 h-6 !text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -right-3 dark:border-gray-900">
-                            {userData?.client?.wishlist_count
-                              ? userData?.client?.wishlist_count
-                              : 0}
+                            {cartCounts?.wishLishCount}
                           </div>
                         </button>
                       </li>
@@ -898,7 +1043,8 @@ export default function Header() {
                                   showforgotPasswordModal: false,
                                   showOtpModal: false,
                                   showNewPasswordModal: false,
-                                }))
+                                })
+                              );
                             }
                           }}
                         >
@@ -965,7 +1111,18 @@ export default function Header() {
             </div>
           </header>
         )}
-
+      <div className="container" style={{ "--bs-gutter-x": "0" }}>
+        {localStorage.getItem("cookieStatus") == "true" ? (
+          <></>
+        ) : (localStorage.getItem("cookieStatus") == "false" &&
+            moment(localStorage.getItem("cookieDeclienedTime"))?._i <
+              moment(new Date().toLocaleDateString())?._i) ||
+          localStorage.getItem("cookieStatus") == undefined ? (
+          <CookieBanner storeResponse={handleUserResponse} />
+        ) : (
+          <></>
+        )}
+      </div>
     </>
   );
 }

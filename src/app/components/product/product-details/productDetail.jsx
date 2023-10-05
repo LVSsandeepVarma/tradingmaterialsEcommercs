@@ -12,7 +12,7 @@ import Header from "../../header/header";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchAllProducts } from "../../../../features/products/productsSlice";
-import GitHubForkRibbon from 'react-github-fork-ribbon';
+// import GitHubForkRibbon from 'react-github-fork-ribbon';
 import { updateUsers } from "../../../../features/users/userSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
 // import {
@@ -47,6 +47,7 @@ export default function ProductDetails() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const products = useSelector((state) => state?.products?.value);
+  const userData = useSelector((state)=> state?.user?.value)
   const cartProducts = useSelector((state) => state?.cart?.value);
   const clientType = useSelector((state) => state?.clientType?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
@@ -66,6 +67,7 @@ export default function ProductDetails() {
   const [addedToFavImg, setAddedToFavImg] = useState("")
   const [showFavModal, setShowFavModal] = useState(false)
   const [modalMessage, setModalMessage] = useState("")
+  const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false)
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
@@ -90,6 +92,8 @@ export default function ProductDetails() {
 
   const getUserInfo = async () => {
     try {
+      // setShowWishlistRemoveMsg(false)
+      dispatch(showLoader());
       const url =
         clientType === "client"
           ? "https://admin.tradingmaterials.com/api/get-user-info"
@@ -111,14 +115,20 @@ export default function ProductDetails() {
 
       const response = await axios.get(url, headerData);
       if (response?.data?.status) {
-        console.log(response?.data);
+        console.log(response?.data, "prest");
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
+        dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
+        dispatch(
+          updateWishListCount(response?.data?.data?.client?.wishlist_count)
+        );
       } else {
         console.log(response?.data);
 
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
+        sessionStorage.removeItem("offerPhone")
+            sessionStorage.removeItem("expiry")
       }
     } catch (err) {
       console.log(err);
@@ -215,15 +225,14 @@ export default function ProductDetails() {
 
   // function for handling add to cart animation
   async function handleAddToCart(productId, productImg) {
-    // setAnimateProductId(productId)
     try {
-      // dispatch(showLoader());
-      setAnimateProductId(productId);
+      // setAnimateProductId(productId);
+      dispatch(showLoader());
       const response = await axios?.post(
         "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
         {
           product_id: productId,
-          qty: qunatity,
+          qty: 1,
         },
         {
           headers: {
@@ -235,16 +244,33 @@ export default function ProductDetails() {
         setAddedToFavImg(productImg)
         setShowFavModal(true)
         setModalMessage("Added to your cart successfully")
+       
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
-        getUserInfo();
+        getUserInfo()
+        if (userData.client?.wishlist?.length > 0) {
+          const ids = userData?.client?.wishlist?.map(
+            (item) => item?.product_id
+          );
+          const isPresent = ids?.includes(parseInt(productId));
+          console.log(isPresent, ids, parseInt(productId), "prest");
+          if (isPresent) {
+            // dispatch(updateWishListCount(userData?.client?.wishlist_count))/
+            setShowWishlistRemoveMsg(true);
+          } else {
+            setShowWishlistRemoveMsg(false);
+          }
+        } else {
+          setShowWishlistRemoveMsg(false);
+        }
+        
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      dispatch(hideLoader());
+      setAnimateProductId("");
     }
-    // finally {
-    // dispatch(hideLoader());
-    // }
   }
 
   async function handleAddToWishList(id, productImg) {
@@ -289,6 +315,55 @@ export default function ProductDetails() {
     } finally {
       dispatch(hideLoader());
     }
+  }
+
+  function handleBuyNow(id, img){
+    async function handleAddToCartFromBuyNow(productId, productImg) {
+      try {
+        // setAnimateProductId(productId);
+        dispatch(showLoader());
+        const response = await axios?.post(
+          "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+          {
+            product_id: productId,
+            qty: 1,
+          },
+          {
+            headers: {
+              "access-token": localStorage.getItem("client_token"),
+            },
+          }
+        );
+        if (response?.data?.status) {
+          setAddedToFavImg(productImg)
+          setShowFavModal(true)
+          setModalMessage("Added to your cart successfully")
+          navigate("/cart")
+         
+          dispatch(updateCart(response?.data?.data?.cart_details));
+          dispatch(updateCartCount(response?.data?.data?.cart_count));
+          if(userData?.client?.wishlist?.length >0){
+            const ids = userData?.client?.wishlist?.map(item =>item?.product_id)
+            const isPresent = ids?.includes(productId)
+            console.log(isPresent,ids,productId,"prest")
+            if(isPresent){
+              dispatch(updateWishListCount(userData?.client?.wishlist?.length -1))
+              setShowWishlistRemoveMsg(true)
+            }else{
+              setShowWishlistRemoveMsg(false)
+            }
+          }
+          
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        dispatch(hideLoader());
+        setAnimateProductId("");
+      }
+    }
+
+    handleAddToCartFromBuyNow(id, img);
   }
 
   // function to close review Dialog
@@ -350,6 +425,7 @@ export default function ProductDetails() {
   return (
     <>
       <Helmet data-react-helmet="true">
+        <title>{`Trading Materials-${product?.product?.name}`}</title>
         <meta
           name="image"
           property="og:image"
@@ -395,8 +471,7 @@ export default function ProductDetails() {
       )}
 
 {addedToFavImg!== "" && 
-        <AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} />
-      }
+<AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} showWishlistRemove = {showWishlistRemoveMsg} />      }
 
       <div className="nk-body">
         <div className="nk-body-root">
@@ -921,7 +996,19 @@ export default function ProductDetails() {
                           </p> */}
                           <ul className="d-flex align-items-center gap-2">
                             <li>
-                              <button className="btn btn-primary">
+                              <button className="btn btn-primary" onClick={() => {
+                                  return isLoggedIn
+                                    ? handleBuyNow(product?.product_id, product?.product?.img_1)
+
+                                    :  dispatch(
+                                      usersignupinModal({
+                                        showSignupModal: false,
+                                        showLoginModal: true,
+                                        showforgotPasswordModal: false,
+                                        showOtpModal: false,
+                                        showNewPasswordModal: false,
+                                      }))
+                                }}>
                                 Buy Now
                               </button>
                             </li>
@@ -1317,8 +1404,8 @@ export default function ProductDetails() {
                           <div
                           key={_indx}
                             className="col-xl-4 col-lg-4 col-md-6 group hover:drop-shadow-xl"
-                            // data-aos="fade-up"
-                            // data-aos-delay="100"
+                            data-aos="fade-up"
+                            data-aos-delay="100"
                           >
                             <div className="nk-card overflow-hidden rounded-3 border h-100">
                             <div className="nk-card-img relative">
@@ -1339,13 +1426,13 @@ export default function ProductDetails() {
                                     className="w-100 group-hover:scale-105 transition duration-500"
                                     // loading="lazy"
                                   />
-                                  {product?.stock?.stock <10 && <GitHubForkRibbon
+                                  {/* {product?.stock?.stock <10 && <GitHubForkRibbon
                                             className="drop-shadow-xl subpixel-antialiased"
                                             color="orange"
                                             position="left"
                                           >
                                             Only {product?.stock?.stock} left !!
-                                          </GitHubForkRibbon>}
+                                          </GitHubForkRibbon>} */}
                                 </a>
                               </div>
                               <div className="nk-card-info bg-white p-4">
@@ -1817,8 +1904,8 @@ export default function ProductDetails() {
               <div className="container">
                 <div
                   className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
-                  // data-aos="fade-up"
-                  // data-aos-delay="100"
+                  data-aos="fade-up"
+                  data-aos-delay="100"
                 >
                   <div className="row g-gs align-items-center">
                     <div className="col-lg-8">

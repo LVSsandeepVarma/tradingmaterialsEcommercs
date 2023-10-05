@@ -29,12 +29,10 @@ const LoginModal = ({ show, onHide }) => {
   const [localLoader, setLocalLoader] = useState(false);
   const [apiError, setApiError] = useState([]);
   const [loginSuccessMsg, setLoginsuccessMsg] = useState("");
-  const loginStatus = useSelector((state) => state?.login?.value);
   // const loaderState = useSelector((state) => state.loader?.value);
   const [showPassword, setShowPassword] = useState(false);
   const [saveCredentials, setSavecredentials] = useState(false);
 
-  console.log(loginStatus);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -60,7 +58,7 @@ const LoginModal = ({ show, onHide }) => {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -142,7 +140,7 @@ const LoginModal = ({ show, onHide }) => {
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
           if (response?.data?.type === "client") {
-            window.open (`https://client.tradingmaterials.com/auto-login/${localStorage.getItem("client_token")}, "_blank"`);
+            window.open (`https://client.tradingmaterials.com/auto-login/${localStorage.getItem("client_token")}`, "_blank");
           } else {
             console.log(window.location.pathname)
             if(window.location.pathname.includes("orders")){
@@ -231,7 +229,7 @@ const LoginModal = ({ show, onHide }) => {
             style={{
               border: 0,
             }}
-            // data-aos="fade-up"
+            data-aos="fade-up"
           >
             <div className="account-steps">
               <div className="step"></div>
@@ -379,8 +377,8 @@ const LoginModal = ({ show, onHide }) => {
                       <div className="terms-tex mt-2 text-lg">
                         <p>
                           By signing up, you agree to the <br></br>{" "}
-                          <a href="/terms">Terms of Service</a> and{" "}
-                          <a href="/privacy">Privacy Policy</a>.{" "}
+                          <a href="/terms-and-conditions">Terms of Service</a> and{" "}
+                          <a href="/privacy-policy">Privacy Policy</a>.{" "}
                         </p>
                       </div>{" "}
                       {loginSuccessMsg && (
@@ -394,7 +392,6 @@ const LoginModal = ({ show, onHide }) => {
                           </p>
                         </Alert>
                       )}
-                      {console.log(apiError, "err")}
                       {apiError?.length > 0 &&
                         apiError?.map((err, ind) => {
                           return (

@@ -8,12 +8,12 @@ import { useDispatch } from "react-redux";
 import { updateaddressStatus } from "../../../features/address/addressSlice";
 
 const AddressSchema = Yup.object().shape({
-  city: Yup.string().matches( /^[A-Za-z ]+$/, "Invalid City").required("City is required"),
-  state: Yup.string().matches( /^[A-Za-z ]+$/, "Invalid State").required("State is required"),
-  country: Yup.string().matches( /^[A-Za-z ]+$/ , "Invalid Country").required("Country is required"),
-  add_1: Yup.string().required("Street Address 1 is required"),
+  city: Yup.string().matches( /^[A-Za-z& ]{3,100}$/, "Invalid City").required("City is required"),
+  state: Yup.string().matches( /^[A-Za-z& ]{3,100}$/, "Invalid State").required("State is required"),
+  country: Yup.string().matches( /^[A-Za-z ]{3,100}$/ , "Invalid Country").required("Country is required"),
+  add_1: Yup.string().matches(/^.{10,200}$/, "Min 10 and max 200 are allowed").required("Street Address 1 is required"),
   add_2: Yup.string(),
-  zip: Yup.string().matches(/^[0-9]{6}$|^[0-9]{3}\s[0-9]{3}$/, 'Invalid format').required("Zipcode is required"),
+  zip: Yup.string().matches(/^[0-9]{5,10}$|^[0-9]{3}\s[0-9]{3}$/, 'Invalid format').required("Postal Code is required"),
 });
 
 
@@ -21,8 +21,8 @@ const AddressSchema = Yup.object().shape({
 const AddressForm = ({ type, data, closeModal }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
+
   const dispatch = useDispatch();
-  console.log(type, data);
 
   function generateRandomTwoDigitNumber() {
     return Math.floor(Math.random() * 90) + 10; // Generates a random number between 10 and 99 (inclusive)
@@ -71,7 +71,6 @@ const AddressForm = ({ type, data, closeModal }) => {
       }
     } catch (err) {
       setIsFailure(true);
-      console.log(err, "error");
     }
 
     setTimeout(() => {
@@ -229,7 +228,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                     type="text"
                     name="country"
                     className="form-control"
-                    placeholder="United States (US)"
+                    placeholder="Country"
                     disabled 
                     
 
@@ -237,7 +236,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   type="text"
                   name="country"
                   className="form-control"
-                  placeholder="United States (US)"
+                  placeholder="Country"
                 />}
                   <ErrorMessage
                     name="country"
@@ -247,19 +246,19 @@ const AddressForm = ({ type, data, closeModal }) => {
                 </div>
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="zip">
-                    Postcode Zip
+                    Postalcode
                   </label>
                   {type==="view" ? <Field
                     type="text"
                     name="zip"
                     className="form-control"
-                    placeholder="postal zip"
+                    placeholder="Postal code"
                     disabled
                   /> :  <Field
-                  type="text"
+                  type="number"
                   name="zip"
                   className="form-control"
-                  placeholder="postal zip"
+                  placeholder="Postal code"
                 />}
                   <ErrorMessage
                     name="zip"

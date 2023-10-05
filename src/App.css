@@ -560,6 +560,7 @@ td span {
   padding: 0.3rem !important;
 }
 
+
 .swalLink a ::before {
   box-shadow: none !important;
   outline: none !important;
@@ -1028,4 +1029,59 @@ td span {
 
 .css-1ontqvh {
   padding-bottom: 0px !important;
+}
+
+
+.css-zw3mfo-MuiModal-root-MuiDialog-root{
+  z-index: 9999999 !important;
+}
+
+@media (max-width: 414px){
+  .modal {
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    transform: none;
+    display: flex;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+}
+
+
+.order .modal-content {
+  border-radius: 0px;
+  /* background: linear-gradient(45deg, #c0d2f3, #fff); */
+
+  background: linear-gradient(45deg, #c2c7fa, #fff);
+}
+
+.outer .offer-bottom-right{
+  z-index: 9999;
+    right: -86px;
+    top: 30px;
+    font-size: larger;
+}
+
+@media only screen and (max-width : 540px){
+  .outer .offer-bottom-right{
+    top: 0;
+    right: -250px
+  }
+}
+
+@media only screen and (max-width: 440px) {
+
+.outer .offer-bottom-right{
+  z-index:9999;
+   right:-195px;
+   top: auto;
+}
+}
+
+.swiper-pagination{
+  position:relative !important;
+  margin-top : 20px !important
 }

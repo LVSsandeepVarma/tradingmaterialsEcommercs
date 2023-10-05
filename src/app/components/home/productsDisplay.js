@@ -15,7 +15,7 @@ import {
   updateCartCount,
   updateWishListCount,
 } from "../../../features/cartWish/focusedCount";
-import GitHubForkRibbon from 'react-github-fork-ribbon';
+// import GitHubForkRibbon from "react-github-fork-ribbon";
 // import { showPopup } from "../../../features/popups/popusSlice";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation, Autoplay } from "swiper/modules";
@@ -23,14 +23,14 @@ import CryptoJS from "crypto-js";
 
 // Import Swiper styles
 import "swiper/css";
-import "swiper/css/pagination";
+import 'swiper/css/pagination';
 import "swiper/css/navigation";
 import { useTranslation } from "react-i18next";
-import { Box, Fab, Skeleton, Tooltip } from "@mui/material";
+import { Box, Skeleton } from "@mui/material";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
-import moment from "moment"
+import moment from "moment";
 // import FloatingForm from "../forms/floatingForm";
-import ChatForm from "../Chatbot/chatbot";
+// import ChatForm from "../Chatbot/chatbot";
 import AddToFav from "../modals/addToFav";
 import { FaRegHeart } from "react-icons/fa";
 export default function ProductsDisplay() {
@@ -44,7 +44,7 @@ export default function ProductsDisplay() {
   const subId = useSelector((state) => state?.subId?.value);
 
   // eslint-disable-next-line no-unused-vars
-  const [megaDealTime, setMegaDealTime] = useState("2023-09-12T00:00:00");
+  const [megaDealTime, setMegaDealTime] = useState("");
   const [singleProductsCount, setSingleProductsCount] = useState(0);
   // eslint-disable-next-line no-unused-vars
   const [bundleProductCount, setBundleProductCount] = useState(0);
@@ -62,10 +62,12 @@ export default function ProductsDisplay() {
   // eslint-disable-next-line no-unused-vars
   const [isNoProducts, setIsNoProducts] = useState(false);
   const [showPlaceHolderLoader, setShowPlaceHolderLoader] = useState(false);
-  const [showFloatingForm, setShowFloatingForm] = useState(false)
-  const [addedToFavImg, setAddedToFavImg] = useState("")
-  const [showModal, setShowModal] = useState(false)
-  const [modalMessage, setModalMessage] = useState("")
+  // const [showFloatingForm, setShowFloatingForm] = useState(false)
+  const [addedToFavImg, setAddedToFavImg] = useState("");
+  const [showMiniLoader, setShowMiniLoader] = useState(true)
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
 
   const [animateProductId, setAnimateProductId] = useState("");
   // eslint-disable-next-line no-unused-vars
@@ -75,33 +77,38 @@ export default function ProductsDisplay() {
     localStorage.getItem("i18nextLng")
   );
 
-
-
-
   const location = useLocation();
   const navigate = useNavigate();
   const positions = useSelector((state) => state?.position?.value);
+  const userData = useSelector((state) => state?.user?.value);
   console.log(positions, positions?.cartTop, positions?.cartRight);
   const dispatch = useDispatch();
   console.log(location?.search);
 
-  useEffect(()=>{
-
+  useEffect(() => {
     const incrementDate = () => {
+      setShowMiniLoader(true)
       const today = new Date();
+      const targetDate = localStorage.getItem("targetDate")
+      console.log(targetDate, "ttttt")
+      if(targetDate == null || (moment(today).isAfter(moment(targetDate)))){
       const nextDate = moment(today).add(5, "days");
-      console.log(today.toISOString() , megaDealTime, "ttttt")
+      localStorage.setItem("targetDate", nextDate)
+      console.log(today.toISOString(), megaDealTime, "ttttt");
       // if (today.toISOString().split("T")[0] >= megaDealTime.toString().split("T")[0]) {
       //   console.log(nextDate, "datee")
-        setMegaDealTime(nextDate);
+      setMegaDealTime(nextDate);
+      setShowMiniLoader(false)
+      }else{
+        setMegaDealTime(targetDate)
+        setShowMiniLoader(false)
+      }
+      
       // }
-
     };
 
-    incrementDate()
-    
-
-  },[])
+    incrementDate();
+  }, []);
 
   useEffect(() => {
     setCurrentUserLang(localStorage.getItem("i18nextLng"));
@@ -128,8 +135,11 @@ export default function ProductsDisplay() {
     }
   }, [location, window]);
 
-  const getUserInfo = async () => {
+  // eslint-disable-next-line no-unused-vars
+  const getUserInfo = async (productId) => {
     try {
+      // setShowWishlistRemoveMsg(false)
+      dispatch(showLoader());
       const url =
         clientType === "client"
           ? "https://admin.tradingmaterials.com/api/get-user-info"
@@ -151,14 +161,20 @@ export default function ProductsDisplay() {
 
       const response = await axios.get(url, headerData);
       if (response?.data?.status) {
-        console.log(response?.data);
+        console.log(response?.data, "prest");
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
+        dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
+        dispatch(
+          updateWishListCount(response?.data?.data?.client?.wishlist_count)
+        );
       } else {
         console.log(response?.data);
 
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
+        sessionStorage.removeItem("offerPhone")
+            sessionStorage.removeItem("expiry")
       }
     } catch (err) {
       console.log(err);
@@ -177,7 +193,9 @@ export default function ProductsDisplay() {
   //   };
   // }, [animateProductId]);
 
-
+  useEffect(() => {
+    dispatch(hideLoader());
+  }, []);
 
   useEffect(() => {
     setShowPlaceHolderLoader(true);
@@ -198,8 +216,8 @@ export default function ProductsDisplay() {
     setSingleProductsCount(totalCount);
     console.log(totalCount);
 
-    products?.sub_categories?.map((product) => {
-      console.log(product);
+    products?.sub_categories?.map((product,ind) => {
+      console.log(product,ind);
       productsFilter[product?.name] = false;
     });
     productsFilter["all"] = true;
@@ -211,25 +229,26 @@ export default function ProductsDisplay() {
       dispatch(loginUser());
     } else {
       dispatch(logoutUser());
+      sessionStorage.removeItem("offerPhone")
+            sessionStorage.removeItem("expiry")
     }
     setShowPlaceHolderLoader(false);
   }, [products]);
 
-      //useEffect for filtering products from the header (global scope)
-      useEffect(() => {
-        setSubCategoryIds([]);
-        if (subId?.id) {
-          console.log("inside");
-          // eslint-disable-next-line no-unsafe-optional-chaining
-          setSubCategoryIds([subId?.id]);
-          if (subId?.type === "single") {
-            addFilterProducts(subId?.name, subId?.id);
-          } else if (subId?.type === "combo") {
-            filtersubcatProducts(subId?.name, subId?.id);
-          }
-        }
-      }, [subId, products]);
-
+  //useEffect for filtering products from the header (global scope)
+  useEffect(() => {
+    setSubCategoryIds([]);
+    if (subId?.id) {
+      console.log("inside");
+      // eslint-disable-next-line no-unsafe-optional-chaining
+      setSubCategoryIds([subId?.id]);
+      if (subId?.type === "single") {
+        addFilterProducts(subId?.name, subId?.id, true);
+      } else if (subId?.type === "combo") {
+        filtersubcatProducts(subId?.name, subId?.id, true);
+      }
+    }
+  }, [subId, products]);
 
   //function for review stars
   function ratingStars(number) {
@@ -256,13 +275,19 @@ export default function ProductsDisplay() {
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
 
-  // function for filtering single products
-  function addFilterProducts(subCategoryName, subCategoryId) {
+  function addFilterProducts(subCategoryName, subCategoryId, showSingleProduct) {
     setStockCount("inStock");
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId, subCategoryIds, subId);
-    const subIDs = [...subCategoryIds,subCategoryId];
-    let filterProducts = { ...filteredProducts  };
+    let subIDs
+    let filterProducts
+    if(showSingleProduct){
+      subIDs = [];
+      filterProducts = {  };
+    }else{
+      subIDs = [...subCategoryIds]
+      filterProducts = {...filteredProducts}
+    }
     console.log(subIDs, filterProducts, subId?.name);
 
     // toggles checked or not
@@ -335,12 +360,19 @@ export default function ProductsDisplay() {
   }
 
   // filtering buldle products
-  function filtersubcatProducts(subCategoryName, subCategoryId) {
+  function filtersubcatProducts(subCategoryName, subCategoryId, showSingleProduct) {
     setStockCount("inStock");
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId);
-    const subIDs = [...bundleSubCategoryIDs];
-    let filterProducts = { ...filteredSubcatProducts };
+    let subIDs 
+    let filterProducts 
+    if(showSingleProduct){
+      subIDs = [];
+      filterProducts = {  };
+    }else{
+      subIDs =  [...bundleSubCategoryIDs];
+      filterProducts = { ...filteredSubcatProducts };
+    }
     console.log(subIDs);
     // toggles checked or not
     filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
@@ -411,7 +443,7 @@ export default function ProductsDisplay() {
   //function for handling filtering based on in stock or out stock
   function filterstockProducts() {
     filtersubcatProducts("all", 0);
-    addFilterProducts("all", 0);
+    addFilterProducts("all", 0, false);
     let currentActiveCheckbox;
     if (stockCount === "inStock") {
       setStockCount("outStock");
@@ -424,20 +456,21 @@ export default function ProductsDisplay() {
     const completeProducts = products?.products;
     const outOfStockBundleProducts = products?.sub_categories;
     console.log(completeProducts, typeof completeProducts);
+    console.log(outOfStockBundleProducts, products);
     const res =
       currentActiveCheckbox === "inStock"
         ? completeProducts?.filter((product) => product?.stock?.stock > 0)
         : completeProducts?.filter((product) => product?.stock?.stock === 0);
-    const result =
-      currentActiveCheckbox === "inStock"
-        ? outOfStockBundleProducts?.filter(
-            (product) => product?.stock?.stock > 0
-          )
-        : outOfStockBundleProducts?.filter(
-            (product) => product?.stock?.stock === 0
-          );
+    // const result =
+    //   currentActiveCheckbox === "inStock"
+    //     ? outOfStockBundleProducts?.filter(
+    //         (product) => product?.combo == 1 && product?.product_count > 0
+    //       )
+    //     : outOfStockBundleProducts?.filter(
+    //         (product) => product?.combo == 1
+    //       );
     setAllProducts(res);
-    setSubCatProducts(result);
+    // setSubCatProducts(result);
 
     console.log(res);
   }
@@ -533,11 +566,10 @@ export default function ProductsDisplay() {
         //   })
         // );
         // dispatch(updateWis(response?.data?.data?.cart_details));
-        setAddedToFavImg(productImg)
-        setShowModal(true)
-        setModalMessage("Added to your wishlist successfully")
-        dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
-        getUserInfo();
+        setAddedToFavImg(productImg);
+        setShowModal(true);
+        setModalMessage("Added to your wishlist successfully");
+        getUserInfo(id);
       }
     } catch (err) {
       console.log(err);
@@ -564,18 +596,28 @@ export default function ProductsDisplay() {
         }
       );
       if (response?.data?.status) {
-        setAddedToFavImg(productImg)
-        setShowModal(true)
-        setModalMessage("Added to your cart successfully")
-        // setAnimateProductId(productId);
-        // dispatch(
-        //   updateNotifications({
-        //     type: "success",
-        //     message: response?.data?.message,
-        //   })
-        // );
+        setAddedToFavImg(productImg);
+        setShowModal(true);
+        setModalMessage("Added to your cart successfully");
+
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
+        getUserInfo(productId);
+        if (userData.client?.wishlist?.length > 0) {
+          const ids = userData?.client?.wishlist?.map(
+            (item) => item?.product_id
+          );
+          const isPresent = ids?.includes(productId);
+          console.log(isPresent, ids, productId, "prest");
+          if (isPresent) {
+            // dispatch(updateWishListCount(userData?.client?.wishlist_count))/
+            setShowWishlistRemoveMsg(true);
+          } else {
+            setShowWishlistRemoveMsg(false);
+          }
+        } else {
+          setShowWishlistRemoveMsg(false);
+        }
       }
     } catch (err) {
       console.log(err);
@@ -608,48 +650,43 @@ export default function ProductsDisplay() {
   //   const isLoginStatus = async ()=>{
   //     const islogin =  useSelector((state) => state?.login?.value);
   //   setTimeout(()=>{
-      
+
   //     if(islogin === false){
   //       dispatch(showPopup())
   //   }
   //   },3000)
   // }
   // isLoginStatus()
-    
+
   // },[isLoggedIn])
 
   // const handleCloseFloatingForm = ()=>{
   //   setShowFloatingForm(false)
   // }
 
-  const closeModal=()=>{
+  const closeModal = () => {
     setShowModal(false);
-    setModalMessage("")
-    setAddedToFavImg("")
-  }
+    setModalMessage("");
+    setAddedToFavImg("");
+  };
 
   return (
     <>
-      {loaderState && (
+      {/* {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
         </div>
+      )} */}
+      {addedToFavImg !== "" && (
+        <AddToFav
+          showModal={showModal}
+          closeModal={closeModal}
+          modalMessage={modalMessage}
+          addedToFavImg={addedToFavImg}
+          wishMsg={showWishlistRemoveMsg}
+        />
       )}
-      {addedToFavImg!== "" && 
-        <AddToFav showModal={showModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} />
-      }
-      {(!isLoggedIn && showFloatingForm) &&
-      <div className="" style={{position:"fixed", right:"75px", bottom:"45px",zIndex:"9999999"}}>
-        <ChatForm />
-      </div>
-      }
-      { isLoggedIn === false && <div>
-        <Tooltip title="Get 15% off on first purchase">
-        <Fab className="!mt-16 !bg-transparent !drop-shadow-none  " style={{position:"fixed", right:"75px", bottom:"15px"}} onClick={()=>setShowFloatingForm(!showFloatingForm)}>
-          <img className="!w-full" src="/images/oneDayLeft.png" alt="one-day-offer-icon"/>
-        </Fab>
-        </Tooltip>
-      </div>}
+
       <div className="nk-pages">
         <section className="nk-banner nk-banner-shop">
           <div className="container">
@@ -661,7 +698,7 @@ export default function ProductsDisplay() {
                       <img
                         src="/images/shop/banner-cover.png"
                         alt="banner-cover"
-                        // data-aos="zoom-in"
+                        data-aos="zoom-in"
                         // loading="lazy"
                         // rel="preload"
                       />
@@ -678,7 +715,7 @@ export default function ProductsDisplay() {
                           {t("Mega_Deal_desc")}{" "}
                         </p>
                       </div>
-                      <Countdown targetDate={megaDealTime} />
+                      <Countdown targetDate={megaDealTime} loaderStatus={showMiniLoader} />
                     </div>
                   </div>
                 </div>
@@ -724,7 +761,7 @@ export default function ProductsDisplay() {
                                 type="checkbox"
                                 name="category"
                                 id="all-category"
-                                onChange={() => addFilterProducts("all", 0)}
+                                onChange={() => addFilterProducts("all", 0, false)}
                                 checked={filteredProducts["all"]}
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
@@ -751,10 +788,13 @@ export default function ProductsDisplay() {
                                       name="category"
                                       id="tablet"
                                       onClick={() =>
-                                        addFilterProducts(
+                                        
+                                          addFilterProducts(
                                           product?.name,
-                                          product?.id
+                                          product?.id,
+                                          false
                                         )
+                                      
                                       }
                                       checked={filteredProducts[product?.name]}
                                     />
@@ -982,54 +1022,293 @@ export default function ProductsDisplay() {
                         </div>
                       </div>
                     </div>
-                    <div className="row gy-5">
-                      {showLoader === true && (
-                        <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
-                          <Box sx={{ pt: 0.5 }}>
-                            <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
-                              <Skeleton
-                                animation="wave"
-                                variant="rectangular"
-                                className="!w-full !h-[250px] sm:!h-[300px] "
-                                width="100%"
-                              />
-                              {/* <Skeleton animation="wave" /> */}
-                              <Skeleton
-                                animation="wave"
-                                width="80%"
-                                className="!mt-[2.5vh]"
-                              />
-                              <div className="flex !mt-[2.5vh]">
-                                <Skeleton
-                                  animation="wave"
-                                  width="30%"
-                                  className="mr-3"
-                                />
-                                <Skeleton animation="wave" width="20%" />
-                              </div>
-                              <div className="flex mt-2 mb-2  !w-full">
-                                <Skeleton
-                                  className="mr-2"
-                                  animation="wave"
-                                  width="50%"
-                                />
-                                <Skeleton
-                                  className="mr-2"
-                                  animation="wave"
-                                  width="50%"
-                                />
-                                <div className="flex !justify-end !w-full">
+                    {(isNoProducts  )  ||
+                      (!products?.products?.length && (
+                        <>
+                          <div className="row gy-5 " data-aos-delay="0">
+                            <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                              <Box sx={{ pt: 0.5 }}>
+                                <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
                                   <Skeleton
                                     animation="wave"
-                                    width="20%"
-                                    className="mr-2 ml-4"
+                                    variant="rectangular"
+                                    className="!w-full !h-[250px] sm:!h-[300px] "
+                                    width="100%"
+                                  />
+                                  {/* <Skeleton animation="wave" /> */}
+                                  <Skeleton
+                                    animation="wave"
+                                    width="80%"
+                                    className="!mt-[2.5vh]"
+                                  />
+                                  <div className="flex !mt-[2.5vh]">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="30%"
+                                      className="mr-3"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                  <div className="flex mt-2 mb-2  !w-full">
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <div className="flex !justify-end !w-full">
+                                      <Skeleton
+                                        animation="wave"
+                                        width="20%"
+                                        className="mr-2 ml-4"
+                                      />
+                                      <Skeleton animation="wave" width="20%" />
+                                    </div>
+                                  </div>
+                                </div>
+                              </Box>
+                            </div>
+                            <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                              <Box sx={{ pt: 0.5 }}>
+                                <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                  <Skeleton
+                                    animation="wave"
+                                    variant="rectangular"
+                                    className="!w-full !h-[250px] sm:!h-[300px] "
+                                    width="100%"
+                                  />
+                                  {/* <Skeleton animation="wave" /> */}
+                                  <Skeleton
+                                    animation="wave"
+                                    width="80%"
+                                    className="!mt-[2.5vh]"
+                                  />
+                                  <div className="flex !mt-[2.5vh]">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="30%"
+                                      className="mr-3"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                  <div className="flex mt-2 mb-2  !w-full">
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <div className="flex !justify-end !w-full">
+                                      <Skeleton
+                                        animation="wave"
+                                        width="20%"
+                                        className="mr-2 ml-4"
+                                      />
+                                      <Skeleton animation="wave" width="20%" />
+                                    </div>
+                                  </div>
+                                </div>
+                              </Box>
+                            </div>
+                            <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                              <Box sx={{ pt: 0.5 }}>
+                                <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                  <Skeleton
+                                    animation="wave"
+                                    variant="rectangular"
+                                    className="!w-full !h-[250px] sm:!h-[300px] "
+                                    width="100%"
+                                  />
+                                  <Skeleton
+                                    animation="wave"
+                                    width="80%"
+                                    className="!mt-[2.5vh]"
+                                  />
+                                  <div className="flex !mt-[2.5vh]">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="30%"
+                                      className="mr-3"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                  <div className="flex mt-2 mb-2  !w-full">
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <div className="flex !justify-end !w-full">
+                                      <Skeleton
+                                        animation="wave"
+                                        width="20%"
+                                        className="mr-2 ml-4"
+                                      />
+                                      <Skeleton animation="wave" width="20%" />
+                                    </div>
+                                  </div>
+                                </div>
+                              </Box>
+                            </div>
+                          </div>
+                        </>
+                      ))
+                      }
+                    <div className="row gy-5">
+                      {loaderState && isNoProducts && (
+                        <>
+                          <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                            <Box sx={{ pt: 0.5 }}>
+                              <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                <Skeleton
+                                  animation="wave"
+                                  variant="rectangular"
+                                  className="!w-full !h-[250px] sm:!h-[300px] "
+                                  width="100%"
+                                />
+                                {/* <Skeleton animation="wave" /> */}
+                                <Skeleton
+                                  animation="wave"
+                                  width="80%"
+                                  className="!mt-[2.5vh]"
+                                />
+                                <div className="flex !mt-[2.5vh]">
+                                  <Skeleton
+                                    animation="wave"
+                                    width="30%"
+                                    className="mr-3"
                                   />
                                   <Skeleton animation="wave" width="20%" />
                                 </div>
+                                <div className="flex mt-2 mb-2  !w-full">
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <div className="flex !justify-end !w-full">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="20%"
+                                      className="mr-2 ml-4"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </Box>
-                        </div>
+                            </Box>
+                          </div>
+                          <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                            <Box sx={{ pt: 0.5 }}>
+                              <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                <Skeleton
+                                  animation="wave"
+                                  variant="rectangular"
+                                  className="!w-full !h-[250px] sm:!h-[300px] "
+                                  width="100%"
+                                />
+                                {/* <Skeleton animation="wave" /> */}
+                                <Skeleton
+                                  animation="wave"
+                                  width="80%"
+                                  className="!mt-[2.5vh]"
+                                />
+                                <div className="flex !mt-[2.5vh]">
+                                  <Skeleton
+                                    animation="wave"
+                                    width="30%"
+                                    className="mr-3"
+                                  />
+                                  <Skeleton animation="wave" width="20%" />
+                                </div>
+                                <div className="flex mt-2 mb-2  !w-full">
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <div className="flex !justify-end !w-full">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="20%"
+                                      className="mr-2 ml-4"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                </div>
+                              </div>
+                            </Box>
+                          </div>
+                          <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                            <Box sx={{ pt: 0.5 }}>
+                              <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                <Skeleton
+                                  animation="wave"
+                                  variant="rectangular"
+                                  className="!w-full !h-[250px] sm:!h-[300px] "
+                                  width="100%"
+                                />
+                                {/* <Skeleton animation="wave" /> */}
+                                <Skeleton
+                                  animation="wave"
+                                  width="80%"
+                                  className="!mt-[2.5vh]"
+                                />
+                                <div className="flex !mt-[2.5vh]">
+                                  <Skeleton
+                                    animation="wave"
+                                    width="30%"
+                                    className="mr-3"
+                                  />
+                                  <Skeleton animation="wave" width="20%" />
+                                </div>
+                                <div className="flex mt-2 mb-2  !w-full">
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <div className="flex !justify-end !w-full">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="20%"
+                                      className="mr-2 ml-4"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                </div>
+                              </div>
+                            </Box>
+                          </div>
+                        </>
                       )}
                       {isNoProducts ||
                         (allProducts?.length === 0 && (
@@ -1038,8 +1317,7 @@ export default function ProductsDisplay() {
                       {isSearchResult && resultsCount === 0 && (
                         <p className="font-bold">No products to Display</p>
                       )}
-                      {
-                        !isNoProducts &&
+                      {!isNoProducts &&
                         allProducts?.map((product) => {
                           if (
                             product?.combo === 0 ||
@@ -1109,11 +1387,8 @@ export default function ProductsDisplay() {
                                     className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px] group hover:drop-shadow-xl"
                                     id={`img-${product?.id}`}
                                   >
-                                    
                                     <div className="nk-card overflow-hidden rounded-3 h-100 border text-left ">
-                                    
                                       <div className="nk-card-img  relative">
-                                      
                                         <a
                                           href={`${userLang}/product-detail/${
                                             product?.slug
@@ -1130,13 +1405,16 @@ export default function ProductsDisplay() {
                                             alt="product-image"
                                             className="sm:!h-[300px] !w-full group-hover:scale-105 transition duration-500"
                                           />
-                                          {product?.stock?.stock <10 && <GitHubForkRibbon
-                                            className="drop-shadow-xl subpixel-antialiased"
-                                            color="orange"
-                                            position="left"
-                                          >
-                                            Only {product?.stock?.stock} left !!
-                                          </GitHubForkRibbon>}
+                                          {/* {product?.stock?.stock < 10 && (
+                                            <GitHubForkRibbon
+                                              className="drop-shadow-xl subpixel-antialiased"
+                                              color="orange"
+                                              position="left"
+                                            >
+                                              Only {product?.stock?.stock} left
+                                              !!
+                                            </GitHubForkRibbon>
+                                          )} */}
                                           {/* <Badge */}
                                         </a>
                                       </div>
@@ -1597,7 +1875,8 @@ export default function ProductsDisplay() {
                                                                   parseFloat(
                                                                     price?.USD *
                                                                       (100 /
-                                                                        (100-product?.discount))
+                                                                        (100 -
+                                                                          product?.discount))
                                                                   )?.toFixed(
                                                                     2
                                                                   ) + ""
@@ -1650,13 +1929,14 @@ export default function ProductsDisplay() {
                                                       product?.img_1
                                                     )
                                                   : dispatch(
-                                                    usersignupinModal({
-                                                      showSignupModal: false,
-                                                      showLoginModal: true,
-                                                      showforgotPasswordModal: false,
-                                                      showOtpModal: false,
-                                                      showNewPasswordModal: false,
-                                                    }))
+                                                      usersignupinModal({
+                                                        showSignupModal: false,
+                                                        showLoginModal: true,
+                                                        showforgotPasswordModal: false,
+                                                        showOtpModal: false,
+                                                        showNewPasswordModal: false,
+                                                      })
+                                                    );
                                               }}
                                             >
                                               <FaRegHeart size={18} />
@@ -1667,17 +1947,19 @@ export default function ProductsDisplay() {
                                               onClick={(event) => {
                                                 return isLoggedIn
                                                   ? (handleAddToCart(
-                                                      product?.id,product?.img_1
+                                                      product?.id,
+                                                      product?.img_1
                                                     ),
                                                     handleCartPosition(event))
-                                                  :dispatch(
-                                                    usersignupinModal({
-                                                      showSignupModal: false,
-                                                      showLoginModal: true,
-                                                      showforgotPasswordModal: false,
-                                                      showOtpModal: false,
-                                                      showNewPasswordModal: false,
-                                                    }))
+                                                  : dispatch(
+                                                      usersignupinModal({
+                                                        showSignupModal: false,
+                                                        showLoginModal: true,
+                                                        showforgotPasswordModal: false,
+                                                        showOtpModal: false,
+                                                        showNewPasswordModal: false,
+                                                      })
+                                                    );
                                               }}
                                             >
                                               {animateProductId ===
@@ -1737,7 +2019,8 @@ export default function ProductsDisplay() {
                 </div>
               </div>
             </div>
-            <div className="row gy-5 justify-between overflow-auto !max-h-[354px] sm:!max-h-[500px] lg:!max-h-[670px]">
+            <div className="row gy-5 justify-between ">
+              {/* overflow-auto !max-h-[354px] sm:!max-h-[500px] lg:!max-h-[670px] */}
               {subCatProducts?.length === 0 && (
                 <p className="font-bold">No products to Display</p>
               )}
@@ -1765,7 +2048,11 @@ export default function ProductsDisplay() {
                           </div>
                         )}
                         {showPlaceHolderLoader === false && (
-                          <div className="col-xl-4 col-lg-4 col-md-6 !pb-[27px] group hover:drop-shadow-xl">
+                          <div
+                            className="col-xl-4 col-lg-4 col-md-6 !pb-[27px] group hover:drop-shadow-xl"
+                            data-aos="fade-up"
+                            data-aos-delay="100"
+                          >
                             <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
                               <div className="nk-card-img relative">
                                 <a
@@ -1785,13 +2072,15 @@ export default function ProductsDisplay() {
                                     className="w-100 group-hover:scale-105 transition duration-500"
                                     // loading="lazy"
                                   />
-                                  {product?.stock?.stock <10 && <GitHubForkRibbon
-                                            className="drop-shadow-xl subpixel-antialiased"
-                                            color="orange"
-                                            position="left"
-                                          >
-                                            Only {product?.stock?.stock} left !!
-                                          </GitHubForkRibbon>}
+                                  {/* {product?.stock?.stock < 10 && (
+                                    <GitHubForkRibbon
+                                      className="drop-shadow-xl subpixel-antialiased"
+                                      color="orange"
+                                      position="left"
+                                    >
+                                      Only {product?.stock?.stock} left !!
+                                    </GitHubForkRibbon>
+                                  )} */}
                                 </a>
                               </div>
                               <div className="nk-card-info bg-white p-4">
@@ -2246,15 +2535,19 @@ export default function ProductsDisplay() {
                                     }}
                                     onClick={() => {
                                       isLoggedIn
-                                        ? handleAddToWishList(product?.id, product?.img_1)
+                                        ? handleAddToWishList(
+                                            product?.id,
+                                            product?.img_1
+                                          )
                                         : dispatch(
-                                          usersignupinModal({
-                                            showSignupModal: false,
-                                            showLoginModal: true,
-                                            showforgotPasswordModal: false,
-                                            showOtpModal: false,
-                                            showNewPasswordModal: false,
-                                          }))
+                                            usersignupinModal({
+                                              showSignupModal: false,
+                                              showLoginModal: true,
+                                              showforgotPasswordModal: false,
+                                              showOtpModal: false,
+                                              showNewPasswordModal: false,
+                                            })
+                                          );
                                     }}
                                   >
                                     <FaRegHeart size={18} />
@@ -2263,16 +2556,20 @@ export default function ProductsDisplay() {
                                     className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
                                     onClick={(event) => {
                                       return isLoggedIn
-                                        ? (handleAddToCart(product?.id, product?.img_1),
+                                        ? (handleAddToCart(
+                                            product?.id,
+                                            product?.img_1
+                                          ),
                                           handleCartPosition(event))
-                                        :dispatch(
-                                          usersignupinModal({
-                                            showSignupModal: false,
-                                            showLoginModal: true,
-                                            showforgotPasswordModal: false,
-                                            showOtpModal: false,
-                                            showNewPasswordModal: false,
-                                          }))
+                                        : dispatch(
+                                            usersignupinModal({
+                                              showSignupModal: false,
+                                              showLoginModal: true,
+                                              showforgotPasswordModal: false,
+                                              showOtpModal: false,
+                                              showNewPasswordModal: false,
+                                            })
+                                          );
                                     }}
                                   >
                                     {animateProductId === product?.id ? (
@@ -2331,11 +2628,11 @@ export default function ProductsDisplay() {
             <Swiper
               slidesPerView={2}
               spaceBetween={30}
-              dots={false}
+              dots={true}
               speed={1500}
               loop={true}
               autoplay={true}
-              navigation={true}
+              // navigation={true}
               breakpoints={{
                 0: {
                   slidesPerView: 1,
@@ -2353,6 +2650,9 @@ export default function ProductsDisplay() {
                   slidesPerView: 2,
                   spaceBetween: 50,
                 },
+              }}
+              pagination={{
+                dynamicBullets: true,
               }}
               modules={[Pagination, Navigation, Autoplay]}
               className="swiper swiper-init nk-swiper nk-swiper-s4 pt-5 pt-lg-0"
@@ -2459,11 +2759,10 @@ export default function ProductsDisplay() {
                       Aadarsh Chopra
                     </h5>
                     <p className="fs-14 line-clamp-3 text-left">
-                      &quot;Thank you for your feedback! We&apos;re glad to
-                      hear that you find our platform to be the best for
-                      learning. We are committed to providing high-quality
-                      educational resources and a user-friendly
-                      experience.&quot;
+                      &quot;Thank you for your feedback! We&apos;re glad to hear
+                      that you find our platform to be the best for learning. We
+                      are committed to providing high-quality educational
+                      resources and a user-friendly experience.&quot;
                     </p>
                   </div>
                 </div>
@@ -2508,11 +2807,43 @@ export default function ProductsDisplay() {
         <section className="nk-section nk-cta-section nk-section-content-1">
           <div className="container">
             <div
+              className="row g-gs align-items-center"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
+              <div className="col-lg-2"></div>
+              <div className="col-lg-4 ab-foot">
+                <div>
+                  <h4>
+                    <a href="#" className="fancy-button bg-gradient1">
+                      <span>
+                        <img
+                          src="images/store-iconw.png"
+                          width="30"
+                          alt="product-image"
+                        />
+                        FIND OUR STORE
+                      </span>
+                    </a>
+                  </h4>
+                </div>
+              </div>
+              <div className="col-lg-6 ab-foot">
+                <div className="stores">
+                  <img src="/images/store.png" alt="product-image" />
+                </div>
+              </div>
+            </div>
+            <div
               className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
               data-aos="fade-up"
               data-aos-delay="100"
             >
-              <div className="row g-gs align-items-center">
+              <div
+                className="row g-gs align-items-center"
+                data-aos="fade-up"
+                data-aos-delay="100"
+              >
                 <div className="col-lg-8">
                   <div className="media-group flex-column flex-lg-row align-items-center">
                     <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
@@ -2540,6 +2871,8 @@ export default function ProductsDisplay() {
             </div>
           </div>
         </section>
+        
+        
       </div>
       <div className="nk-sticky-badge cursor-pointer">
         <ul>
@@ -2561,13 +2894,14 @@ export default function ProductsDisplay() {
                 isLoggedIn
                   ? navigate(`${userLang}/cart`)
                   : dispatch(
-                    usersignupinModal({
-                      showSignupModal: false,
-                      showLoginModal: true,
-                      showforgotPasswordModal: false,
-                      showOtpModal: false,
-                      showNewPasswordModal: false,
-                    }))
+                      usersignupinModal({
+                        showSignupModal: false,
+                        showLoginModal: true,
+                        showforgotPasswordModal: false,
+                        showOtpModal: false,
+                        showNewPasswordModal: false,
+                      })
+                    )
               }
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               id="cart-button"

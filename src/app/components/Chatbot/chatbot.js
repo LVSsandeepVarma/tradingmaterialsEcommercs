@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-unsafe-optional-chaining */
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 // import config from './config.js';
 // import MessageParser from './messageParser.js';
@@ -10,18 +11,35 @@ import axios from "axios";
 // import 'react-chatbot-kit/build/main.css';
 
 
-export default function ChatForm(){
-  const [email, setEmail] = useState("");
+// eslint-disable-next-line react/prop-types
+export default function ChatForm({hide}){
+  const [email, setEmail] = useState("staticEmail@gmail.com");
   const [phone, setPhone] = useState("");
   const [emailErr, setEmailErr] = useState("");
   const [phoneErr, setPhoneErr] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [apiErr, setApiErr] = useState([])
+  const [currentStep, setCurrentStep] = useState(1);
+  const [userIp, setUserIp] = useState()
+  const componentRef = useRef()
 
   const dispatch = useDispatch()
+  const isLoggedIn = useSelector((state) => state.login?.value);
+  const userData = useSelector((state) => state?.user?.value);
+
+
+
+
+
+  // getting user ip
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then((response) => response.json())
+      .then((data) => setUserIp(data.ip));
+  }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailErr("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -30,6 +48,26 @@ export default function ChatForm(){
       setEmailErr("");
     }
   }
+
+  useEffect(() => {
+    document.addEventListener("click", (event) => {
+      if (
+        componentRef.current &&
+        !componentRef.current.contains(event.target)
+      ) {
+        setPhoneErr("")
+        setApiErr([])
+        setSuccessMsg("")
+      }
+    });
+
+    return () => {
+      document.removeEventListener("click", (event) => {
+        componentRef.current &&
+          !componentRef.current.contains(event.target);
+      });
+    };
+  }, [componentRef]);
 
   // Validate mobile number function (example)
   const isValidMobile = (mobile) => {
@@ -48,28 +86,37 @@ export default function ChatForm(){
   };
 
   const handleEmailChange = (e) => {
+    setApiErr([])
     setEmail(e?.target?.value);
     emailValidaiton(email);
   };
 
   const handlePhonechange = (e) => {
+    setApiErr([])
     setPhone(e.target.value)
     isValidMobile(e.target.value)
+  }
+
+  const handleStepOne = () => {
+      isValidMobile(phone)
+      if(phone != "" && phoneErr == ""){
+        setCurrentStep(2)
+      }
   }
 
 
   const handleSubmit = async (e) => {
     setApiErr([])
+    setSuccessMsg("")
     e.preventDefault();
     isValidMobile(phone);
-    emailValidaiton(email);
-    console.log(emailErr , phoneErr)
-    if (emailErr === "" && email!== "" && phoneErr === "" && phone !== "" && apiErr?.length === 0) {
+    // console.log(phoneErr)
+    if (phoneErr === "" && phone !== "" && apiErr?.length === 0) {
       try {
         dispatch(showLoader());
         const response = await axios.post(
-          "https://admin.tradingmaterials.com/api/client/discount/store",
-          { email: email, phone: phone },
+          "https://admin.tradingmaterials.com/api/client/instant/enq/store",
+          { phone: phone, domain: window.location.href.split("https://")[1], ip_address: userIp },
           {
             headers: {
               "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
@@ -78,78 +125,180 @@ export default function ChatForm(){
           }
         );
         if (response?.data?.status) {
+
           setSuccessMsg(response?.data?.message);
-          
+          const expiryDate = new Date(Date.now() + 604800 * 1000) // for 1 week
+          sessionStorage.setItem("expiry", expiryDate)
+          sessionStorage.setItem("offerPhone", phone)
+          localStorage.setItem("expiry", expiryDate)
+          localStorage.setItem("offerPhone", phone)
+          if(isLoggedIn)
+          {localStorage.setItem("offerEmail", userData?.client?.email)}
+          window.location.reload()
         }
       } catch (err) {
-        console.log(err?.response?.data?.errors);
         if (err?.response?.data?.errors) {
-          setEmailErr(err?.response?.data?.errors["email"])
-          setPhoneErr(err?.response?.data?.errors["phone"])
-          // setApiErr([...Object.values(err?.response?.data?.errors)]);
+          // setEmailErr(err?.response?.data?.errors["email"])
+          // setPhoneErr(err?.response?.data?.errors["phone"])
+          setApiErr([...Object.values(err?.response?.data?.errors)]);
         } else {
           setApiErr([err?.response?.data?.message]);
         }
       } finally {
         dispatch(hideLoader());
+        setCurrentStep(1)
       }
     }
-    // Handle form submission here, e.g., send data to server
-    console.log("Message:", email, phone);
+
   };
   return (
     <>
-      <div className="fixed bottom-12 right-0 m-4 bg-white rounded-lg shadow-lg w-80">
-        <div className="p-4">
-  
-              <div className="text-black">
-                <div className="flex items-center mb-2 !text-black">
-                  <div className="w-8 h-8  rounded-full flex items-center justify-center mr-2"><img src="/images/oneDayLeft.png" /></div>
-                  Trading Materials
-                </div>
-                Get your promo code from our executive.
-              </div>
-              <div className="mt-4">
-                <input
-                  type="text"
-                  placeholder="Your email"
-                  className="w-full px-3 py-2 border-b border-gray-800 rounded focus:outline-none focus:ring focus:border-blue-300 placeholder-black"
-                  value={email}
-                  onChange={handleEmailChange}
-                />
-                {emailErr && <p className="text-red-700 font-semibold mb-1 mt-1 text-left">{emailErr}</p>}
-              </div>
-              <div className="mt-2">
-                <input
-                  type="number"
-                  placeholder="Mobile"
-                  className="w-full px-3 py-2 border-b border-gray-800 rounded focus:outline-none focus:ring focus:border-blue-300 placeholder-black"
-                  value={phone}
-                  onChange={handlePhonechange}
-                />
-                {phoneErr && <p className="text-red-700 font-semibold mb1 mt-1 text-left">{phoneErr}</p>}
-              </div>
-              <button
-                onClick={handleSubmit}
-                className="mt-2 px-4 py-2 !bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-              >
-                Sign Up
-              </button>
-              {successMsg?.length >0 && <p className="text-green-600 font-semibold">{successMsg}</p>}
-              {apiErr?.length > 0 &&
-                            apiErr?.map((err, ind) => {
-                              return (
+    {/* type-1 */}
+    <div className="outer" ref={componentRef}>
+    <div className="p-2 text-left w-full">
+    <div className="flex items-center w-full justify-around relative" style={{zIndex: "999999"}}>
+      <h2 className="h1text !font-bold !w-full mt-0 pt-0">Get 10% Off on First Order</h2>
+      <p className="  cursor-pointer offer-bottom-right flex justify-end mr-2"  onClick={()=>hide("none")}>X</p>
+      
+    </div>
+    <div className="flex justify-around items-center">
+    <div className="w-full relative" style={{zIndex: "999999"}}>
+        <div className="text-input-off">
+						<input type="text" id="input1" value={phone} onChange={handlePhonechange} placeholder="Phone Number!"/>
+						<label htmlFor="input1">Phone</label>
+						</div>
+            {phoneErr && <p className="text-red-700 text-xs font-semibold mb1 mt-1 text-left">{phoneErr}</p>}
 
-                                  <p
-                                    key={ind}
-                                    className="text-red-600 font-semibold"
-                                  >
-                                    {err}
-                                  </p>
-                              );
-                            })}
-              </div>
-              </div>
+						<div className="buttonss-off cursor-pointer">
+							<a className="cart-btn" onClick={(e)=>{handleSubmit(e)}}>GET OFFER CODE</a>
+						</div>
+            {successMsg && <p className="text-green-900 text-xs font-semibold mt-1 text-left">{successMsg}</p>}
+            {apiErr?.length > 0 &&
+          apiErr?.map((err, ind) => {
+            return (
+              <p key={ind} className="text-red-700 text-xs font-semibold mb1 mt-1 text-left">
+                {err}
+              </p>
+            );
+          })}
+      </div>
+      <div className="flex cardsss">			
+      <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json" fill="transparent" background="transparent" speed="1" loop="" autoplay="true"></lottie-player>
+							
+						</div>
+            <span className="imgs relative" style={{zIndex: "9999"}}><img src="/images/offer-box.png" alt="product-image"/></span>
+    </div>
+    
+    </div>
+
+
+    
+ 
+					{/* <div className="content animated fadeInLeft">
+						<div className="flex items-center w-full z-999">
+            <div className="h1text">Get 10% Off on First Order</div>
+            
+            </div>
+						<div className="text-input-off">
+						<input type="text" id="input1" value={phone} onChange={handlePhonechange} placeholder="Phone Number!"/>
+						<label htmlFor="input1">Phone</label>
+						</div>
+            {phoneErr && <p className="text-red-700 text-xs font-semibold mb1 mt-1 text-left">{phoneErr}</p>}
+
+						<div className="buttonss-off cursor-pointer">
+							<a className="cart-btn" onClick={(e)=>{handleSubmit(e)}}>GET OFFER CODE</a>
+						</div>
+            {successMsg && <p className="text-green-900 text-xs font-semibold mt-1 text-left">{successMsg}</p>}
+            {apiErr?.length > 0 &&
+          apiErr?.map((err, ind) => {
+            return (
+              <p key={ind} className="text-red-700 text-xs font-semibold mb1 mt-1 text-left">
+                {err}
+              </p>
+            );
+          })}
+
+					</div>
+			
+					<div className="cardss">			
+          <div className="absolute w-full cursor-pointer offer-bottom-right"  onClick={()=>hide("none")}>X</div>
+						<div className="ilustration">			
+							<lottie-player src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json" background="white" speed="1" loop autoplay></lottie-player>
+							<span className="imgs"><img src="/images/offer-box.png" alt="product-image"/></span>
+						</div>			
+					</div>	 */}
+		</div>
+
+
+
+
+    {/* type 2 */}
+      {/* <div className="outer">
+ 
+					<div className="content animated fadeInLeft">
+						<div className="h1text">Get 10% Off on First Order</div>
+						<div className="text-input-off">
+						<input type="text" id="input1" placeholder="Phone Number!"/>
+						<label htmlFor="input1">Phone</label>
+						</div>
+
+						<div className="buttonss-off">
+							<a className="cart-btn" href="#">GET OFFER CODE</a>
+						</div>
+
+					</div>
+			
+					<div className="cardss">			
+						<div className="ilustration">				
+							<lottie-player src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json" background="white" speed="1" loop autoplay></lottie-player>
+							<span className="imgs"><img src="images/offer-box.png" alt="product-image"/></span>
+						</div>			
+					</div>	
+		</div> */}
+
+    {/* two step form */}
+    {/* <div className="outer">
+ 
+ <div className="content animated fadeInLeft">
+   <div className="h1text">Get 10% Off on First Order</div>
+   {currentStep == 1 && <div>
+   <div className="text-input-off">
+   <input type="text" value={phone} onChange={handlePhonechange} id="input1" placeholder="Phone Number"/>
+   <label htmlFor="input1">Phone</label>
+   <label className="!text-left text-sm w-full"><span className="!text-blue-600">{currentStep}</span>/2</label>
+   </div>
+   {phoneErr && <p className="text-red-700 text-sm font-semibold mb1 mt-1 text-left">{phoneErr}</p>}
+   
+   </div>}
+   {currentStep == 2 && <div>
+   <div className="text-input-off">
+   <input type="text" value={email} onChange={handleEmailChange} id="input2" placeholder="Email"/>
+   <label htmlFor="input2">Email</label>
+   </div>
+   {emailErr && <p className="text-red-700 text-sm font-semibold mb-1 mt-1 text-left">{emailErr}</p>}
+
+   <label className="!text-left !text-sm w-full"><span className="!text-blue-600">{currentStep}</span>/2</label>
+   </div>}
+
+   <div className="buttonss-off cursor-pointer">
+     <a className="cart-btn" onClick={(e)=>{
+      if(currentStep == 1){
+        handleStepOne()
+      }else{
+        handleSubmit(e)
+      }
+     }} >{currentStep == 1 ? "Next" : "GET OFFER CODE"}</a>
+   </div>
+
+ </div>
+
+ <div className="cardss">			
+   <div className="ilustration">				
+     <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json" background="white" speed="1" loop autoplay></lottie-player>
+     <span className="imgs"><img src="images/offer-box.png" alt="product-image"/></span>
+   </div>			
+ </div>	
+</div> */}
     </>
   );
 }

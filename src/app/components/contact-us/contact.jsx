@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Header from "../header/header";
 import { useDispatch, useSelector } from "react-redux";
-import { hideLoader } from "../../../features/loader/loaderSlice";
+import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import Footer from "../footer/footer";
+import axios from "axios";
 
 export default function Contact() {
   const dispatch = useDispatch();
@@ -17,26 +18,36 @@ export default function Contact() {
   const [phoneError, setPhoneError] = useState("");
   const [desc, setDesc] = useState("");
   const [descErr, setDescErr] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [apiErr, setApiErr] = useState("");
+  const [userIp, setUserIp] = useState("");
+
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then((response) => response.json())
+      .then((data) => setUserIp(data.ip));
+  }, []);
 
   function validName(name) {
     const namePattern = /^[A-Za-z ]+$/;
     if (name === "") {
       setNameErr("Full name is required");
       return false;
-    } else if (namePattern.test(name)) {
-      setNameErr("");
-      return true;
-    } else {
+    }else if (!namePattern.test(name)) {
       setNameErr("Full name should contain only alphabets");
       return false;
+    } else if (name?.length < 3) {
+      setNameErr("Min 3 characters are required");
+    } else if (name?.length > 100) {
+      setNameErr("Max 100 characters are required");
+    }  else {
+      setNameErr("");
+      return true;
     }
   }
-  
-
-
 
   function validEmail(email) {
-    const emailPattern = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailPattern = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailErr("Email is required");
       return false;
@@ -71,10 +82,10 @@ export default function Contact() {
 
   function descValidation(desc) {
     if (desc?.length === 0) {
-      setDescErr("description is required");
+      setDescErr("Description is required");
       return false;
-    }else if(desc?.length > 255){
-      setDescErr("description should contain maximum 255 charecters only")
+    } else if (desc?.length > 255) {
+      setDescErr("Description should contain maximum 255 characters only");
     } else {
       setDescErr("");
       return true;
@@ -98,14 +109,46 @@ export default function Contact() {
     descValidation(e.target.value);
   }
 
-  function handlesubmit(e) {
+  async function handlesubmit(e) {
     e.preventDefault();
     validName(name);
     validEmail(email);
     phoneValidation(phone);
     descValidation(desc);
-    if (nameErr === "" && emailErr === "" &&  phoneError === "" && descErr === "") {
-      console.log(name, email, phone, desc);
+    if (
+      nameErr === "" && name !== "" &&
+      emailErr === "" && email !== "" &&
+      phoneError === "" && phone !== "" &&
+      descErr === "" && desc !== ""
+    ) {
+      try {
+        dispatch(showLoader());
+        const response = await axios.post(
+          "https://admin.tradingmaterials.com/api/store/contact-us",
+          {
+            email: email,
+            phone: phone,
+            name: name,
+            message: desc,
+            ip_address: userIp,
+            domain: window.location.href.split("https://")[1]
+          }
+        );
+        if (response?.data?.status) {
+          setSuccessMsg(response?.data?.message);
+        }
+      } catch (err) {
+        if (err?.response?.data?.errors) {
+          setEmailErr(err?.response?.data?.errors["email"]);
+          setPhoneError(err?.response?.data?.errors["phone"]);
+          setNameErr(err?.response?.data?.errors["name"]);
+          setDescErr(err?.response?.data?.errors["message"]);
+        } else {
+          setApiErr([err?.response?.data?.message]);
+        }
+      } finally {
+        dispatch(hideLoader());
+      }
     }
   }
 
@@ -124,22 +167,23 @@ export default function Contact() {
           )}
 
           <Header />
-          <main className="nk-pages">
-            <section className="nk-section pt-120 pt-lg-160">
+          <main className="nk-pages mt-40 sm:mt-60 md:mt-20">
+            <section className="nk-section ">
               <div className="nk-mask blur-1 left center"></div>
               <div className="container">
                 <div className="row justify-content-center">
                   <div className="col-lg-8 col-xxl-6">
                     <div className="nk-section-head text-center">
-                      <span className="nk-section-subtitle">Need support</span>
+                      <span className="nk-section-subtitle">
+                        NEED ASSISTANCE
+                      </span>
                       <h2 className="nk-section-titl !text-4xl !font-bold !leading-loose">
-                        Contact Us
+                        Reach Out To Us
                       </h2>
                       <p className="nk-section-text">
-                        {" "}
-                        Contact us for any inquiries or support you may need.
-                        Our dedicated team is ready to assist you and provide
-                        the best solutions.{" "}
+                        For any inquiries or support you require, feel free to
+                        contact us. Our dedicated team is on standby to provide
+                        you with optimal solutions.
                       </p>
                     </div>
                   </div>
@@ -156,16 +200,16 @@ export default function Contact() {
                             Billing &amp; Payments
                           </h4>
                           <p className="line-clamp-3">
-                            Manage your billing and payments effortlessly with
-                            our user-friendly platform. Stay on top of your
-                            financial transactions and ensure smooth and secure
-                            payment processes.
+                            Effortless Financial Management
+                            <br />
+                            <br />
+                            Simplify your billing and payment processes using
+                            our intuitive platform. Manage your financial
+                            transactions seamlessly and securely, maintaining
+                            control over your finances.
                           </p>
                         </div>
-                        <a
-                          href="help-center.html"
-                          className="btn-link text-primary "
-                        >
+                        <a href="/contact" className="btn-link text-primary ">
                           <span>See Pricing Questions</span>
                           <em className="icon ni ni-arrow-right"></em>
                         </a>
@@ -183,18 +227,18 @@ export default function Contact() {
                             Users and Collaboration
                           </h4>
                           <p className="line-clamp-3">
-                            Connect and collaborate with users seamlessly on our
-                            platform. Share information, assign tasks, and work
-                            together efficiently to achieve your goals. Foster a
-                            productive and collaborative environment for your
-                            team with our user-centric features.
+                            Seamless User Engagement
+                            <br />
+                            <br />
+                            Connect and collaborate effortlessly with users on
+                            our platform. Streamline information sharing, task
+                            delegation, and teamwork for effective goal
+                            attainment. Foster a productive, collaborative
+                            environment with our user-centric tools.
                           </p>
                         </div>
-                        <a
-                          href="help-center.html"
-                          className="btn-link text-primary "
-                        >
-                          <span>All Documentations</span>
+                        <a href="/contact" className="btn-link text-primary ">
+                          <span>Features and Integrations</span>
                           <em className="icon ni ni-arrow-right"></em>
                         </a>
                       </div>
@@ -211,20 +255,18 @@ export default function Contact() {
                             Features and Integrations
                           </h4>
                           <p className="line-clamp-3">
-                            Unlock a wide range of features and integrations to
-                            enhance your workflow. From project management and
+                            Enhance Your Workflow
+                            <br />
+                            <br />
+                            Access a wide array of features and integrations to
+                            elevate your operations. From project management and
                             communication tools to data analytics and
                             automation, our platform offers a comprehensive
-                            suite of features that cater to your business needs.
-                            Seamlessly integrate with popular apps and services
-                            to streamline your operations and boost
-                            productivity.
+                            suite tailored to your needs. Seamlessly integrate
+                            with popular apps to boost productivity.
                           </p>
                         </div>
-                        <a
-                          href="help-center.html"
-                          className="btn-link text-primary "
-                        >
+                        <a href="/contact" className="btn-link text-primary ">
                           <span>See All Questions</span>
                           <em className="icon ni ni-arrow-right"></em>
                         </a>
@@ -247,9 +289,8 @@ export default function Contact() {
                         Get in touch
                       </h2>
                       <p className="nk-section-text">
-                        Get in touch for personalized assistance. We&apos;re
-                        here to help and provide solutions tailored to your
-                        requirements.
+                        Reach out for personalized assistance. Our team is here
+                        to provide tailored solutions to meet your needs.
                       </p>
                     </div>
                   </div>
@@ -265,10 +306,19 @@ export default function Contact() {
                           <div className="row g-gs !text-left">
                             <div className="col-12 ">
                               <div className="form-group">
-                                <label className="form-label">Full Name <sup className="text-red-800 !font-bold">*</sup></label>
+                                <label className="form-label">
+                                  Full Name{" "}
+                                  <sup className="text-red-800 !font-bold">
+                                    *
+                                  </sup>
+                                </label>
                                 <div className="form-control-">
                                   <input
-                                    className={`form-control ${nameErr?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
+                                    className={`form-control ${
+                                      nameErr?.length > 0
+                                        ? "bg-red-100 drop-shadow-md"
+                                        : ""
+                                    }`}
                                     placeholder="Enter your name"
                                     value={name}
                                     onChange={handleNameChange}
@@ -283,11 +333,20 @@ export default function Contact() {
                             </div>
                             <div className="col-lg-6">
                               <div className="form-group">
-                                <label className="form-label">Email <sup className="text-red-800 !font-bold">*</sup></label>
+                                <label className="form-label">
+                                  Email{" "}
+                                  <sup className="text-red-800 !font-bold">
+                                    *
+                                  </sup>
+                                </label>
                                 <div className="">
                                   <input
                                     type="email"
-                                    className={`form-control ${emailErr?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
+                                    className={`form-control ${
+                                      emailErr?.length > 0
+                                        ? "bg-red-100 drop-shadow-md"
+                                        : ""
+                                    }`}
                                     placeholder="Enter your email"
                                     value={email}
                                     onChange={handleEmailChange}
@@ -302,11 +361,20 @@ export default function Contact() {
                             </div>
                             <div className="col-lg-6">
                               <div className="form-group">
-                                <label className="form-label">Phone <sup className="text-red-800 !font-bold">*</sup></label>
+                                <label className="form-label">
+                                  Phone{" "}
+                                  <sup className="text-red-800 !font-bold">
+                                    *
+                                  </sup>
+                                </label>
                                 <div className="">
                                   <input
                                     type="text"
-                                    className={`form-control ${phoneError?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
+                                    className={`form-control ${
+                                      phoneError?.length > 0
+                                        ? "bg-red-100 drop-shadow-md"
+                                        : ""
+                                    }`}
                                     placeholder="mobile number"
                                     value={phone}
                                     onChange={handlePhoneChange}
@@ -323,7 +391,10 @@ export default function Contact() {
                               <div className="form-group">
                                 <div className="form-label-group">
                                   <label className="form-label">
-                                    Tell us a bit about your query <sup className="text-red-800 !font-bold">*</sup>
+                                    Tell us a bit about your query{" "}
+                                    <sup className="text-red-800 !font-bold">
+                                      *
+                                    </sup>
                                   </label>
                                   <span>
                                     <span id="char-count">{desc?.length}</span>/{" "}
@@ -335,7 +406,11 @@ export default function Contact() {
                                 <div className="form-control-wrap">
                                   <textarea
                                     id="textarea-box"
-                                    className={`form-control ${descErr?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
+                                    className={`form-control ${
+                                      descErr?.length > 0
+                                        ? "bg-red-100 drop-shadow-md"
+                                        : ""
+                                    }`}
                                     placeholder="Enter your message"
                                     value={desc}
                                     onChange={handleDescChange}
@@ -358,6 +433,22 @@ export default function Contact() {
                                   Send Message
                                 </button>
                               </div>
+                              {successMsg?.length > 0 && (
+                                <p className="text-green-900 font-semibold">
+                                  {successMsg}
+                                </p>
+                              )}
+                              {apiErr?.length > 0 &&
+                                apiErr?.map((err, ind) => {
+                                  return (
+                                    <p
+                                      key={ind}
+                                      className="text-red-600 font-semibold"
+                                    >
+                                      {err}
+                                    </p>
+                                  );
+                                })}
                             </div>
                           </div>
                         </form>

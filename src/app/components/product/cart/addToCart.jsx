@@ -17,6 +17,7 @@ import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
 import CryptoJS from "crypto-js";
+import OrderPlacedRepresentativeModal from "../../modals/orderplaced";
 
 export default function AddToCart() {
   const dispatch = useDispatch();
@@ -35,6 +36,7 @@ export default function AddToCart() {
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
   const [promocode, setPromocode] = useState("");
+  const [showPlaceOrderModal, setShowPlaceOrderModal] = useState(false)
   const [apiErr, setApiErr] = useState([]);
   const [activeShippingAddress, setActiveShippingAddress] = useState(
     userData?.client?.address[0]
@@ -45,6 +47,7 @@ export default function AddToCart() {
   // eslint-disable-next-line no-unused-vars
   const [activeShippingAddressChecked, setActiveShippingaddressChecked] =
     useState(0);
+    const [activeBillingAddressChecked, setActiveBillingAddressChecked] = useState(0)
 
   const [addressUpdateType, setAddressUpdateType] = useState("");
 
@@ -203,7 +206,7 @@ export default function AddToCart() {
 
   const handleShippingAddressChange = (id) => {
     setActiveShippingAddress(id);
-    // setActiveShippingaddressChecked(id);
+    setActiveShippingaddressChecked(id);
   };
 
 
@@ -328,6 +331,7 @@ export default function AddToCart() {
     } else {
       if (userData?.client?.address?.length > 1)
         setActiveShippingAddress(userData?.client?.address[1]?.id);
+      setActiveShippingaddressChecked(1)
     }
   };
 
@@ -370,6 +374,11 @@ export default function AddToCart() {
       );
       if (response?.data?.status) {
         localStorage.setItem("order_id", response?.data?.data?.order_id);
+        if(discount > 0){
+          const expiryDate = new Date(Date.now() + 604800 * 1000) // for 1 week
+          sessionStorage.setItem("expiry", JSON.stringify(expiryDate))
+          sessionStorage.setItem("offerPhone", userData?.client?.phone)
+        }
         navigate(
           `/checkout/order_id/${CryptoJS?.AES?.encrypt(
             `${response?.data?.data?.order_id}`,
@@ -396,6 +405,11 @@ export default function AddToCart() {
     setOptionalNotes(event?.target?.value);
   };
 
+
+  const handleHideOrderPlacedModal = () => {
+    setShowPlaceOrderModal(false)
+  }
+
   return (
     <>
       {loaderState && (
@@ -403,12 +417,13 @@ export default function AddToCart() {
           <div className="loader"></div>
         </div>
       )}
+      {showPlaceOrderModal && <OrderPlacedRepresentativeModal show={showPlaceOrderModal} hide={handleHideOrderPlacedModal}/>}
       <ShippingAddressModal
         show={showModal}
         onHide={() => setShowModal(false)}
         type={fomrType}
         addressType={addressUpdateType}
-        data={fomrType === "add" ? [] : userData?.client?.primary_address[0]}
+        data={fomrType === "add" ? [] : addressUpdateType=="Billing" ? userData?.client?.address[activeBillingAddressChecked] : userData?.client?.address[activeShippingAddressChecked]}
         // handleFormSubmit={handleFormSubmit}
       />
 
@@ -471,13 +486,13 @@ export default function AddToCart() {
         <section className="nk-section nk-section-job-details pt-lg-0">
           <div className="container">
             <div className="nk-section-content row px-lg-5">
-              <div className="col-lg-8 pe-lg-0">
+              <div className={`${cartProducts?.length ==0 ? "col-lg-12 flex items-center w-full justify-center" : " col-lg-8 pe-lg-0"}`}>
                 <div
-                  className={`nk-entry pe-lg-5 py-lg-5 ${
+                  className={`nk-entry ${cartProducts?.length ==0 ? "border-0" : " pe-lg-5 py-lg-5 "}${
                     allProducts?.length ? "max-h-[65%]" : ""
                   }  overflow-y-auto`}
                 >
-                  <div className="mb-5">
+                  <div className={`${cartProducts?.length > 0 ? " mb-5" : "m-2"}`}>
                     {allProducts?.length > 0 ? (
                       <table className="table">
                         <tbody>
@@ -485,8 +500,8 @@ export default function AddToCart() {
                             allProducts?.map((product,ind) => {
                               return (
                                 <tr key={ind}>
-                                  <td className="w-50">
-                                    <div className="d-flex align-items-start">
+                                  <td className="w-50  drop-shadow-lg">
+                                    <div className="d-flex hover:!shadow-lg align-items-start">
                                       <img
                                         src={product?.product?.img_1}
                                         alt="product-image"
@@ -643,8 +658,8 @@ export default function AddToCart() {
                         </tbody>
                       </table>
                     ) : (
-                      <div className="text-center font-bold text-gray-700 ">
-                        <p>no products found in cart</p>
+                      <div className="text-center w-full font-bold text-gray-700 ">
+                        <p>No products found in cart</p>
                         <p
                           className="nav-link text-green-900 cursor-pointer"
                           onClick={() => navigate("/")}
@@ -658,7 +673,7 @@ export default function AddToCart() {
                 </div>
                 <hr className="mt-2" />
                 {cartProducts?.length > 0 && (
-                  <div className="mt-5">
+                  <div className="mt-5  drop-shadow-lg">
                     {userData ? (
                       <div className="nk-section-blog-details mt-3">
                         <h4 className="mb-3 !font-bold">Billing Address :</h4>
@@ -706,9 +721,11 @@ export default function AddToCart() {
                               variant="warning"
                               color="warning"
                               onClick={() => {
+                                setActiveBillingAddressChecked(0)
                                 setShowModal(true);
                                 setFormType("update");
                                 setAddressUpdateType("Billing");
+                                
                               }}
                               style={{
                                 background: "#54a8c7",
@@ -748,17 +765,7 @@ export default function AddToCart() {
                             Add address
                           </button>
                         )}
-                        {/* <button
-                        className="btn btn-warning mb-2 mt-2 ml-2"
-                        variant="warning"
-                        color="warning"
-                        onClick={() => {
-                          setShowModal(true);
-                          setFormType("add");
-                        }}
-                      >
-                        Add address
-                      </button> */}
+                        
                         <div>
                           <hr className="mr-2" />
                         </div>
@@ -804,10 +811,12 @@ export default function AddToCart() {
                                             checked={
                                               add?.id === activeShippingAddress
                                             }
-                                            onChange={() =>
+                                            onChange={() =>{
                                               handleShippingAddressChange(
                                                 add?.id
-                                              )
+                                              );
+                                              setActiveShippingaddressChecked(ind)
+                                            }
                                             }
                                             className="form-check-input"
                                           />
@@ -863,6 +872,7 @@ export default function AddToCart() {
                           <button
                             className="btn btn-sm btn-warning mt-2 mb-2 "
                             onClick={() => {
+                              
                               setShowModal(true);
                               setFormType("update");
                               setAddressUpdateType("shipping");
@@ -898,7 +908,7 @@ export default function AddToCart() {
                 )}
               </div>
               {cartProducts?.length > 0 && (
-                <div className="col-lg-4 ps-lg-0">
+                <div className="col-lg-4 ps-lg-0 ">
                   <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
                     {/* {userData ? (
                     <div className="nk-section-blog-details mt-3">
@@ -1052,17 +1062,17 @@ export default function AddToCart() {
                       <button
                         disabled={
                           allProducts?.length > 0 &&
-                          userData?.client?.primary_address?.length !== 0 &&
+                          userData?.client?.primary_address?.length !== 0  && (userData?.client?.address?.length > 1 || billingSameAsShipping) &&
                           subTotal > 0
                             ? false
                             : true
                         }
-                        onClick={handlePlaceOrder}
+                        onClick={()=>setShowPlaceOrderModal(true)}
                         className="btn btn-primary w-100"
                       >
                         Place Order
                       </button>
-                      {userData?.client?.primary_address?.length === 0 && (
+                      {(userData?.client?.primary_address?.length === 0 || (userData?.client?.address?.length > 1 || !billingSameAsShipping)) && (
                         <span className="text-red-800 font-semibold">
                           Please add Address before placing order.
                         </span>
@@ -1080,42 +1090,38 @@ export default function AddToCart() {
             </div>
           </div>
         </section>
-        <section class="nk-section nk-cta-section">
-          <div class="container">
-            <div
-              class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
-              data-aos="fade-up"
-              data-aos-delay="100"
-            >
-              <div class="row g-gs align-items-center">
-                <div class="col-lg-8">
-                  <div class="media-group flex-column flex-lg-row align-items-center">
-                    <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
-                      <em class="icon ni ni-chat-fill"></em>
+        <section className="nk-section nk-cta-section nk-section-content-1">
+              <div className="container">
+                <div className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7">
+                  <div className="row g-gs align-items-center">
+                    <div className="col-lg-8">
+                      <div className="media-group flex-column flex-lg-row align-items-center">
+                        <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                          <em className="icon ni ni-chat-fill"></em>
+                        </div>
+                        <div className="text-center text-lg-start">
+                          <h3 className="text-capitalize m-0 !text-3xl !font-bold !leading-loose">
+                            Chat with our support team!
+                          </h3>
+                          <p className="fs-16 opacity-75">
+                            Get in touch with our support team if you still
+                            can’t find your answer.
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div class="text-center text-lg-start">
-                      <h3 class="text-capitalize m-0">
-                        Chat with our support team!
-                      </h3>
-                      <p class="fs-16 opacity-75">
-                        Get in touch with our support team if you still can’t
-                        find your answer.
-                      </p>
+                    <div className="col-lg-4 text-center text-lg-end">
+                      <a
+                        href={`${userLang}/contact`}
+                        className="btn btn-white fw-semiBold"
+                      >
+                        Contact Support
+                      </a>
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`${userLang}/contact`}
-                    class="btn btn-white fw-semiBold"
-                  >
-                    Contact Support
-                  </a>
-                </div>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
         <Footer />
       </div>
     </>

@@ -6,6 +6,8 @@ export default function Pagenotfound() {
   return (
     <>
     <Header/>
+    <div className="nk-body">
+        <div className="nk-body-root">
         <main className="nk-pages">
         <section
           className="nk-error-section nk-sectin-space-lg pt-120 pt-xl-180 overflow-hidden mb-5"
@@ -45,7 +47,7 @@ export default function Pagenotfound() {
                 </div>
               </div>
             </div>
-            <div className="row g-gs">
+            {/* <div className="row g-gs">
               <div className="col-md-6">
                 <div className="card bg-primary-100 border-0 h-100 rounded-2">
                   <div className="card-body d-flex flex-column">
@@ -92,57 +94,47 @@ export default function Pagenotfound() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </section>
-        {/* <section className="nk-section nk-newsletter-section pb-lg-0 pb-lg-0">
-          <div className="container">
-            <div
-              className="row justify-content-center justify-content-lg-between align-items-center pb-5 border-bottom border-gray-50"
-            >
-              <div className="col-lg-6 col-xl-4">
-                <div
-                  className="nk-newsletter-content text-center text-lg-start pb-5 pb-lg-0"
-                >
-                  <h4 className="text-capitalize">Subscribe to our newsletter</h4>
-                  <p className="fs-16">
-                    Join the 5000+ People That Uses Softnio Products.
-                  </p>
-                </div>
-              </div>
-              <div className="col-md-10 col-lg-6 col-xl-5">
-                <form
-                  data-action="form/subscribe.php"
-                  className="form-submit-init"
-                  method="post"
-                >
-                  <div className="form-group nk-newsletter-one row">
-                    <div className="col-md-8">
-                      <div className="form-control-wrap mb-4 mb-md-0">
-                        <input
-                          type="email"
-                          name="email"
-                          className="form-control text-base"
-                          placeholder="Enter Your Email"
-                          required
-                        />
+        
+        <section className="nk-section nk-cta-section nk-section-content-1">
+              <div className="container">
+                <div className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7">
+                  <div className="row g-gs align-items-center">
+                    <div className="col-lg-8">
+                      <div className="media-group flex-column flex-lg-row align-items-center">
+                        <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                          <em className="icon ni ni-chat-fill"></em>
+                        </div>
+                        <div className="text-center text-lg-start">
+                          <h3 className="text-capitalize m-0 !text-3xl !font-bold !leading-loose">
+                            Chat with our support team!
+                          </h3>
+                          <p className="fs-16 opacity-75">
+                            Get in touch with our support team if you still
+                            can’t find your answer.
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <div className="col-md-4 ps-md-0">
-                      <input
-                        type="submit"
-                        className="btn btn-primary btn-block h-100"
-                        value="Subscribe"
-                      />
+                    <div className="col-lg-4 text-center text-lg-end">
+                      <a
+                        href={`/contact`}
+                        className="btn btn-white fw-semiBold"
+                      >
+                        Contact Support
+                      </a>
                     </div>
                   </div>
-                </form>
+                </div>
               </div>
-            </div>
-          </div>
-        </section> */}
+            </section>
+        
       </main>
       <Footer/>
+      </div>
+      </div>
     </>
   )
 }

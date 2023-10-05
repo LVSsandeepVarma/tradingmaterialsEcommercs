@@ -44,7 +44,7 @@ export default function Register() {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -70,23 +70,31 @@ export default function Register() {
   }
 
   function firstNameVerification(name) {
-    const nameRegex = /^[a-zA-Z. ]+$/;
+    const namePattern = /^[A-Za-z ]+$/;
     if (name === "") {
       setFirstNameError("First name is required");
-    } else if (!nameRegex.test(name)) {
-      setFirstNameError("Invalid first name, only charecters are allowed");
-    } else {
+    }else if (!namePattern.test(name)) {
+      setFirstNameError("First name should contain only alphabets");
+    } else if (name?.length < 3) {
+      setFirstNameError("Min 3 characters are required");
+    } else if (name?.length > 50) {
+      setFirstNameError("Max 50 characters are required");
+    }  else {
       setFirstNameError("");
     }
   }
 
   function lastNameVerification(name) {
-    const nameRegex = /^[a-zA-Z. ]+$/;
+    const namePattern = /^[A-Za-z ]+$/;
     if (name === "") {
       setLastNameError("Last name is required");
-    } else if (!nameRegex.test(name)) {
-      setLastNameError("Invalid last name, only charecters are allowed");
-    } else {
+    }else if (!namePattern.test(name)) {
+      setLastNameError("Last name should contain only alphabets");
+    } else if (name?.length < 3) {
+      setLastNameError("Min 3 characters are required");
+    } else if (name?.length > 50) {
+      setLastNameError("Max 50 characters are required");
+    }  else {
       setLastNameError("");
     }
   }
@@ -208,7 +216,7 @@ export default function Register() {
               <div
                 className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-md-9 mx-xl-auto"
                 style={{ opacity: "1 !important" }}
-                // data-aos="fade-up"
+                data-aos="fade-up"
               >
                 <div className="card-body p-5">
                   <div className="nk-form-card-head text-center pb-5">
@@ -339,7 +347,7 @@ export default function Register() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
-                                key={ind}
+                                  key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"
@@ -368,22 +376,21 @@ export default function Register() {
                     <em className="icon ni ni-quote-left text-white"></em>
                   </div>
                   <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
-                    We’re building a better application now
+                    Join to all traders community
                   </h1>
                   <div className="nk-auth-quote ms-sm-5">
                     <div className="nk-auth-quote-inner">
                       <p className="small">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Venenatis magna massa semper tristique. Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit. Venenatis
-                        magna massa semper tristique dotset.
+                        The trading materials is about to have a twist on forum
+                        and community space for all who love to trade and make
+                        their own living.
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
-                          <img src="images/avatar/a.jpg" alt="avatar" />
+                          <img src="/images/avatar/a.jpg" alt="avatar" />
                         </div>
                         <div className="media-text">
-                          <div className="h5 mb-0 !font-bold">Wade Warren</div>
+                          <div className="h5 mb-0 !font-bold">Founder</div>
                           <span className="small">3 months ago</span>
                         </div>
                       </div>

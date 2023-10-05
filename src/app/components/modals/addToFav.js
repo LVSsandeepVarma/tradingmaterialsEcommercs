@@ -5,7 +5,8 @@ import { BsExclamationCircle } from 'react-icons/bs'
 import { FaCheckCircle } from 'react-icons/fa'
 
 // eslint-disable-next-line react/prop-types
-export default function AddToFav({showModal, closeModal, addedToFavImg, modalMessage}) {
+export default function AddToFav({showModal, closeModal, addedToFavImg, modalMessage , wishMsg}) {
+  console.log(wishMsg, "msggg")
   return (
     <Modal show={showModal} onHide={closeModal} className="!border-0" centered>
           <Modal.Body className="border-0 !bg-[#e5e7eb]">
@@ -16,7 +17,7 @@ export default function AddToFav({showModal, closeModal, addedToFavImg, modalMes
               <div>
               <p className=" flex text-xl items-center !truncate !text-[rgba(105,110,119,1)] p-2 "><FaCheckCircle color="success" style={{color:"green"}} className="mr-1"/>{modalMessage}</p>
               {/* <div className="!inline"> */}
-              { modalMessage?.search("cart") !== -1 && <p className="flex text-lg items-center !truncate !text-[rgba(105,110,119,1)] p-2 pt-1"><BsExclamationCircle color="green" style={{color:"red"}} className="mr-1" />Removed from your wishlist</p>}
+              { modalMessage?.search("cart") !== -1 && wishMsg == true && <p className="flex text-lg items-center !truncate !text-[rgba(105,110,119,1)] p-2 pt-1"><BsExclamationCircle color="green" style={{color:"red"}} className="mr-1" />Removed from your wishlist</p>}
               {/* </div> */}
               </div>
             </div>

@@ -25,14 +25,19 @@ export default function Footer() {
                         </a>
                       </div>
                       <p className="!text-left">
-                        Discover the inspiring story behind NioLand - how a
-                        vision became a reality, empowering individuals and
-                        businesses to thrive in the digital world.
+                        At Trading Materials, we are dedicated to empowering
+                        traders of all levels with curated resources and
+                        insights to excel in the world of trading. Our mission
+                        is to provide you with top-notch materials that
+                        contribute to your trading success. Join us on this
+                        journey as we redefine trading education and support for
+                        a brighter trading future.
                       </p>
                     </div>
                     <ul className="nk-footer-social">
                       <li>
-                        <a href="#">
+                        {/* // eslint-disable-next-line react/jsx-no-target-blank */}
+                        <a rel="noreferrer" href="https://www.facebook.com/people/Trading-Material-Shipping-Service/61551868807687/" target="_blank">
                           <em className="icon ni ni-facebook-f"></em>
                         </a>
                       </li>
@@ -54,25 +59,34 @@ export default function Footer() {
                     </ul>
                   </div>
                 </div>
-                {/* 
-                    <div className="col-md-8 col-lg-2 col-xxl-2">
-                        <div className="nk-footer-info">
-                            <h5 className="title">Pages</h5>
-                            <ul className="row gy-1 gy-sm-4">
-                                <li className="col-12"><a href="about-us.php">About Us</a></li>
-                                <li className="col-12"><a href="pricing.php">Pricing </a></li>
-                                <li className="col-12"><a href="product-details.php">Trading Materials</a></li>
-                                <li className="col-12"><a href="contact-us.html">Contact</a></li>
-                            </ul>
-                        </div>
-                    </div>
 
-                    <div className="col-md-8 col-lg-2 col-xxl-2">
+                <div className="col-md-8 col-lg-2 col-xxl-2">
+                  <div className="nk-footer-info">
+                    <h5 className="title">Pages</h5>
+                    <ul className="row gy-1 gy-sm-4">
+                      <li className="col-12 !mt-[2.25rem]">
+                        <a href="/about">About Us</a>
+                      </li>
+                      {/* <li className="col-12"><a href="pricing.php">Pricing </a></li> */}
+                      <li className="col-12">
+                        <a href="/">Trading Materials</a>
+                      </li>
+                      <li className="col-12">
+                        <a href="/contact">Contact</a>
+                      </li>
+                      <li className="col-12">
+                        <a href="/careers">Careers</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* <div className="col-md-8 col-lg-2 col-xxl-2">
                         <div className="nk-footer-info">
                             <h5 className="title">Utility Pages</h5>
                             <ul className="row gy-1 gy-sm-4">
-                                <li className="col-12"><a href="login.php">Login</a></li>
-                                <li className="col-12"><a href="signup.php">Sign up</a></li>
+                                <li className="col-12"><a href="/#login">Login</a></li>
+                                <li className="col-12"><a href="/#signup">Sign up</a></li>
                                 <li className="col-12"><a href="forgot-password.php"> Forgot Password </a></li>
                                 <li className="col-12"><a href="reset-password.php">Reset Password</a></li>
                             </ul>
@@ -93,28 +107,26 @@ export default function Footer() {
                           <em className="icon ni ni-mail-fill text-primary"></em>
                           <span className="text-lowercase">
                             {" "}
-                            contact@nioland.com{" "}
+                            support@tradingmaterials.com{" "}
                           </span>
                         </a>
                       </li>
                       <li className="col-12 ">
                         <a
-                          href="tel:+1-800-222-4545"
+                          href="tel:+1-080-68493342"
                           className="!text-center nk-footer-text d-flex align-items-center gap-1"
                         >
                           <em className="icon ni ni-call-alt-fill text-primary"></em>
                           <span className="text-lowercase">
                             {" "}
-                            1-800-222-4545{" "}
+                            080-68493342{" "}
                           </span>
                         </a>
                       </li>
                       <li className="col-12 !text-start">
                         <em className="icon ni ni-map-pin-fill text-primary"></em>
-                        <span className="text-lowercase ">
-                          {" "}
-                          140/142, 2 Nd Floor, Govind Building, Princess Street,
-                          Near Imperial Hotel, Residency Road, India{" "}
+                        <span className="capitalize">
+                        35-48, 7th Main, Sanchar Nagar MCECHS Layout, Ashwath Nagar, HBR Layout, Bengaluru, Geddalahalli, Karnataka 560045
                         </span>
                       </li>
                     </ul>
@@ -180,17 +192,17 @@ export default function Footer() {
                 <div className="col-lg-6 col-md-12 col-sm-12">
                   <ul className="nk-footer-copyright justify-content-center justify-content-lg-end">
                     <li>
-                      <a className="nk-footer-text" href={`${userLang}/`}>
+                      <a className="nk-footer-text" href={`/terms-and-conditions`}>
                         Terms & conditions
                       </a>
                     </li>
                     <li>
-                      <a className="nk-footer-text" href={`${userLang}/`}>
+                      <a className="nk-footer-text" href={`/privacy-policy`}>
                         Privacy Policy
                       </a>
                     </li>
                     <li>
-                      <a className="nk-footer-text" href={`${userLang}/`}>
+                      <a className="nk-footer-text" href={`/refund-policy`}>
                         Cancellation & Refund Policy
                       </a>
                     </li>

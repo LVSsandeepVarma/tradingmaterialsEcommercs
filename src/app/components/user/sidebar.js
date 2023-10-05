@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
-import { updateCartCount } from "../../../features/cartWish/focusedCount";
+import { updateCartCount, updateWishListCount } from "../../../features/cartWish/focusedCount";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -35,6 +35,8 @@ import { MdOutlineAlternateEmail } from "react-icons/md";
 import { BiSolidPhoneCall } from "react-icons/bi";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { logoutUser } from "../../../features/login/loginSlice";
+import AddToFav from "../modals/addToFav";
+import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 
 const drawerWidth = 240;
 
@@ -89,6 +91,8 @@ export default function SideBar() {
   // eslint-disable-next-line no-unused-vars
   const [open, setOpen] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const loaderState = useSelector((state) => state?.loader?.value);
+
   const [showModal, setShowModal] = useState(false);
   const [addressUpdateType, setAddressUpdateType] = useState();
   const [addressData, setAddressData] = useState();
@@ -96,6 +100,11 @@ export default function SideBar() {
   const tabs = ["Address", "Cart", "Wishlist", "Orders", "Logout"];
   const clientType = useSelector((state) => state?.clientType?.value);
   const [animateProductId, setAnimateProductId] = useState("");
+  const [addedToFavImg, setAddedToFavImg] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
+  const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
+  const isLoggedIn = useSelector((state) => state?.login?.value);
+  const [dialogShow, setDialogShow] = useState(false);
 
   const [formType, setFormType] = useState("add");
   const dispatch = useDispatch();
@@ -215,6 +224,8 @@ export default function SideBar() {
       if (response?.status) {
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
+        sessionStorage.removeItem("offerPhone")
+            sessionStorage.removeItem("expiry")
         dispatch(updateNotifications({ type: "", message: "" }));
         navigate(`${userLang}/`)
         window.location.reload();
@@ -228,9 +239,10 @@ export default function SideBar() {
   }
 
   const handleActiveTab = (index) => {
-    if (index !== 3 && index !== 4) {
+    if (index !== 3 && index !== 4 && index !== 1 && index != 0) {
       setActiveIndex(index);
     } else {
+
       if(index === 3){
       window.open(
         `/orders/${CryptoJS?.AES?.encrypt(
@@ -245,9 +257,67 @@ export default function SideBar() {
         }
         else if(index === 4){
           handleLogout()
+        } else if(index == 1){
+          window.location.href = "/cart"
+        } else if(index == 0){
+          window.location.href = "/profile"
         }
     }
   };
+
+    // function for handling add to cart animation
+    async function handleAddToCart(productId, productImg) {
+      try {
+        // setAnimateProductId(productId);
+        dispatch(showLoader());
+        const response = await axios?.post(
+          "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+          {
+            product_id: productId,
+            qty: 1,
+            client_id: userData?.client?.id,
+          },
+          {
+            headers: {
+              "access-token": localStorage.getItem("client_token"),
+            },
+          }
+        );
+        if (response?.data?.status) {
+          setAddedToFavImg(productImg);
+          setDialogShow(true);
+          setModalMessage("Added to your Cart successfully");
+          dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
+          dispatch(updateCart(response?.data?.data?.cart_details));
+          dispatch(updateCartCount(response?.data?.data?.cart_count));
+          getUserInfo(productId);
+          if (userData?.client?.wishlist?.length > 0) {
+            const ids = userData?.client?.wishlist?.map(
+              (item) => item?.product_id
+            );
+            const isPresent = ids?.includes(productId);
+            console.log(isPresent, ids, productId, "prest");
+            if (isPresent) {
+              dispatch(
+                updateWishListCount(userData?.client?.wishlist?.length - 1)
+              );
+              setShowWishlistRemoveMsg(true);
+            } else {
+              setShowWishlistRemoveMsg(false);
+            }
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        dispatch(hideLoader());
+      }
+    }
+    const closedialogModal = () => {
+      setDialogShow(false);
+      setModalMessage("");
+      setAddedToFavImg("");
+    }; 
 
   return (
     <>
@@ -259,6 +329,22 @@ export default function SideBar() {
         type={formType}
         // handleFormSubmit={handleFormSubmit}
       />
+      {loaderState && (
+        <div className="preloader !backdrop-blur-[1px] ">
+          <div className="loader"></div>
+        </div>
+      )}
+
+{addedToFavImg !== "" && (
+        <AddToFav
+          showModal={dialogShow}
+          closeModal={closedialogModal}
+          modalMessage={modalMessage}
+          addedToFavImg={addedToFavImg}
+          wishMsg={showWishlistRemoveMsg}
+        />
+      )}
+
       <div className="container">
         <Header />
         <Box sx={{ display: "flex" }}>
@@ -456,7 +542,7 @@ export default function SideBar() {
             }}
           >
             <p
-              className="p-0 m-0 text-left text-sm font-bold"
+              className="pt-2 ml-2 mt-2 md:!ml-0 md:!p-0 md:!m-0 text-left text-sm font-bold"
               style={{ color: "darkgray" }}
             >
               {" "}
@@ -486,7 +572,7 @@ export default function SideBar() {
                   <h4 className="!font-bold !text-gray-900">Billing address</h4>
                   <div>
                     <small className="w-full !text-left">
-                      Showing All Billing address available
+                      {userData?.client?.primary_address?.length > 0 ? "Showing All Billing address available" : "No Address Found"}
                     </small>
                     <div className="flex overflow-x-auto">
                       {userData?.client?.primary_address?.map(
@@ -509,7 +595,9 @@ export default function SideBar() {
                                 Address - {ind + 1}
                               </h3>
                               <p>{address?.add_1},</p>
-                              <p>{address?.add_2},</p>
+                              {address?.add_2 !== null
+                                  ? `${address?.add_2},`
+                                  : ""}
                               <p>{address?.city},</p>
                               <p>{address?.zip},</p>
                               <p>{address?.state},</p>
@@ -538,14 +626,16 @@ export default function SideBar() {
                   <h4 className="mt-5 !font-bold">Shippping address</h4>
                   <div>
                     <small className="w-full !text-left">
-                      Showing All Shipping address available
+                     
+                      {userData?.client?.primary_address?.length > 0 ? "Showing All Shipping address available" : "No Address Found"}
                     </small>
-                    <div className="flex overflow-x-auto ">
+                    <div className="grid sm:!grid-cols-1 !grid-cols-3  gap-4">
                       {userData?.client?.address?.map((address, ind) => (
                         <div
                           key={ind}
-                          className=" w-fit border border-1 p-3  text-left !min-w-[45%]  sm:!min-w-[25%] sm:max-w-[40%]  mt-5 ml-5 gap-5"
+                          className="col-sm-4  w-fit border border-1 p-3  text-left w-full  mt-5 ml-5 gap-5"
                         >
+                          {/* !min-w-[75%]  sm:!min-w-[25%] sm:max-w-[40%] */}
                           <CardActionArea
                             onClick={() => {
                               setAddressUpdateType("shipping");
@@ -555,8 +645,10 @@ export default function SideBar() {
                             }}
                           >
                             <h3 className="!font-bold">Address - {ind + 1}</h3>
-                            <p>{address?.add_1},</p>
-                            <p>{address?.add_2},</p>
+                            <p className="">{address?.add_1},</p>
+                            {address?.add_2 !== null
+                                  ? `${address?.add_2},`
+                                  : ""}
                             <p>{address?.city},</p>
                             <p>{address?.zip},</p>
                             <p>{address?.state},</p>
@@ -924,7 +1016,7 @@ export default function SideBar() {
                               className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
                             >
                               <Card className="mt-5 " sx={{ maxWidth: 345 }}>
-                                <CardActionArea>
+                                <div>
                                   <CardMedia
                                     component="img"
                                     height="140"
@@ -967,7 +1059,7 @@ export default function SideBar() {
                                             textOverflow: "ellipsis",
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
-                                            width: "90%",
+                                            width: "97%",
                                           }}
                                         >
                                           {product?.product?.name}
@@ -1013,7 +1105,7 @@ export default function SideBar() {
                                           <span className=" fs-12 text-gray-800">
                                             {" "}
                                             ({
-                                              product?.total_reviews
+                                              product?.review
                                             } Reviews){" "}
                                           </span>
                                         </div>
@@ -1030,16 +1122,19 @@ export default function SideBar() {
                                             {product?.discount > 0 && (
                                               <del className="text-gray-800 !ml-2">
                                                 {
-                                                  (
-                                                    parseFloat(
-                                                      product?.price *
-                                                        (100 /
-                                                          product?.discount)
-                                                    )?.toFixed(2) + ""
-                                                  )
-                                                    .toString()
-                                                    .split(".")[0]
-                                                }
+                                                                (
+                                                                  parseFloat(
+                                                                    product?.price *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[0]
+                                                              }
                                                 <sub
                                                   style={{
                                                     verticalAlign: "super",
@@ -1060,6 +1155,39 @@ export default function SideBar() {
                                               </del>
                                             )}
                                           </p>
+
+                                          <div className="flex justify-end w-full items-center">
+                                      <button
+                                        className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                        // eslint-disable-next-line no-unused-vars
+                                        onClick={(event) => {
+                                          return isLoggedIn
+                                            ? handleAddToCart(
+                                                product?.product?.id,
+                                                product?.product?.img_1
+                                              )
+                                            : dispatch(
+                                                      usersignupinModal({
+                                                        showSignupModal: false,
+                                                        showLoginModal: true,
+                                                        showforgotPasswordModal: false,
+                                                        showOtpModal: false,
+                                                        showNewPasswordModal: false,
+                                                      })
+                                                    );
+                                        }}
+                                      >
+                                        {animateProductId ===
+                                        product?.product?.id ? (
+                                          <img
+                                            src="/images/addedtocart.gif"
+                                            className="max-w-[45px]"
+                                          />
+                                        ) : (
+                                          <em className="icon ni ni-cart text-2xl "></em>
+                                        )}
+                                      </button>
+                                    </div>
 
                                           {/* {product?.prices?.map(
                                             (price, ind) => (
@@ -1153,7 +1281,7 @@ export default function SideBar() {
                                       </div>
                                     </Typography>
                                   </CardContent>
-                                </CardActionArea>
+                                </div>
                               </Card>
                               {product?.discount > 0 && (
                                 <div className="flex justify-end items-end ">

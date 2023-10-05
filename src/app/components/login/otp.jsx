@@ -108,7 +108,7 @@ export default function Otp() {
   return (
     <>
       {loaderState && (
-        <div className="preloader !bg-[rgba(0,0,0,0.5)]">
+        <div className="preloader !backdrop-blur-[1px]">
           <div className="loader"></div>
         </div>
       )}
@@ -118,7 +118,7 @@ export default function Otp() {
             <div className="nk-split-col nk-auth-col justify-content-center">
               <div
                 className="nk-form-card card  p-0 card-gutter-md nk-auth-form-card mx-lg-9 mx-xl-auto"
-                // data-aos="fade-up"
+                data-aos="fade-up"
               >
                 <div className="card-body">
                   <div className="nk-form-card-head text-center pb-5">
