@@ -4,7 +4,8 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { hidePopup } from "../../../features/popups/popusSlice";
 
-export default function Offer() {
+// eslint-disable-next-line react/prop-types
+export default function Offer({mouseOverEvent}) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [emailErr, setEmailErr] = useState("");
@@ -122,6 +123,7 @@ export default function Offer() {
             borderBottom: "1px solid white",
             borderRadius: 0,
           }}
+          onMouseOver={mouseOverEvent}
           placeholder="Email"
           onChange={handleEmailChange}
         />
@@ -135,6 +137,7 @@ export default function Offer() {
           className="form-control border-b-1 !text-white border-white bg-transparent hover:drop-shadow-lg mb-2 placeholder-white w-full "
           placeholder="Mobile "
           onChange={handlePhonechange}
+          onMouseOver={mouseOverEvent}
           style={{
             border: "0px",
             borderBottom: "1px solid white",

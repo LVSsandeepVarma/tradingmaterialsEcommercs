@@ -47,6 +47,7 @@ export default function Header() {
   const popup = useSelector((state) => state?.popup?.value);
   const modals = useSelector((state) => state?.signupInModal?.value);
   const clientType = localStorage.getItem("client_type");
+  const [mouseOverEvent, setMouseOverEvent] = useState(false)
   const [activeDropDown, setActiveDropDown] = useState("");
   // const [showFloatingForm, setShowFloatingForm] = useState(false)
   // eslint-disable-next-line no-unused-vars
@@ -466,6 +467,10 @@ export default function Header() {
     });
   };
 
+  function handleMouseOverEvent(){
+    setMouseOverEvent(true)
+  }
+
   return (
     <>
       {/* {loaderState && (
@@ -570,7 +575,7 @@ export default function Header() {
             }}
           >
             <div className="flex !shadow-xl">
-              <div
+              {!mouseOverEvent && <div
                 className="d-flex drop-shadow-lg shadow-lg flex-col w-[50%] items-center justify-center"
                 style={{
                   background: "linear-gradient(45deg, #5582bf, transparent)",
@@ -596,20 +601,20 @@ export default function Header() {
                     </h3>
                   </div>
                 </div>
-              </div>
-              <div className=" d-flex flex-col drop-shadow-xl w-[40%] items-center !justify-center  rounded-xl" onMouseOver={()=>{console.log("mouse..")}}>
-                <div className="d-flex items-center justify-center w-[50%]">
+              </div>}
+              <div className={` d-flex flex-col drop-shadow-xl ${!mouseOverEvent ? "w-[40%] " : "!w-full "} items-center !justify-center  rounded-xl`} onMouseOver={()=>{console.log("mouse..")}}>
+                <div className="d-flex items-center justify-center ">
                   <img
-                    className=""
+                    className={`${mouseOverEvent? "max-w-[50%]" : ""}`}
                     src="/images/oneDayLeft.png"
                     alt="oneDayleft_png"
                   ></img>
                 </div>
 
-                <div className="tb-space d-flex justify-center  mt-[22px] w-full ">
-                  <div className="!inline ">
+                <div className={`${mouseOverEvent ? "w-[90%]" : "tb-space d-flex justify-center  mt-[22px] w-full"} `}>
+                  <div className={`${mouseOverEvent ? "" : "!inline"} `}>
                     <div></div>
-                    <Offer />
+                    <Offer mouseOverEvent = {handleMouseOverEvent} />
                   </div>
                 </div>
               </div>

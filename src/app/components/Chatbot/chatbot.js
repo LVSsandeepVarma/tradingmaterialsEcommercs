@@ -155,7 +155,7 @@ export default function ChatForm({hide}){
     {/* type-1 */}
     <div className="outer" ref={componentRef}>
     <div className="p-2 text-left w-full">
-    <div className="flex items-center w-full justify-around relative" style={{zIndex: "999999"}}>
+    <div className="flex items-start w-full justify-around relative" style={{zIndex: "999999"}}>
       <h2 className="h1text !font-bold !w-full mt-0 pt-0">Get 10% Off on First Order</h2>
       <p className="  cursor-pointer offer-bottom-right flex justify-end mr-2"  onClick={()=>hide("none")}>X</p>
       
