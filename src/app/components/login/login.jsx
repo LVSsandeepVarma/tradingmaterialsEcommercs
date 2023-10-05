@@ -158,7 +158,7 @@ export default function Login() {
               })
             );
             navigate(`${userLang}/?login`);
-          }, 3600000);
+          }, 3600);
         }
       } catch (err) {
         console.log("err", err);

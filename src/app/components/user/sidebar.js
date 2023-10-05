@@ -574,12 +574,12 @@ export default function SideBar() {
                     <small className="w-full !text-left">
                       {userData?.client?.primary_address?.length > 0 ? "Showing All Billing address available" : "No Address Found"}
                     </small>
-                    <div className="flex overflow-x-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4">
                       {userData?.client?.primary_address?.map(
                         (address, ind) => (
                           <div
                             key={ind * 3}
-                            className="w-fit border border-1 p-3  text-left !min-w-[45%]  sm:!min-w-[25%] sm:max-w-[40%]  mt-5 ml-5 gap-5"
+                            className="w-fit border border-1 p-3  text-left w-[95%] mt-5 ml-5 gap-5"
                           >
                             <CardActionArea
                               onClick={() => {
@@ -594,7 +594,7 @@ export default function SideBar() {
                               <h3 className="!font-bold">
                                 Address - {ind + 1}
                               </h3>
-                              <p>{address?.add_1},</p>
+                              <p className="truncate">{address?.add_1},</p>
                               {address?.add_2 !== null
                                   ? `${address?.add_2},`
                                   : ""}
@@ -629,11 +629,11 @@ export default function SideBar() {
                      
                       {userData?.client?.primary_address?.length > 0 ? "Showing All Shipping address available" : "No Address Found"}
                     </small>
-                    <div className="grid sm:!grid-cols-1 !grid-cols-3  gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4  mb-2">
                       {userData?.client?.address?.map((address, ind) => (
                         <div
                           key={ind}
-                          className="col-sm-4  w-fit border border-1 p-3  text-left w-full  mt-5 ml-5 gap-5"
+                          className="col-sm-4  w-fit border border-1 p-3  text-left w-[95%]  mt-5 ml-5 gap-5"
                         >
                           {/* !min-w-[75%]  sm:!min-w-[25%] sm:max-w-[40%] */}
                           <CardActionArea
@@ -645,7 +645,7 @@ export default function SideBar() {
                             }}
                           >
                             <h3 className="!font-bold">Address - {ind + 1}</h3>
-                            <p className="">{address?.add_1},</p>
+                            <p className="truncate">{address?.add_1},</p>
                             {address?.add_2 !== null
                                   ? `${address?.add_2},`
                                   : ""}

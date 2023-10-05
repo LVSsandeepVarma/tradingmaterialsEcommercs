@@ -81,9 +81,10 @@ const AddressForm = ({ type, data, closeModal }) => {
 
   return (
     <>
-      {isSuccess && (
-        <div
-          className=" top-0 left-1/2 transform-translate-x-1/9 bg-green-500 text-white px-4 py-2 rounded shadow-lg absolute  "
+      {!isSuccess && (
+        <div className="w-full flex justify-center items-center">
+          <div
+          className=" top-0 flex justify-center items-center !w-fit transform-translate-x-1/9 bg-green-500 text-white px-4 py-2 rounded shadow-lg   "
           style={{
             zIndex: 100000,
             animation: "slide-down 2s ease-in-out",
@@ -94,18 +95,21 @@ const AddressForm = ({ type, data, closeModal }) => {
             ? "Address added successfully!"
             : "Address updated successfully"}
         </div>
+        </div>
       )}
 
       {/* Failure Alert */}
       {isFailure && (
-        <div
-          className="top-0 left-1/2 transform-translate-x-1/9 bg-red-500 text-white px-4 py-2 rounded shadow-lg absolute "
+        <div className="w-full flex justify-center items-center">
+          <div
+          className="top-0 flex justify-center items-center !w-fit transform-translate-x-1/9 bg-red-500 text-white px-4 py-2 rounded shadow-lg  "
           style={{
             animation: "slide-down 2s ease-in-out",
             animationFillMode: "forwards",
           }}
         >
           Address submission failed!
+        </div>
         </div>
       )}
       <Formik
