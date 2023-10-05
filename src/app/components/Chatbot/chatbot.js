@@ -149,7 +149,6 @@ export default function ChatForm({hide}){
         setCurrentStep(1)
       }
     }
-
   };
   return (
     <>
