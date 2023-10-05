@@ -11,7 +11,7 @@ const ShippingAddressModal = ({ show, onHide, data, addressType, type }) => {
       <Modal.Header closeButton={true}>
         <Modal.Title className="!font-bold">{type?.charAt(0)?.toUpperCase() + type?.slice(1)} {addressType?.charAt(0)?.toUpperCase()+ addressType?.slice(1)} Address</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body className="!pt-0">
         <AddressForm type={type} data={data} closeModal={onHide} />
       </Modal.Body>
     </Modal>

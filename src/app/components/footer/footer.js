@@ -62,7 +62,7 @@ export default function Footer() {
 
                 <div className="col-md-8 col-lg-2 col-xxl-2">
                   <div className="nk-footer-info text-start">
-                    <h5 className="title !text-start !font-bold !mb-[24px]">Pages</h5>
+                    <h5 className="title !text-start !font-bold !mb-[2px]">Pages</h5>
                     <ul className="row gy-1 gy-sm-4">
                       <li className="col-12 !mt-[2.25rem]">
                         <a href="/about">About Us</a>
@@ -184,9 +184,9 @@ export default function Footer() {
                     <span id="currentYear">{new Date().getFullYear()}</span>
                     <a className="fs-16 !text-blue-600" href="#">
                       {" "}
-                      Trading Materials
+                      Trading Materials .
                     </a>
-                    . All Rights Reserved.
+                    &#160;All&nbsp;Rights&nbsp;Reserved.
                   </p>
                 </div>
                 <div className="col-lg-6 col-md-12 col-sm-12">

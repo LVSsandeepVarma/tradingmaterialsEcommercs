@@ -38,6 +38,7 @@ import ReviewDialog from "../../modals/reviewDialog";
 import { logoutUser } from "../../../../features/login/loginSlice";
 import { usersignupinModal } from "../../../../features/signupinModals/signupinSlice";
 import AddToFav from "../../modals/addToFav";
+import { FaRegHeart } from "react-icons/fa";
 
 // import { delay } from "@reduxjs/toolkit/dist/utils";
 
@@ -50,6 +51,7 @@ export default function ProductDetails() {
   const userData = useSelector((state)=> state?.user?.value)
   const cartProducts = useSelector((state) => state?.cart?.value);
   const clientType = useSelector((state) => state?.clientType?.value);
+  // const [showPlaceHolderLoader, setShowPlaceHolderLoader] = useState(false);
   const loaderState = useSelector((state) => state?.loader?.value);
   const userLang = useSelector((state) => state?.lang?.value);
   const isLoggedIn = useSelector((state) => state?.login?.value);
@@ -85,6 +87,26 @@ export default function ProductDetails() {
       clearTimeout(timoeOut);
     };
   }, [animateProductId]);
+
+
+  const handleCartPosition = () => {
+    // const cartButtonRect = document
+      // ?.getElementById(`img-4`)
+      // ?.getBoundingClientRect();
+    // const top = cartButtonRect?.top;
+    // const right = cartButtonRect?.left;
+    // dispatch(
+    //   updatePositions({
+    //     cartTop: positions?.cartTop,
+    //     cartRight: positions?.cartRight,
+    //     productTop: top,
+    //     productRight: right,
+    //   })
+    // );
+
+    // Animate the product's movement towards the cart button
+    // setCartPosition({ top: `${top}px`, right: `${right}px` });
+  };
 
   useEffect(() => {
     setCurrentUserLang(localStorage.getItem("i18nextLng"));
@@ -1395,20 +1417,24 @@ export default function ProductDetails() {
                     </div>
                   </div>
                 </div>
-                <div className="row gy-5 justify-between">
-                  {subCatProducts?.length !== 0 &&
-                    subCatProducts?.map((product, _indx) => {
-                      if (product?.combo) {
-                        return (
-                          // product?.getproducts?.map((comboProduct, n)=>(
+                <div className="row gy-5 justify-between ">
+              {/* overflow-auto !max-h-[354px] sm:!max-h-[500px] lg:!max-h-[670px] */}
+              {subCatProducts?.length === 0 && (
+                <p className="font-bold">No products to Display</p>
+              )}
+              {subCatProducts?.length !== 0 &&
+                subCatProducts?.map((product) => {
+                  if (product?.combo) {
+                    return (
+                      <>
+
                           <div
-                          key={_indx}
-                            className="col-xl-4 col-lg-4 col-md-6 group hover:drop-shadow-xl"
+                            className="col-xl-4 col-lg-4 col-md-6 !pb-[27px] group hover:drop-shadow-xl"
                             data-aos="fade-up"
                             data-aos-delay="100"
                           >
-                            <div className="nk-card overflow-hidden rounded-3 border h-100">
-                            <div className="nk-card-img relative">
+                            <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
+                              <div className="nk-card-img relative">
                                 <a
                                   href={`${userLang}/product-detail/${
                                     product?.slug
@@ -1426,13 +1452,15 @@ export default function ProductDetails() {
                                     className="w-100 group-hover:scale-105 transition duration-500"
                                     // loading="lazy"
                                   />
-                                  {/* {product?.stock?.stock <10 && <GitHubForkRibbon
-                                            className="drop-shadow-xl subpixel-antialiased"
-                                            color="orange"
-                                            position="left"
-                                          >
-                                            Only {product?.stock?.stock} left !!
-                                          </GitHubForkRibbon>} */}
+                                  {/* {product?.stock?.stock < 10 && (
+                                    <GitHubForkRibbon
+                                      className="drop-shadow-xl subpixel-antialiased"
+                                      color="orange"
+                                      position="left"
+                                    >
+                                      Only {product?.stock?.stock} left !!
+                                    </GitHubForkRibbon>
+                                  )} */}
                                 </a>
                               </div>
                               <div className="nk-card-info bg-white p-4">
@@ -1456,29 +1484,48 @@ export default function ProductDetails() {
                                 >
                                   {product?.name}
                                   <br />
-                                  {/* <span className="text-xs">
+                                  <span className="text-xs">
                                     <p
+                                      className="!mt-5 text-gray-700"
+                                      onClick={() => {
+                                        navigate(
+                                          `${userLang}/product-detail/${
+                                            product?.slug
+                                          }/${CryptoJS?.AES?.encrypt(
+                                            `${product?.id}`,
+                                            "trading_materials"
+                                          )
+                                            ?.toString()
+                                            .replace(/\//g, "_")
+                                            .replace(/\+/g, "-")}`
+                                        );
+                                        dispatch(showLoader());
+                                      }}
                                       dangerouslySetInnerHTML={{
-                                        __html: product?.description,
+                                        __html:
+                                          product?.description?.length > 55
+                                            ? `${product?.description?.slice(
+                                                0,
+                                                55
+                                              )}...`
+                                            : product?.description,
                                       }}
                                     />
-                                  </span> */}
+                                  </span>
                                 </a>
                                 <div className="d-flex align-items-center mb-2 gap-1">
                                   {ratingStars(product?.rating)}
-
                                   <span className="fs-14 text-gray-800">
                                     {" "}
-                                    ({product?.total_reviews} Reviews){" "}
+                                    {product?.total_reviews} Reviews{" "}
                                   </span>
                                 </div>
-                                <div className="d-flex align-items-center justify-between	mb-2">
-                                  {product?.prices?.map((price, ind) => (
+                                <div className="d-flex align-items-center justify-content-between mb-2">
+                                  {product?.prices?.map((price) => (
                                     <>
                                       {currentUserlang === "en" &&
                                         price?.INR && (
                                           <p
-                                          key={ind}
                                             className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
                                           >
                                             {currentUserlang === "en"
@@ -1562,8 +1609,9 @@ export default function ProductDetails() {
                                                         (
                                                           parseFloat(
                                                             price?.INR *
-                                                            (100 /
-                                                              (100-product?.discount))
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -1579,8 +1627,9 @@ export default function ProductDetails() {
                                                           (
                                                             parseFloat(
                                                               price?.INR *
-                                                              (100 /
-                                                                (100-product?.discount))
+                                                                (100 /
+                                                                  (100 -
+                                                                    product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -1619,8 +1668,9 @@ export default function ProductDetails() {
                                                         (
                                                           parseFloat(
                                                             price?.INR *
-                                                            (100 /
-                                                              (100-product?.discount))
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -1636,8 +1686,9 @@ export default function ProductDetails() {
                                                           (
                                                             parseFloat(
                                                               price?.INR *
-                                                              (100 /
-                                                                (100-product?.discount))
+                                                                (100 /
+                                                                  (100 -
+                                                                    product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -1763,8 +1814,9 @@ export default function ProductDetails() {
                                                         (
                                                           parseFloat(
                                                             price?.INR *
-                                                            (100 /
-                                                              (100-product?.discount))
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -1780,8 +1832,9 @@ export default function ProductDetails() {
                                                           (
                                                             parseFloat(
                                                               price?.INR *
-                                                              (100 /
-                                                                (100-product?.discount))
+                                                                (100 /
+                                                                  (100 -
+                                                                    product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -1819,9 +1872,9 @@ export default function ProductDetails() {
                                                       {
                                                         (
                                                           parseFloat(
-                                                            price?.INR *
-                                                            (100 /
-                                                              (100-product?.discount))
+                                                            price?.USD *
+                                                              (100 /
+                                                                product?.discount)
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
@@ -1837,8 +1890,9 @@ export default function ProductDetails() {
                                                           (
                                                             parseFloat(
                                                               price?.INR *
-                                                              (100 /
-                                                                (100-product?.discount))
+                                                                (100 /
+                                                                  (100 -
+                                                                    product?.discount))
                                                             )?.toFixed(2) + ""
                                                           )
                                                             .toString()
@@ -1853,21 +1907,59 @@ export default function ProductDetails() {
                                     </>
                                   ))}
                                   <button
-                                    className="p-0 border-0 outline-none bg-transparent text-primary"
+                                    className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "end",
+                                      marginRight: "5px",
+                                    }}
                                     onClick={() => {
-                                      return isLoggedIn
-                                        ? handleAddToCart(product?.id, product?.img_1)
+                                      isLoggedIn
+                                        ? handleAddToWishList(
+                                            product?.id,
+                                            product?.img_1
+                                          )
                                         : dispatch(
-                                          usersignupinModal({
-                                            showSignupModal: false,
-                                            showLoginModal: true,
-                                            showforgotPasswordModal: false,
-                                            showOtpModal: false,
-                                            showNewPasswordModal: false,
-                                          }));
+                                            usersignupinModal({
+                                              showSignupModal: false,
+                                              showLoginModal: true,
+                                              showforgotPasswordModal: false,
+                                              showOtpModal: false,
+                                              showNewPasswordModal: false,
+                                            })
+                                          );
                                     }}
                                   >
-                                    <em className="icon ni ni-cart text-2xl"></em>
+                                    <FaRegHeart size={18} />
+                                  </button>
+                                  <button
+                                    className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                    onClick={(event) => {
+                                      return isLoggedIn
+                                        ? (handleAddToCart(
+                                            product?.id,
+                                            product?.img_1
+                                          ),
+                                          handleCartPosition(event))
+                                        : dispatch(
+                                            usersignupinModal({
+                                              showSignupModal: false,
+                                              showLoginModal: true,
+                                              showforgotPasswordModal: false,
+                                              showOtpModal: false,
+                                              showNewPasswordModal: false,
+                                            })
+                                          );
+                                    }}
+                                  >
+                                    {animateProductId === product?.id ? (
+                                      <img
+                                        src="/images/addedtocart.gif"
+                                        className="max-w-[45px]"
+                                      />
+                                    ) : (
+                                      <em className="icon ni ni-cart text-2xl"></em>
+                                    )}
                                   </button>
                                 </div>
                               </div>
@@ -1892,12 +1984,12 @@ export default function ProductDetails() {
                               </div>
                             )}
                           </div>
-                          // ))
-                        );
-                      }
-                      // count= count + 1
-                    })}
-                </div>
+                        
+                      </>
+                    );
+                  }
+                })}
+            </div>
               </div>
             </section>
             <section className="nk-section nk-cta-section nk-section-content-1">

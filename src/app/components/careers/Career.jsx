@@ -833,7 +833,7 @@ export default function Career() {
           </main>
           <Footer />
           <Dialog open={showForm} onClose={handleClose}>
-            <DialogTitle>{formTitle}</DialogTitle>
+            <DialogTitle className="!font-bold">{formTitle}</DialogTitle>
             <DialogContent>
               {/* <DialogContentText>
             

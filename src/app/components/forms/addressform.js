@@ -81,7 +81,7 @@ const AddressForm = ({ type, data, closeModal }) => {
 
   return (
     <>
-      {!isSuccess && (
+      {isSuccess && (
         <div className="w-full flex justify-center items-center">
           <div
           className=" top-0 flex justify-center items-center !w-fit transform-translate-x-1/9 bg-green-500 text-white px-4 py-2 rounded shadow-lg   "
@@ -177,7 +177,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                 placeholder="Apartment, suite, unit...."
               />}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4 ">
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="city">
                     City
@@ -223,7 +223,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="country">
                     Country
