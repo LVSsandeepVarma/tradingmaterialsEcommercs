@@ -184,7 +184,7 @@ export default function Footer() {
                     <span id="currentYear">{new Date().getFullYear()}</span>
                     <a className="fs-16 !text-blue-600" href="#">
                       {" "}
-                      Trading&#160;Materials&#160;.
+                      Trading&#160;Materials.
                     </a>
                     &#160;All&nbsp;Rights&nbsp;Reserved.
                   </p>
@@ -207,8 +207,8 @@ export default function Footer() {
                       </a>
                     </li>
                     <li>
-                      <a className="nk-footer-text !text-sm md:!text-[1rem]" href={`/refund-policy`}>
-                        Shipping&nbsp;&nbsp;Policy
+                      <a className="nk-footer-text !text-sm md:!text-[1rem]" href={`/shipping-policy`}>
+                        Shipping Policy
                       </a>
                     </li>
                   </ul>

@@ -130,6 +130,7 @@ export default function ProductsDisplay() {
           showforgotPasswordModal: false,
           showOtpModal: false,
           showNewPasswordModal: false,
+          showSignupCartModal: false
         })
       );
     }
@@ -678,6 +679,23 @@ export default function ProductsDisplay() {
     setModalMessage("");
     setAddedToFavImg("");
   };
+
+
+  //show checkout without login
+  const handleSignupCart = (product) =>{
+    localStorage.removeItem("productData")
+    localStorage.setItem("productData", JSON.stringify(product))
+    dispatch(
+      usersignupinModal({
+        showSignupModal: false,
+        showLoginModal: false,
+        showforgotPasswordModal: false,
+        showOtpModal: false,
+        showNewPasswordModal: false,
+        showSignupCartModal: true
+      })
+    );
+  }
 
   return (
     <>
@@ -1947,6 +1965,7 @@ export default function ProductsDisplay() {
                                                         showforgotPasswordModal: false,
                                                         showOtpModal: false,
                                                         showNewPasswordModal: false,
+                                                        showSignupCartModal: false
                                                       })
                                                     );
                                               }}
@@ -1963,15 +1982,7 @@ export default function ProductsDisplay() {
                                                       product?.img_1
                                                     ),
                                                     handleCartPosition(event))
-                                                  : dispatch(
-                                                      usersignupinModal({
-                                                        showSignupModal: false,
-                                                        showLoginModal: true,
-                                                        showforgotPasswordModal: false,
-                                                        showOtpModal: false,
-                                                        showNewPasswordModal: false,
-                                                      })
-                                                    );
+                                                  : handleSignupCart(product)
                                               }}
                                             >
                                               {animateProductId ===
@@ -2558,6 +2569,7 @@ export default function ProductsDisplay() {
                                               showforgotPasswordModal: false,
                                               showOtpModal: false,
                                               showNewPasswordModal: false,
+                                              showSignupCartModal: false
                                             })
                                           );
                                     }}
@@ -2573,15 +2585,7 @@ export default function ProductsDisplay() {
                                             product?.img_1
                                           ),
                                           handleCartPosition(event))
-                                        : dispatch(
-                                            usersignupinModal({
-                                              showSignupModal: false,
-                                              showLoginModal: true,
-                                              showforgotPasswordModal: false,
-                                              showOtpModal: false,
-                                              showNewPasswordModal: false,
-                                            })
-                                          );
+                                        : handleSignupCart(product)
                                     }}
                                   >
                                     {animateProductId === product?.id ? (
@@ -2890,7 +2894,7 @@ export default function ProductsDisplay() {
           </div>
         </section>
       </div>
-      <div className="nk-sticky-badge cursor-pointer">
+      {/* <div className="nk-sticky-badge cursor-pointer">
         <ul>
           <li>
             <a
@@ -2954,7 +2958,7 @@ export default function ProductsDisplay() {
           </li>
           <li>
             <a
-              href="https://wa.me/+971557557098" target="_blank" rel="noreferrer"
+              href="https://wa.me/+919087080999" target="_blank" rel="noreferrer"
               className="nk-sticky-badge-icon nk-sticky-badge-whatsapp cursor-pointer"
               data-bs-toggle="tooltip"
               data-bs-custom-class="nk-tooltip"
@@ -2965,7 +2969,7 @@ export default function ProductsDisplay() {
             </a>
           </li>
         </ul>
-      </div>
+      </div> */}
     </>
   );
 }

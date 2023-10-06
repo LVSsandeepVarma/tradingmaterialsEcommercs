@@ -26,6 +26,7 @@ export default function Contact() {
     fetch("https://api.ipify.org?format=json")
       .then((response) => response.json())
       .then((data) => setUserIp(data.ip));
+      
   }, []);
 
   function validName(name) {
@@ -110,6 +111,7 @@ export default function Contact() {
   }
 
   async function handlesubmit(e) {
+    console.log(userIp,"ip")
     e.preventDefault();
     validName(name);
     validEmail(email);
@@ -151,6 +153,9 @@ export default function Contact() {
         );
         if (response?.data?.status) {
           setSuccessMsg(response?.data?.message);
+          setTimeout(()=>{
+            window.location.reload()
+          },2000)
         }
       } catch (err) {
         if (err?.response?.data?.errors) {
@@ -449,7 +454,7 @@ export default function Contact() {
                                 </button>
                               </div>
                               {successMsg?.length > 0 && (
-                                <p className="text-green-900 font-semibold">
+                                <p className="text-green-900 mt-2 text-center font-semibold">
                                   {successMsg}
                                 </p>
                               )}

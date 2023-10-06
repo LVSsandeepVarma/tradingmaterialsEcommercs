@@ -49,7 +49,7 @@ export default function ShippingPolicy() {
                   className="text-[2.5rem] w-full text-center !font-bold"
                   style={{ lineHeight: "50px" }}
                 >
-                  Cancellation & Refund Policy
+                  Shipping Policy
                 </h2>
               </div>
               <Divider />

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unsafe-optional-chaining */
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -10,26 +10,21 @@ import axios from "axios";
 // import Chatbot from 'react-chatbot-kit';
 // import 'react-chatbot-kit/build/main.css';
 
-
 // eslint-disable-next-line react/prop-types
-export default function ChatForm({hide}){
+export default function ChatForm({ hide }) {
   const [email, setEmail] = useState("staticEmail@gmail.com");
   const [phone, setPhone] = useState("");
   const [emailErr, setEmailErr] = useState("");
   const [phoneErr, setPhoneErr] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [apiErr, setApiErr] = useState([])
+  const [apiErr, setApiErr] = useState([]);
   const [currentStep, setCurrentStep] = useState(1);
-  const [userIp, setUserIp] = useState()
-  const componentRef = useRef()
+  const [userIp, setUserIp] = useState();
+  const componentRef = useRef();
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const isLoggedIn = useSelector((state) => state.login?.value);
   const userData = useSelector((state) => state?.user?.value);
-
-
-
-
 
   // getting user ip
   useEffect(() => {
@@ -55,16 +50,15 @@ export default function ChatForm({hide}){
         componentRef.current &&
         !componentRef.current.contains(event.target)
       ) {
-        setPhoneErr("")
-        setApiErr([])
-        setSuccessMsg("")
+        setPhoneErr("");
+        setApiErr([]);
+        setSuccessMsg("");
       }
     });
 
     return () => {
       document.removeEventListener("click", (event) => {
-        componentRef.current &&
-          !componentRef.current.contains(event.target);
+        componentRef.current && !componentRef.current.contains(event.target);
       });
     };
   }, [componentRef]);
@@ -86,43 +80,45 @@ export default function ChatForm({hide}){
   };
 
   const handleEmailChange = (e) => {
-    setApiErr([])
+    setApiErr([]);
     setEmail(e?.target?.value);
     emailValidaiton(email);
   };
 
   const handlePhonechange = (e) => {
-    setApiErr([])
-    setPhone(e.target.value)
-    isValidMobile(e.target.value)
-  }
+    setApiErr([]);
+    setPhone(e.target.value);
+    isValidMobile(e.target.value);
+  };
 
   const handleStepOne = () => {
-      isValidMobile(phone)
-      if(phone != "" && phoneErr == ""){
-        setCurrentStep(2)
-      }
-  }
-
+    isValidMobile(phone);
+    if (phone != "" && phoneErr == "") {
+      setCurrentStep(2);
+    }
+  };
 
   const handleSubmit = async (e) => {
-    setApiErr([])
-    setSuccessMsg("")
+    setApiErr([]);
+    setSuccessMsg("");
     e.preventDefault();
     isValidMobile(phone);
-    
-    const currentUrl = window?.location?.href;
-   let  updatedUrl;
 
-   if (currentUrl && (currentUrl.startsWith('http://') || currentUrl.startsWith('https://'))) {
+    const currentUrl = window?.location?.href;
+    let updatedUrl;
+
+    if (
+      currentUrl &&
+      (currentUrl.startsWith("http://") || currentUrl.startsWith("https://"))
+    ) {
       // Replace "http://" or "https://" with "www."
-     updatedUrl = currentUrl.replace(/^(https?:\/\/)/, 'www.');
-      
+      updatedUrl = currentUrl.replace(/^(https?:\/\/)/, "www.");
+
       // Now, `updatedUrl` contains the modified URL with "www."
       console.log(updatedUrl);
     } else {
       // The URL didn't start with "http://" or "https://"
-      updatedUrl = currentUrl
+      updatedUrl = currentUrl;
     }
     // console.log(phoneErr)
     if (phoneErr === "" && phone !== "" && apiErr?.length === 0) {
@@ -139,16 +135,18 @@ export default function ChatForm({hide}){
           }
         );
         if (response?.data?.status) {
-
-          setSuccessMsg(response?.data?.message);
-          const expiryDate = new Date(Date.now() + 604800 * 1000) // for 1 week
-          sessionStorage.setItem("expiry", expiryDate)
-          sessionStorage.setItem("offerPhone", phone)
-          localStorage.setItem("expiry", expiryDate)
-          localStorage.setItem("offerPhone", phone)
-          if(isLoggedIn)
-          {localStorage.setItem("offerEmail", userData?.client?.email)}
-          window.location.reload()
+          setSuccessMsg(`Offer Code Applied to ${phone}`);
+          const expiryDate = new Date(Date.now() + 604800 * 1000); // for 1 week
+          sessionStorage.setItem("expiry", expiryDate);
+          sessionStorage.setItem("offerPhone", phone);
+          localStorage.setItem("expiry", expiryDate);
+          localStorage.setItem("offerPhone", phone);
+          if (isLoggedIn) {
+            localStorage.setItem("offerEmail", userData?.client?.email);
+          }
+          setTimeout(()=>{
+            window.location.reload();
+          },2000)
         }
       } catch (err) {
         if (err?.response?.data?.errors) {
@@ -160,54 +158,92 @@ export default function ChatForm({hide}){
         }
       } finally {
         dispatch(hideLoader());
-        setCurrentStep(1)
+        setCurrentStep(1);
       }
     }
   };
   return (
     <>
-    {/* type-1 */}
-    <div className="outer" ref={componentRef}>
-    <div className="p-2 text-left w-full">
-    <div className="flex items-start w-full justify-around relative" style={{zIndex: "999999"}}>
-      <h2 className="h1text !font-bold !w-full mt-0 pt-0">Get 10% Off on First Order</h2>
-      <p className="  cursor-pointer offer-bottom-right flex justify-end mr-2"  onClick={()=>hide("none")}>X</p>
-      
-    </div>
-    <div className="flex justify-around items-center">
-    <div className="w-full relative" style={{zIndex: "999999"}}>
-        <div className="text-input-off">
-						<input type="text" id="input1" value={phone} onChange={handlePhonechange} placeholder="Phone Number!"/>
-						<label htmlFor="input1">Phone</label>
-						</div>
-            {phoneErr && <p className="text-red-700 text-xs font-semibold mb1 mt-1 text-left">{phoneErr}</p>}
+      {/* type-1 */}
+      <div className="outer" ref={componentRef}>
+        <div className="p-2 text-left w-full">
+          <div
+            className="flex items-start w-full justify-around relative"
+            style={{ zIndex: "999999" }}
+          >
+            <h2 className="h1text !font-bold !w-full mt-0 pt-0">
+              Get 10% Off on First Order
+            </h2>
+            <p
+              className="  cursor-pointer offer-bottom-right flex justify-end mr-2"
+              onClick={() => hide("none")}
+            >
+              X
+            </p>
+          </div>
+          <div className="flex justify-around items-center">
+            <div className="w-full relative" style={{ zIndex: "999999" }}>
+              {successMsg?.length > 0 && <p className="text-sm text-green-500 w-fit bg-slate-100 p-1  font-semibold ">Offer Code Applied</p>}
+              {successMsg?.length == 0 && (
+                <div className="text-input-off">
+                  <input
+                    type="text"
+                    id="input1"
+                    value={phone}
+                    onChange={handlePhonechange}
+                    placeholder="Phone Number!"
+                  />
+                  <label htmlFor="input1">Phone</label>
+                </div>
+              )}
+              {phoneErr && (
+                <p className="text-red-700 text-xs font-semibold mb1 mt-1 text-left">
+                  {phoneErr}
+                </p>
+              )}
 
-						<div className="buttonss-off cursor-pointer">
-							<a className="cart-btn" onClick={(e)=>{handleSubmit(e)}}>GET OFFER CODE</a>
-						</div>
-            {successMsg && <p className="text-green-900 text-xs font-semibold mt-1 text-left">{successMsg}</p>}
-            {apiErr?.length > 0 &&
-          apiErr?.map((err, ind) => {
-            return (
-              <p key={ind} className="text-red-700 text-xs font-semibold mb1 mt-1 text-left">
-                {err}
-              </p>
-            );
-          })}
-      </div>
-      <div className="flex cardsss">			
-      <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json" fill="transparent" background="transparent" speed="1" loop="" autoplay="true"></lottie-player>
-							
-						</div>
-            <span className="imgs relative" style={{zIndex: "9999"}}><img src="/images/offer-box.png" alt="product-image"/></span>
-    </div>
-    
-    </div>
+              {successMsg?.length == 0 && (
+                <div className="buttonss-off cursor-pointer">
+                  <a
+                    className="cart-btn"
+                    onClick={(e) => {
+                      handleSubmit(e);
+                    }}
+                  >
+                    GET OFFER CODE
+                  </a>
+                </div>
+              )}
+              {/* {successMsg && <p className="text-green-900 text-xs font-semibold mt-1 text-left">{successMsg}</p>} */}
+              {apiErr?.length > 0 &&
+                apiErr?.map((err, ind) => {
+                  return (
+                    <p
+                      key={ind}
+                      className="text-red-700 text-xs font-semibold mb1 mt-1 text-left"
+                    >
+                      {err}
+                    </p>
+                  );
+                })}
+            </div>
+            <div className="">
+              <lottie-player
+                src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json"
+                fill="transparent"
+                background="transparent"
+                speed="1"
+                loop=""
+                autoplay="true"
+              ></lottie-player>
+            </div>
+            <span className="imgs relative" style={{ zIndex: "9999" }}>
+              <img src="/images/offer-box.png" alt="product-image" />
+            </span>
+          </div>
+        </div>
 
-
-    
- 
-					{/* <div className="content animated fadeInLeft">
+        {/* <div className="content animated fadeInLeft">
 						<div className="flex items-center w-full z-999">
             <div className="h1text">Get 10% Off on First Order</div>
             
@@ -240,12 +276,9 @@ export default function ChatForm({hide}){
 							<span className="imgs"><img src="/images/offer-box.png" alt="product-image"/></span>
 						</div>			
 					</div>	 */}
-		</div>
+      </div>
 
-
-
-
-    {/* type 2 */}
+      {/* type 2 */}
       {/* <div className="outer">
  
 					<div className="content animated fadeInLeft">
@@ -269,8 +302,8 @@ export default function ChatForm({hide}){
 					</div>	
 		</div> */}
 
-    {/* two step form */}
-    {/* <div className="outer">
+      {/* two step form */}
+      {/* <div className="outer">
  
  <div className="content animated fadeInLeft">
    <div className="h1text">Get 10% Off on First Order</div>
@@ -316,9 +349,10 @@ export default function ChatForm({hide}){
   );
 }
 
-
-      {/* <Chatbot
+{
+  /* <Chatbot
         config={config}
         messageParser={MessageParser}
         actionProvider={ActionProvider}
-      /> */}
+      /> */
+}

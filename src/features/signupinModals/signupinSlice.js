@@ -7,6 +7,7 @@ const initialState = {
     showforgotPasswordModal: false,
     showOtpModal: false,
     showNewPasswordModal: false,
+    showSignupCartModal: false,
   },
   status: "idle",
 };

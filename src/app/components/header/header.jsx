@@ -33,6 +33,7 @@ import { Divider } from "@mui/material";
 import ChatForm from "../Chatbot/chatbot";
 import UpdateProfile from "../modals/updateProfile";
 import CookieBanner from "./cookiesBanner";
+import SignupCartModal from "../modals/signupcart";
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -47,7 +48,7 @@ export default function Header() {
   const popup = useSelector((state) => state?.popup?.value);
   const modals = useSelector((state) => state?.signupInModal?.value);
   const clientType = localStorage.getItem("client_type");
-  const [mouseOverEvent, setMouseOverEvent] = useState(false)
+  const [mouseOverEvent, setMouseOverEvent] = useState(false);
   const [activeDropDown, setActiveDropDown] = useState("");
   // const [showFloatingForm, setShowFloatingForm] = useState(false)
   // eslint-disable-next-line no-unused-vars
@@ -77,42 +78,46 @@ export default function Header() {
   }, [userData]);
 
   useEffect(() => {
-    dispatch(showLoader())
-    try{
-    const offerPhone = sessionStorage.getItem("offerPhone");
-    const phone = userData?.client?.phone;
-    const email = localStorage.getItem("offerEmail")
-    console.log(phone, userData, "off--");
-    // const expiry = sessionStorage.getItem("expiry");
-    if (isLoggedIn == false) {
-      console.log(offerPhone, "off--");
-      if (offerPhone != undefined || offerPhone != null) {
-        console.log("inside, off--");
-        setShowOffer(false);
-        console.log("emmmmm")
-        setBottomOfferDisplay("none");
-      } else {
-        setShowOffer(true);
-        console.log("emmmmm")
+    dispatch(showLoader());
+    try {
+      const offerPhone = sessionStorage.getItem("offerPhone");
+      const phone = userData?.client?.phone;
+      const email = localStorage.getItem("offerEmail");
+      console.log(phone, userData, "off--");
+      // const expiry = sessionStorage.getItem("expiry");
+      if (isLoggedIn == false) {
+        console.log(offerPhone, "off--");
+        if (offerPhone != undefined || offerPhone != null) {
+          console.log("inside, off--");
+          setShowOffer(false);
+          console.log("emmmmm");
+          setBottomOfferDisplay("none");
+        } else {
+          setShowOffer(true);
+          console.log("emmmmm");
+        }
+      } else if (isLoggedIn == true && userData?.client?.email != undefined) {
+        if (email == userData?.client?.email) {
+          setShowOffer(false);
+          console.log(
+            email,
+            userData?.client?.email,
+            email == userData?.client?.email,
+            "emmmmm"
+          );
+          // if (moment(expiry) > Date.now()) {
+          //   setShowOffer(false);
+          //   setBottomOfferDisplay("none");
+          // } else {
+          //   setShowOffer(true);
+          // }
+        }
       }
-    } else if (isLoggedIn == true && userData?.client?.email != undefined) {
-      if (email == userData?.client?.email) {
-        setShowOffer(false)
-        console.log(email,userData?.client?.email,email == userData?.client?.email,"emmmmm")
-        // if (moment(expiry) > Date.now()) {
-        //   setShowOffer(false);
-        //   setBottomOfferDisplay("none");
-        // } else {
-        //   setShowOffer(true);
-        // }
-      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
     }
-  }catch(err){
-    console.log(err)
-  }finally{
-    dispatch(hideLoader())
-  }
-    
   }, [isLoggedIn, userData]);
 
   // useEffect(() => {
@@ -333,23 +338,29 @@ export default function Header() {
       modals?.showLoginModal === false
     ) {
       console.log("closed", modals?.showLoginModal);
-      const timeOut = setTimeout(() => {
-        if (modals?.showLoginModal === false) {
-          if (!isLoggedIn) {
-            showSignupPopup();
+      // 
+
+      // 
+      if(window.navigator.userAgent.includes("Windows") || window.navigator.userAgent.includes("Macintosh")){
+        const timeOut = setTimeout(() => {
+          if (modals?.showLoginModal === false) {
+            if (!isLoggedIn) {
+              showSignupPopup();
+            }
           }
+        }, 5000);
+        if (
+          modals?.showLoginModal ||
+          modals?.showSignupModal ||
+          modals?.showforgotPasswordModal
+        ) {
+          clearTimeout(timeOut);
         }
-      }, 5000);
-      if (
-        modals?.showLoginModal ||
-        modals?.showSignupModal ||
-        modals?.showforgotPasswordModal
-      ) {
-        clearTimeout(timeOut);
+        return () => {
+          clearTimeout(timeOut);
+        };
       }
-      return () => {
-        clearTimeout(timeOut);
-      };
+      
     }
   }, [isLoggedIn, modals]);
 
@@ -464,11 +475,12 @@ export default function Header() {
       showforgotPasswordModal: false,
       showOtpModal: false,
       showNewPasswordModal: false,
+      showSignupCartModal: false
     });
   };
 
-  function handleMouseOverEvent(){
-    setMouseOverEvent(true)
+  function handleMouseOverEvent() {
+    setMouseOverEvent(true);
   }
 
   return (
@@ -517,9 +529,9 @@ export default function Header() {
                 }`}
               >
                 {(showOffer && cookieResponse) ||
-                  (localStorage.getItem("cookieStatus") != undefined) && 
-                     <ChatForm hide={setBottomOfferDisplay} />
-                  }
+                  (localStorage.getItem("cookieStatus") != undefined && (
+                    <ChatForm hide={setBottomOfferDisplay} />
+                  ))}
               </div>
             )}
           </div>
@@ -527,6 +539,12 @@ export default function Header() {
       {modals?.showSignupModal === true && (
         <SignupModal
           show={modals?.showSignupModal}
+          onHide={() => handleCloseModals}
+        />
+      )}
+      {modals?.showSignupCartModal == true && (
+        <SignupCartModal
+          show={modals?.showSignupCartModal}
           onHide={() => handleCloseModals}
         />
       )}
@@ -575,46 +593,65 @@ export default function Header() {
             }}
           >
             <div className="flex !shadow-xl">
-              {!mouseOverEvent && <div
-                className={`d-flex drop-shadow-lg shadow-lg flex-col w-[50%] items-center justify-center `}
-                style={{
-                  background: "linear-gradient(45deg, #5582bf, transparent)",
-                }}
-              >
-                <div className="absolute"></div>
-                <h3
-                  className="!font-bold text-black text-left pl-3 pt-3 "
-                  style={{ fontSize: "25px", height: "100%" }}
-                >
-                  Get 10% off Now
-                </h3>
-                <div className="popup-img  !text-left">
-                  <img src="/images/offer-nobg.png" alt="offer-img" />
-                </div>
+              {!mouseOverEvent && (
                 <div
-                  className="offer-tex  p-0 pb-2 flex items-center justify-center  "
-                  style={{ textAlign: "left !important" }}
+                  className={`d-flex drop-shadow-lg shadow-lg flex-col w-[50%] items-center justify-center `}
+                  style={{
+                    background: "linear-gradient(45deg, #5582bf, transparent)",
+                  }}
                 >
-                  <div className=" !text-center">
-                    <h3 className="!font-bold text-black text-2xl text-left  ">
-                      on First Order
-                    </h3>
+                  <div className="absolute"></div>
+                  <h3
+                    className="!font-bold text-black text-left pl-3 pt-3 "
+                    style={{ fontSize: "25px", height: "100%" }}
+                  >
+                    Get 10% off Now
+                  </h3>
+                  <div className="popup-img  !text-left">
+                    <img src="/images/offer-nobg.png" alt="offer-img" />
+                  </div>
+                  <div
+                    className="offer-tex  p-0 pb-2 flex items-center justify-center  "
+                    style={{ textAlign: "left !important" }}
+                  >
+                    <div className=" !text-center">
+                      <h3 className="!font-bold text-black text-2xl text-left  ">
+                        on First Order
+                      </h3>
+                    </div>
                   </div>
                 </div>
-              </div>}
-              <div className={` d-flex flex-col drop-shadow-xl ${!mouseOverEvent ? "w-[40%] " : "!w-full "} ${mouseOverEvent ? "pt-3 pb-3" : ""} items-center !justify-center `} >
+              )}
+              <div
+                className={` d-flex flex-col drop-shadow-xl ${
+                  !mouseOverEvent ? "w-[40%] " : "!w-full "
+                } ${
+                  mouseOverEvent ? "pt-3 pb-3" : ""
+                } items-center !justify-center `}
+              >
                 <div className="d-flex items-center justify-center ">
                   <img
-                    className={`${mouseOverEvent? "max-w-[30%]" : "max-w-[50%]"}`}
+                    className={`${
+                      mouseOverEvent ? "max-w-[30%]" : "max-w-[50%]"
+                    }`}
                     src="/images/oneDayLeft.png"
                     alt="oneDayleft_png"
                   ></img>
                 </div>
 
-                <div className={`${mouseOverEvent ? "w-[90%]" : "tb-space d-flex justify-center  mt-[22px] w-full"} `}>
+                <div
+                  className={`${
+                    mouseOverEvent
+                      ? "w-[90%]"
+                      : "tb-space d-flex justify-center  mt-[22px] w-full"
+                  } `}
+                >
                   <div className={`${mouseOverEvent ? "" : "!inline"} `}>
                     <div></div>
-                    <Offer mouseOverEvent = {handleMouseOverEvent} isMouseEntered = {mouseOverEvent} />
+                    <Offer
+                      mouseOverEvent={handleMouseOverEvent}
+                      isMouseEntered={mouseOverEvent}
+                    />
                   </div>
                 </div>
               </div>
@@ -828,13 +865,13 @@ export default function Header() {
                           </ul>
                         </li>
 
-                        {/* <li className="nk-nav-item">
-                          <a href={`${userLang}/#`} className="nk-nav-link">
+                        <li className="nk-nav-item">
+                          <a href={`/tracking`} className="nk-nav-link">
                             <span className="nk-nav-text">
                               {t("Order_Tracking")}
                             </span>
                           </a>
-                        </li> */}
+                        </li>
                         <li className="nk-nav-item">
                           <a
                             href={`${userLang}/contact`}
@@ -920,6 +957,7 @@ export default function Header() {
                                     showforgotPasswordModal: false,
                                     showOtpModal: false,
                                     showNewPasswordModal: false,
+                                    showSignupCartModal: false
                                   })
                                 );
                               }}
@@ -995,6 +1033,7 @@ export default function Header() {
                                   showforgotPasswordModal: false,
                                   showOtpModal: false,
                                   showNewPasswordModal: false,
+                                  showSignupCartModal: false
                                 })
                               );
                             }
@@ -1048,6 +1087,7 @@ export default function Header() {
                                   showforgotPasswordModal: false,
                                   showOtpModal: false,
                                   showNewPasswordModal: false,
+                                  showSignupCartModal: false
                                 })
                               );
                             }
@@ -1127,6 +1167,86 @@ export default function Header() {
         ) : (
           <></>
         )}
+      </div>
+      <div className="nk-sticky-badge cursor-pointer">
+        <ul>
+          <li>
+            <a
+              href="/"
+              className="nk-sticky-badge-icon nk-sticky-badge-home"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="View Demo"
+            >
+              <em className="icon ni ni-home-fill"></em>
+            </a>
+          </li>
+          <li>
+            <a
+              onClick={() =>
+                isLoggedIn
+                  ? navigate(`/cart`)
+                  : dispatch(
+                      usersignupinModal({
+                        showSignupModal: false,
+                        showLoginModal: true,
+                        showforgotPasswordModal: false,
+                        showOtpModal: false,
+                        showNewPasswordModal: false,
+                        showSignupCartModal: false
+                      })
+                    )
+              }
+              className="nk-sticky-badge-icon nk-sticky-badge-purchase"
+              data-bs-toggle="tooltip"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="Purchase Now"
+              aria-label="Purchase Now"
+            >
+              <em className="icon ni ni-cart-fill"></em>
+            </a>
+          </li>
+          <li>
+            <a
+              onClick={() =>
+                isLoggedIn
+                  ? navigate(`/profile?wishlist`)
+                  : dispatch(
+                      usersignupinModal({
+                        showSignupModal: false,
+                        showLoginModal: true,
+                        showforgotPasswordModal: false,
+                        showOtpModal: false,
+                        showNewPasswordModal: false,
+                        showSignupCartModal: false
+                      })
+                    )
+              }
+              className="nk-sticky-badge-icon nk-sticky-badge-home"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="View Demo"
+            >
+              <em className="icon ni ni-heart"></em>
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://wa.me/+919087080999"
+              target="_blank"
+              rel="noreferrer"
+              className="nk-sticky-badge-icon nk-sticky-badge-whatsapp cursor-pointer"
+              data-bs-toggle="tooltip"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="whatsapp"
+              aria-label="whatsapp"
+            >
+              <em className="icon ni ni-whatsapp"></em>
+            </a>
+          </li>
+        </ul>
       </div>
     </>
   );

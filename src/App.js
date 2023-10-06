@@ -15,6 +15,7 @@ import Privacy from "./app/components/policies/Privacy";
 import Refund from "./app/components/policies/Refund"
 import Career from "./app/components/careers/Career";
 import ShippingPolicy from "./app/components/policies/Shipping";
+import OrderTacker from "./app/components/orderTracking/OrderTracking";
 const About = lazy(() => import("./app/components/about-us/about"));
 // import About from "./app/components/about-us/about";
 const Contact = lazy(() => import("./app/components/contact-us/contact"));
@@ -75,7 +76,9 @@ function App() {
             <Route
               path="/reset-password/new-password"
               element={<NewPassword />}
+
             ></Route>
+            <Route path="/tracking" element={<OrderTacker/>}></Route>
 
             {/* protected routes  */}
 

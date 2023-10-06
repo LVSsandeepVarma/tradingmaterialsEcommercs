@@ -132,7 +132,64 @@ export default function AddToCart() {
     console.log(activeBillingAddress, activeShippingAddress, userData);
   }, []);
 
-  async function handleAddToCart(productId, status) {
+
+
+  useEffect(()=>{
+    const productData = JSON.parse(localStorage.getItem("productData"))
+    const qty = localStorage.getItem("prodcutQty")
+    if(productData?.name && qty){
+      console.log(productData,"productdata",qty)
+      const initialQuantities = {}
+      initialQuantities[productData?.id] = localStorage.getItem("productQty")
+      setQuantities(initialQuantities)
+      handleAddToCartDirectly(productData?.id, "add", qty)
+    }
+  },[])
+
+  async function handleAddToCartDirectly(productId, status, qty) {
+    // setAnimateProductId(productId)
+    try {
+      dispatch(showLoader());
+      const response = await axios?.post(
+        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+        {
+          product_id: productId,
+          qty: qty,
+          status: status,
+        },
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+      if (response?.data?.status) {
+        dispatch(updateCart(response?.data?.data?.cart_details));
+        dispatch(updateCartCount(response?.data?.data?.cart_count));
+        setAllProducts(response?.data?.data?.cart_details);
+        // getUserInfo();
+        applyPromoCode();
+        // const productData = JSON.parse(localStorage.getItem("productData"))
+        
+        
+          localStorage.removeItem("productData")
+          localStorage.removeItem("prodcutQty")
+        
+      }
+    } catch (err) {
+      console.log(err);
+      dispatch(
+        updateNotifications({
+          type: "error",
+          message: err?.response?.data?.message,
+        })
+      );
+    } finally {
+      dispatch(hideLoader());
+    }
+  }
+
+  async function handleAddToCart(productId, status, qty) {
     // setAnimateProductId(productId)
     try {
       dispatch(showLoader());
@@ -155,6 +212,12 @@ export default function AddToCart() {
         setAllProducts(response?.data?.data?.cart_details);
         // getUserInfo();
         applyPromoCode();
+        // const productData = JSON.parse(localStorage.getItem("productData"))
+        
+        
+          localStorage.removeItem("productData")
+          localStorage.removeItem("productQty")
+        
       }
     } catch (err) {
       console.log(err);

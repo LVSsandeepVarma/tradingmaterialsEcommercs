@@ -332,7 +332,7 @@ const LoginModal = ({ show, onHide }) => {
                     )}
                   </div>
                   <div className="col-12">
-                    <div className="d-flex flex-wrap align-items-center  justify-content-between text-center">
+                    <div className="d-flex flex-wrap align-items-start  justify-content-between text-center">
                       <div className="form-check">
                         <input
                           className="form-check-input"
@@ -359,7 +359,7 @@ const LoginModal = ({ show, onHide }) => {
                             })
                           )
                         }
-                        className="d-inline-block fs-16 cursor-pointer"
+                        className="d-inline-block fs-16 cursor-pointer pt-0"
                       >
                         Forgot Password?
                       </a>

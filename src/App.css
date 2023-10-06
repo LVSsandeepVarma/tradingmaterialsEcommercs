@@ -284,6 +284,8 @@ td {
   filter: blur(1px) !important;
 }
 
+
+
 .modal {
   z-index: 999999;
 }
@@ -1108,4 +1110,13 @@ td span {
 
 .css-126xj0f{
   z-index: 999999 !important;
+}
+
+
+@media only screen and (min-width: 340px){
+  .modal-25 .modal-content{
+    height: 100vh !important;
+    overflow: auto
+  }
+
 }
