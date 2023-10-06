@@ -77,9 +77,9 @@ export default function ChatForm({hide}){
     } else if (!phoneRegex.test(mobile)) {
       setPhoneErr("Invalid Phone number");
     } else if (mobile?.length <= 7) {
-      setPhoneErr("Phone number should be atleast 8 digits");
+      setPhoneErr("Invalid phone number");
     } else if (mobile?.length > 15) {
-      setPhoneErr("Phone number should be atmost 15 digits");
+      setPhoneErr("Invalid phone number");
     } else {
       setPhoneErr("");
     }
@@ -116,7 +116,7 @@ export default function ChatForm({hide}){
         dispatch(showLoader());
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/instant/enq/store",
-          { phone: phone, domain: window.location.href.split("https://")[1], ip_address: userIp },
+          { phone: phone, domain: window.location.origin.split("https://")[1], ip_address: userIp },
           {
             headers: {
               "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",

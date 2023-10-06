@@ -72,6 +72,11 @@ export default function Terms() {
                         Cancellation & Refund Policy
                       </a>
                     </li>
+                    <li className="">
+                      <a href="/shipping-policy" className="fs-16">
+                        Shipping Policy
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </div>

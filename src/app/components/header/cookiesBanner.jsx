@@ -46,7 +46,7 @@ const CookieBanner = ({storeResponse}) => {
           padding: "10px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "center",
           // filter:
           //   "drop-shadow(0 20px 13px rgb(0 0 0 / 0.03)) drop-shadow(0 8px 5px rgb(0 0 0 / 0.08))",
           boxShadow:
@@ -56,9 +56,9 @@ const CookieBanner = ({storeResponse}) => {
       >
         <Stack direction="row" alignItems="center">
           <Box>
-            <p className=" !font-bold text-black max-w-[75%] lg:max-w-[100%] !drop-shadow-xl text-left text-xs md:text-sm" >
+            <p className=" !font-bold text-slate-500  max-w-[85%] lg:max-w-[100%] !drop-shadow-xl text-left text-xs md:text-[12px] mr-2" >
               This website uses cookies to improve your experience. By using our
-              site you agree to the use of cookies
+              site you agree to the use of cookies.<a className="!text-blue-600 cursor-pointer" href="/terms-and-conditions" target="_blank" >Our Terms & Policy</a>
             </p>
           </Box>
         </Stack>

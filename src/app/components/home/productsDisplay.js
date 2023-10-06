@@ -23,7 +23,7 @@ import CryptoJS from "crypto-js";
 
 // Import Swiper styles
 import "swiper/css";
-import 'swiper/css/pagination';
+import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { useTranslation } from "react-i18next";
 import { Box, Skeleton } from "@mui/material";
@@ -64,7 +64,7 @@ export default function ProductsDisplay() {
   const [showPlaceHolderLoader, setShowPlaceHolderLoader] = useState(false);
   // const [showFloatingForm, setShowFloatingForm] = useState(false)
   const [addedToFavImg, setAddedToFavImg] = useState("");
-  const [showMiniLoader, setShowMiniLoader] = useState(true)
+  const [showMiniLoader, setShowMiniLoader] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
@@ -87,23 +87,23 @@ export default function ProductsDisplay() {
 
   useEffect(() => {
     const incrementDate = () => {
-      setShowMiniLoader(true)
+      setShowMiniLoader(true);
       const today = new Date();
-      const targetDate = localStorage.getItem("targetDate")
-      console.log(targetDate, "ttttt")
-      if(targetDate == null || (moment(today).isAfter(moment(targetDate)))){
-      const nextDate = moment(today).add(5, "days");
-      localStorage.setItem("targetDate", nextDate)
-      console.log(today.toISOString(), megaDealTime, "ttttt");
-      // if (today.toISOString().split("T")[0] >= megaDealTime.toString().split("T")[0]) {
-      //   console.log(nextDate, "datee")
-      setMegaDealTime(nextDate);
-      setShowMiniLoader(false)
-      }else{
-        setMegaDealTime(targetDate)
-        setShowMiniLoader(false)
+      const targetDate = localStorage.getItem("targetDate");
+      console.log(targetDate, "ttttt");
+      if (targetDate == null || moment(today).isAfter(moment(targetDate))) {
+        const nextDate = moment(today).add(5, "days");
+        localStorage.setItem("targetDate", nextDate);
+        console.log(today.toISOString(), megaDealTime, "ttttt");
+        // if (today.toISOString().split("T")[0] >= megaDealTime.toString().split("T")[0]) {
+        //   console.log(nextDate, "datee")
+        setMegaDealTime(nextDate);
+        setShowMiniLoader(false);
+      } else {
+        setMegaDealTime(targetDate);
+        setShowMiniLoader(false);
       }
-      
+
       // }
     };
 
@@ -173,8 +173,8 @@ export default function ProductsDisplay() {
 
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
-        sessionStorage.removeItem("offerPhone")
-            sessionStorage.removeItem("expiry")
+        sessionStorage.removeItem("offerPhone");
+        sessionStorage.removeItem("expiry");
       }
     } catch (err) {
       console.log(err);
@@ -216,8 +216,8 @@ export default function ProductsDisplay() {
     setSingleProductsCount(totalCount);
     console.log(totalCount);
 
-    products?.sub_categories?.map((product,ind) => {
-      console.log(product,ind);
+    products?.sub_categories?.map((product, ind) => {
+      console.log(product, ind);
       productsFilter[product?.name] = false;
     });
     productsFilter["all"] = true;
@@ -229,8 +229,8 @@ export default function ProductsDisplay() {
       dispatch(loginUser());
     } else {
       dispatch(logoutUser());
-      sessionStorage.removeItem("offerPhone")
-            sessionStorage.removeItem("expiry")
+      sessionStorage.removeItem("offerPhone");
+      sessionStorage.removeItem("expiry");
     }
     setShowPlaceHolderLoader(false);
   }, [products]);
@@ -275,18 +275,22 @@ export default function ProductsDisplay() {
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
 
-  function addFilterProducts(subCategoryName, subCategoryId, showSingleProduct) {
+  function addFilterProducts(
+    subCategoryName,
+    subCategoryId,
+    showSingleProduct
+  ) {
     setStockCount("inStock");
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId, subCategoryIds, subId);
-    let subIDs
-    let filterProducts
-    if(showSingleProduct){
+    let subIDs;
+    let filterProducts;
+    if (showSingleProduct) {
       subIDs = [];
-      filterProducts = {  };
-    }else{
-      subIDs = [...subCategoryIds]
-      filterProducts = {...filteredProducts}
+      filterProducts = {};
+    } else {
+      subIDs = [...subCategoryIds];
+      filterProducts = { ...filteredProducts };
     }
     console.log(subIDs, filterProducts, subId?.name);
 
@@ -360,17 +364,21 @@ export default function ProductsDisplay() {
   }
 
   // filtering buldle products
-  function filtersubcatProducts(subCategoryName, subCategoryId, showSingleProduct) {
+  function filtersubcatProducts(
+    subCategoryName,
+    subCategoryId,
+    showSingleProduct
+  ) {
     setStockCount("inStock");
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId);
-    let subIDs 
-    let filterProducts 
-    if(showSingleProduct){
+    let subIDs;
+    let filterProducts;
+    if (showSingleProduct) {
       subIDs = [];
-      filterProducts = {  };
-    }else{
-      subIDs =  [...bundleSubCategoryIDs];
+      filterProducts = {};
+    } else {
+      subIDs = [...bundleSubCategoryIDs];
       filterProducts = { ...filteredSubcatProducts };
     }
     console.log(subIDs);
@@ -497,6 +505,7 @@ export default function ProductsDisplay() {
         setIsNoProducts(false);
       }
       setShowPlaceHolderLoader(false);
+      navigate("#search_results");
     }, 500);
   }
 
@@ -715,7 +724,10 @@ export default function ProductsDisplay() {
                           {t("Mega_Deal_desc")}{" "}
                         </p>
                       </div>
-                      <Countdown targetDate={megaDealTime} loaderStatus={showMiniLoader} />
+                      <Countdown
+                        targetDate={megaDealTime}
+                        loaderStatus={showMiniLoader}
+                      />
                     </div>
                   </div>
                 </div>
@@ -744,6 +756,7 @@ export default function ProductsDisplay() {
                               required
                               onChange={handlesearchProducts}
                             />
+                            {/* <Button>Show Results</Button> */}
                           </div>
                         </div>
                       </form>
@@ -761,7 +774,9 @@ export default function ProductsDisplay() {
                                 type="checkbox"
                                 name="category"
                                 id="all-category"
-                                onChange={() => addFilterProducts("all", 0, false)}
+                                onChange={() =>
+                                  addFilterProducts("all", 0, false)
+                                }
                                 checked={filteredProducts["all"]}
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
@@ -788,13 +803,11 @@ export default function ProductsDisplay() {
                                       name="category"
                                       id="tablet"
                                       onClick={() =>
-                                        
-                                          addFilterProducts(
+                                        addFilterProducts(
                                           product?.name,
                                           product?.id,
                                           false
                                         )
-                                      
                                       }
                                       checked={filteredProducts[product?.name]}
                                     />
@@ -939,7 +952,7 @@ export default function ProductsDisplay() {
                     </div>
                   </div>
                 </div>
-                <div className="col-lg-9">
+                <div className="col-lg-9" id="search_results">
                   <div className="nk-section-content-products">
                     <div className="row justify-content-between align-items-center pb-5">
                       <div className="col-sm-6">
@@ -1022,7 +1035,7 @@ export default function ProductsDisplay() {
                         </div>
                       </div>
                     </div>
-                    {(isNoProducts  )  ||
+                    {isNoProducts ||
                       (!products?.products?.length && (
                         <>
                           <div className="row gy-5 " data-aos-delay="0">
@@ -1165,8 +1178,7 @@ export default function ProductsDisplay() {
                             </div>
                           </div>
                         </>
-                      ))
-                      }
+                      ))}
                     <div className="row gy-5">
                       {loaderState && isNoProducts && (
                         <>
@@ -2622,7 +2634,10 @@ export default function ProductsDisplay() {
                   </h2>
                   <p className="nk-section-text">{t("stories_desc")}</p>
                   <div className="flex w-full justify-center">
-                  <img src="/images/shop/trust-icon.png" alt="rating_starts"></img>
+                    <img
+                      src="/images/shop/trust-icon.png"
+                      alt="rating_starts"
+                    ></img>
                   </div>
                 </div>
               </div>
@@ -2874,18 +2889,16 @@ export default function ProductsDisplay() {
             </div>
           </div>
         </section>
-        
-        
       </div>
       <div className="nk-sticky-badge cursor-pointer">
         <ul>
           <li>
             <a
-              href={`${userLang}/`}
+              href="/"
               className="nk-sticky-badge-icon nk-sticky-badge-home"
               data-bs-toggle="tooltip"
               data-bs-placement="right"
-              data-bs-custom-className="nk-tooltip"
+              data-bs-custom-class="nk-tooltip"
               data-bs-title="View Demo"
             >
               <em className="icon ni ni-home-fill"></em>
@@ -2895,7 +2908,7 @@ export default function ProductsDisplay() {
             <a
               onClick={() =>
                 isLoggedIn
-                  ? navigate(`${userLang}/cart`)
+                  ? navigate(`/cart`)
                   : dispatch(
                       usersignupinModal({
                         showSignupModal: false,
@@ -2907,13 +2920,48 @@ export default function ProductsDisplay() {
                     )
               }
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
-              id="cart-button"
               data-bs-toggle="tooltip"
-              data-bs-custom-className="nk-tooltip"
+              data-bs-custom-class="nk-tooltip"
               data-bs-title="Purchase Now"
               aria-label="Purchase Now"
             >
               <em className="icon ni ni-cart-fill"></em>
+            </a>
+          </li>
+          <li>
+            <a
+              onClick={() =>
+                isLoggedIn
+                  ? navigate(`/profile?wishlist`)
+                  : dispatch(
+                      usersignupinModal({
+                        showSignupModal: false,
+                        showLoginModal: true,
+                        showforgotPasswordModal: false,
+                        showOtpModal: false,
+                        showNewPasswordModal: false,
+                      })
+                    )
+              }
+              className="nk-sticky-badge-icon nk-sticky-badge-home"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="View Demo"
+            >
+              <em className="icon ni ni-heart"></em>
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://wa.me/+971557557098" target="_blank" rel="noreferrer"
+              className="nk-sticky-badge-icon nk-sticky-badge-whatsapp cursor-pointer"
+              data-bs-toggle="tooltip"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="whatsapp"
+              aria-label="whatsapp"
+            >
+              <em className="icon ni ni-whatsapp"></em>
             </a>
           </li>
         </ul>

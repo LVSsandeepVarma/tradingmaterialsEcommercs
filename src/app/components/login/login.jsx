@@ -71,7 +71,7 @@ export default function Login() {
     if (password?.length === 0) {
       setPasswordError("Password is required");
     } else if (password?.length <= 7) {
-      setPasswordError("Password should be atleast 8 digits");
+      setPasswordError("Invalid phone number");
     } else {
       setPasswordError("");
     }

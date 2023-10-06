@@ -1085,7 +1085,7 @@ export default function ProductDetails() {
                             expound.{" "}
                           </p>
                           <div className="nk-social d-sm-flex align-items-center mt-2 gap-3 pb-2">
-                            <h6 className="fs-14 m-0 fw-semibold text-uppercase !leading-loose mb-2  mb-sm-0 ">
+                            <h6 className="fs-14 m-0 fw-semibold text-uppercase !leading-loose mb-2 text-left  mb-sm-0 ">
                               Share :
                             </h6>
                             <ul>

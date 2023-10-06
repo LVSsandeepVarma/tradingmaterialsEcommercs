@@ -10397,11 +10397,12 @@ fieldset:disabled .btn {
   background-color: var(--bs-modal-bg);
   background-clip: padding-box;
 
-  border-radius: 0.75rem;
+  /* border-radius: 0.75rem; */
   outline: 0;
 }
 
 .offer .modal-content {
+  border-radius: 1px !important;
   /* border: 1px solid green;
    */
 
@@ -50332,3 +50333,7 @@ g rect {
 
 }
 
+
+.nk-sticky-badge-whatsapp {
+  background-color: #4eea67;
+}

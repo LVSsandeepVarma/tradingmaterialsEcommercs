@@ -184,26 +184,31 @@ export default function Footer() {
                     <span id="currentYear">{new Date().getFullYear()}</span>
                     <a className="fs-16 !text-blue-600" href="#">
                       {" "}
-                      Trading Materials .
+                      Trading&#160;Materials&#160;.
                     </a>
                     &#160;All&nbsp;Rights&nbsp;Reserved.
                   </p>
                 </div>
                 <div className="col-lg-6 col-md-12 col-sm-12">
-                  <ul className="nk-footer-copyright justify-content-center justify-content-lg-end">
+                  <ul  className="  nk-footer-copyright justify-content-center items-start sm:items-center justify-content-lg-end !mt-2 sm:!mt-0">
                     <li>
-                      <a className="nk-footer-text" href={`/terms-and-conditions`}>
+                      <a className=" !text-sm md:!text-[1rem] nk-footer-text w-50% sm:w-auto" href={`/terms-and-conditions`}>
                         Terms & conditions
                       </a>
                     </li>
                     <li>
-                      <a className="nk-footer-text" href={`/privacy-policy`}>
+                      <a className="nk-footer-text !text-sm md:!text-[1rem]" href={`/privacy-policy`}>
                         Privacy Policy
                       </a>
                     </li>
                     <li>
-                      <a className="nk-footer-text" href={`/refund-policy`}>
+                      <a className="nk-footer-text !text-sm md:!text-[1rem]" href={`/refund-policy`}>
                         Cancellation & Refund&nbsp;&nbsp;Policy
+                      </a>
+                    </li>
+                    <li>
+                      <a className="nk-footer-text !text-sm md:!text-[1rem]" href={`/refund-policy`}>
+                        Shipping&nbsp;&nbsp;Policy
                       </a>
                     </li>
                   </ul>

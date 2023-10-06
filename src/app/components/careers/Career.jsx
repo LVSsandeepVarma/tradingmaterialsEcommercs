@@ -52,6 +52,26 @@ export default function Career() {
 
   const handleClose = () => {
     setShowForm(false);
+    window.location.reload()
+    
+  //   if(success != ""){
+  //     setSuccess("")
+  //   if(apiErr.length >0){setApiErr([])}
+  //   if(firstNameErr != ""){setFirstNameErr("")}
+  //   if(lastNameErr != ""){setLastNameErr("")}
+  //   if(phoneErr != ""){setPhoneErr("")}
+  //   if(descriptionErr != ""){setDescriptionErr("")}
+  //   if(positionErr != ""){setPositionErr("")}
+  //   if(experienceErr != ""){setExperienceErr("")}
+  //   if(fileErr != ""){setFileErr("")}
+  //   if(firstName != ""){setFirstName("")}
+  //   if(lastName != ""){setLastName("")}
+  //   if(phone != ""){setPhone("")}
+  //   if(description != ""){setDescription("")}
+  //   if(position != ""){setPosition("")}
+  //   if(experience != ""){setExperience("")}
+  //   // if(file != ""){setFile("")}
+  //   }
   };
 
   function validFirstName(name) {
@@ -112,10 +132,10 @@ export default function Career() {
       setPhoneErr("Invalid phone number");
       return false;
     } else if (phone?.length <= 7) {
-      setPhoneErr("Phone number should be atleast 8 digits");
+      setPhoneErr("Invalid phone number");
       return false;
     } else if (phone?.length > 15) {
-      setPhoneErr("Phone number should be atmost 15 digits");
+      setPhoneErr("Invalid phone number");
       return false;
     } else {
       setPhoneErr("");
@@ -267,6 +287,9 @@ export default function Career() {
         );
         if (response?.data?.status) {
           setSuccess(response?.data?.message);
+          setTimeout(()=>{
+            handleClose()
+          },1000)
         }
       }
     } catch (err) {
@@ -832,7 +855,7 @@ export default function Career() {
             </section>
           </main>
           <Footer />
-          <Dialog open={showForm} onClose={handleClose} className="">
+          <Dialog open={showForm} onClose={handleClose} fullWidth={"80%"} className="" size="lg">
             <DialogTitle className="!font-bold">{formTitle}</DialogTitle>
             <DialogContent>
               {/* <DialogContentText>

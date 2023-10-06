@@ -413,7 +413,7 @@ export default function About() {
                 <div className="row gy-5">
                   <div className="col-md-6 col-lg-4">
                     <div className="card border-0 bg-blue-300">
-                      <div className="card-body !p-[30px] pb-0">
+                      <div className="card-body !pb-0">
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
@@ -428,14 +428,14 @@ export default function About() {
                           </div>
                         </div>
                         <div className="card-image text-center">
-                          <img src="/images/team/a.png" alt="team" />
+                          <img src="/images/team/tm-team-pic-01.png" alt="team" />
                         </div>
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
                     <div className="card border-0 bg-green-50">
-                      <div className="card-body !p-[30px] pb-0">
+                      <div className="card-body  !pb-0">
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
@@ -457,7 +457,7 @@ export default function About() {
                   </div>
                   <div className="col-md-6 col-lg-4">
                     <div className="card border-0 bg-yellow-50">
-                      <div className="card-body !p-[30px] pb-0">
+                      <div className="card-body  !pb-0">
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
@@ -472,7 +472,7 @@ export default function About() {
                           </div>
                         </div>
                         <div className="card-image text-center">
-                          <img src="/images/team/c.png" alt="team" />
+                          <img src="/images/team/tm-team-pic-03.png" alt="team" />
                         </div>
                       </div>
                     </div>

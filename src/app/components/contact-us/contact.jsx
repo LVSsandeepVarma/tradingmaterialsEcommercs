@@ -69,10 +69,10 @@ export default function Contact() {
       setPhoneError("Invalid phone number");
       return false;
     } else if (phone?.length <= 7) {
-      setPhoneError("Phone number should be atleast 8 digits");
+      setPhoneError("Invalid phone number");
       return false;
     } else if (phone?.length > 15) {
-      setPhoneError("Phone number should be atmost 15 digits");
+      setPhoneError("Invalid phone number");
       return false;
     } else {
       setPhoneError("");
@@ -131,7 +131,7 @@ export default function Contact() {
             name: name,
             message: desc,
             ip_address: userIp,
-            domain: window.location.href.split("https://")[1]
+            domain: window.location.origin.split("https://")[1]
           }
         );
         if (response?.data?.status) {

@@ -548,7 +548,7 @@ export default function Header() {
         onHide={() => dispatch(hidePopup())}
         centered
         size="md"
-        style={{ borderRadius: "0.75rem" }}
+        style={{ borderRadius: "0rem" }}
         className="offer"
       >
         {/* <Modal.Header className="!text-center w-full !text-white !font-bold text-2xl bg-[#8fd499] !fill-white-500 p-[8px]">
@@ -558,18 +558,18 @@ export default function Header() {
           </div>
         </Modal.Header> */}
         <Modal.Body
-          className="p-0 !rounded-xl "
+          className="p-0  "
           style={{
-            borderRadius: "0.75rem",
+            borderRadius: "0rem",
             paddingLeft: "30px !important",
             paddingTop: "9px !important",
           }}
         >
           <div
             id="popup"
-            className="!rounded-l"
+            className=""
             style={{
-              borderRadius: "0.75rem",
+              borderRadius: "0rem",
               paddingLeft: "30px !important",
               paddingTop: "9px !important",
             }}
@@ -592,7 +592,7 @@ export default function Header() {
                   <img src="/images/offer-nobg.png" alt="offer-img" />
                 </div>
                 <div
-                  className="offer-tex  p-0 pb-2 flex items-center justify-center  rounded-xl"
+                  className="offer-tex  p-0 pb-2 flex items-center justify-center  "
                   style={{ textAlign: "left !important" }}
                 >
                   <div className=" !text-center">
@@ -602,7 +602,7 @@ export default function Header() {
                   </div>
                 </div>
               </div>}
-              <div className={` d-flex flex-col drop-shadow-xl ${!mouseOverEvent ? "w-[40%] " : "!w-full "} ${mouseOverEvent ? "pt-3 pb-3" : ""} items-center !justify-center  rounded-xl`} >
+              <div className={` d-flex flex-col drop-shadow-xl ${!mouseOverEvent ? "w-[40%] " : "!w-full "} ${mouseOverEvent ? "pt-3 pb-3" : ""} items-center !justify-center `} >
                 <div className="d-flex items-center justify-center ">
                   <img
                     className={`${mouseOverEvent? "max-w-[30%]" : "max-w-[50%]"}`}

@@ -61,9 +61,9 @@ export default function Register() {
     } else if (!phoneRegex.test(phone)) {
       setPhoneError("Invalid Phone number");
     } else if (phone?.length <= 7) {
-      setPhoneError("Phone number should be atleast 8 digits");
+      setPhoneError("Invalid phone number");
     } else if (phone?.length > 15) {
-      setPhoneError("Phone number should be atmost 15 digits");
+      setPhoneError("Invalid phone number");
     } else {
       setPhoneError("");
     }

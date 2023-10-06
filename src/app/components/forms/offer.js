@@ -42,9 +42,9 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
     } else if (!phoneRegex.test(mobile)) {
       setPhoneErr("Invalid Phone number");
     } else if (mobile?.length <= 7) {
-      setPhoneErr("Phone number should be atleast 8 digits");
+      setPhoneErr("Invalid phone number");
     } else if (mobile?.length > 15) {
-      setPhoneErr("Phone number should be atmost 15 digits");
+      setPhoneErr("Invalid phone number");
     } else {
       setPhoneErr("");
     }
@@ -79,7 +79,7 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
           {
             email: email,
             phone: phone,
-            domain: window.location.href.split("https://")[1],
+            domain: window.location.origin.split("https://")[1],
             ip_add: userIp,
           },
           {
@@ -170,6 +170,11 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
               Sign Up
             </a>
           </div>
+          {isMouseEntered && <div className={`ml-2 buttonss-off cursor-pointer `}>
+            <a className="cart-btn" onClick={()=> dispatch(hidePopup())}>
+              Later
+            </a>
+          </div>}
         </div>
       </form>
     </>
