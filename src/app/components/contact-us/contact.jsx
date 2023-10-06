@@ -115,6 +115,21 @@ export default function Contact() {
     validEmail(email);
     phoneValidation(phone);
     descValidation(desc);
+    
+    const currentUrl = window?.location?.href;
+   let  updatedUrl;
+
+   if (currentUrl && (currentUrl.startsWith('http://') || currentUrl.startsWith('https://'))) {
+      // Replace "http://" or "https://" with "www."
+     updatedUrl = currentUrl.replace(/^(https?:\/\/)/, 'www.');
+      
+      // Now, `updatedUrl` contains the modified URL with "www."
+      console.log(updatedUrl);
+    } else {
+      // The URL didn't start with "http://" or "https://"
+      updatedUrl = currentUrl
+    }
+
     if (
       nameErr === "" && name !== "" &&
       emailErr === "" && email !== "" &&
@@ -131,7 +146,7 @@ export default function Contact() {
             name: name,
             message: desc,
             ip_address: userIp,
-            domain: window.location.origin.split("https://")[1]
+            domain: updatedUrl
           }
         );
         if (response?.data?.status) {

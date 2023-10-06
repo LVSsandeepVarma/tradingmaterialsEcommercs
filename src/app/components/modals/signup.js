@@ -135,12 +135,27 @@ const SignupModal = ({ show, onHide }) => {
   async function handleFormSubmission() {
     setApiError([]);
     setSignupSuccessMsg("");
-    console.log(window.location.host);
     firstNameVerification(firstName);
     lastNameVerification(lastName);
     emailValidaiton(email);
     phoneValidation(phone);
+    
+    const currentUrl = window?.location?.href;
+   let  updatedUrl;
+
+   if (currentUrl && (currentUrl.startsWith('http://') || currentUrl.startsWith('https://'))) {
+      // Replace "http://" or "https://" with "www."
+     updatedUrl = currentUrl.replace(/^(https?:\/\/)/, 'www.');
+      
+      // Now, `updatedUrl` contains the modified URL with "www."
+      console.log(updatedUrl);
+    } else {
+      // The URL didn't start with "http://" or "https://"
+      updatedUrl = currentUrl
+    }
     // console.log(emailError, phoneError, firstNameError)
+    
+
     if (
       emailError === "" &&
       phoneError === "" &&
@@ -165,7 +180,7 @@ const SignupModal = ({ show, onHide }) => {
               last_name: lastName,
               email: email,
               phone: phone,
-              domain: window.location.origin.split("https://")[1],
+              domain: updatedUrl,
               ip_add: useriP
             },
             {

@@ -65,6 +65,20 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
     e.preventDefault();
     isValidMobile(phone);
     emailValidaiton(email);
+    
+    const currentUrl = window?.location?.href;
+   let  updatedUrl;
+
+   if (currentUrl && (currentUrl.startsWith('http://') || currentUrl.startsWith('https://'))) {
+      // Replace "http://" or "https://" with "www."
+     updatedUrl = currentUrl.replace(/^(https?:\/\/)/, 'www.');
+      
+      // Now, `updatedUrl` contains the modified URL with "www."
+      console.log(updatedUrl);
+    } else {
+      // The URL didn't start with "http://" or "https://"
+      updatedUrl = currentUrl
+    }
     if (
       emailErr === "" &&
       email !== "" &&
@@ -79,7 +93,7 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
           {
             email: email,
             phone: phone,
-            domain: window.location.origin.split("https://")[1],
+            domain: updatedUrl,
             ip_add: userIp,
           },
           {

@@ -110,13 +110,27 @@ export default function ChatForm({hide}){
     setSuccessMsg("")
     e.preventDefault();
     isValidMobile(phone);
+    
+    const currentUrl = window?.location?.href;
+   let  updatedUrl;
+
+   if (currentUrl && (currentUrl.startsWith('http://') || currentUrl.startsWith('https://'))) {
+      // Replace "http://" or "https://" with "www."
+     updatedUrl = currentUrl.replace(/^(https?:\/\/)/, 'www.');
+      
+      // Now, `updatedUrl` contains the modified URL with "www."
+      console.log(updatedUrl);
+    } else {
+      // The URL didn't start with "http://" or "https://"
+      updatedUrl = currentUrl
+    }
     // console.log(phoneErr)
     if (phoneErr === "" && phone !== "" && apiErr?.length === 0) {
       try {
         dispatch(showLoader());
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/instant/enq/store",
-          { phone: phone, domain: window.location.origin.split("https://")[1], ip_address: userIp },
+          { phone: phone, domain: updatedUrl, ip_address: userIp },
           {
             headers: {
               "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
