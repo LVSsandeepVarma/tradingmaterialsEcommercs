@@ -455,7 +455,7 @@ export default function AddToCart() {
       <Header />
       <div className="nk-pages text-left">
         <section className="nk-banner nk-banner-career-job-details bg-gray">
-          <div className="nk-banner-wrap pt-120 pt-lg-80 pb-[100px] lg:!pb-[300px]">
+          <div className="nk-banner-wrap wrap-padding pt-120 pt-lg-80 pb-[30px] md:pb-[300px] lg:!pb-[300px]">
             <div className="container">
               <div className="row">
                 <div className="col-lg-8 col-xxl-5 text-left">
@@ -489,7 +489,7 @@ export default function AddToCart() {
               <div className={`${cartProducts?.length ==0 ? "col-lg-12 flex items-center w-full justify-center" : " col-lg-8 pe-lg-0"}`}>
                 <div
                   className={`nk-entry ${cartProducts?.length ==0 ? "border-0" : " pe-lg-5 py-lg-5 "}${
-                    allProducts?.length ? "max-h-[65%]" : ""
+                    allProducts?.length ? "max-h-[70%]" : ""
                   }  overflow-y-auto`}
                 >
                   <div className={`${cartProducts?.length > 0 ? " mb-5" : "m-2"}`}>
@@ -794,7 +794,7 @@ export default function AddToCart() {
                     )}
                     {!billingSameAsShipping && (
                       <div className="nk-section-blog-details mt-3">
-                        <div className="max-h-[100px] md:max-h-[225px] overflow-y-auto">
+                        <div className="max-h-[220px] md:max-h-[225px] overflow-y-auto">
                           <h4 className="mb-3 !font-bold">Shipping Address</h4>
 
                           <ul className="d-flex flex-column gap-2 pb-0">

@@ -1097,3 +1097,11 @@ td span {
     font-size: small !important;
   }
 }
+
+
+@media only screen and (min-width: 720px ) and (max-width: 990px) {
+  .wrap-padding{
+    padding-bottom: 30px !important;
+  }
+}
+
