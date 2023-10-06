@@ -225,7 +225,7 @@ export default function About() {
                   <div className="col-lg-6 col-xl-5">
                     <div className="d-flex flex-column">
                       <div className="nk-frame mb-5 mb-lg-0 order-lg-2 mt-lg-3">
-                        <img src="/images/cover/cover-38.png" alt="cover-bg" />
+                        <img src="/images/tm-man-cover-38.png" alt="cover-bg" />
                       </div>
                       <div className="nk-section-head pb-0 !text-left">
                         <span className="nk-section-subtitle !text-left">

@@ -2621,6 +2621,9 @@ export default function ProductsDisplay() {
                     {t("Stories_From_Our_Customers")}
                   </h2>
                   <p className="nk-section-text">{t("stories_desc")}</p>
+                  <div className="flex w-full justify-center">
+                  <img src="/images/shop/trust-icon.png" alt="rating_starts"></img>
+                  </div>
                 </div>
               </div>
             </div>

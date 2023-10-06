@@ -576,7 +576,7 @@ export default function Header() {
           >
             <div className="flex !shadow-xl">
               {!mouseOverEvent && <div
-                className="d-flex drop-shadow-lg shadow-lg flex-col w-[50%] items-center justify-center"
+                className={`d-flex drop-shadow-lg shadow-lg flex-col w-[50%] items-center justify-center `}
                 style={{
                   background: "linear-gradient(45deg, #5582bf, transparent)",
                 }}
@@ -602,10 +602,10 @@ export default function Header() {
                   </div>
                 </div>
               </div>}
-              <div className={` d-flex flex-col drop-shadow-xl ${!mouseOverEvent ? "w-[40%] " : "!w-full "} items-center !justify-center  rounded-xl`} onMouseOver={()=>{console.log("mouse..")}}>
+              <div className={` d-flex flex-col drop-shadow-xl ${!mouseOverEvent ? "w-[40%] " : "!w-full "} ${mouseOverEvent ? "pt-3 pb-3" : ""} items-center !justify-center  rounded-xl`} >
                 <div className="d-flex items-center justify-center ">
                   <img
-                    className={`${mouseOverEvent? "max-w-[50%]" : ""}`}
+                    className={`${mouseOverEvent? "max-w-[30%]" : "max-w-[50%]"}`}
                     src="/images/oneDayLeft.png"
                     alt="oneDayleft_png"
                   ></img>
@@ -614,7 +614,7 @@ export default function Header() {
                 <div className={`${mouseOverEvent ? "w-[90%]" : "tb-space d-flex justify-center  mt-[22px] w-full"} `}>
                   <div className={`${mouseOverEvent ? "" : "!inline"} `}>
                     <div></div>
-                    <Offer mouseOverEvent = {handleMouseOverEvent} />
+                    <Offer mouseOverEvent = {handleMouseOverEvent} isMouseEntered = {mouseOverEvent} />
                   </div>
                 </div>
               </div>

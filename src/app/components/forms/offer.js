@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { hidePopup } from "../../../features/popups/popusSlice";
 
 // eslint-disable-next-line react/prop-types
-export default function Offer({mouseOverEvent}) {
+export default function Offer({mouseOverEvent , isMouseEntered}) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [emailErr, setEmailErr] = useState("");
@@ -123,7 +123,7 @@ export default function Offer({mouseOverEvent}) {
             borderBottom: "1px solid white",
             borderRadius: 0,
           }}
-          onMouseOver={mouseOverEvent}
+          onMouseEnter={mouseOverEvent}
           placeholder="Email"
           onChange={handleEmailChange}
         />
@@ -137,7 +137,7 @@ export default function Offer({mouseOverEvent}) {
           className="form-control border-b-1 !text-white border-white bg-transparent hover:drop-shadow-lg mb-2 placeholder-white w-full "
           placeholder="Mobile "
           onChange={handlePhonechange}
-          onMouseOver={mouseOverEvent}
+          onMouseEnter={mouseOverEvent}
           style={{
             border: "0px",
             borderBottom: "1px solid white",
@@ -164,8 +164,8 @@ export default function Offer({mouseOverEvent}) {
               </p>
             );
           })}
-        <div className="">
-          <div className="buttonss-off cursor-pointer">
+        <div className={`${isMouseEntered ? "w-full flex justify-center" : ""}`}>
+          <div className={`buttonss-off cursor-pointer `}>
             <a className="cart-btn" onClick={handleSubmit}>
               Sign Up
             </a>
