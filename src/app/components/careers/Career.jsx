@@ -551,7 +551,7 @@ export default function Career() {
                       <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
                         <div className="row gx-5 justify-content-md-between align-items-center">
                           <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2">Full Stack Web Developer</h5>
+                            <h5 className="mb-2 !font-bold !text-left">Full Stack Web Developer</h5>
                             <div className="d-flex gap-2 align-items-center text-primary mb-2">
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
@@ -633,7 +633,7 @@ export default function Career() {
                       <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
                         <div className="row gx-5 justify-content-md-between align-items-center">
                           <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2">Inventory Supervisor</h5>
+                            <h5 className="mb-2 !font-bold !text-left">Inventory Supervisor</h5>
                             <div className="d-flex gap-2 align-items-center text-primary mb-2">
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
@@ -672,7 +672,7 @@ export default function Career() {
                       <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
                         <div className="row gx-5 justify-content-md-between align-items-center">
                           <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2">Store Manager</h5>
+                            <h5 className="mb-2 !font-bold !text-left">Store Manager</h5>
                             <div className="d-flex gap-2 align-items-center text-primary mb-2">
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
@@ -718,7 +718,7 @@ export default function Career() {
                       <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
                         <div className="row gx-5 justify-content-md-between align-items-center">
                           <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2">Delivery Manager</h5>
+                            <h5 className="mb-2 !font-bold !text-left">Delivery Manager</h5>
                             <div className="d-flex gap-2 align-items-center text-primary mb-2">
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
@@ -757,7 +757,7 @@ export default function Career() {
                       <div className="position-card ps-lg-2 pb-5">
                         <div className="row gx-5 justify-content-md-between align-items-center">
                           <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2">Delivery Supervisor</h5>
+                            <h5 className="mb-2 !font-bold !text-left">Delivery Supervisor</h5>
                             <div className="d-flex gap-2 align-items-center text-primary mb-2">
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
