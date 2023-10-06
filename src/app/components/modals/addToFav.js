@@ -12,12 +12,12 @@ export default function AddToFav({showModal, closeModal, addedToFavImg, modalMes
           <Modal.Body className="border-0 !bg-[#e5e7eb]">
             <>
             <p className="!flex justify-end text-xl cursor-pointer w-full" onClick={closeModal}>X</p>
-            <div className="flex justify-around min-h-[20vh] items-center pl-2">
-              <img src={addedToFavImg} alt="saved_product" style={{width:"25%", height:"25%"}} ></img>
+            <div className="flex flex-wrap justify-around min-h-[20vh] items-center pl-2">
+              <img src={addedToFavImg} className='!w-[75%] sm:!w-[25%]' alt="saved_product" style={{width:"25%", height:"25%"}} ></img>
               <div>
-              <p className=" flex text-xl items-center !truncate !text-[rgba(105,110,119,1)] p-2 "><FaCheckCircle color="success" style={{color:"green"}} className="mr-1"/>{modalMessage}</p>
+              <p className=" flex text-sm sm:text-lg md:text-xl items-center !truncate !text-[rgba(105,110,119,1)] p-2 "><FaCheckCircle color="success" style={{color:"green"}} className="mr-1"/>{modalMessage}</p>
               {/* <div className="!inline"> */}
-              { modalMessage?.search("cart") !== -1 && wishMsg == true && <p className="flex text-lg items-center !truncate !text-[rgba(105,110,119,1)] p-2 pt-1"><BsExclamationCircle color="green" style={{color:"red"}} className="mr-1" />Removed from your wishlist</p>}
+              { modalMessage?.search("cart") !== -1 && wishMsg == true && <p className="flex text-sm sm:text-lg md:text-xl items-center !truncate !text-[rgba(105,110,119,1)] p-2 pt-1"><BsExclamationCircle color="green" style={{color:"red"}} className="mr-1" />Removed from your wishlist</p>}
               {/* </div> */}
               </div>
             </div>
