@@ -60,7 +60,7 @@ export default function Footer() {
                   </div>
                 </div>
 
-                <div className="col-md-8 col-lg-2 col-xxl-2">
+                <div className="col-md-8 col-lg-2 col-xxl-2 ">
                   <div className="nk-footer-info text-start">
                     <h5 className="title !text-start !font-bold !mb-[2px]">Pages</h5>
                     <ul className="row gy-1 gy-sm-4">
