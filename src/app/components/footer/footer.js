@@ -182,11 +182,11 @@ export default function Footer() {
                   <p className="nk-footer-copyright-text text-center text-lg-start">
                     Copyrights &copy;
                     <span id="currentYear">{new Date().getFullYear()}</span>
-                    <a className="fs-16 !text-blue-600" href="#">
+                    <a className="fs-16 pr-1 !text-blue-600" href="#">
                       {" "}
                       Trading&#160;Materials.
                     </a>
-                    &#160;All&nbsp;Rights&nbsp;Reserved.
+                    All&nbsp;Rights&nbsp;Reserved.
                   </p>
                 </div>
                 <div className="col-lg-6 col-md-12 col-sm-12">

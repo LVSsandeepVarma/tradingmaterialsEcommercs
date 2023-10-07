@@ -111,8 +111,8 @@ const SignupCartModal = ({ show, onHide }) => {
       setLastNameError("Last name is required");
     } else if (!namePattern.test(name)) {
       setLastNameError("Last name should contain only alphabets");
-    } else if (name?.length < 3) {
-      setLastNameError("Min 3 characters are required");
+    } else if (name?.length < 1) {
+      setLastNameError("Min 1 characters are required");
     } else if (name?.length > 50) {
       setLastNameError("Max 50 characters are required");
     } else {
@@ -294,12 +294,17 @@ const SignupCartModal = ({ show, onHide }) => {
                 <p className="!text-blue-600">TOTAL</p>
               </div>
               <Divider />
-              <div className="grid grid-cols-3 gap-6 p-2 !pr-0">
+              <div className="grid grid-cols-3 gap-3 p-2 !pr-0">
                 <div>
                   <img src={cartData?.img_1} alt="product" />
                 </div>
                 <div className="">
-                  <p className="truncate max-w-[85%] font-bold ">
+                  <p className="  font-bold " style={{
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "wrap",
+                                            overflow: "hidden",
+                                            width: "100%",
+                                          }}>
                     {cartData?.name}
                   </p>
                   <p>
@@ -339,7 +344,7 @@ const SignupCartModal = ({ show, onHide }) => {
               <div className="step"></div>
             </div> */}
 
-            <div className="card-body !text-left p-5">
+            <div className="card-body !text-left p-5 pb-0">
               <p className="text-left mb-2  ">CONTACT DETAILS</p>
               <Form>
                 <div className="row gy-4 !text-left">
@@ -495,6 +500,17 @@ const SignupCartModal = ({ show, onHide }) => {
                 />
               </a>
             </div>
+            <div className="flex justify-center w-full items-center mt-2 pl-[8px]">
+              <img
+                src="/images/paymentMethods.jpg"
+                alt="payment_methods"
+                style={{ width: "50%" }}
+              />
+              <p className="capitalize text-[11px] ">
+                <LocalShippingIcon className="!w-[18px] mr-1 ml-2" />
+                Cash on Delivery
+              </p>
+            </div>
             <Divider />
             <div>
               <div className="flex justify-between mt-2">
@@ -516,17 +532,7 @@ const SignupCartModal = ({ show, onHide }) => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-around items-center mt-5 pl-[8px]">
-              <img
-                src="/images/paymentMethods.jpg"
-                alt="payment_methods"
-                style={{ width: "50%" }}
-              />
-              <p className="capitalize text-[11px] w-full">
-                <LocalShippingIcon className="!w-[18px] mr-1" />
-                Cash on Delivery
-              </p>
-            </div>
+            
           </div>
         </div>
       </Modal.Body>

@@ -217,22 +217,19 @@ export default function Contact() {
                             <em className="icon ni ni-cc-alt2-fill"></em>
                           </div>
                           <h4 className="!font-bold text-2xl">
-                            Billing &amp; Payments
+                          Billing & Payments
                           </h4>
-                          <p className="line-clamp-3">
-                            Effortless Financial Management
+                          <p className="l">
+                          For any doubts related to payment and invoices.
                             <br />
                             <br />
-                            Simplify your billing and payment processes using
-                            our intuitive platform. Manage your financial
-                            transactions seamlessly and securely, maintaining
-                            control over your finances.
+                            You can contact our Billing & Finance Team.
                           </p>
                         </div>
-                        <a href="/contact" className="btn-link text-primary ">
+                        {/* <a href="/contact" className="btn-link text-primary ">
                           <span>See Pricing Questions</span>
                           <em className="icon ni ni-arrow-right"></em>
-                        </a>
+                        </a> */}
                       </div>
                     </div>
                   </div>
@@ -244,23 +241,19 @@ export default function Contact() {
                             <em className="icon ni ni-users-fill"></em>
                           </div>
                           <h4 className="!font-bold text-2xl">
-                            Users and Collaboration
+                          Account Management Team
                           </h4>
-                          <p className="line-clamp-3">
-                            Seamless User Engagement
+                          <p className="">
+                          For updating or removing your profile.
                             <br />
                             <br />
-                            Connect and collaborate effortlessly with users on
-                            our platform. Streamline information sharing, task
-                            delegation, and teamwork for effective goal
-                            attainment. Foster a productive, collaborative
-                            environment with our user-centric tools.
+                            You can contact our Account Management Team.
                           </p>
                         </div>
-                        <a href="/contact" className="btn-link text-primary ">
+                        {/* <a href="/contact" className="btn-link text-primary ">
                           <span>Features and Integrations</span>
                           <em className="icon ni ni-arrow-right"></em>
-                        </a>
+                        </a> */}
                       </div>
                     </div>
                   </div>
@@ -272,24 +265,19 @@ export default function Contact() {
                             <em className="icon ni ni-puzzle-fill"></em>
                           </div>
                           <h4 className="!font-bold text-2xl">
-                            Features and Integrations
+                          Order Processing Team
                           </h4>
-                          <p className="line-clamp-3">
-                            Enhance Your Workflow
+                          <p className="">
+                          For doubts regarding you order/ any products.
                             <br />
                             <br />
-                            Access a wide array of features and integrations to
-                            elevate your operations. From project management and
-                            communication tools to data analytics and
-                            automation, our platform offers a comprehensive
-                            suite tailored to your needs. Seamlessly integrate
-                            with popular apps to boost productivity.
+                            You can contact our Order Processing Team.
                           </p>
                         </div>
-                        <a href="/contact" className="btn-link text-primary ">
+                        {/* <a href="/contact" className="btn-link text-primary ">
                           <span>See All Questions</span>
                           <em className="icon ni ni-arrow-right"></em>
-                        </a>
+                        </a> */}
                       </div>
                     </div>
                   </div>
@@ -477,7 +465,7 @@ export default function Contact() {
                   </div>
                   <div className="col-lg-4">
                     <div className="card-list">
-                      <div className="card rounded-2">
+                      {/* <div className="card rounded-2">
                         <div className="card-body !text-left">
                           <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-5">
                             <em className="icon ni ni-sign-usd"></em>
@@ -497,7 +485,7 @@ export default function Contact() {
                             </a>
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                       <div className="card rounded-2">
                         <div className="card-body !text-left">
                           <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-5">
@@ -511,7 +499,7 @@ export default function Contact() {
                             product or service in our comprehensive FAQ section.
                           </p>
                           <div className="pt-2">
-                            <a href="#" className="btn-link text-primary">
+                            <a href="/faq" className="btn-link text-primary">
                               <span>See All Questions</span>
                               <em className="icon ni ni-arrow-right"></em>
                             </a>

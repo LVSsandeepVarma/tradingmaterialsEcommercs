@@ -227,7 +227,8 @@ export default function ChatForm({ hide }) {
                   );
                 })}
             </div>
-            <div className="">
+            <div className="cardss">
+            <div className="illustration">
               <lottie-player
                 src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json"
                 fill="transparent"
@@ -236,6 +237,7 @@ export default function ChatForm({ hide }) {
                 loop=""
                 autoplay="true"
               ></lottie-player>
+            </div>
             </div>
             <span className="imgs relative" style={{ zIndex: "9999" }}>
               <img src="/images/offer-box.png" alt="product-image" />

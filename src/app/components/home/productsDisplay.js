@@ -368,7 +368,9 @@ export default function ProductsDisplay() {
   function filtersubcatProducts(
     subCategoryName,
     subCategoryId,
-    showSingleProduct
+    showSingleProduct,
+    // eslint-disable-next-line no-unused-vars
+    isStock
   ) {
     setStockCount("inStock");
     setShowPlaceHolderLoader(true);
@@ -445,13 +447,16 @@ export default function ProductsDisplay() {
       // const allProducts = products
     }
     setFilteredSubcatproducts({ ...filterProducts });
-    navigate(`${userLang}/#trading_bundles`);
+    if(isStock != "stock"){
+      navigate(`${userLang}/#trading_bundles`);
+    }
+    
     setShowPlaceHolderLoader(false);
   }
 
   //function for handling filtering based on in stock or out stock
   function filterstockProducts() {
-    filtersubcatProducts("all", 0);
+    filtersubcatProducts("all", 0, false,"stock");
     addFilterProducts("all", 0, false);
     let currentActiveCheckbox;
     if (stockCount === "inStock") {
@@ -2851,7 +2856,7 @@ export default function ProductsDisplay() {
                 </div>
               </div>
               <div className="col-lg-6 ab-foot">
-                <div className="stores">
+                <div className="stores flex justify-center">
                   <img src="/images/store.png" alt="product-image" />
                 </div>
               </div>

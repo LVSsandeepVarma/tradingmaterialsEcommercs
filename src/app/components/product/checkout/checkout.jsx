@@ -15,10 +15,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import { FaCreditCard, FaCalendarAlt, FaLock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
-import { Alert, Divider } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Divider, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import CryptoJS from "crypto-js";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
+import styled from "@emotion/styled";
 
 export default function Checkout() {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ export default function Checkout() {
   const [cvv, setCVV] = useState("");
   const [nameOnCard, setNameOnCard] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
+  const [paymentType, setPaymentType] = useState("online")
 
   const [cardNumberError, setCardNumberError] = useState("");
   const [expiryError, setExpiryError] = useState("");
@@ -62,13 +64,14 @@ export default function Checkout() {
   const [paymentVerification, setPaymentVerification] = useState(false);
   const [clientToken, setClientToken] = useState("");
   const [time, setTime] = useState(5);
-  const [apiError, setApiError] = useState([])
+  const [apiError, setApiError] = useState([]);
+  const [activeAccordion, setActiveAccordion] = useState("online")
 
   // State variable to store prices for each product
   const [subTotal, setSubTotal] = useState(0);
 
   const { id } = useParams();
-  const {encryptedrderId} = useParams();
+  const { encryptedrderId } = useParams();
   const decryptedId = CryptoJS.AES.decrypt(
     id.replace(/_/g, "/").replace(/-/g, "+"),
     "trading_materials_order"
@@ -77,12 +80,55 @@ export default function Checkout() {
 
   console.log(cartProducts, "gggggggg");
 
-  useEffect(()=>{
-    if(userData?.client?.payment_types?.length >0){
-      setActivePaymentMethod(userData?.client?.payment_types[0]?.name)
+  useEffect(() => {
+    if (userData?.client?.payment_types?.length > 0) {
+      setActivePaymentMethod(userData?.client?.payment_types[0]?.name);
     }
-  },[])
+  }, []);
 
+  // useEffect(()=>{
+  //   setPaymentStatus("Stripe")
+  //   setPay
+  // },[])
+
+
+  // custom radio 
+  const BpIcon = styled('span')(({ theme }) => ({
+    borderRadius: '50%',
+    width: 16,
+    height: 16,
+    
+  }));
+  
+  const BpCheckedIcon = styled(BpIcon)({
+    backgroundColor: '#137cbd',
+    backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
+    '&:before': {
+      display: 'block',
+      width: 16,
+      height: 16,
+      backgroundImage: 'radial-gradient(#fff,#fff 28%,transparent 32%)',
+      content: '""',
+    },
+    'input:hover ~ &': {
+      backgroundColor: '#106ba3',
+    },
+  });
+
+
+  // Inspired by blueprintjs
+// function BpRadio(props) {
+//   return (
+//     <Radio
+//       disableRipple
+//       color="default"
+//       value={props?.value}
+//       checkedIcon={<BpCheckedIcon />}
+//       icon={<BpIcon />}
+//       {...props}
+//     />
+//   );
+// }
 
   useEffect(() => {
     if (paymentStatus === "success") {
@@ -187,8 +233,8 @@ export default function Checkout() {
     } else {
       setCVVError("");
     }
-    if(apiError?.length >0){
-      setApiError([])
+    if (apiError?.length > 0) {
+      setApiError([]);
     }
   };
 
@@ -255,8 +301,8 @@ export default function Checkout() {
       setCardNumberError("Please enter a valid card number.");
     }
     setCardNumber(formattedValue);
-    if(apiError?.length >0){
-      setApiError([])
+    if (apiError?.length > 0) {
+      setApiError([]);
     }
   };
 
@@ -268,8 +314,8 @@ export default function Checkout() {
       setExpiryError("Expiry field required");
     }
     setExpiry(formattedValue);
-    if(apiError?.length >0){
-      setApiError([])
+    if (apiError?.length > 0) {
+      setApiError([]);
     }
   };
 
@@ -278,7 +324,6 @@ export default function Checkout() {
 
     return value.match(/^[a-zA-Z ]+$/);
   };
-
 
   const handleSubmit = async () => {
     // event.preventDefault();
@@ -333,7 +378,6 @@ export default function Checkout() {
       // setIsFailure(true)
     }
   };
-
 
   // function for updating choosen payment method
   const handlePaymentMethod = (paymentType) => {
@@ -391,7 +435,7 @@ export default function Checkout() {
       currency: "INR",
       name: "Trading Materials",
       description: "Booking Request amount for Trading Materials",
-      image: `https://${window.location.hostname}/images/tm-logo-1.png`,
+      image: `https://tradingmaterials.com/images/tm-logo-1.png`,
       order_id: res?.order_id,
       handler: handleBookingPaymentResponse,
       prefill: {
@@ -411,11 +455,9 @@ export default function Checkout() {
     rzp.open();
   }
 
-
-
   // create order for razorpay
   async function createOrder(id, total, client_id) {
-    setApiError([])
+    setApiError([]);
     try {
       dispatch(showLoader());
       const response = await axios.post(
@@ -438,7 +480,7 @@ export default function Checkout() {
         handleRazorpayPayment(response?.data?.data);
       }
     } catch (err) {
-       console.log(err);
+      console.log(err);
       if (err?.response?.data?.errors) {
         setApiError([Object.values(err?.response?.data?.errors)]);
       } else {
@@ -449,22 +491,41 @@ export default function Checkout() {
     }
   }
 
-  //create order for stripe 
-  async function createOrderWithStripe(id, total, client_id,city, state,country,zipcode,address) {
-    handleSubmit()
-    if(nameErr === "" && expiryError === "" && cvvError==="" && cardNumberError ==="" && nameOnCard !== "" && expiry !== "" && cvv !== "" && expiry!=="" && apiError !== ""){
-    try {
-      console.log(orderData?.order,"orderData")
-      dispatch(showLoader());
-      const paymentData = {
-        payment_type: "Stripe",
+  //create order for stripe
+  async function createOrderWithStripe(
+    id,
+    total,
+    client_id,
+    city,
+    state,
+    country,
+    zipcode,
+    address
+  ) {
+    handleSubmit();
+    if (
+      nameErr === "" &&
+      expiryError === "" &&
+      cvvError === "" &&
+      cardNumberError === "" &&
+      nameOnCard !== "" &&
+      expiry !== "" &&
+      cvv !== "" &&
+      expiry !== "" &&
+      apiError !== ""
+    ) {
+      try {
+        console.log(orderData?.order, "orderData");
+        dispatch(showLoader());
+        const paymentData = {
+          payment_type: "Stripe",
           client_id: client_id,
           order_id: id,
           total: total,
           amount: total,
           city: orderData?.order?.city,
           state: orderData?.order?.state,
-          address_1:  orderData?.order?.address_1,
+          address_1: orderData?.order?.address_1,
           zipcode: orderData?.order?.zip,
           country: orderData?.order?.country,
           card_number: cardNumber,
@@ -472,36 +533,36 @@ export default function Checkout() {
           cvc: cvv,
           name_on_card: nameOnCard,
           currency: "INR",
-          call_back_url: `https://${window.location.hostname}/payment-status/`
-      }
-      const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
-        paymentData,
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-          },
+          call_back_url: `https://tradingmaterials.com/payment-status/`,
+        };
+        const response = await axios.post(
+          "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
+          paymentData,
+          {
+            headers: {
+              "access-token": localStorage.getItem("client_token"),
+            },
+          }
+        );
+
+        if (response?.data?.status) {
+          console.log(response, "response");
+
+          // console.log(response?.data);
+          localStorage.setItem("id", encryptedrderId);
+          window.location.href = response?.data?.redirect_url;
+          // handleStripePayment(response?.data?.data);
         }
-      );
-
-      if (response?.data?.status) {
-        console.log(response, "response")
-
-        // console.log(response?.data);
-        localStorage.setItem("id", encryptedrderId)
-        window.location.replace(response?.data?.redirect_url);
-        // handleStripePayment(response?.data?.data);
-      }
-    } catch (err) {
-      console.log(err);
-      if (err?.response?.data?.errors) {
-        setApiError([...Object?.values(err?.response?.data?.errors)]);
-      } else {
-        setApiError([err?.response?.data?.message]);
-        dispatch(hideLoader());
+      } catch (err) {
+        console.log(err);
+        if (err?.response?.data?.errors) {
+          setApiError([...Object?.values(err?.response?.data?.errors)]);
+        } else {
+          setApiError([err?.response?.data?.message]);
+          dispatch(hideLoader());
+        }
       }
     }
-  }
   }
   return (
     <>
@@ -598,8 +659,8 @@ export default function Checkout() {
         <section className="nk-section nk-section-job-details pt-lg-0">
           <div className="container">
             <div className="nk-section-content row px-lg-5">
-              <div className="col-lg-8 pe-lg-0">
-                <div className="nk-entry pe-lg-5 py-lg-5 max-h-[50%] overflow-y-auto">
+              <div className="col-lg-6 pe-lg-0">
+                <div className="nk-entry  pe-lg-5 py-lg-5 !pb-0 max-h-[50%] overflow-y-auto">
                   <div className="mb-5">
                     {allProducts?.length > 0 ? (
                       <table className="table">
@@ -684,7 +745,7 @@ export default function Checkout() {
                     )}
                   </div>
                 </div>
-                <hr className="mt-2" />
+                {/* <hr className="" /> */}
                 <div className="mt-5">
                   {orderData ? (
                     <div className="nk-section-blog-details mt-3 mb-3">
@@ -698,7 +759,7 @@ export default function Checkout() {
                           </ul>
                         </div>
                       )}
-                      <Divider className="mt-2 mb-2" />
+                      {/* <Divider className="mt-2 mb-2" /> */}
                       <h4 className="mb-3 !font-bold">Billing Address</h4>
                       <ul className="d-flex flex-column gap-2 pb-0">
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -788,14 +849,91 @@ export default function Checkout() {
                   </div>
                 </div>
               </div>
-              <div className="col-lg-4 ps-lg-0 mt-5 md:mt-0">
+              <div className="col-lg-6 ps-lg-0 mt-5 md:mt-0">
                 {paymentStatus === "" && paymentVerification === false && (
                   <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
+                     <RadioGroup
+        // defaultValue={paymentType}
+        aria-labelledby="payment_methods"
+        name="payment_methods"
+        
+      >
+        
+     
+                    <Accordion expanded={activeAccordion == "online"} onChange={()=>{setActiveAccordion("online"), setPaymentType("online")}} >
+        <AccordionSummary
+          // expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel4bh-content"
+          id="panel4bh-header"
+        >
+          <Typography sx={{ width: '100%', flexShrink: 0 }}><div>
+          <FormControlLabel className="!w-full text-sm" value="online" checked={paymentType=="online" ? true : false} control={<Radio size="sm"/>} label="Online" />
+            </div></Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            Nunc vitae orci ultricies, auctor nunc in, volutpat nisl. Integer sit
+            amet egestas eros, vitae egestas augue. Duis vel est augue.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+      <Accordion expanded={activeAccordion == "cod"} onChange={()=>{setActiveAccordion("cod"), setPaymentType("cod")}}>
+        <AccordionSummary
+          // expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel4bh-content"
+          id="panel4bh-header"
+        >
+          <Typography sx={{ width: '100%', flexShrink: 0 }}><div>
+          <FormControlLabel className="!w-full text-sm" value="cod" checked={paymentType=="cod" ? true : false} control={<Radio  size="sm"/>} label="Cash On Delivery" />
+
+            </div></Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            Nunc vitae orci ultricies, auctor nunc in, volutpat nisl. Integer sit
+            amet egestas eros, vitae egestas augue. Duis vel est augue.
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+      </RadioGroup>
+                    {/* <h4 className="!font-bold">Payment Type</h4>
+                    <div className="flex flex-wrap items-center">
+                    <div className="flex  w-full items-around">
+                            <div className="mr-2">
+                            <input
+                              type="checkbox"
+                              checked={
+                                activePaymentMethod === "Online Payment"
+                              }
+                              // onChange={() =>
+                              //   handlePaymentMethod(`${paymentType?.name}`)
+                              // }
+                            />
+
+                            <label className="ml-2"> Cash On Delivery</label>
+                            </div>
+                            <div>
+                            <input
+                              type="checkbox"
+                              checked={
+                                activePaymentMethod === "Online Payment"
+                              }
+                              // onChange={() =>
+                              //   handlePaymentMethod(`${paymentType?.name}`)
+                              // }
+                            />
+
+                            <label className="ml-2"> Online Payment</label>
+                            </div>
+                            
+                            
+                          </div>
+                    </div>
                     <h4 className="!font-bold">Payment Method</h4>
 
                     <div className="flex flex-wrap items-center">
                       {userData?.client?.payment_types?.map(
-                        (paymentType,ind) => (
+                        (paymentType, ind) => (
                           <div key={ind} className="flex">
                             <input
                               type="checkbox"
@@ -807,7 +945,6 @@ export default function Checkout() {
                               }
                             />
 
-                            {/* <label className="ml-2"> {paymentType?.name}</label> */}
                             {paymentType?.name === "Razor_Pay" && (
                               <img
                                 src={`https://admin.tradingmaterials.com/assets/images/payment-images/razorpay.png`}
@@ -825,7 +962,7 @@ export default function Checkout() {
                           </div>
                         )
                       )}
-                    </div>
+                    </div> */}
 
                     {activePaymentMethod === "Stripe" && (
                       <>
@@ -999,7 +1136,7 @@ export default function Checkout() {
                           </p>
                           <p className="m-0 fs-14 text-danger w-75">
                             {orderData?.order?.discount_type === "percentage"
-                              ?`₹ ${orderData?.order?.discount_amount} ( ${orderData?.order?.discount}%)`
+                              ? `₹ ${orderData?.order?.discount_amount} ( ${orderData?.order?.discount}%)`
                               : "₹" + orderData?.order?.discount_amount}
                           </p>
                         </li>
@@ -1009,6 +1146,14 @@ export default function Checkout() {
                           </p>
                           <p className="m-0 fs-16 fw-semibold text-dark w-75">
                             ₹ {orderData?.order?.total}
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-16 text-uppercase w-25">
+                            Advance:
+                          </p>
+                          <p className="m-0 fs-16 fw-semibold text-dark w-75">
+                            ₹ 150
                           </p>
                         </li>
                       </ul>
@@ -1022,19 +1167,19 @@ export default function Checkout() {
                           privacy.
                         </span>
                       </div>
-                      {userData?.client?.payment_types?.length >0 && <button
-                        disabled={allProducts?.length > 0 ? false : true}
-                        className="btn btn-primary w-100"
-                        type="submit"
-                        onClick={() =>
-                          {
-                            if(activePaymentMethod === "Razor_Pay"){
+                      {userData?.client?.payment_types?.length > 0 && (
+                        <button
+                          disabled={allProducts?.length > 0 ? false : true}
+                          className="btn btn-primary w-100"
+                          type="submit"
+                          onClick={() => {
+                            if (activePaymentMethod === "Razor_Pay") {
                               createOrder(
                                 orderData?.order_id,
                                 orderData?.order?.total,
                                 orderData?.client_id
-                              )
-                            }else if(activePaymentMethod === "Stripe"){
+                              );
+                            } else if (activePaymentMethod === "Stripe") {
                               createOrderWithStripe(
                                 orderData?.order_id,
                                 orderData?.order?.total,
@@ -1044,39 +1189,40 @@ export default function Checkout() {
                                 orderData?.country,
                                 orderData?.pincode,
                                 orderData?.address_1
-                              )
-                            }
-                          }
-                        }
-                      >
-                        Proceed to Pay
-                      </button>}
-                      {userData?.client?.payment_types?.length == 0 && <button
-                        disabled={allProducts?.length > 0 ? false : true}
-                        className="btn btn-primary w-100"
-                        type="submit"
-                        
-                      >
-                        Online Payment Not Available
-                      </button>}
-                      {apiError?.length > 0 &&
-                            apiError?.map((err, ind) => {
-                              return (
-                                <Alert
-                                key={ind}
-                                  variant="outlined"
-                                  severity="error"
-                                  className="!mt-2"
-                                >
-                                  <p
-                                    key={ind}
-                                    className="text-red-600 font-semibold"
-                                  >
-                                    {err}
-                                  </p>
-                                </Alert>
                               );
-                            })}
+                            }
+                          }}
+                        >
+                          Proceed to Pay 150
+                        </button>
+                      )}
+                      {userData?.client?.payment_types?.length == 0 && (
+                        <button
+                          disabled={allProducts?.length > 0 ? false : true}
+                          className="btn btn-primary w-100"
+                          type="submit"
+                        >
+                          Online Payment Not Available
+                        </button>
+                      )}
+                      {apiError?.length > 0 &&
+                        apiError?.map((err, ind) => {
+                          return (
+                            <Alert
+                              key={ind}
+                              variant="outlined"
+                              severity="error"
+                              className="!mt-2"
+                            >
+                              <p
+                                key={ind}
+                                className="text-red-600 font-semibold"
+                              >
+                                {err}
+                              </p>
+                            </Alert>
+                          );
+                        })}
                       <Divider className="mt-2" />
                       <div className="flex  w-full mt-3">
                         <img
@@ -1145,10 +1291,7 @@ export default function Checkout() {
                                   defaultValue={4}
                                 /> */}
                               </div>
-                              <small
-                                className="font-bold "
-                                
-                              >
+                              <small className="font-bold ">
                                 Do not Refresh the page, we will redirect to
                                 your orders in {time}
                               </small>
@@ -1203,37 +1346,37 @@ export default function Checkout() {
           </div>
         </section>
         <section className="nk-section nk-cta-section nk-section-content-1">
-              <div className="container">
-                <div className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7">
-                  <div className="row g-gs align-items-center">
-                    <div className="col-lg-8">
-                      <div className="media-group flex-column flex-lg-row align-items-center">
-                        <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
-                          <em className="icon ni ni-chat-fill"></em>
-                        </div>
-                        <div className="text-center text-lg-start">
-                          <h3 className="text-capitalize m-0 !text-3xl !font-bold !leading-loose">
-                            Chat with our support team!
-                          </h3>
-                          <p className="fs-16 opacity-75">
-                            Get in touch with our support team if you still
-                            can’t find your answer.
-                          </p>
-                        </div>
-                      </div>
+          <div className="container">
+            <div className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7">
+              <div className="row g-gs align-items-center">
+                <div className="col-lg-8">
+                  <div className="media-group flex-column flex-lg-row align-items-center">
+                    <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                      <em className="icon ni ni-chat-fill"></em>
                     </div>
-                    <div className="col-lg-4 text-center text-lg-end">
-                      <a
-                        href={`${userLang}/contact`}
-                        className="btn btn-white fw-semiBold"
-                      >
-                        Contact Support
-                      </a>
+                    <div className="text-center text-lg-start">
+                      <h3 className="text-capitalize m-0 !text-3xl !font-bold !leading-loose">
+                        Chat with our support team!
+                      </h3>
+                      <p className="fs-16 opacity-75">
+                        Get in touch with our support team if you still can’t
+                        find your answer.
+                      </p>
                     </div>
                   </div>
                 </div>
+                <div className="col-lg-4 text-center text-lg-end">
+                  <a
+                    href={`${userLang}/contact`}
+                    className="btn btn-white fw-semiBold"
+                  >
+                    Contact Support
+                  </a>
+                </div>
               </div>
-            </section>
+            </div>
+          </div>
+        </section>
         <Footer />
       </div>
     </>

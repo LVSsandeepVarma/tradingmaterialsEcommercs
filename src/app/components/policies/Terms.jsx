@@ -84,7 +84,7 @@ export default function Terms() {
                 <div className="nk-entry-wrap pt-3 ps-lg-5">
                   <div className="nk-entry">
                     <div className="pb-5">
-                      <h5 className="font-bold text-xl">
+                      <h5 className="!font-bold text-xl">
                         Trading Materials Website Terms and Conditions
                       </h5>
                       <p className="fs-16">
@@ -97,7 +97,7 @@ export default function Terms() {
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="font-bold text-xl">1. Use of Content:</h5>
+                      <h5 className="!font-bold text-xl">1. Use of Content:</h5>
                       <p className="fs-16">
                         The content on this website, including text, graphics,
                         images, and other materials, is for informational
@@ -110,7 +110,7 @@ export default function Terms() {
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="font-bold text-xl">
+                      <h5 className="!font-bold text-xl">
                         2. Accuracy of Information:
                       </h5>
                       <p className="fs-16">
@@ -127,7 +127,7 @@ export default function Terms() {
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="font-bold text-xl">3. Use of Cookies:</h5>
+                      <h5 className="!font-bold text-xl">3. Use of Cookies:</h5>
                       <p className="fs-16">
                         This website uses cookies to monitor browsing
                         preferences. If you allow cookies to be used, the
@@ -137,7 +137,7 @@ export default function Terms() {
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="font-bold text-xl">
+                      <h5 className="!font-bold text-xl">
                         4. Links to Other Websites:
                       </h5>
                       <p className="fs-16">
@@ -154,7 +154,7 @@ export default function Terms() {
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="font-bold text-xl">
+                      <h5 className="!font-bold text-xl">
                         5. Intellectual Property:
                       </h5>
                       <p className="fs-16">
@@ -170,7 +170,7 @@ export default function Terms() {
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="font-bold text-xl">6. Unlawful Use:</h5>
+                      <h5 className="!font-bold text-xl">6. Unlawful Use:</h5>
                       <p className="fs-16">
                         Your use of this website may give rise to a claim for
                         damages and/or be a criminal offense.
@@ -184,7 +184,7 @@ export default function Terms() {
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="font-bold text-xl">7. Governing Law:</h5>
+                      <h5 className="!font-bold text-xl">7. Governing Law:</h5>
                       <p className="fs-16">
                         Your use of this website and any dispute arising out of
                         such use of the website is subject to the laws of the
@@ -192,7 +192,7 @@ export default function Terms() {
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="font-bold text-xl">
+                      <h5 className="!font-bold text-xl">
                         8. Changes to Terms and Conditions:
                       </h5>
                       <p className="fs-16">
@@ -209,7 +209,7 @@ export default function Terms() {
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="font-bold text-xl">9. Contact Us:</h5>
+                      <h5 className="!font-bold text-xl">9. Contact Us:</h5>
                       <p className="fs-16">
                         For any questions or clarifications regarding these
                         terms and conditions, please contact us at :{" "}

@@ -233,7 +233,15 @@ export default function Header() {
           console.log(response?.data);
           if (
             location.pathname === "/" ||
-            location.pathname.includes("/product-detail")
+            location.pathname.includes("/product-detail") ||
+            location.pathname.includes("/about") ||
+            location.pathname.includes("/contact") ||
+            location.pathname.includes("/career") ||
+            location.pathname.includes("/faq") ||
+            location.pathname.includes("/terms-and-conditions") ||
+            location.pathname.includes("/privacy-policy") ||
+            location.pathname.includes("/refund-policy") ||
+            location.pathname.includes("/shipping-policy")
           ) {
             localStorage.removeItem("client_token");
             sessionStorage.removeItem("offerPhone");
@@ -338,17 +346,20 @@ export default function Header() {
       modals?.showLoginModal === false
     ) {
       console.log("closed", modals?.showLoginModal);
-      // 
+      //
 
-      // 
-      if(window.navigator.userAgent.includes("Windows") || window.navigator.userAgent.includes("Macintosh")){
+      //
+      if (
+        window.navigator.userAgent.includes("Windows") ||
+        window.navigator.userAgent.includes("Macintosh")
+      ) {
         const timeOut = setTimeout(() => {
           if (modals?.showLoginModal === false) {
             if (!isLoggedIn) {
               showSignupPopup();
             }
           }
-        }, 5000);
+        }, 10000);
         if (
           modals?.showLoginModal ||
           modals?.showSignupModal ||
@@ -360,7 +371,6 @@ export default function Header() {
           clearTimeout(timeOut);
         };
       }
-      
     }
   }, [isLoggedIn, modals]);
 
@@ -415,6 +425,7 @@ export default function Header() {
 
   const handleUserResponse = () => {
     setCookieResponse(true);
+    setShowOffer(true);
   };
 
   const showAlert = () => {
@@ -475,7 +486,7 @@ export default function Header() {
       showforgotPasswordModal: false,
       showOtpModal: false,
       showNewPasswordModal: false,
-      showSignupCartModal: false
+      showSignupCartModal: false,
     });
   };
 
@@ -957,7 +968,7 @@ export default function Header() {
                                     showforgotPasswordModal: false,
                                     showOtpModal: false,
                                     showNewPasswordModal: false,
-                                    showSignupCartModal: false
+                                    showSignupCartModal: false,
                                   })
                                 );
                               }}
@@ -1033,7 +1044,7 @@ export default function Header() {
                                   showforgotPasswordModal: false,
                                   showOtpModal: false,
                                   showNewPasswordModal: false,
-                                  showSignupCartModal: false
+                                  showSignupCartModal: false,
                                 })
                               );
                             }
@@ -1087,7 +1098,7 @@ export default function Header() {
                                   showforgotPasswordModal: false,
                                   showOtpModal: false,
                                   showNewPasswordModal: false,
-                                  showSignupCartModal: false
+                                  showSignupCartModal: false,
                                 })
                               );
                             }
@@ -1194,7 +1205,7 @@ export default function Header() {
                         showforgotPasswordModal: false,
                         showOtpModal: false,
                         showNewPasswordModal: false,
-                        showSignupCartModal: false
+                        showSignupCartModal: false,
                       })
                     )
               }
@@ -1219,7 +1230,7 @@ export default function Header() {
                         showforgotPasswordModal: false,
                         showOtpModal: false,
                         showNewPasswordModal: false,
-                        showSignupCartModal: false
+                        showSignupCartModal: false,
                       })
                     )
               }

@@ -137,7 +137,7 @@ const AddressForm = ({ type, data, closeModal }) => {
       >
         {({ handleSubmit }) => (
           <Form onSubmit={handleSubmit}>
-            <div className="grid">
+            <div className="grid !px-5 pb-5">
               <div className="form-group mt-3 ">
                 <label className="font-semibold" htmlFor="add_1">
                   Street Address 1
@@ -145,19 +145,19 @@ const AddressForm = ({ type, data, closeModal }) => {
                 {type==="view" ? <Field
                   type="text"
                   name="add_1"
-                  className="form-control"
+                  className="form-control addressInput"
                   placeholder="House number and street name"
                   disabled
                 /> : <Field
                 type="text"
                 name="add_1"
-                className="form-control"
+                className="form-control addressInput"
                 placeholder="House number and street name"
               />}
                 <ErrorMessage
                   name="add_1"
                   component="div"
-                  className="text-red-500"
+                  className="text-red-500 text-xs"
                 />
               </div>
               <div className="form-group mt-3 ">
@@ -167,13 +167,13 @@ const AddressForm = ({ type, data, closeModal }) => {
                 { type==="view" ? <Field
                   type="text"
                   name="add_2"
-                  className="form-control"
+                  className="form-control addressInput"
                   placeholder="Apartment, suite, unit...."
                   disabled
                 /> : <Field
                 type="text"
                 name="add_2"
-                className="form-control"
+                className="form-control addressInput"
                 placeholder="Apartment, suite, unit...."
               />}
               </div>
@@ -185,19 +185,19 @@ const AddressForm = ({ type, data, closeModal }) => {
                   {type==="view" ? <Field
                     type="text"
                     name="city"
-                    className="form-control"
+                    className="form-control addressInput"
                     placeholder="City"
                     disabled
                   /> : <Field
                   type="text"
                   name="city"
-                  className="form-control"
+                  className="form-control addressInput"
                   placeholder="City"
                 />}
                   <ErrorMessage
                     name="city"
                     component="div"
-                    className="text-red-500"
+                    className="text-red-500 text-xs"
                   />
                 </div>
                 <div className="form-group mt-3 ">
@@ -207,19 +207,19 @@ const AddressForm = ({ type, data, closeModal }) => {
                  {type==="view" ?  <Field
                     type="text"
                     name="state"
-                    className="form-control"
+                    className="form-control addressInput"
                     placeholder="State"
                     disabled
                   />: <Field
                   type="text"
                   name="state"
-                  className="form-control"
+                  className="form-control addressInput"
                   placeholder="State"
                 />}
                   <ErrorMessage
                     name="state"
                     component="div"
-                    className="text-red-500"
+                    className="text-red-500 text-xs"
                   />
                 </div>
               </div>
@@ -230,8 +230,8 @@ const AddressForm = ({ type, data, closeModal }) => {
                   </label>
                   {type=== "view" ? <Field
                     type="text"
-                    name="country"
-                    className="form-control"
+                    name="country" 
+                    className="form-control addressInput"
                     placeholder="Country"
                     disabled 
                     
@@ -239,13 +239,13 @@ const AddressForm = ({ type, data, closeModal }) => {
                   /> : <Field
                   type="text"
                   name="country"
-                  className="form-control"
+                  className="form-control addressInput"
                   placeholder="Country"
                 />}
                   <ErrorMessage
                     name="country"
                     component="div"
-                    className="text-red-500"
+                    className="text-red-500 text-xs"
                   />
                 </div>
                 <div className="form-group mt-3 ">
@@ -255,19 +255,19 @@ const AddressForm = ({ type, data, closeModal }) => {
                   {type==="view" ? <Field
                     type="text"
                     name="zip"
-                    className="form-control"
+                    className="form-control addressInput"
                     placeholder="Postal code"
                     disabled
                   /> :  <Field
                   type="number"
                   name="zip"
-                  className="form-control"
+                  className="form-control addressInput"
                   placeholder="Postal code"
                 />}
                   <ErrorMessage
                     name="zip"
                     component="div"
-                    className="text-red-500"
+                    className="text-red-500 text-xs"
                   />
                 </div>
               </div>

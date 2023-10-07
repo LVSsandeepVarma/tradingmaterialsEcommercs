@@ -369,7 +369,7 @@ export default function SideBar() {
       </AppBar> */}
           <Drawer
             variant="permanent"
-            className="drop-shadow-xl !w-[100%] sm:!w-[100%]  md:!w-[35%] lg:!w-[24%]"
+            className="drop-shadow-xl !w-[100%] sm:!w-[100%]   lg:!w-[24%]"
             open={open}
           >
             <Divider />

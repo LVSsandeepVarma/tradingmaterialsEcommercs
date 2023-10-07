@@ -52,26 +52,26 @@ export default function Career() {
 
   const handleClose = () => {
     setShowForm(false);
-    window.location.reload()
-    
-  //   if(success != ""){
-  //     setSuccess("")
-  //   if(apiErr.length >0){setApiErr([])}
-  //   if(firstNameErr != ""){setFirstNameErr("")}
-  //   if(lastNameErr != ""){setLastNameErr("")}
-  //   if(phoneErr != ""){setPhoneErr("")}
-  //   if(descriptionErr != ""){setDescriptionErr("")}
-  //   if(positionErr != ""){setPositionErr("")}
-  //   if(experienceErr != ""){setExperienceErr("")}
-  //   if(fileErr != ""){setFileErr("")}
-  //   if(firstName != ""){setFirstName("")}
-  //   if(lastName != ""){setLastName("")}
-  //   if(phone != ""){setPhone("")}
-  //   if(description != ""){setDescription("")}
-  //   if(position != ""){setPosition("")}
-  //   if(experience != ""){setExperience("")}
-  //   // if(file != ""){setFile("")}
-  //   }
+    window.location.reload();
+
+    //   if(success != ""){
+    //     setSuccess("")
+    //   if(apiErr.length >0){setApiErr([])}
+    //   if(firstNameErr != ""){setFirstNameErr("")}
+    //   if(lastNameErr != ""){setLastNameErr("")}
+    //   if(phoneErr != ""){setPhoneErr("")}
+    //   if(descriptionErr != ""){setDescriptionErr("")}
+    //   if(positionErr != ""){setPositionErr("")}
+    //   if(experienceErr != ""){setExperienceErr("")}
+    //   if(fileErr != ""){setFileErr("")}
+    //   if(firstName != ""){setFirstName("")}
+    //   if(lastName != ""){setLastName("")}
+    //   if(phone != ""){setPhone("")}
+    //   if(description != ""){setDescription("")}
+    //   if(position != ""){setPosition("")}
+    //   if(experience != ""){setExperience("")}
+    //   // if(file != ""){setFile("")}
+    //   }
   };
 
   function validFirstName(name) {
@@ -241,8 +241,8 @@ export default function Career() {
 
   const handleSubmit = async () => {
     try {
-        setApiErr([])
-        setSuccess("")
+      setApiErr([]);
+      setSuccess("");
       dispatch(showLoader());
       validFirstName(firstName);
       validLastName(lastName);
@@ -287,9 +287,9 @@ export default function Career() {
         );
         if (response?.data?.status) {
           setSuccess(response?.data?.message);
-          setTimeout(()=>{
-            handleClose()
-          },1000)
+          setTimeout(() => {
+            handleClose();
+          }, 1000);
         }
       }
     } catch (err) {
@@ -297,11 +297,11 @@ export default function Career() {
       if (err?.response?.data?.errors) {
         setFirstNameErr(err?.response?.data?.errors["firstname"]);
         setLastNameErr(err?.response?.data?.errors["lastname"]);
-        setPhoneErr(err?.response?.data?.errors["phone"])
-        setPositionErr(err?.response?.data?.errors["position"])
-        setExperienceErr(err?.response?.data?.errors["experience"])
-        setFileErr(err?.response?.data?.errors["cvfile"])
-        setDescriptionErr(err?.response?.data?.errors["description"])
+        setPhoneErr(err?.response?.data?.errors["phone"]);
+        setPositionErr(err?.response?.data?.errors["position"]);
+        setExperienceErr(err?.response?.data?.errors["experience"]);
+        setFileErr(err?.response?.data?.errors["cvfile"]);
+        setDescriptionErr(err?.response?.data?.errors["description"]);
       } else {
         setApiErr([err?.response?.data?.message]);
       }
@@ -537,7 +537,10 @@ export default function Career() {
                       </div>
                       <a href="#" className="btn btn-outline-primary">
                         <span>Learn More</span>
-                        <em className="icon ni ni-arrow-right"></em>
+                        <em
+                          className="icon ni ni-arrow-right"
+                          id="open_positions"
+                        ></em>
                       </a>
                     </div>
                   </div>
@@ -549,7 +552,7 @@ export default function Career() {
               <div className="nk-mask blur-1 left bottom"></div>
               <div className="container">
                 <div className="row justify-content-center">
-                  <div className="col-lg-6 " id="open_positions">
+                  <div className="col-lg-6 ">
                     <div className="nk-section-head text-center">
                       <span className="nk-section-subtitle">
                         Open Positions
@@ -574,7 +577,9 @@ export default function Career() {
                       <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
                         <div className="row gx-5 justify-content-md-between align-items-center">
                           <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2 !font-bold !text-left">Full Stack Web Developer</h5>
+                            <h5 className="mb-2 !font-bold !text-left">
+                              Full Stack Web Developer
+                            </h5>
                             <div className="d-flex gap-2 align-items-center text-primary mb-2">
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
@@ -590,11 +595,14 @@ export default function Career() {
                                 </span>
                               </p>
                             </div>
-                            <p className="fs-14 line-clamp-2">
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit morbi in gravida sem enim sed in at euismod
-                              tortor et. Lorem ipsum dolor sit amet, consectetur
-                              adipiscing elit morbi. lorem
+                            <p className="fs-14 line-clamp-6 text-start">
+                              To join our tiny but mighty team in Bangalore, we
+                              are now looking for a highly driven Full Stack
+                              Developer with a strong focus on Node and React
+                              JavaScript. The best applicant will have at least
+                              three years of full stack development experience
+                              and a track record of producing high-caliber
+                              software solutions.
                             </p>
                           </div>
                           <div className="col-md-4 col-xl-3">
@@ -656,7 +664,9 @@ export default function Career() {
                       <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
                         <div className="row gx-5 justify-content-md-between align-items-center">
                           <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2 !font-bold !text-left">Inventory Supervisor</h5>
+                            <h5 className="mb-2 !font-bold !text-left">
+                              Inventory Supervisor
+                            </h5>
                             <div className="d-flex gap-2 align-items-center text-primary mb-2">
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
@@ -672,11 +682,15 @@ export default function Career() {
                                 </span>
                               </p>
                             </div>
-                            <p className="fs-14 line-clamp-2">
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit morbi in gravida sem enim sed in at euismod
-                              tortor et. Lorem ipsum dolor sit amet, consectetur
-                              adipiscing elit morbi. lorem
+                            <p className="fs-14 line-clamp-6 text-start">
+                              To manage and monitor all warehouse activities,
+                              guarantee effective procedures, and increase
+                              warehouse efficiency, we are looking for an
+                              experienced warehouse supervisor. The duties of
+                              the warehouse supervisor include managing staff,
+                              organizing logistical procedures, assuring the
+                              quality of the items, and creating pertinent
+                              documentation.
                             </p>
                           </div>
                           <div className="col-md-4 col-xl-3">
@@ -695,7 +709,9 @@ export default function Career() {
                       <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
                         <div className="row gx-5 justify-content-md-between align-items-center">
                           <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2 !font-bold !text-left">Store Manager</h5>
+                            <h5 className="mb-2 !font-bold !text-left">
+                              Store Manager
+                            </h5>
                             <div className="d-flex gap-2 align-items-center text-primary mb-2">
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
@@ -711,11 +727,13 @@ export default function Career() {
                                 </span>
                               </p>
                             </div>
-                            <p className="fs-14 line-clamp-2">
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit morbi in gravida sem enim sed in at euismod
-                              tortor et. Lorem ipsum dolor sit amet, consectetur
-                              adipiscing elit morbi. lorem
+                            <p className="fs-14 line-clamp-6 text-start">
+                              To handle the daily activities of our business, we
+                              are looking for an experienced and devoted store
+                              manager. The chosen candidate will be in charge of
+                              staff management, assuring top-notch customer
+                              service, constantly hitting sales goals, and
+                              inventory management.
                             </p>
                           </div>
                           <div className="col-md-4 col-xl-3">
@@ -741,7 +759,9 @@ export default function Career() {
                       <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
                         <div className="row gx-5 justify-content-md-between align-items-center">
                           <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2 !font-bold !text-left">Delivery Manager</h5>
+                            <h5 className="mb-2 !font-bold !text-left">
+                              Delivery Manager
+                            </h5>
                             <div className="d-flex gap-2 align-items-center text-primary mb-2">
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
@@ -757,11 +777,17 @@ export default function Career() {
                                 </span>
                               </p>
                             </div>
-                            <p className="fs-14 line-clamp-2">
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit morbi in gravida sem enim sed in at euismod
-                              tortor et. Lorem ipsum dolor sit amet, consectetur
-                              adipiscing elit morbi. lorem
+                            <p className="fs-14 line-clamp-6 text-start">
+                              In our software industry, we&nbsp;re looking for a
+                              Senior Delivery Manager with experience to manage
+                              the efficient completion of customer projects.
+                              Coordinating project proposals, overseeing
+                              execution, fostering client relationships, and
+                              enforcing established procedures are all part of
+                              this function. Strong technical knowledge,
+                              outstanding leadership skills, and a track record
+                              of successfully completing projects within
+                              predetermined constraints are necessary.
                             </p>
                           </div>
                           <div className="col-md-4 col-xl-3">
@@ -780,7 +806,9 @@ export default function Career() {
                       <div className="position-card ps-lg-2 pb-5">
                         <div className="row gx-5 justify-content-md-between align-items-center">
                           <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2 !font-bold !text-left">Delivery Supervisor</h5>
+                            <h5 className="mb-2 !font-bold !text-left">
+                              Delivery Partner
+                            </h5>
                             <div className="d-flex gap-2 align-items-center text-primary mb-2">
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
@@ -796,18 +824,23 @@ export default function Career() {
                                 </span>
                               </p>
                             </div>
-                            <p className="fs-14 line-clamp-2">
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit morbi in gravida sem enim sed in at euismod
-                              tortor et. Lorem ipsum dolor sit amet, consectetur
-                              adipiscing elit morbi. lorem
+                            <p className="fs-14 line-clamp-6 text-start">
+                              For the position of Delivery Partner, we are
+                              searching for applicants with at least zero years
+                              of experience. Candidates with prior Full-Time
+                              employment experience are welcome to apply. The
+                              Delivery Managers Two Wheeler, Delivery Boy Have
+                              Bike & License, Goods Vehicle Driving Experience,
+                              2 Wheeler Chalane Aana Chahiye, and Delivery are
+                              skills needed for a courier position.-General
+                              Education or High School Diploma.
                             </p>
                           </div>
                           <div className="col-md-4 col-xl-3">
                             <a
                               onClick={() => {
                                 setShowForm(true),
-                                  setFormTitle("Delivery Supervisor");
+                                  setFormTitle("Delivery Partner");
                               }}
                               className="btn btn-outline-dark border w-100"
                             >
@@ -855,7 +888,13 @@ export default function Career() {
             </section>
           </main>
           <Footer />
-          <Dialog open={showForm} onClose={handleClose} fullWidth={"80%"} className="" size="lg">
+          <Dialog
+            open={showForm}
+            onClose={handleClose}
+            fullWidth={"80%"}
+            className=""
+            size="lg"
+          >
             <DialogTitle className="!font-bold">{formTitle}</DialogTitle>
             <DialogContent>
               {/* <DialogContentText>
@@ -931,6 +970,7 @@ export default function Career() {
                 label="Position"
                 type="text"
                 value={position}
+                autoComplete={false}
                 onChange={(e) => {
                   handlechange("position", e.target.value);
                 }}

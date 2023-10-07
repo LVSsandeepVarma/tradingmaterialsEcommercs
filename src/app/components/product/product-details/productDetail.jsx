@@ -444,6 +444,24 @@ export default function ProductDetails() {
     setAddedToFavImg("")
   }
 
+  
+
+  //show checkout without login
+  const handleSignupCart = (product) =>{
+    localStorage.removeItem("productData")
+    localStorage.setItem("productData", JSON.stringify(product))
+    dispatch(
+      usersignupinModal({
+        showSignupModal: false,
+        showLoginModal: false,
+        showforgotPasswordModal: false,
+        showOtpModal: false,
+        showNewPasswordModal: false,
+        showSignupCartModal: true
+      })
+    );
+  }
+
   return (
     <>
       <Helmet data-react-helmet="true">
@@ -1029,6 +1047,7 @@ export default function ProductDetails() {
                                         showforgotPasswordModal: false,
                                         showOtpModal: false,
                                         showNewPasswordModal: false,
+                                        showSignupCartModal: false
                                       }))
                                 }}>
                                 Buy Now
@@ -1040,14 +1059,7 @@ export default function ProductDetails() {
                                 onClick={() => {
                                   return isLoggedIn
                                     ? handleAddToCart(product?.product_id, product?.product?.img_1)
-                                    :  dispatch(
-                                      usersignupinModal({
-                                        showSignupModal: false,
-                                        showLoginModal: true,
-                                        showforgotPasswordModal: false,
-                                        showOtpModal: false,
-                                        showNewPasswordModal: false,
-                                      }))
+                                    :  handleSignupCart(product?.product)
                                 }}
                               >
                                 Add To Cart
@@ -1068,6 +1080,7 @@ export default function ProductDetails() {
                                       showforgotPasswordModal: false,
                                       showOtpModal: false,
                                       showNewPasswordModal: false,
+                                      showSignupCartModal: false
                                     }))
                               }}
                             >
@@ -1084,7 +1097,7 @@ export default function ProductDetails() {
                             will give you a complete account of the system, and
                             expound.{" "}
                           </p>
-                          <div className="nk-social d-sm-flex align-items-center mt-2 gap-3 pb-2">
+                          <div className="nk-social d-sm-flex align-items-center mt-2 gap-3 pb-2" id="product_reviews">
                             <h6 className="fs-14 m-0 fw-semibold text-uppercase !leading-loose mb-2 text-left  mb-sm-0 ">
                               Share :
                             </h6>
@@ -1103,7 +1116,7 @@ export default function ProductDetails() {
                                   </p>
                                 </a>
                               </li>
-                              <li>
+                              <li >
                                 <a
                                   href="#"
                                   className="d-flex align-items-center text-gray-1200"
@@ -1111,7 +1124,7 @@ export default function ProductDetails() {
                                   <em className="icon ni ni-twitter text-primary"></em>
                                   <p className="fs-14 text-nowrap fw-semibold ms-1">
                                     Twitter{" "}
-                                    <span className=" fs-14 text-gray-800">
+                                    <span className=" fs-14 text-gray-800" >
                                       60
                                     </span>
                                   </p>
@@ -1124,7 +1137,7 @@ export default function ProductDetails() {
                     </div>
                   </div>
                   <div className="nk-nav-tabs nav-tabs-s2 py-5 py-lg-7">
-                    <ul className="nav nav-tabs" id="product_reviews">
+                    <ul className="nav nav-tabs" >
                       <li className="nav-item" onClick={() => setTabValue(1)}>
                         <a
                           className={`${
@@ -1339,6 +1352,7 @@ export default function ProductDetails() {
                                                   showforgotPasswordModal: false,
                                                   showOtpModal: false,
                                                   showNewPasswordModal: false,
+                                                  showSignupCartModal: false
                                                 }));
                                             }
                                           }}
@@ -1361,6 +1375,7 @@ export default function ProductDetails() {
                                                   showforgotPasswordModal: false,
                                                   showOtpModal: false,
                                                   showNewPasswordModal: false,
+                                                  showSignupCartModal: false
                                                 }));
                                             }
                                           }}
@@ -1926,6 +1941,7 @@ export default function ProductDetails() {
                                               showforgotPasswordModal: false,
                                               showOtpModal: false,
                                               showNewPasswordModal: false,
+                                              showSignupCartModal: false
                                             })
                                           );
                                     }}
@@ -1941,15 +1957,7 @@ export default function ProductDetails() {
                                             product?.img_1
                                           ),
                                           handleCartPosition(event))
-                                        : dispatch(
-                                            usersignupinModal({
-                                              showSignupModal: false,
-                                              showLoginModal: true,
-                                              showforgotPasswordModal: false,
-                                              showOtpModal: false,
-                                              showNewPasswordModal: false,
-                                            })
-                                          );
+                                        : handleSignupCart(product)
                                     }}
                                   >
                                     {animateProductId === product?.id ? (
@@ -2058,6 +2066,7 @@ export default function ProductDetails() {
                       showforgotPasswordModal: false,
                       showOtpModal: false,
                       showNewPasswordModal: false,
+                      showSignupCartModal: false
                     }))
               }
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"

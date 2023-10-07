@@ -144,7 +144,7 @@ export default function PaymentVerifyStripe() {
         console.log("Payment verification failed:", response.data);
         setPaymentVerifyError(response?.data?.message?.message)
         if (response?.data?.code === "ACTION_REQ") {
-          window.location.replace(response?.data?.url);
+          window.location.herf = response?.data?.url;
         } else if (response?.data?.code === "FAILED") {
           setPaymentStatus("failed");
         } else {

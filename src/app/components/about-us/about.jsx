@@ -29,7 +29,7 @@ export default function About() {
               <div className="container">
                 <div className="row justify-content-center">
                   <div className="col-xl-7">
-                    <div className="nk-section-head text-center">
+                    <div className="nk-section-head text-center pb-[20px]">
                       <span className="nk-section-subtitle">Our Story</span>
                       <h2 className="nk-section-title !font-bold">
                         The Story Behind Trading Materials
@@ -48,7 +48,7 @@ export default function About() {
                         </li>
                         <li>
                           <a
-                            href={`${userLang}/contact`}
+                            href={`#our_values`}
                             className="btn  btn-lg btn-outline-primary"
                           >
                             Our Values
@@ -58,7 +58,8 @@ export default function About() {
                     </div>
                   </div>
                 </div>
-                <div className="row justify-content-center">
+                {/*  */}
+                {/* <div className="row justify-content-center">
                   <div className="col-lg-10 col-xl-8">
                     <div className="nk-video rounded-4 bg-primary-100 ">
                       <div className="nk-mask shape-1 rounded-4 overflow-hidden"></div>
@@ -91,7 +92,7 @@ export default function About() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </section>
             <section className="nk-section">
@@ -195,7 +196,7 @@ export default function About() {
                   <div className="col-lg-6">
                     <div className="d-flex flex-column">
                       <div className="nk-frame mb-5">
-                        <img src="/images/cover/cover-37.png" alt="cover-bg" />
+                        <img src="/images/team.jpg" alt="cover-bg" />
                       </div>
                       <div className="nk-section-head pb-0 !text-left">
                         <span className="nk-section-subtitle">The journey</span>
@@ -212,7 +213,7 @@ export default function About() {
                           shape our remarkable narrative, destined for even
                           greater heights.{" "}
                         </p>
-                        <ul className="nk-btn-group pt-5">
+                        <ul className="nk-btn-group pt-5" id="our_values">
                           <li>
                             <a href={`/careers`} className="btn btn-primary">
                               Join Our Team
@@ -392,7 +393,7 @@ export default function About() {
                         Materials, diligently striving to provide you with an
                         exceptional experience.
                       </p>
-                      <ul className="nk-btn-group justify-content-center pt-5">
+                      <ul className="nk-btn-group justify-content-center pt-5" >
                         <li>
                           <a href={`/careers`} className="btn btn-primary btn-lg">
                             Join Our Team
@@ -417,14 +418,14 @@ export default function About() {
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
-                              John Carter
+                            Suraj Chetan
                             </h4>
-                            <p className="fs-16">CEO &amp; Founder</p>
+                            <p className="fs-16">COO</p>
                           </div>
                           <div className="card-title-group-item">
-                            <a href="#" className="text-dark">
+                            {/* <a href="#" className="text-dark">
                               <em className="icon icon-lg ni ni-fedora"></em>
-                            </a>
+                            </a> */}
                           </div>
                         </div>
                         <div className="card-image text-center">
@@ -439,18 +440,18 @@ export default function About() {
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
-                              Sophie Moor
+                            Dhanyashree L
                             </h4>
-                            <p className="fs-16"> Manager Of XYZ</p>
+                            <p className="fs-16"> Operations Manager</p>
                           </div>
                           <div className="card-title-group-item">
-                            <a href="#" className="text-dark">
+                            {/* <a href="#" className="text-dark">
                               <em className="icon icon-lg ni ni-b-si"></em>
-                            </a>
+                            </a> */}
                           </div>
                         </div>
                         <div className="card-image text-center">
-                          <img src="/images/team/b.png" alt="team" />
+                          <img src="/images/team/tm-team-woman-pic.png" alt="team" />
                         </div>
                       </div>
                     </div>
@@ -461,14 +462,14 @@ export default function About() {
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
-                              Sam Houston
+                            Rahul V
                             </h4>
-                            <p className="fs-16">VP of Development</p>
+                            <p className="fs-16">CTO</p>
                           </div>
                           <div className="card-title-group-item">
-                            <a href="#" className="text-dark">
+                            {/* <a href="#" className="text-dark">
                               <em className="icon icon-lg ni ni-linkedin-round"></em>
-                            </a>
+                            </a> */}
                           </div>
                         </div>
                         <div className="card-image text-center">
