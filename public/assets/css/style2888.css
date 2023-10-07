@@ -50311,11 +50311,19 @@ h6,
 
 
 lottie-player{
-  position: fixed;
+  /* position: fixed;
   top: 0;
   left: 100px;
   background: transparent !important;
-  z-index: 100;
+  z-index: 100; */
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  height: 100px;
+  width: 100px;
+  left: 100%;
+  overflow: hidden;
+  border-radius: 50%;
 }
 
 lottie-player .main .animation {
