@@ -15,7 +15,18 @@ import { useNavigate, useParams } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import { FaCreditCard, FaCalendarAlt, FaLock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
-import { Accordion, AccordionDetails, AccordionSummary, Alert, Divider, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Alert,
+  Divider,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Typography,
+} from "@mui/material";
 import CryptoJS from "crypto-js";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
@@ -40,7 +51,7 @@ export default function Checkout() {
   const [cvv, setCVV] = useState("");
   const [nameOnCard, setNameOnCard] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
-  const [paymentType, setPaymentType] = useState("online")
+  const [paymentType, setPaymentType] = useState("online");
 
   const [cardNumberError, setCardNumberError] = useState("");
   const [expiryError, setExpiryError] = useState("");
@@ -57,6 +68,7 @@ export default function Checkout() {
   const [activeBillingAddfreeChecked, setActiveBillingAddressChecked] =
     useState(0);
   const [addressUpdateType, setAddressUpdateType] = useState("");
+  const [activePaymentType, setActivePAymentType] = useState("");
   const [activePaymentMethod, setActivePaymentMethod] = useState("");
   // State variable to track quantities for each product
 
@@ -65,7 +77,9 @@ export default function Checkout() {
   const [clientToken, setClientToken] = useState("");
   const [time, setTime] = useState(5);
   const [apiError, setApiError] = useState([]);
-  const [activeAccordion, setActiveAccordion] = useState("online")
+  const [activeAccordion, setActiveAccordion] = useState("online");
+  const [activePaymentMethodAccordion, setActivePaymentMethodAccordion] =
+    useState("");
 
   // State variable to store prices for each product
   const [subTotal, setSubTotal] = useState(0);
@@ -83,52 +97,57 @@ export default function Checkout() {
   useEffect(() => {
     if (userData?.client?.payment_types?.length > 0) {
       setActivePaymentMethod(userData?.client?.payment_types[0]?.name);
+      setActivePaymentMethodAccordion(userData?.client?.payment_types[0]?.name)
     }
-  }, []);
+  }, [userData]);
+
+  useEffect(() => {
+    if (paymentType == "cod") {
+      setActivePaymentMethodAccordion("");
+    }
+  }, [paymentType]);
 
   // useEffect(()=>{
   //   setPaymentStatus("Stripe")
   //   setPay
   // },[])
 
-
-  // custom radio 
-  const BpIcon = styled('span')(({ theme }) => ({
-    borderRadius: '50%',
+  // custom radio
+  const BpIcon = styled("span")(({ theme }) => ({
+    borderRadius: "50%",
     width: 16,
     height: 16,
-    
   }));
-  
+
   const BpCheckedIcon = styled(BpIcon)({
-    backgroundColor: '#137cbd',
-    backgroundImage: 'linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))',
-    '&:before': {
-      display: 'block',
+    backgroundColor: "#137cbd",
+    backgroundImage:
+      "linear-gradient(180deg,hsla(0,0%,100%,.1),hsla(0,0%,100%,0))",
+    "&:before": {
+      display: "block",
       width: 16,
       height: 16,
-      backgroundImage: 'radial-gradient(#fff,#fff 28%,transparent 32%)',
+      backgroundImage: "radial-gradient(#fff,#fff 28%,transparent 32%)",
       content: '""',
     },
-    'input:hover ~ &': {
-      backgroundColor: '#106ba3',
+    "input:hover ~ &": {
+      backgroundColor: "#106ba3",
     },
   });
 
-
   // Inspired by blueprintjs
-// function BpRadio(props) {
-//   return (
-//     <Radio
-//       disableRipple
-//       color="default"
-//       value={props?.value}
-//       checkedIcon={<BpCheckedIcon />}
-//       icon={<BpIcon />}
-//       {...props}
-//     />
-//   );
-// }
+  // function BpRadio(props) {
+  //   return (
+  //     <Radio
+  //       disableRipple
+  //       color="default"
+  //       value={props?.value}
+  //       checkedIcon={<BpCheckedIcon />}
+  //       icon={<BpIcon />}
+  //       {...props}
+  //     />
+  //   );
+  // }
 
   useEffect(() => {
     if (paymentStatus === "success") {
@@ -852,50 +871,350 @@ export default function Checkout() {
               <div className="col-lg-6 ps-lg-0 mt-5 md:mt-0">
                 {paymentStatus === "" && paymentVerification === false && (
                   <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
-                     <RadioGroup
-        // defaultValue={paymentType}
-        aria-labelledby="payment_methods"
-        name="payment_methods"
-        
-      >
-        
-     
-                    <Accordion expanded={activeAccordion == "online"} onChange={()=>{setActiveAccordion("online"), setPaymentType("online")}} >
-        <AccordionSummary
-          // expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel4bh-content"
-          id="panel4bh-header"
-        >
-          <Typography sx={{ width: '100%', flexShrink: 0 }}><div>
-          <FormControlLabel className="!w-full text-sm" value="online" checked={paymentType=="online" ? true : false} control={<Radio size="sm"/>} label="Online" />
-            </div></Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>
-            Nunc vitae orci ultricies, auctor nunc in, volutpat nisl. Integer sit
-            amet egestas eros, vitae egestas augue. Duis vel est augue.
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion expanded={activeAccordion == "cod"} onChange={()=>{setActiveAccordion("cod"), setPaymentType("cod")}}>
-        <AccordionSummary
-          // expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel4bh-content"
-          id="panel4bh-header"
-        >
-          <Typography sx={{ width: '100%', flexShrink: 0 }}><div>
-          <FormControlLabel className="!w-full text-sm" value="cod" checked={paymentType=="cod" ? true : false} control={<Radio  size="sm"/>} label="Cash On Delivery" />
+                    {/* Payment Mode */}
+                    <h4 className="!font-bold">Payment Method</h4>
+                    <RadioGroup
+                      // defaultValue={paymentType}
+                      aria-labelledby="payment_methods"
+                      name="payment_methods"
+                      className="mb-3 "
+                    >
+                      <Accordion
+                        expanded={activeAccordion == "online"}
+                        onChange={() => {
+                          setActiveAccordion("online"),
+                            setPaymentType("online");
+                        }}
+                      >
+                        <AccordionSummary
+                          // expandIcon={<ExpandMoreIcon />}
+                          aria-controls="panel4bh-content"
+                          id="panel4bh-header"
+                          className={`${
+                            paymentType == "online"
+                              ? "bg-gray-600 drop-shadow-lg"
+                              : ""
+                          }`}
+                        >
+                          <Typography sx={{ width: "100%", flexShrink: 0 }}>
+                            <div>
+                              <FormControlLabel
+                                className="!w-full text-sm"
+                                value="online"
+                                checked={paymentType == "online" ? true : false}
+                                control={<Radio size="sm" />}
+                                label="Online"
+                              />
+                            </div>
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          <Typography>
+                            <ul>
+                              <li>Choose from our secure online payments</li>
+                              <li>No delivery charges appplied</li>
+                            </ul>
+                          </Typography>
+                        </AccordionDetails>
+                      </Accordion>
+                      <Accordion
+                        expanded={activeAccordion == "cod"}
+                        onChange={() => {
+                          setActiveAccordion("cod"), setPaymentType("cod");
+                        }}
+                      >
+                        <AccordionSummary
+                          // expandIcon={<ExpandMoreIcon />}
+                          aria-controls="panel4bh-content"
+                          id="panel4bh-header"
+                          className={`${
+                            paymentType == "cod"
+                              ? "bg-gray-600 drop-shadow-lg"
+                              : ""
+                          }`}
+                        >
+                          <Typography sx={{ width: "100%", flexShrink: 0 }}>
+                            <div>
+                              <FormControlLabel
+                                className="!w-full text-sm"
+                                value="cod"
+                                checked={paymentType == "cod" ? true : false}
+                                control={<Radio size="sm" />}
+                                label="Cash On Delivery"
+                              />
+                            </div>
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          <Typography>
+                            <ul>
+                              <li>Order With Comfort</li>
+                              <li>Pay when you receive the the order</li>
+                            </ul>
+                            <small className="text-xs">
+                              Delivery chagrges applicable upto Rs.150
+                            </small>
+                          </Typography>
+                        </AccordionDetails>
+                      </Accordion>
+                    </RadioGroup>
 
-            </div></Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>
-            Nunc vitae orci ultricies, auctor nunc in, volutpat nisl. Integer sit
-            amet egestas eros, vitae egestas augue. Duis vel est augue.
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
-      </RadioGroup>
+                    {/* Payment Type if online */}
+                    <h4 className="!font-bold">Payment Type</h4>
+                    <RadioGroup
+                      // defaultValue={paymentType}
+                      aria-labelledby="payment_type"
+                      name="payment_type"
+                    >
+                      {userData?.client?.payment_types?.map((payment, ind)=>(
+                      <Accordion
+                      key={ind}
+                        expanded={activePaymentMethodAccordion == payment?.name &&
+                        paymentType == "online"}
+                        onChange={() => {
+                          // if payment type is online only
+                          // if(paymentType == "online"){
+                          setActivePaymentMethodAccordion(payment?.name),
+                            setActivePAymentType(payment?.name);
+                          // }
+                        }}
+                      >
+                        <AccordionSummary
+                          // expandIcon={<ExpandMoreIcon />}
+                          aria-controls="panel4bh-content"
+                          id="panel4bh-header"
+                          className={`${
+                            activePaymentMethodAccordion == payment?.name
+                              ? "bg-gray-600 drop-shadow-lg"
+                              : ""
+                          }`}
+                        >
+                          <Typography sx={{ width: "100%", flexShrink: 0 }}>
+                            <div
+                              className={`flex ${
+                                paymentType == "cod" &&
+                                activePaymentMethodAccordion == payment?.name
+                                  ? "justify-between"
+                                  : "justify-around"
+                              }`}
+                            >
+                              {paymentType == "cod" &&
+                              activePaymentMethodAccordion == payment?.name ? (
+                                <p className="text-red-600 !text-start">
+                                  <ErrorOutlineIcon />
+                                  Please select online Payment{" "}
+                                </p>
+                              ) : (
+                                <FormControlLabel
+                                  className="!w-full text-sm"
+                                  value="stripe"
+                                  checked={
+                                    activePaymentMethodAccordion == payment?.name &&
+                                    paymentType == "online"
+                                      ? true
+                                      : false
+                                  }
+                                  control={<Radio size="sm" />}
+                                  label="Stripe"
+                                />
+                              )}
+                              <img
+                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/stripe.png`}
+                                className="ml-2"
+                                alt={`${paymentType?.name}`}
+                              />
+                            </div>
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          {activePaymentMethod === payment?.name  ? (
+                            <>
+                              <Divider className="mt-2" />
+                              <Form onSubmit={handleSubmit}>
+                                <Form.Group>
+                                  <label className="font-bold !text-sm mt-3 m-0">
+                                    Card Number
+                                  </label>
+                                  <div className="relative m-0">
+                                    <input
+                                      maxLength={19}
+                                      type="text"
+                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                      placeholder="Enter card number"
+                                      value={cardNumber}
+                                      onChange={handleCardNumberChange}
+                                      required
+                                      // onInvalid={
+                                      //   !validateCardNumber(cardNumber)
+                                      // }
+                                    />
+                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                      <FaCreditCard size={15} color="gray" />
+                                    </div>
+                                  </div>
+                                  {cardNumberError ? (
+                                    <p className="text-red-600 font-bold !text-sm !m-0 !p-0 !text-left">
+                                      {cardNumberError}
+                                    </p>
+                                  ) : (
+                                    ""
+                                  )}
+                                </Form.Group>
+                                <Form.Group>
+                                  <label className="font-bold !text-sm mt-3 m-0 ">
+                                    Expiry date
+                                  </label>
+                                  <div className="relative">
+                                    <input
+                                      type="text"
+                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                      placeholder="MM/YY"
+                                      value={expiry}
+                                      onChange={handleExpiryChange}
+                                      required
+                                      maxLength={5}
+                                      // onInvalid={!validateExpiry(expiry)}
+                                    />
+                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                      <FaCalendarAlt size={15} color="gray" />
+                                    </div>
+                                  </div>
+                                  {expiryError ? (
+                                    <p className="text-red-600 font-bold !text-left !text-sm !m-0 !p-0">
+                                      {expiryError}
+                                    </p>
+                                  ) : (
+                                    ""
+                                  )}
+                                </Form.Group>
+                                <Form.Group>
+                                  <label className="font-bold !text-sm mt-3 m-0">
+                                    CVV
+                                  </label>
+                                  <div className="relative">
+                                    <input
+                                      type="password"
+                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                      placeholder="Enter CVV"
+                                      value={cvv}
+                                      onChange={handleCvvChange}
+                                      required
+                                      maxLength={3}
+                                      // onInvalid={!validateCVV(cvv)}
+                                    />
+                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                      <FaLock size={15} color="gray" />
+                                    </div>
+                                  </div>
+                                  {cvvError ? (
+                                    <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
+                                      {cvvError}
+                                    </p>
+                                  ) : (
+                                    ""
+                                  )}
+                                </Form.Group>
+                                <Form.Group>
+                                  <label className="font-bold !text-sm mt-3 m-0">
+                                    Name on the card
+                                  </label>
+                                  <div className="relative">
+                                    <input
+                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                      type="text"
+                                      placeholder="Enter account holder name"
+                                      value={nameOnCard}
+                                      onChange={handleNameChage}
+                                      // isInvalid={nameOnCard && !validateName(name)}
+                                    />
+                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                      <MdOutlineAccountCircle
+                                        size={20}
+                                        color="gray"
+                                      />
+                                    </div>
+                                  </div>
+                                  {nameErr ? (
+                                    <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
+                                      {nameErr}
+                                    </p>
+                                  ) : (
+                                    ""
+                                  )}
+                                </Form.Group>
+                              </Form>
+                            </>
+                          ) : (
+                            <Typography>
+                            Nunc vitae orci ultricies, auctor nunc in, volutpat
+                            nisl. Integer sit amet egestas eros, vitae egestas
+                            augue. Duis vel est augue.
+                          </Typography>
+                          )}
+                        </AccordionDetails>
+                      </Accordion>
+                      ))}
+                      {/* <Accordion
+                        expanded={activePaymentMethodAccordion == "Razorpay" && paymentType == "online"}
+                        onChange={() => {
+                          setActivePaymentMethodAccordion("Razorpay"),
+                            setActivePAymentType("Razorpay");
+                        }}
+                      >
+                        <AccordionSummary
+                          // expandIcon={<ExpandMoreIcon />}
+                          aria-controls="panel4bh-content"
+                          id="panel4bh-header"
+                          className={`${
+                            activePaymentMethodAccordion == "Razorpay"
+                              ? "bg-gray-600 drop-shadow-lg"
+                              : ""
+                          }`}
+                        >
+                          <Typography sx={{ width: "100%", flexShrink: 0 }}>
+                            <div className={`flex ${
+                                paymentType == "cod" &&
+                                activePaymentMethodAccordion == "Razorpay"
+                                  ? "justify-between"
+                                  : "justify-around"
+                              }`}>
+                              {paymentType == "cod" &&
+                              activePaymentMethodAccordion == "Razorpay" ? (
+                                <p className="text-red-600 !text-start">
+                                  <ErrorOutlineIcon />
+                                  Please select online Payment{" "}
+                                </p>
+                              ) : (
+                                <FormControlLabel
+                                  className="!w-full text-sm"
+                                  value="razorpay"
+                                  checked={
+                                    activePaymentMethodAccordion == "Razorpay"
+                                      ? true
+                                      : false
+                                  }
+                                  control={<Radio size="sm" />}
+                                  label="Razorpay"
+                                />
+                              )}
+                              <img
+                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/razorpay.png`}
+                                className="ml-2 mr-2 "
+                                alt={`${paymentType?.name}`}
+                              />
+                            </div>
+                          </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          <Typography>
+                            Nunc vitae orci ultricies, auctor nunc in, volutpat
+                            nisl. Integer sit amet egestas eros, vitae egestas
+                            augue. Duis vel est augue.
+                          </Typography>
+                        </AccordionDetails>
+                      </Accordion> */}
+                    </RadioGroup>
+
                     {/* <h4 className="!font-bold">Payment Type</h4>
                     <div className="flex flex-wrap items-center">
                     <div className="flex  w-full items-around">
@@ -964,7 +1283,7 @@ export default function Checkout() {
                       )}
                     </div> */}
 
-                    {activePaymentMethod === "Stripe" && (
+                    {/* {activePaymentMethod === "Stripe" && (
                       <>
                         <Divider className="mt-2" />
                         <Form onSubmit={handleSubmit}>
@@ -1081,7 +1400,7 @@ export default function Checkout() {
                           </Form.Group>
                         </Form>
                       </>
-                    )}
+                    )} */}
                     <hr className="mt-3" />
                     <div className="nk-section-blog-details">
                       <h4 className="mb-3 !font-bold">Order Summary</h4>
@@ -1152,9 +1471,9 @@ export default function Checkout() {
                           <p className="m-0 fs-16 text-uppercase w-25">
                             Advance:
                           </p>
-                          <p className="m-0 fs-16 fw-semibold text-dark w-75">
+                          {paymentType == "online" && <p className="m-0 fs-16 fw-semibold text-dark w-75">
                             ₹ 150
-                          </p>
+                          </p>}
                         </li>
                       </ul>
                       <div className="!flex !justify-start items-center !text-sm">
@@ -1193,7 +1512,7 @@ export default function Checkout() {
                             }
                           }}
                         >
-                          Proceed to Pay 150
+                          Proceed to Pay {paymentType == "cod" ? "Rs. "+orderData?.order?.total+"" : "Rs. 150"}
                         </button>
                       )}
                       {userData?.client?.payment_types?.length == 0 && (
@@ -1345,6 +1664,7 @@ export default function Checkout() {
             </div>
           </div>
         </section>
+        {/* contact us section */}
         <section className="nk-section nk-cta-section nk-section-content-1">
           <div className="container">
             <div className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7">
