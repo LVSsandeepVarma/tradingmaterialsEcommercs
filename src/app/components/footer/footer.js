@@ -77,6 +77,9 @@ export default function Footer() {
                       <li className="col-12">
                         <a href="/careers">Careers</a>
                       </li>
+                      <li className="col-12">
+                        <a href="/faq">FAQ</a>
+                      </li>
                     </ul>
                   </div>
                 </div>

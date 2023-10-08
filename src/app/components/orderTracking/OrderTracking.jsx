@@ -228,7 +228,7 @@ export default function OrderTacker() {
                         orderData == null) ||
                         windowWidth == "horizontal") && (
                         <img
-                          src="/images/delivery.png"
+                          src="/images/gifs/truck-tm1.gif"
                           alt="delvery"
                           className="w-[44%] "
                         />

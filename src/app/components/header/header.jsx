@@ -237,6 +237,7 @@ export default function Header() {
             location.pathname.includes("/about") ||
             location.pathname.includes("/contact") ||
             location.pathname.includes("/career") ||
+            location.pathname.includes("/tracking") ||
             location.pathname.includes("/faq") ||
             location.pathname.includes("/terms-and-conditions") ||
             location.pathname.includes("/privacy-policy") ||
