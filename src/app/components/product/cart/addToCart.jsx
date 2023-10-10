@@ -598,13 +598,13 @@ export default function AddToCart() {
                             allProducts?.map((product, ind) => {
                               return (
                                 <tr key={ind}>
-                                  <td className="w-50  drop-shadow-lg">
-                                    <div className="d-flex hover:!shadow-lg align-items-start">
+                                  <td className="  drop-shadow-lg">
+                                    <div className="d-flex justify-between hover:!shadow-lg align-items-center">
                                       <img
                                         src={product?.product?.img_1}
                                         alt="product-image"
-                                        className="mb-0 mr-2 cursor-pointer"
-                                        width="150px"
+                                        className="mb-0 mr-2 cursor-pointer w-[25%] lg:w-[20%]"
+                                        // width="150px"
                                         onClick={() =>
                                           navigate(
                                             `${userLang}/product-detail/${
@@ -619,9 +619,9 @@ export default function AddToCart() {
                                           )
                                         }
                                       />
-                                      <div className="w-70">
+                                      <div className="min-w-[70%] max-w-[70%] md:min-w-[59%] md:max-w-[59%] ">
                                         <p
-                                          className="prod-title mb-0 !text-lg cursor-pointer"
+                                          className="prod-title mb-0 text-xs lg:!text-md md:!text-sm  cursor-pointer"
                                           onClick={() =>
                                             navigate(
                                               `${userLang}/product-detail/${
@@ -639,7 +639,7 @@ export default function AddToCart() {
                                             textOverflow: "ellipsis",
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
-                                            width: "80%",
+                                            width: "90%",
                                           }}
                                         >
                                           {product?.product?.name}
@@ -651,13 +651,13 @@ export default function AddToCart() {
                                               product?.product?.description,
                                           }}
                                         /> */}
-                                        <p className="prod-desc mb-1 text-success">
+                                        <p className="prod-desc  mb-1 text-success  text-xs lg:!text-md md:!text-sm">
                                           In Stock
                                         </p>
-                                        <p className="fs-18 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                        <p className="fs-18 m-0 text-gray-1200  text-start fw-bold !mr-2  !text-xs lg:!text-md md:!text-sm">
                                           ₹{product?.price}
                                           {product?.price?.USD && (
-                                            <span className="text-muted">
+                                            <span className="text-muted  text-xs lg:!text-md md:!text-sm">
                                               {" "}
                                               /Unit
                                             </span>
@@ -665,7 +665,7 @@ export default function AddToCart() {
                                         </p>
 
                                         <div
-                                          className="d-flex align-items-center "
+                                          className="d-flex items-center  "
                                           style={{ marginTop: "2rem" }}
                                         >
                                           <div
@@ -673,6 +673,7 @@ export default function AddToCart() {
                                             className="nk-counter"
                                           >
                                             <button
+                                            className=" text-xs lg:!text-md md:!text-sm"
                                               onClick={() =>
                                                 handleDecrement(
                                                   product.product_id
@@ -685,7 +686,7 @@ export default function AddToCart() {
                                               {quantities[product.product_id] ||
                                                 1}
                                             </span>
-                                            <button
+                                            <button className=" text-xs lg:!text-md md:!text-sm"
                                               onClick={() =>
                                                 handleIncrement(
                                                   product.product_id
@@ -699,11 +700,11 @@ export default function AddToCart() {
                                             className="!ml-8 w-full"
                                             style={{ marginLeft: "1rem" }}
                                           >
-                                            <span className="total">
+                                            <span className="total  text-xs lg:!text-md md:!text-sm">
                                               ₹ {prices[product?.product_id]}
                                             </span>{" "}
                                             <a
-                                              className="cursor-pointer"
+                                              className="cursor-pointer  text-xs lg:!text-md md:!text-sm"
                                               onClick={() => {
                                                 // handleDeleteFromCart(
                                                 //   product?.id
@@ -716,7 +717,7 @@ export default function AddToCart() {
                                               Delete &nbsp; |{" "}
                                             </a>{" "}
                                             <a
-                                              className="cursor-pointer"
+                                              className="cursor-pointer text-xs lg:!text-md md:!text-sm"
                                               href={`${userLang}/product-detail/${
                                                 product?.product?.slug
                                               }/${CryptoJS?.AES?.encrypt(
@@ -736,7 +737,7 @@ export default function AddToCart() {
                                           </div>
                                         </div>
                                       </div>
-                                      <div className="d-flex align-items-center w-25">
+                                      <div className="hidden md:flex flex-wrap align-items-center">
                                         <img
                                           src="https://cdn-icons-png.flaticon.com/512/2203/2203145.png"
                                           className="mb-0 mr-1"
