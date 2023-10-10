@@ -71,13 +71,11 @@ const LoginModal = ({ show, onHide }) => {
   function passwordValidation(password) {
     if (password?.length === 0) {
       setPasswordError("Password is required");
-    } else if (password?.length <= 7) {
-      setPasswordError("Invalid phone number");
     } else {
       setPasswordError("");
     }
   }
-
+onkeydown
   function handleEmailChange(e) {
     setEmail(e?.target?.value);
     emailValidaiton(e?.target?.value);
@@ -193,6 +191,8 @@ const LoginModal = ({ show, onHide }) => {
         showforgotPasswordModal: false,
         showOtpModal: false,
         showNewPasswordModal: false,
+        showSignupCartModal: false,
+        showSignupBuyModal: false,
       })
     );
     // document.getElementsByTagName(body).style =
@@ -267,6 +267,8 @@ const LoginModal = ({ show, onHide }) => {
                           showforgotPasswordModal: false,
                           showOtpModal: false,
                           showNewPasswordModal: false,
+                          showSignupCartModal: false,
+                          showSignupBuyModal: false,
                         })
                       )
                     }
@@ -291,7 +293,7 @@ const LoginModal = ({ show, onHide }) => {
                           value={email}
                         />
                         {emailError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error">
                             {emailError}
                           </p>
                         )}
@@ -326,7 +328,7 @@ const LoginModal = ({ show, onHide }) => {
                       </div>
                     </div>
                     {passwordError && (
-                      <p className="text-red-600 font-semibold">
+                      <p className="nk-message-error ">
                         {passwordError}
                       </p>
                     )}
@@ -356,6 +358,8 @@ const LoginModal = ({ show, onHide }) => {
                               showforgotPasswordModal: true,
                               showOtpModal: false,
                               showNewPasswordModal: false,
+                              showSignupCartModal: false,
+                              showSignupBuyModal: false,
                             })
                           )
                         }
@@ -394,6 +398,7 @@ const LoginModal = ({ show, onHide }) => {
                       )}
                       {apiError?.length > 0 &&
                         apiError?.map((err, ind) => {
+                          if(err?.length > 0){
                           return (
                             <Alert
                             key={ind}
@@ -403,12 +408,13 @@ const LoginModal = ({ show, onHide }) => {
                             >
                               <p
                                 key={ind}
-                                className="text-red-600 font-semibold"
+                                className="nk-message-error "
                               >
                                 {err}
                               </p>
                             </Alert>
                           );
+                          }
                         })}
                     </div>
                   </div>

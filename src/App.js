@@ -17,6 +17,7 @@ import Career from "./app/components/careers/Career";
 import ShippingPolicy from "./app/components/policies/Shipping";
 import OrderTacker from "./app/components/orderTracking/OrderTracking";
 import Faq from "./app/components/faq/Faq";
+import LinkExpired from "./app/components/expired/LinkExpired";
 const About = lazy(() => import("./app/components/about-us/about"));
 // import About from "./app/components/about-us/about";
 const Contact = lazy(() => import("./app/components/contact-us/contact"));
@@ -27,9 +28,9 @@ const ProductDetails = lazy(() =>
 // import ProductDetails from "./app/components/product/product-details/productDetail";
 const AddToCart = lazy(() => import("./app/components/product/cart/addToCart"));
 // import AddToCart from "./app/components/product/cart/addToCart";
-const Login = lazy(() => import("./app/components/login/login"));
+// const Login = lazy(() => import("./app/components/login/login"));
 // import Login from "./app/components/login/login";
-const Register = lazy(() => import("./app/components/register/register"));
+// const Register = lazy(() => import("./app/components/register/register"));
 // import Register from "./app/components/register/register";
 const Checkout = lazy(() =>
   import("./app/components/product/checkout/checkout")
@@ -67,8 +68,8 @@ function App() {
               path="/product-detail/:slug/:id"
               element={<ProductDetails />}
             ></Route>
-            <Route path="/login" element={<Login />}></Route>
-            <Route path="/signup" element={<Register />}></Route>
+            {/* <Route path="/login" element={<Login />}></Route> */}
+            {/* <Route path="/signup" element={<Register />}></Route> */}
             <Route
               path="/reset-password/forgot-password"
               element={<ForgotPassword />}
@@ -79,8 +80,10 @@ function App() {
               element={<NewPassword />}
 
             ></Route>
+
             <Route path="/tracking" element={<OrderTacker/>}></Route>
           <Route path="/faq" element={<Faq/>}></Route>
+          <Route path="/expired" element={<LinkExpired/>}></Route>
             {/* protected routes  */}
 
             <Route
@@ -148,8 +151,8 @@ function App() {
                 </ProtectedRoute>
               }
             ></Route>
-            <Route path="/ms/login" element={<Login />}></Route>
-            <Route path="/ms/signup" element={<Register />}></Route>
+            {/* <Route path="/ms/login" element={<Login />}></Route> */}
+            {/* <Route path="/ms/signup" element={<Register />}></Route> */}
             <Route
               path="/ms/checkout/order_id/:id"
               element={

@@ -37,6 +37,7 @@ export default function Otp() {
       } catch (err) {
         console.log("err", err);
         dispatch(hideLoader());
+        navigate("/expired")
         // setVerifiedHash(false)
       }
       dispatch(hideLoader());
@@ -165,7 +166,7 @@ export default function Otp() {
                               renderInput={(props) => <input {...props} />}
                             />
                             {otpError && (
-                              <p className="text-red-600 font-semibold">
+                              <p className="nk-message-error text-xs">
                                 {otpError}
                               </p>
                             )}
@@ -199,7 +200,7 @@ export default function Otp() {
                                 >
                                   <p
                                     key={ind}
-                                    className="text-red-600 font-semibold"
+                                    className="nk-message-error text-xs"
                                   >
                                     {err}
                                   </p>

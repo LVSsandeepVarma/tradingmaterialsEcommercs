@@ -126,7 +126,7 @@ export default function ChatForm({ hide }) {
         dispatch(showLoader());
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/instant/enq/store",
-          { phone: phone, domain: updatedUrl, ip_address: userIp },
+          { phone: phone, domain: updatedUrl.split("/")[0], ip_address: userIp },
           {
             headers: {
               "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
@@ -197,7 +197,7 @@ export default function ChatForm({ hide }) {
                 </div>
               )}
               {phoneErr && (
-                <p className="text-red-700 text-xs font-semibold mb1 mt-1 text-left">
+                <p className="nk-message-error mb-1 text-xs text-left">
                   {phoneErr}
                 </p>
               )}
@@ -220,7 +220,7 @@ export default function ChatForm({ hide }) {
                   return (
                     <p
                       key={ind}
-                      className="text-red-700 text-xs font-semibold mb1 mt-1 text-left"
+                      className="nk-message-error text-xs font-semibold mb1 mt-1 text-left"
                     >
                       {err}
                     </p>

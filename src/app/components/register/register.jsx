@@ -90,8 +90,8 @@ export default function Register() {
       setLastNameError("Last name is required");
     }else if (!namePattern.test(name)) {
       setLastNameError("Last name should contain only alphabets");
-    } else if (name?.length < 3) {
-      setLastNameError("Min 3 characters are required");
+    } else if (name?.length < 1) {
+      setLastNameError("Last name is required");
     } else if (name?.length > 50) {
       setLastNameError("Max 50 characters are required");
     }  else {
@@ -259,7 +259,7 @@ export default function Register() {
                               onChange={handleFirstNamechange}
                             />
                             {firstNameError && (
-                              <p className="text-red-600 font-semibold">
+                              <p className="nk-message-error text-xs">
                                 {firstNameError}
                               </p>
                             )}
@@ -277,7 +277,7 @@ export default function Register() {
                               onChange={handleLastNameChange}
                             />
                             {lastNameError && (
-                              <p className="text-red-600 font-semibold">
+                              <p className="nk-message-error text-xs">
                                 {lastNameError}
                               </p>
                             )}
@@ -295,7 +295,7 @@ export default function Register() {
                               onChange={handleEmailChange}
                             />
                             {emailError && (
-                              <p className="text-red-600 font-semibold">
+                              <p className="nk-message-error text-xs">
                                 {emailError}
                               </p>
                             )}
@@ -314,7 +314,7 @@ export default function Register() {
                               onChange={handlePhoneChange}
                             />
                             {phoneError && (
-                              <p className="text-red-600 font-semibold">
+                              <p className="nk-message-error">
                                 {phoneError}
                               </p>
                             )}
@@ -354,7 +354,7 @@ export default function Register() {
                                 >
                                   <p
                                     key={ind}
-                                    className="text-red-600 font-semibold"
+                                    className="nk-message-error text-xs"
                                   >
                                     {err}
                                   </p>

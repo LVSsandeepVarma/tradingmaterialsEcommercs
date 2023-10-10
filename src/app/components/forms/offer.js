@@ -93,7 +93,7 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
           {
             email: email,
             phone: phone,
-            domain: updatedUrl,
+            domain: updatedUrl.split("/")[0],
             ip_add: userIp,
           },
           {
@@ -142,7 +142,7 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
           onChange={handleEmailChange}
         />
         {emailErr && (
-          <p className="text-red-700 font-semibold mb-1 mt-1 text-left">
+          <p className="nk-message-error  mb-1 text-xs text-left">
             {emailErr}
           </p>
         )}
@@ -159,20 +159,20 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
           }}
         />
         {phoneErr && (
-          <p className="text-red-700 font-semibold mb-1 text-sm  text-left">
+          <p className="nk-message-error mb-1 text-xs  text-left">
             {phoneErr}
           </p>
         )}
 
         {successMsg?.length > 0 && (
-          <p className="text-green-900 text-sm font-semibold">{successMsg}</p>
+          <p className="text-green-900 text-sm ">{successMsg}</p>
         )}
         {apiErr?.length > 0 &&
           apiErr?.map((err, ind) => {
             return (
               <p
                 key={ind}
-                className="text-red-600 text-sm font-semibold text-sm"
+                className="text-red-600 text-sm text-sm"
               >
                 {err}
               </p>

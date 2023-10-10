@@ -6,7 +6,7 @@ import {Navigate, } from "react-router-dom"
 const ProtectedRoute = ({children}) => {
 
     if(!localStorage.getItem("client_token")) {
-        return <Navigate to="/login"  replace />
+        return <Navigate to="/?login"  replace />
     }
  return children
 

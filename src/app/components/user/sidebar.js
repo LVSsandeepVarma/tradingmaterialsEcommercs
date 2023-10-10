@@ -37,6 +37,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { logoutUser } from "../../../features/login/loginSlice";
 import AddToFav from "../modals/addToFav";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
+import SessionExpired from "../modals/sessionExpired";
 
 const drawerWidth = 240;
 
@@ -105,6 +106,8 @@ export default function SideBar() {
   const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
   const isLoggedIn = useSelector((state) => state?.login?.value);
   const [dialogShow, setDialogShow] = useState(false);
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
+
 
   const [formType, setFormType] = useState("add");
   const dispatch = useDispatch();
@@ -167,16 +170,12 @@ export default function SideBar() {
         dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
       } else {
         console.log(response?.data);
-        dispatch(
-          updateNotifications({
-            type: "warning",
-            message: "Oops!",
-          })
-        );
+        setShowSessionExpiry(true)
         // navigate("/login")
       }
     } catch (err) {
       console.log(err);
+      
     } finally {
       dispatch(hideLoader());
     }
@@ -319,8 +318,15 @@ export default function SideBar() {
       setAddedToFavImg("");
     }; 
 
+    function handleSessionExpiryClose (){
+      setShowSessionExpiry(false)
+      navigate("/?login")
+  }
+
   return (
     <>
+        <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
+
       <ShippingAddressModal
         show={showModal}
         onHide={() => setShowModal(false)}
@@ -621,7 +627,7 @@ export default function SideBar() {
                       )}
                     </div>
 
-                    <Divider />
+                    <Divider className="py-2" />
                   </div>
                   <h4 className="mt-5 !font-bold">Shippping address</h4>
                   <div>
@@ -852,12 +858,12 @@ export default function SideBar() {
                                                 .toString()
                                                 .split(".")[0]
                                             }
-                                            <sub
+                                            {/* <sub
                                               style={{
                                                 verticalAlign: "super",
                                               }}
-                                            >
-                                              {
+                                            > */}
+                                              .{
                                                 (
                                                   parseFloat(
                                                     product?.price *
@@ -869,7 +875,7 @@ export default function SideBar() {
                                                   .toString()
                                                   .split(".")[1]
                                               }
-                                            </sub>
+                                            {/* </sub> */}
                                           </del>
                                         )}
                                       </p>
@@ -1135,12 +1141,12 @@ export default function SideBar() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                <sub
+                                                {/* <sub
                                                   style={{
                                                     verticalAlign: "super",
                                                   }}
-                                                >
-                                                  {
+                                                > */}
+                                                  .{
                                                     (
                                                       parseFloat(
                                                         product?.price *
@@ -1151,7 +1157,7 @@ export default function SideBar() {
                                                       .toString()
                                                       .split(".")[1]
                                                   }
-                                                </sub>
+                                                {/* </sub> */}
                                               </del>
                                             )}
                                           </p>

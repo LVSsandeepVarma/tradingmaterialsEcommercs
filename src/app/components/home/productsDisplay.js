@@ -33,6 +33,8 @@ import moment from "moment";
 // import ChatForm from "../Chatbot/chatbot";
 import AddToFav from "../modals/addToFav";
 import { FaRegHeart } from "react-icons/fa";
+import { updateNotifications } from "../../../features/notifications/notificationSlice";
+import SessionExpired from "../modals/sessionExpired";
 export default function ProductsDisplay() {
   const { t } = useTranslation();
 
@@ -68,6 +70,7 @@ export default function ProductsDisplay() {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
 
   const [animateProductId, setAnimateProductId] = useState("");
   // eslint-disable-next-line no-unused-vars
@@ -111,6 +114,65 @@ export default function ProductsDisplay() {
   }, []);
 
   useEffect(() => {
+    const productData = JSON.parse(localStorage.getItem("productData"));
+    const qty = localStorage.getItem("prodcutQty");
+    if (productData?.name && qty) {
+      console.log(productData, "productdata", qty);
+      const initialQuantities = {};
+      initialQuantities[productData?.id] = localStorage.getItem("productQty");
+      // setQuantities(initialQuantities);
+      handleAddToCartDirectly(productData?.id, "add", qty);
+    }
+  }, []);
+
+
+  // function for handling add to cart directly {indirect login}
+  async function handleAddToCartDirectly(productId, status, qty) {
+    // setAnimateProductId(productId)
+    try {
+      dispatch(showLoader());
+      const response = await axios?.post(
+        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+        {
+          product_id: productId,
+          qty: qty,
+          status: status,
+        },
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+      if (response?.data?.status) {
+        dispatch(updateCart(response?.data?.data?.cart_details));
+        dispatch(updateCartCount(response?.data?.data?.cart_count));
+        setAllProducts(response?.data?.data?.cart_details);
+        getUserInfo();
+        // const productData = JSON.parse(localStorage.getItem("productData"))
+
+        localStorage.removeItem("productData");
+        localStorage.removeItem("prodcutQty");
+      }
+    } catch (err) {
+      console.log(err);
+      if(err?.response?.data?.message?.includes("Token")){
+          setShowSessionExpiry(true)
+      }else{
+
+      dispatch(
+        updateNotifications({
+          type: "error",
+          message: err?.response?.data?.message,
+        })
+      );
+      }
+    } finally {
+      dispatch(hideLoader());
+    }
+  }
+
+  useEffect(() => {
     setCurrentUserLang(localStorage.getItem("i18nextLng"));
   }, [userLang]);
 
@@ -130,7 +192,8 @@ export default function ProductsDisplay() {
           showforgotPasswordModal: false,
           showOtpModal: false,
           showNewPasswordModal: false,
-          showSignupCartModal: false
+          showSignupCartModal: false,
+          showSignupBuyModal: false,
         })
       );
     }
@@ -447,16 +510,16 @@ export default function ProductsDisplay() {
       // const allProducts = products
     }
     setFilteredSubcatproducts({ ...filterProducts });
-    if(isStock != "stock"){
+    if (isStock != "stock") {
       navigate(`${userLang}/#trading_bundles`);
     }
-    
+
     setShowPlaceHolderLoader(false);
   }
 
   //function for handling filtering based on in stock or out stock
   function filterstockProducts() {
-    filtersubcatProducts("all", 0, false,"stock");
+    filtersubcatProducts("all", 0, false, "stock");
     addFilterProducts("all", 0, false);
     let currentActiveCheckbox;
     if (stockCount === "inStock") {
@@ -484,7 +547,7 @@ export default function ProductsDisplay() {
     //         (product) => product?.combo == 1
     //       );
     setAllProducts(res);
-    // setSubCatProducts(result);
+    setSubCatProducts(res);
 
     console.log(res);
   }
@@ -685,11 +748,10 @@ export default function ProductsDisplay() {
     setAddedToFavImg("");
   };
 
-
   //show checkout without login
-  const handleSignupCart = (product) =>{
-    localStorage.removeItem("productData")
-    localStorage.setItem("productData", JSON.stringify(product))
+  const handleSignupCart = (product) => {
+    localStorage.removeItem("productData");
+    localStorage.setItem("productData", JSON.stringify(product));
     dispatch(
       usersignupinModal({
         showSignupModal: false,
@@ -697,13 +759,23 @@ export default function ProductsDisplay() {
         showforgotPasswordModal: false,
         showOtpModal: false,
         showNewPasswordModal: false,
-        showSignupCartModal: true
+        showSignupCartModal: true,
+        showSignupBuyModal: false,
       })
     );
-  }
+  };
+
+
+  
+  function handleSessionExpiryClose (){
+    setShowSessionExpiry(false)
+    navigate("/?login")
+}
 
   return (
     <>
+            <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
+
       {/* {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
@@ -716,6 +788,7 @@ export default function ProductsDisplay() {
           modalMessage={modalMessage}
           addedToFavImg={addedToFavImg}
           wishMsg={showWishlistRemoveMsg}
+          
         />
       )}
 
@@ -1555,13 +1628,13 @@ export default function ProductsDisplay() {
                                                                 ""
                                                               )?.split(".")[0]
                                                             }
-                                                            <sub
+                                                            {/* <sub
                                                               style={{
                                                                 verticalAlign:
                                                                   "super",
                                                               }}
-                                                            >
-                                                              {
+                                                            > */}
+                                                              .{
                                                                 (
                                                                   Number.parseFloat(
                                                                     price?.INR
@@ -1570,7 +1643,7 @@ export default function ProductsDisplay() {
                                                                   ) + ""
                                                                 )?.split(".")[1]
                                                               }
-                                                            </sub>
+                                                            {/* </sub> */}
                                                           </>
                                                         )
                                                       : price?.USD &&
@@ -1621,13 +1694,13 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                              <sub
+                                                              {/* <sub
                                                                 style={{
                                                                   verticalAlign:
                                                                     "super",
                                                                 }}
-                                                              >
-                                                                {
+                                                              > */}
+                                                                .{
                                                                   (
                                                                     parseFloat(
                                                                       price?.INR *
@@ -1643,7 +1716,7 @@ export default function ProductsDisplay() {
                                                                       "."
                                                                     )[1]
                                                                 }
-                                                              </sub>
+                                                              {/* </sub> */}
                                                             </del>
                                                           </>
                                                         )
@@ -1688,13 +1761,13 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                              <sub
+                                                              {/* <sub
                                                                 style={{
                                                                   verticalAlign:
                                                                     "super",
                                                                 }}
-                                                              >
-                                                                {
+                                                              > */}
+                                                                .{
                                                                   (
                                                                     parseFloat(
                                                                       price?.INR *
@@ -1710,7 +1783,7 @@ export default function ProductsDisplay() {
                                                                       "."
                                                                     )[1]
                                                                 }
-                                                              </sub>
+                                                              {/* </sub> */}
                                                             </del>
                                                           </>
                                                         )}
@@ -1756,13 +1829,13 @@ export default function ProductsDisplay() {
                                                                 .toString()
                                                                 .split(".")[0]
                                                             }
-                                                            <sub
+                                                            {/* <sub
                                                               style={{
                                                                 verticalAlign:
                                                                   "super",
                                                               }}
-                                                            >
-                                                              {
+                                                            > */}
+                                                             .{
                                                                 (
                                                                   parseFloat(
                                                                     price?.INR
@@ -1773,7 +1846,7 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[1]
                                                               }
-                                                            </sub>
+                                                            {/* </sub> */}
                                                           </>
                                                         )
                                                       : price?.USD && (
@@ -1788,13 +1861,13 @@ export default function ProductsDisplay() {
                                                                 .toString()
                                                                 .split(".")[0]
                                                             }
-                                                            <sub
+                                                            {/* <sub
                                                               style={{
                                                                 verticalAlign:
                                                                   "super",
                                                               }}
-                                                            >
-                                                              {
+                                                            > */}
+                                                              .{
                                                                 (
                                                                   parseFloat(
                                                                     price?.USD
@@ -1805,7 +1878,7 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[1]
                                                               }
-                                                            </sub>
+                                                            {/* </sub> */}
                                                           </>
                                                         )}
 
@@ -1852,13 +1925,13 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                              <sub
+                                                              {/* <sub
                                                                 style={{
                                                                   verticalAlign:
                                                                     "super",
                                                                 }}
-                                                              >
-                                                                {
+                                                              > */}
+                                                                .{
                                                                   (
                                                                     parseFloat(
                                                                       price?.INR *
@@ -1874,7 +1947,7 @@ export default function ProductsDisplay() {
                                                                       "."
                                                                     )[1]
                                                                 }
-                                                              </sub>
+                                                              {/* </sub> */}
                                                             </del>
                                                           </>
                                                         )
@@ -1919,13 +1992,13 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                              <sub
+                                                              {/* <sub
                                                                 style={{
                                                                   verticalAlign:
                                                                     "super",
                                                                 }}
-                                                              >
-                                                                {
+                                                              > */}
+                                                                .{
                                                                   (
                                                                     parseFloat(
                                                                       price?.INR *
@@ -1941,7 +2014,7 @@ export default function ProductsDisplay() {
                                                                       "."
                                                                     )[1]
                                                                 }
-                                                              </sub>
+                                                              {/* </sub> */}
                                                             </del>
                                                           </>
                                                         )}
@@ -1970,7 +2043,8 @@ export default function ProductsDisplay() {
                                                         showforgotPasswordModal: false,
                                                         showOtpModal: false,
                                                         showNewPasswordModal: false,
-                                                        showSignupCartModal: false
+                                                        showSignupCartModal: false,
+                                                        showSignupBuyModal: false,
                                                       })
                                                     );
                                               }}
@@ -1987,7 +2061,7 @@ export default function ProductsDisplay() {
                                                       product?.img_1
                                                     ),
                                                     handleCartPosition(event))
-                                                  : handleSignupCart(product)
+                                                  : handleSignupCart(product);
                                               }}
                                             >
                                               {animateProductId ===
@@ -2206,19 +2280,19 @@ export default function ProductsDisplay() {
                                                         )?.toFixed(2) + ""
                                                       )?.split(".")[0]
                                                     }
-                                                    <sub
+                                                    {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
-                                                    >
-                                                      {
+                                                    > */}
+                                                      .{
                                                         (
                                                           Number.parseFloat(
                                                             price?.INR
                                                           )?.toFixed(2) + ""
                                                         )?.split(".")[1]
                                                       }
-                                                    </sub>
+                                                    {/* </sub> */}
                                                   </>
                                                 )
                                               : price?.USD &&
@@ -2265,13 +2339,13 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
+                                                      > */}
+                                                        .{
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -2283,7 +2357,7 @@ export default function ProductsDisplay() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      </sub>
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )
@@ -2324,13 +2398,13 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
+                                                      > */}
+                                                        .{
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -2342,7 +2416,7 @@ export default function ProductsDisplay() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      </sub>
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )}
@@ -2385,12 +2459,12 @@ export default function ProductsDisplay() {
                                                         .toString()
                                                         .split(".")[0]
                                                     }
-                                                    <sub
+                                                    {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
-                                                    >
-                                                      {
+                                                    > */}
+                                                      .{
                                                         (
                                                           parseFloat(
                                                             price?.INR
@@ -2399,7 +2473,7 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[1]
                                                       }
-                                                    </sub>
+                                                    {/* </sub> */}
                                                   </>
                                                 )
                                               : price?.USD && (
@@ -2413,12 +2487,12 @@ export default function ProductsDisplay() {
                                                         .toString()
                                                         .split(".")[0]
                                                     }
-                                                    <sub
+                                                    {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
-                                                    >
-                                                      {
+                                                    > */}
+                                                      .{
                                                         (
                                                           parseFloat(
                                                             price?.USD
@@ -2427,7 +2501,7 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[1]
                                                       }
-                                                    </sub>
+                                                    {/* </sub> */}
                                                   </>
                                                 )}
 
@@ -2470,13 +2544,13 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
+                                                      > */}
+                                                        .{
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -2488,7 +2562,7 @@ export default function ProductsDisplay() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      </sub>
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )
@@ -2528,13 +2602,13 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
+                                                      > */}
+                                                        .{
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -2546,7 +2620,7 @@ export default function ProductsDisplay() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      </sub>
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )}
@@ -2574,7 +2648,8 @@ export default function ProductsDisplay() {
                                               showforgotPasswordModal: false,
                                               showOtpModal: false,
                                               showNewPasswordModal: false,
-                                              showSignupCartModal: false
+                                              showSignupCartModal: false,
+                                              showSignupBuyModal: false,
                                             })
                                           );
                                     }}
@@ -2590,7 +2665,7 @@ export default function ProductsDisplay() {
                                             product?.img_1
                                           ),
                                           handleCartPosition(event))
-                                        : handleSignupCart(product)
+                                        : handleSignupCart(product);
                                     }}
                                   >
                                     {animateProductId === product?.id ? (
@@ -2712,11 +2787,13 @@ export default function ProductsDisplay() {
                       <h5 className="mb-2 !font-bold text-left !text-xl">
                         Chadha Acharya
                       </h5>
-                      <p className="fs-14 line-clamp-3 text-left">
-                        &quot;Thank you for your kind words! We strive to
-                        provide brilliant solutions for our customers. If
-                        there&apos;s anything else we can assist you with,
-                        please let us know.&quot;
+                      <p className="fs-14 line-clamp-6 text-left">
+                        &quot;Thanks to Trading Materials for providing
+                        high-quality complete trading materials! Ordering was a
+                        breeze, and the payment process was simple and
+                        efficient. They delivered the product in record time,
+                        exceeding my expectations. I&apos;m highly satisfied
+                        with their service and products.&quot;
                       </p>
                     </div>
                   </div>
@@ -2749,11 +2826,13 @@ export default function ProductsDisplay() {
                       <h5 className="mb-2 !font-bold text-left !text-xl">
                         Barman Agarwal
                       </h5>
-                      <p className="fs-14 line-clamp-3 text-left">
-                        &quot;Thank you for your kind words! We strive to
-                        provide brilliant solutions for our customers. If
-                        there&apos;s anything else we can assist you with,
-                        please let us know.&quot;
+                      <p className="fs-14 line-clamp-6 text-left">
+                        &quot;I highly recommend Trading Materials for traders.
+                        They have all your trading requirements conveniently
+                        available in one place. Their fastest delivery service
+                        impresses everyone, and I can attest to the reliability
+                        of their speedy shipping. You can trust them with a 100%
+                        guarantee for product quality.&quot;
                       </p>
                     </div>
                   </div>
@@ -2785,11 +2864,13 @@ export default function ProductsDisplay() {
                     <h5 className="mb-2 !font-bold text-left !text-xl">
                       Aadarsh Chopra
                     </h5>
-                    <p className="fs-14 line-clamp-3 text-left">
-                      &quot;Thank you for your feedback! We&apos;re glad to hear
-                      that you find our platform to be the best for learning. We
-                      are committed to providing high-quality educational
-                      resources and a user-friendly experience.&quot;
+                    <p className="fs-14 line-clamp-6 text-left">
+                      &quot;Trading Materials has been a game-changer for my
+                      trading journey. I appreciate their commitment to quality
+                      and convenience. With easy ordering, secure payments, and
+                      lightning-fast delivery, they&apos;ve made trading
+                      materials accessible and hassle-free. I wouldn&apos;t
+                      hesitate to recommend them to fellow traders.&quot;
                     </p>
                   </div>
                 </div>
@@ -2817,12 +2898,16 @@ export default function ProductsDisplay() {
                       </ul>
                     </div>
                     <h5 className="mb-2 !font-bold text-left !text-xl">
-                      Farhan Aktar
+                      Rahul Nambiar
                     </h5>
                     <p className="fs-14 text-left">
-                      &quot;Thanks to Trading Materials, our application is
-                      undergoing significant improvements, resulting in a better
-                      user experience and enhanced features.&quot;
+                      &quot;Trading Materials is the go-to source for traders
+                      seeking top-notch trading resources. Their dedication to
+                      fast and reliable deliveries ensures you get what you need
+                      when you need it. Rest assured, their products are of the
+                      highest quality, and I couldn&apos;t be happier with my
+                      experience. A trusted partner in the world of
+                      trading.&quot;
                     </p>
                   </div>
                 </div>

@@ -184,6 +184,10 @@ export default function OrderTacker() {
         }
       } catch (err) {
         console.log(err);
+        if(err?.response?.data?.errors){
+          setOrderNoErr(Object.values(err?.response?.data?.errors["order_number"]))
+          setEmailErr(Object.values(err?.response?.data?.errors["email"]))
+        }
         setApiErr(err?.response?.data?.message);
       } finally {
         dispatch(hideLoader());
@@ -297,7 +301,9 @@ export default function OrderTacker() {
                               showforgotPasswordModal: false,
                               showOtpModal: false,
                               showNewPasswordModal: false,
-                              showSignupCartModal: false
+                              showSignupCartModal: false,
+        showSignupBuyModal: false,
+
                             })
                           );
                         }
@@ -320,7 +326,7 @@ export default function OrderTacker() {
                           onChange={(e) => handleEmailChange(e.target.value)}
                           id="fullWidth"
                         />
-                        <p className="text-red-600 text-xs font-semibold !inline">
+                        <p className="nk-message-error text-xs font-semibold !inline">
                           {emailErr}
                         </p>
                       </div>
@@ -335,7 +341,7 @@ export default function OrderTacker() {
                         variant="outlined"
                       />
                       <p
-                        className="text-red-600 text-xs font-semibold !inline"
+                        className="nk-message-error text-xs font-semibold !inline"
                         style={
                           orderNoErr
                             ? { visibility: "visible" }
@@ -353,7 +359,7 @@ export default function OrderTacker() {
                       Track Order
                     </Button>
                     {apiErr && (
-                      <p className="text-red-600 font-bold !text-sm">
+                      <p className="nk-message-error font-bold !text-xs">
                         {apiErr}
                       </p>
                     )}

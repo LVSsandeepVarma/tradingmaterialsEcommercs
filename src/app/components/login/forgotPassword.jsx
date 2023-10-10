@@ -15,7 +15,7 @@ export default function ForgotPassword() {
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const loaderState = useSelector((state) => state.loader?.value);
+  // const loaderState = useSelector((state) => state.loader?.value);
   const userLang = useSelector((state) => state?.lang?.value);
 
   useEffect(() => {
@@ -83,11 +83,11 @@ export default function ForgotPassword() {
 
   return (
     <>
-      {loaderState && (
+      {/* {!loaderState && ( */}
         <div className="preloader !backdrop-blur-[1px]">
           <div className="loader"></div>
         </div>
-      )}
+      {/* // )} */}
       <div className="nk-app-root !text-left">
         <main className="nk-pages">
           <div className="nk-split-page flex-column flex-xl-row">
@@ -134,7 +134,7 @@ export default function ForgotPassword() {
                               onChange={(e) => handleEmailChange(e)}
                             />
                             {emailError && (
-                              <p className="text-red-600 font-semibold">
+                              <p className="nk-message-error text-xs">
                                 {emailError}
                               </p>
                             )}
@@ -173,7 +173,7 @@ export default function ForgotPassword() {
                                 >
                                   <p
                                     key={ind}
-                                    className="text-red-600 font-semibold"
+                                    className="nk-message-error"
                                   >
                                     {err}
                                   </p>

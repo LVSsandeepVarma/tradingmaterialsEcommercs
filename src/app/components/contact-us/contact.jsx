@@ -148,7 +148,7 @@ export default function Contact() {
             name: name,
             message: desc,
             ip_address: userIp,
-            domain: updatedUrl
+            domain: updatedUrl.split("/")[0]
           }
         );
         if (response?.data?.status) {
@@ -333,7 +333,7 @@ export default function Contact() {
                                   />
                                 </div>
                                 {nameErr && (
-                                  <p className="font-bold text-sm mt-1 mb-1 text-red-600">
+                                  <p className=" text-xs mt-1 mb-1 nk-message-error">
                                     {nameErr}
                                   </p>
                                 )}
@@ -361,7 +361,7 @@ export default function Contact() {
                                   />
                                 </div>
                                 {emailErr && (
-                                  <p className="font-bold text-sm mt-1 mb-1 text-red-600">
+                                  <p className=" text-xs mt-1 mb-1 nk-message-error">
                                     {emailErr}
                                   </p>
                                 )}
@@ -389,7 +389,7 @@ export default function Contact() {
                                   />
                                 </div>
                                 {phoneError && (
-                                  <p className="font-bold text-sm mt-1 mb-1 text-red-600">
+                                  <p className=" text-xs mt-1 mb-1 nk-message-error">
                                     {phoneError}
                                   </p>
                                 )}
@@ -425,7 +425,7 @@ export default function Contact() {
                                   ></textarea>
                                 </div>
                                 {descErr && (
-                                  <p className="font-bold text-sm mt-1 mb-1 text-red-600">
+                                  <p className=" text-xs mt-1 mb-1 nk-message-error">
                                     {descErr}
                                   </p>
                                 )}
@@ -451,7 +451,7 @@ export default function Contact() {
                                   return (
                                     <p
                                       key={ind}
-                                      className="text-red-600 font-semibold"
+                                      className="nk-message-error text-xs"
                                     >
                                       {err}
                                     </p>

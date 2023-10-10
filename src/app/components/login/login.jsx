@@ -71,7 +71,7 @@ export default function Login() {
     if (password?.length === 0) {
       setPasswordError("Password is required");
     } else if (password?.length <= 7) {
-      setPasswordError("Invalid phone number");
+      setPasswordError("Invalid password");
     } else {
       setPasswordError("");
     }
@@ -239,7 +239,7 @@ export default function Login() {
                             />
                           </div>
                           {emailError && (
-                            <p className="text-red-600 font-semibold">
+                            <p className="nk-message-error text-xs">
                               {emailError}
                             </p>
                           )}
@@ -275,7 +275,7 @@ export default function Login() {
                           </div>
                         </div>
                         {passwordError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error">
                             {passwordError}
                           </p>
                         )}
@@ -341,7 +341,7 @@ export default function Login() {
                                 >
                                   <p
                                     key={ind}
-                                    className="text-red-600 font-semibold"
+                                    className="nk-message-error text-xs"
                                   >
                                     {err}
                                   </p>

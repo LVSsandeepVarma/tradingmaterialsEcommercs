@@ -106,7 +106,7 @@ export default function HelpfullDialog({ type, open, handleClose, ReviewId }) {
                 onChange={handleReportUpdate}
                 value={report}
               />
-              <p className="text-red-700">{reportErr}</p>
+              <p className="nk-message-error text-xs">{reportErr}</p>
 
               {apiSuccess && (
                 <Alert variant="outlined" severity="success" className="mt-2">
@@ -118,7 +118,7 @@ export default function HelpfullDialog({ type, open, handleClose, ReviewId }) {
                 apiError?.map((err, ind) => {
                   return (
                     <Alert key={ind*5} variant="outlined" severity="error" className="mt-2">
-                      <p key={ind} className="text-red-600 font-semibold">
+                      <p key={ind} className="nk-message-error text-xs">
                         {err}
                       </p>
                     </Alert>
@@ -136,7 +136,7 @@ export default function HelpfullDialog({ type, open, handleClose, ReviewId }) {
                 apiError?.map((err, ind) => {
                   return (
                     <Alert key={ind} variant="outlined" severity="error" className="mt-2">
-                      <p key={ind} className="text-red-600 font-semibold">
+                      <p key={ind} className="nk-message-error text-xs">
                         {err}
                       </p>
                     </Alert>

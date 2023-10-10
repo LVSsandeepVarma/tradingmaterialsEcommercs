@@ -16,6 +16,7 @@ import Form from "react-bootstrap/Form";
 import { FaCreditCard, FaCalendarAlt, FaLock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import {
   Accordion,
   AccordionDetails,
@@ -97,13 +98,13 @@ export default function Checkout() {
   useEffect(() => {
     if (userData?.client?.payment_types?.length > 0) {
       setActivePaymentMethod(userData?.client?.payment_types[0]?.name);
-      setActivePaymentMethodAccordion(userData?.client?.payment_types[0]?.name)
+      // setActivePaymentMethodAccordion(userData?.client?.payment_types[0]?.name)
     }
   }, [userData]);
 
   useEffect(() => {
     if (paymentType == "cod") {
-      setActivePaymentMethodAccordion("");
+      // setActivePaymentMethodAccordion("");
     }
   }, [paymentType]);
 
@@ -538,6 +539,7 @@ export default function Checkout() {
         dispatch(showLoader());
         const paymentData = {
           payment_type: "Stripe",
+          payment_mode : paymentType,
           client_id: client_id,
           order_id: id,
           total: total,
@@ -872,7 +874,7 @@ export default function Checkout() {
                 {paymentStatus === "" && paymentVerification === false && (
                   <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
                     {/* Payment Mode */}
-                    <h4 className="!font-bold">Payment Method</h4>
+                    <h4 className="!font-bold">Payment Mode</h4>
                     <RadioGroup
                       // defaultValue={paymentType}
                       aria-labelledby="payment_methods"
@@ -897,23 +899,25 @@ export default function Checkout() {
                           }`}
                         >
                           <Typography sx={{ width: "100%", flexShrink: 0 }}>
-                            <div>
+                            <div className="flex justify-around">
                               <FormControlLabel
                                 className="!w-full text-sm"
                                 value="online"
                                 checked={paymentType == "online" ? true : false}
                                 control={<Radio size="sm" />}
-                                label="Online"
+                                label="Online Secure Payment [Cards]"
                               />
+                              <img src="/images/vma.png" width={"18%"}/>
                             </div>
                           </Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                           <Typography>
-                            <ul>
-                              <li>Choose from our secure online payments</li>
-                              <li>No delivery charges appplied</li>
-                            </ul>
+                            <ol className="text-xs">
+                            <li>- No delivery charges applied</li>
+                              <li>- Choose from our secure online payments</li>
+                              
+                            </ol>
                           </Typography>
                         </AccordionDetails>
                       </Accordion>
@@ -934,7 +938,7 @@ export default function Checkout() {
                           }`}
                         >
                           <Typography sx={{ width: "100%", flexShrink: 0 }}>
-                            <div>
+                            <div className="flex justify-around">
                               <FormControlLabel
                                 className="!w-full text-sm"
                                 value="cod"
@@ -942,25 +946,27 @@ export default function Checkout() {
                                 control={<Radio size="sm" />}
                                 label="Cash On Delivery"
                               />
+                              <img src="/images/cash-on-delivery-tm.png" width={"5%"} alt="cod"/>
                             </div>
                           </Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                           <Typography>
-                            <ul>
-                              <li>Order With Comfort</li>
-                              <li>Pay when you receive the the order</li>
-                            </ul>
-                            <small className="text-xs">
-                              Delivery chagrges applicable upto Rs.150
-                            </small>
+                            <ol className="text-xs">
+                              <li>- Order With Comfort</li>
+                              <li>- Pay when you receive the the order</li>
+                              <li className="text-xs">
+                              - Delivery charges applicable [150 INR]
+                            </li>
+                            </ol>
+                            
                           </Typography>
                         </AccordionDetails>
                       </Accordion>
                     </RadioGroup>
 
                     {/* Payment Type if online */}
-                    <h4 className="!font-bold">Payment Type</h4>
+                    <h4 className="!font-bold">Payment Gateway</h4>
                     <RadioGroup
                       // defaultValue={paymentType}
                       aria-labelledby="payment_type"
@@ -969,8 +975,7 @@ export default function Checkout() {
                       {userData?.client?.payment_types?.map((payment, ind)=>(
                       <Accordion
                       key={ind}
-                        expanded={activePaymentMethodAccordion == payment?.name &&
-                        paymentType == "online"}
+                        expanded={activePaymentMethodAccordion == payment?.name}
                         onChange={() => {
                           // if payment type is online only
                           // if(paymentType == "online"){
@@ -991,36 +996,27 @@ export default function Checkout() {
                         >
                           <Typography sx={{ width: "100%", flexShrink: 0 }}>
                             <div
-                              className={`flex ${
-                                paymentType == "cod" &&
-                                activePaymentMethodAccordion == payment?.name
-                                  ? "justify-between"
-                                  : "justify-around"
-                              }`}
+                              className={`flex "justify-around
+                              `}
                             >
-                              {paymentType == "cod" &&
-                              activePaymentMethodAccordion == payment?.name ? (
-                                <p className="text-red-600 !text-start">
-                                  <ErrorOutlineIcon />
-                                  Please select online Payment{" "}
-                                </p>
-                              ) : (
+                              
+                              
                                 <FormControlLabel
                                   className="!w-full text-sm"
                                   value="stripe"
                                   checked={
-                                    activePaymentMethodAccordion == payment?.name &&
-                                    paymentType == "online"
+                                    activePaymentMethodAccordion == payment?.name
                                       ? true
                                       : false
                                   }
                                   control={<Radio size="sm" />}
                                   label="Stripe"
                                 />
-                              )}
+                              
                               <img
-                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/stripe.png`}
+                                src={`/images/stripe.png`}
                                 className="ml-2"
+                                width={"12%"}
                                 alt={`${paymentType?.name}`}
                               />
                             </div>
@@ -1053,7 +1049,7 @@ export default function Checkout() {
                                     </div>
                                   </div>
                                   {cardNumberError ? (
-                                    <p className="text-red-600 font-bold !text-sm !m-0 !p-0 !text-left">
+                                    <p className="nk-message-error !text-xs !m-0 !p-0 !text-left">
                                       {cardNumberError}
                                     </p>
                                   ) : (
@@ -1080,7 +1076,7 @@ export default function Checkout() {
                                     </div>
                                   </div>
                                   {expiryError ? (
-                                    <p className="text-red-600 font-bold !text-left !text-sm !m-0 !p-0">
+                                    <p className="nk-message-error !text-left !text-xs !m-0 !p-0">
                                       {expiryError}
                                     </p>
                                   ) : (
@@ -1107,7 +1103,7 @@ export default function Checkout() {
                                     </div>
                                   </div>
                                   {cvvError ? (
-                                    <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
+                                    <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
                                       {cvvError}
                                     </p>
                                   ) : (
@@ -1135,7 +1131,7 @@ export default function Checkout() {
                                     </div>
                                   </div>
                                   {nameErr ? (
-                                    <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
+                                    <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
                                       {nameErr}
                                     </p>
                                   ) : (
@@ -1309,7 +1305,7 @@ export default function Checkout() {
                               </div>
                             </div>
                             {cardNumberError ? (
-                              <p className="text-red-600 font-bold !text-sm !m-0 !p-0 !text-left">
+                              <p className="nk-message-error !text-sm !m-0 !p-0 !text-left">
                                 {cardNumberError}
                               </p>
                             ) : (
@@ -1336,7 +1332,7 @@ export default function Checkout() {
                               </div>
                             </div>
                             {expiryError ? (
-                              <p className="text-red-600 font-bold !text-left !text-sm !m-0 !p-0">
+                              <p className="nk-message-error !text-left !text-sm !m-0 !p-0">
                                 {expiryError}
                               </p>
                             ) : (
@@ -1363,7 +1359,7 @@ export default function Checkout() {
                               </div>
                             </div>
                             {cvvError ? (
-                              <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
+                              <p className="nk-message-error !text-sm !text-left !m-0 !p-0">
                                 {cvvError}
                               </p>
                             ) : (
@@ -1391,7 +1387,7 @@ export default function Checkout() {
                               </div>
                             </div>
                             {nameErr ? (
-                              <p className="text-red-600 font-bold !text-sm !text-left !m-0 !p-0">
+                              <p className="nk-message-error !text-sm !text-left !m-0 !p-0">
                                 {nameErr}
                               </p>
                             ) : (
@@ -1430,7 +1426,7 @@ export default function Checkout() {
                             Sub Total:
                           </p>
                           <p className="m-0 fs-14 text-gray-1200 w-75">
-                            ₹ {orderData?.order?.sub_total}
+                            ₹ {parseFloat(orderData?.order?.sub_total)?.toFixed(2)}
                           </p>
                         </li>
                         {/* <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -1446,7 +1442,7 @@ export default function Checkout() {
                             Tax:
                           </p>
                           <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {orderData?.order?.total_tax}
+                          ₹ {parseFloat(orderData?.order?.total_tax)?.toFixed(2)}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -1455,8 +1451,8 @@ export default function Checkout() {
                           </p>
                           <p className="m-0 fs-14 text-danger w-75">
                             {orderData?.order?.discount_type === "percentage"
-                              ? `₹ ${orderData?.order?.discount_amount} ( ${orderData?.order?.discount}%)`
-                              : "₹" + orderData?.order?.discount_amount}
+                              ? `₹ ${parseFloat(orderData?.order?.discount_amount)?.toFixed(2)} ( ${orderData?.order?.discount}%)`
+                              : "₹" + parseFloat(orderData?.order?.discount_amount)?.toFixed(2)}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -1464,16 +1460,16 @@ export default function Checkout() {
                             Total:
                           </p>
                           <p className="m-0 fs-16 fw-semibold text-dark w-75">
-                            ₹ {orderData?.order?.total}
+                            ₹ {parseFloat(orderData?.order?.total)?.toFixed(2)}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-16 text-uppercase w-25">
-                            Advance:
+                          <p className="m-0 fs-14 w-25 text-uppercase fw-semibold">
+                            {paymentType == "online" ? "Delivery Charges:" : "Delivery Charges"}
                           </p>
-                          {paymentType == "online" && <p className="m-0 fs-16 fw-semibold text-dark w-75">
-                            ₹ 150
-                          </p>}
+                          <p className="m-0 fs-16 fw-semibold text-dark w-75">
+                            {paymentType == "online" ? "₹ 0.00" : "₹ 150.00"}
+                          </p>
                         </li>
                       </ul>
                       <div className="!flex !justify-start items-center !text-sm">
@@ -1489,7 +1485,7 @@ export default function Checkout() {
                       {userData?.client?.payment_types?.length > 0 && (
                         <button
                           disabled={allProducts?.length > 0 ? false : true}
-                          className="btn btn-primary w-100"
+                          className="btn btn-primary w-100 !normal-case	"
                           type="submit"
                           onClick={() => {
                             if (activePaymentMethod === "Razor_Pay") {
@@ -1499,9 +1495,12 @@ export default function Checkout() {
                                 orderData?.client_id
                               );
                             } else if (activePaymentMethod === "Stripe") {
+                              if(cardNumberError != "" || cvvError != "" || nameErr !="" || expiryError != ""){
+                                setActivePaymentMethodAccordion("Stripe")
+                              }else{
                               createOrderWithStripe(
                                 orderData?.order_id,
-                                orderData?.order?.total,
+                                paymentType == "cod" ? "150": orderData?.order?.total,
                                 orderData?.client_id,
                                 orderData?.city,
                                 orderData?.state,
@@ -1509,10 +1508,11 @@ export default function Checkout() {
                                 orderData?.pincode,
                                 orderData?.address_1
                               );
+                              }
                             }
                           }}
                         >
-                          Proceed to Pay {paymentType == "cod" ? "Rs. "+orderData?.order?.total+"" : "Rs. 150"}
+                          Proceed to pay {paymentType == "online" ? " "+parseFloat(orderData?.order?.total)?.toFixed(2)+" INR" : " 150.00 INR"}
                         </button>
                       )}
                       {userData?.client?.payment_types?.length == 0 && (
@@ -1535,7 +1535,7 @@ export default function Checkout() {
                             >
                               <p
                                 key={ind}
-                                className="text-red-600 font-semibold"
+                                className="nk-message-error text-xs"
                               >
                                 {err}
                               </p>
@@ -1554,7 +1554,7 @@ export default function Checkout() {
                           <img
                             className=" "
                             src="/images/stripe.png"
-                            width={45}
+                            width={"22%"}
                           ></img>
                         </div>
                       </div>

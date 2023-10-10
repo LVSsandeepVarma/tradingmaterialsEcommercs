@@ -14,6 +14,8 @@ import { usersignupinModal } from "../../../features/signupinModals/signupinSlic
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
 import { updateCartCount, updateWishListCount } from "../../../features/cartWish/focusedCount";
+import { useNavigate } from "react-router-dom";
+import SessionExpired from "./sessionExpired";
 
 // eslint-disable-next-line react/prop-types
 export default function UpdateProfile({ open, handleClose }) {
@@ -23,11 +25,15 @@ export default function UpdateProfile({ open, handleClose }) {
   const clientType = localStorage.getItem("client_type");
 
 
+
+
   // eslint-disable-next-line no-unused-vars
   const [status, setStatus] = useState();
   // eslint-disable-next-line no-unused-vars
   const [apiResponse, setApiResponse] = useState([]);
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
 
+  const navigate = useNavigate()
   const dispatch = useDispatch();
 
   function validName(name) {
@@ -142,6 +148,8 @@ export default function UpdateProfile({ open, handleClose }) {
           showforgotPasswordModal: false,
           showOtpModal: false,
           showNewPasswordModal: false,
+          showSignupCartModal: false,
+        showSignupBuyModal: false,
         })
       );
     }
@@ -180,8 +188,14 @@ export default function UpdateProfile({ open, handleClose }) {
     }
   };
 
+  function handleSessionExpiryClose (){
+    setShowSessionExpiry(false)
+    navigate("/?login")
+}
+
   return (
     <>
+    <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
       <Dialog open={open} keepMounted={true} fullWidth>
         <DialogTitle className=" drop-shadow-lg text-center bg-transparent">
           Profile Incomplete !
@@ -218,7 +232,7 @@ export default function UpdateProfile({ open, handleClose }) {
               </div>
               <div style={{ display: "inline-block" }}>
                 {nameErr && (
-                  <p className=" !text-red-600 !font-bold mb-1 drop-shadow-lg !text-sm !text-left">
+                  <p className=" nk-message-error !font-bold mb-1 drop-shadow-lg !text-sm !text-left">
                     {nameErr}
                   </p>
                 )}
@@ -227,7 +241,7 @@ export default function UpdateProfile({ open, handleClose }) {
                     <p
                       key={ind}
                       className={` ${
-                        status ? "!text-green-600" : "!text-red-600"
+                        status ? "!text-green-600" : "nk-message-error"
                       } !font-bold mb-1 drop-shadow-lg !text-sm !text-left`}
                     >
                       {msg}

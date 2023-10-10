@@ -86,13 +86,13 @@ const SignupModal = ({ show, onHide }) => {
     const namePattern = /^[A-Za-z ]+$/;
     if (name === "") {
       setFirstNameError("First name is required");
-    }else if (!namePattern.test(name)) {
+    } else if (!namePattern.test(name)) {
       setFirstNameError("First name should contain only alphabets");
     } else if (name?.length < 3) {
       setFirstNameError("Min 3 characters are required");
     } else if (name?.length > 50) {
       setFirstNameError("Max 50 characters are required");
-    }  else {
+    } else {
       setFirstNameError("");
     }
   }
@@ -101,13 +101,13 @@ const SignupModal = ({ show, onHide }) => {
     const namePattern = /^[A-Za-z ]+$/;
     if (name === "") {
       setLastNameError("Last name is required");
-    }else if (!namePattern.test(name)) {
+    } else if (!namePattern.test(name)) {
       setLastNameError("Last name should contain only alphabets");
-    } else if (name?.length < 3) {
-      setLastNameError("Min 3 characters are required");
+    } else if (name?.length < 1) {
+      setLastNameError("Last name is required");
     } else if (name?.length > 50) {
-      setLastNameError("Max 50 characters are required");
-    }  else {
+      setLastNameError("Maximum limit exceeded");
+    } else {
       setLastNameError("");
     }
   }
@@ -139,22 +139,24 @@ const SignupModal = ({ show, onHide }) => {
     lastNameVerification(lastName);
     emailValidaiton(email);
     phoneValidation(phone);
-    
-    const currentUrl = window?.location?.href;
-   let  updatedUrl;
 
-   if (currentUrl && (currentUrl.startsWith('http://') || currentUrl.startsWith('https://'))) {
+    const currentUrl = window?.location?.href;
+    let updatedUrl;
+
+    if (
+      currentUrl &&
+      (currentUrl.startsWith("http://") || currentUrl.startsWith("https://"))
+    ) {
       // Replace "http://" or "https://" with "www."
-     updatedUrl = currentUrl.replace(/^(https?:\/\/)/, 'www.');
-      
+      updatedUrl = currentUrl.replace(/^(https?:\/\/)/, "www.");
+
       // Now, `updatedUrl` contains the modified URL with "www."
       console.log(updatedUrl);
     } else {
       // The URL didn't start with "http://" or "https://"
-      updatedUrl = currentUrl
+      updatedUrl = currentUrl;
     }
     // console.log(emailError, phoneError, firstNameError)
-    
 
     if (
       emailError === "" &&
@@ -180,8 +182,8 @@ const SignupModal = ({ show, onHide }) => {
               last_name: lastName,
               email: email,
               phone: phone,
-              domain: updatedUrl,
-              ip_add: useriP
+              domain: updatedUrl?.split("/")[0],
+              ip_add: useriP,
             },
             {
               headers: {
@@ -249,6 +251,11 @@ const SignupModal = ({ show, onHide }) => {
       usersignupinModal({
         showSignupModal: false,
         showLoginModal: false,
+        showforgotPasswordModal: false,
+        showOtpModal: false,
+        showNewPasswordModal: false,
+        showSignupCartModal: false,
+        showSignupBuyModal: false,
       })
     );
     // document.getElementsByTagName(body).style =
@@ -314,6 +321,11 @@ const SignupModal = ({ show, onHide }) => {
                         usersignupinModal({
                           showSignupModal: false,
                           showLoginModal: true,
+                          showforgotPasswordModal: false,
+                          showOtpModal: false,
+                          showNewPasswordModal: false,
+                          showSignupCartModal: false,
+                          showSignupBuyModal: false,
                         })
                       )
                     }
@@ -337,7 +349,7 @@ const SignupModal = ({ show, onHide }) => {
                           onChange={handleFirstNamechange}
                         />
                         {firstNameError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error text-xs">
                             {firstNameError}
                           </p>
                         )}
@@ -355,7 +367,7 @@ const SignupModal = ({ show, onHide }) => {
                           onChange={handleLastNameChange}
                         />
                         {lastNameError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error text-xs">
                             {lastNameError}
                           </p>
                         )}
@@ -373,7 +385,7 @@ const SignupModal = ({ show, onHide }) => {
                           onChange={handleEmailChange}
                         />
                         {emailError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error text-xs">
                             {emailError}
                           </p>
                         )}
@@ -405,7 +417,7 @@ const SignupModal = ({ show, onHide }) => {
                           onChange={handlePhoneChange}
                         />
                         {phoneError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error text-xs">
                             {phoneError}
                           </p>
                         )}
@@ -445,7 +457,7 @@ const SignupModal = ({ show, onHide }) => {
                             >
                               <p
                                 key={ind}
-                                className="text-red-600 font-semibold"
+                                className="nk-message-error text-xs"
                               >
                                 {err}
                               </p>

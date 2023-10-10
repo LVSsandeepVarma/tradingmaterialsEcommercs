@@ -8,6 +8,7 @@ const initialState = {
     showOtpModal: false,
     showNewPasswordModal: false,
     showSignupCartModal: false,
+    showSignupBuyModal: false
   },
   status: "idle",
 };

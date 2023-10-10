@@ -1136,3 +1136,9 @@ td span {
   }
 
 }
+
+
+/* radio color top black */
+.css-vqmohf-MuiButtonBase-root-MuiRadio-root.Mui-checked {
+  color: #0a1425 !important;
+}

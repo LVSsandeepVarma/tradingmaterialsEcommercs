@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -12,6 +13,7 @@ import Header from "../../header/header";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchAllProducts } from "../../../../features/products/productsSlice";
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 // import GitHubForkRibbon from 'react-github-fork-ribbon';
 import { updateUsers } from "../../../../features/users/userSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
@@ -245,7 +247,7 @@ export default function ProductDetails() {
   }, []);
 
 
-  // function for handling add to cart animation
+  // function for handling add to cart (after login)
   async function handleAddToCart(productId, productImg) {
     try {
       // setAnimateProductId(productId);
@@ -254,7 +256,7 @@ export default function ProductDetails() {
         "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
         {
           product_id: productId,
-          qty: 1,
+          qty: qunatity,
         },
         {
           headers: {
@@ -360,7 +362,8 @@ export default function ProductDetails() {
           setAddedToFavImg(productImg)
           setShowFavModal(true)
           setModalMessage("Added to your cart successfully")
-          navigate("/cart")
+          // navigate("/cart")
+          window.location.href="/cart"
          
           dispatch(updateCart(response?.data?.data?.cart_details));
           dispatch(updateCartCount(response?.data?.data?.cart_count));
@@ -446,9 +449,10 @@ export default function ProductDetails() {
 
   
 
-  //show checkout without login
-  const handleSignupCart = (product) =>{
+  //show cart without login (indirect login)
+  const handleSignupCart = (product,qty) =>{
     localStorage.removeItem("productData")
+    localStorage.setItem("productTempQty", qty)
     localStorage.setItem("productData", JSON.stringify(product))
     dispatch(
       usersignupinModal({
@@ -457,17 +461,86 @@ export default function ProductDetails() {
         showforgotPasswordModal: false,
         showOtpModal: false,
         showNewPasswordModal: false,
-        showSignupCartModal: true
+        showSignupCartModal: true,
+        showSignupBuyModal: false,
       })
     );
   }
+
+    //show checkout without login (indirect login)
+    const handleSignupBuynow = (product) =>{
+      localStorage.removeItem("productData")
+      localStorage.setItem("productTempQty", qunatity)
+      localStorage.setItem("productData", JSON.stringify(product))
+      dispatch(
+        usersignupinModal({
+          showSignupModal: false,
+          showLoginModal: false,
+          showforgotPasswordModal: false,
+          showOtpModal: false,
+          showNewPasswordModal: false,
+          showSignupCartModal: false,
+          showSignupBuyModal: true,
+        })
+      );
+    }
+
+    // social share
+    // const handleFacebookShare = (product) => {
+    //   // Generate the URL for the product being shared
+    //   const shareURL = `https://tradingmaterials.com/product-detail/${
+    //     product?.slug
+    //   }/${CryptoJS?.AES?.encrypt(
+    //     `${product?.id}`,
+    //     "trading_materials"
+    //   )
+    //     ?.toString()
+    //     .replace(/\//g, "_")
+    //     .replace(/\+/g, "-")}`;
+      
+    //   // Initialize the Facebook SDK
+    //   window.fbAsyncInit = function() {
+    //     FB.init({
+    //       appId: '275081505489831',
+    //       autoLogAppEvents: true,
+    //       xfbml: true,
+    //       version: 'v13.0',
+    //     });
+    //   };
+  
+    //   // Load the Facebook SDK asynchronously
+    //   (function(d, s, id) {
+    //     var js, fjs = d.getElementsByTagName(s)[0];
+    //     if (d.getElementById(id)) return;
+    //     js = d.createElement(s); js.id = id;
+    //     js.src = "https://connect.facebook.net/en_US/sdk.js";
+    //     fjs.parentNode.insertBefore(js, fjs);
+    //   }(document, 'script', 'facebook-jssdk'));
+  
+    //   // Once the Facebook SDK is loaded, share the product
+    //   window.fbAsyncInit();
+    //   FB.ui({
+    //     method: 'share_open_graph',
+    //     action_type: 'og.likes',
+    //     action_properties: JSON.stringify({
+    //       object: shareURL,
+    //       image: product.imageURL,
+    //       description: product.description,
+    //       message: 'Check out this awesome product!',
+    //     }),
+    //   });
+    // };
+
+
+
 
   return (
     <>
       <Helmet data-react-helmet="true">
         <title>{`Trading Materials-${product?.product?.name}`}</title>
+        
         <meta
-          name="image"
+          name="og:image"
           property="og:image"
           content={`${product?.product?.img_1}`}
           async
@@ -952,6 +1025,7 @@ export default function ProductDetails() {
                                     showforgotPasswordModal: false,
                                     showOtpModal: false,
                                     showNewPasswordModal: false,
+                                    showSignupBuyModal: false,
                                   }))
                               }
                             }}>
@@ -1040,15 +1114,8 @@ export default function ProductDetails() {
                                   return isLoggedIn
                                     ? handleBuyNow(product?.product_id, product?.product?.img_1)
 
-                                    :  dispatch(
-                                      usersignupinModal({
-                                        showSignupModal: false,
-                                        showLoginModal: true,
-                                        showforgotPasswordModal: false,
-                                        showOtpModal: false,
-                                        showNewPasswordModal: false,
-                                        showSignupCartModal: false
-                                      }))
+                                    :  
+                                      handleSignupBuynow(product?.product)
                                 }}>
                                 Buy Now
                               </button>
@@ -1059,7 +1126,7 @@ export default function ProductDetails() {
                                 onClick={() => {
                                   return isLoggedIn
                                     ? handleAddToCart(product?.product_id, product?.product?.img_1)
-                                    :  handleSignupCart(product?.product)
+                                    :  handleSignupCart(product?.product, qunatity)
                                 }}
                               >
                                 Add To Cart
@@ -1080,7 +1147,8 @@ export default function ProductDetails() {
                                       showforgotPasswordModal: false,
                                       showOtpModal: false,
                                       showNewPasswordModal: false,
-                                      showSignupCartModal: false
+                                      showSignupCartModal: false,
+                                      showSignupBuyModal: false,
                                     }))
                               }}
                             >
@@ -1090,15 +1158,13 @@ export default function ProductDetails() {
                           </div>
                         </div>
                         <div className="pt-5">
-                          <p className="fs-14 !text-left">
-                            {" "}
-                            Must explain to you how all this mistaken idea of
-                            denouncing pleasure and praising pain was born and I
-                            will give you a complete account of the system, and
-                            expound.{" "}
+                          <p className="fs-14 !text-left flex items-center">
+                            <LocationOnOutlinedIcon className="!w-[18px]"/> Delivery across all over India
                           </p>
                           <div className="nk-social d-sm-flex align-items-center mt-2 gap-3 pb-2" id="product_reviews">
-                            <h6 className="fs-14 m-0 fw-semibold text-uppercase !leading-loose mb-2 text-left  mb-sm-0 ">
+                            <h6 className="fs-14 m-0 fw-semibold text-uppercase !leading-loose mb-2 text-left  mb-sm-0 " 
+                            // onClick={()=>{handleFacebookShare(product?.product)}}
+                            >
                               Share :
                             </h6>
                             <ul>
@@ -1292,7 +1358,7 @@ export default function ProductDetails() {
                                 </div>
                                 <Divider />
                                 <div className="max-h-[450px] overflow-y-auto">
-                                  {product?.reviews?.map((review, _ind) => (
+                                  {product?.reviews?.sort((a,b)=> new Date(b?.created_at) - new Date(a?.created_at))?.map((review, _ind) => (
                                     <div key={_ind} className="review mt-2">
                                       <div className="flex items-center">
                                         <Avatar
@@ -1352,7 +1418,8 @@ export default function ProductDetails() {
                                                   showforgotPasswordModal: false,
                                                   showOtpModal: false,
                                                   showNewPasswordModal: false,
-                                                  showSignupCartModal: false
+                                                  showSignupCartModal: false,
+                                                  showSignupBuyModal: false,
                                                 }));
                                             }
                                           }}
@@ -1375,7 +1442,8 @@ export default function ProductDetails() {
                                                   showforgotPasswordModal: false,
                                                   showOtpModal: false,
                                                   showNewPasswordModal: false,
-                                                  showSignupCartModal: false
+                                                  showSignupCartModal: false,
+                                                  showSignupBuyModal: false,
                                                 }));
                                             }
                                           }}
@@ -1388,7 +1456,7 @@ export default function ProductDetails() {
                                             return (
                                               <p
                                                 key={ind}
-                                                className="text-red-700 !text-xs"
+                                                className="nk-message-error !text-xs"
                                               >
                                                 {err}
                                               </p>
@@ -1396,7 +1464,7 @@ export default function ProductDetails() {
                                           })}
                                         {reviewId === review?.id &&
                                           reviewIdErr !== "" && (
-                                            <p className="text-red-700 !text-xs ">
+                                            <p className="nk-message-error !text-xs ">
                                               {reviewIdErr}
                                             </p>
                                           )}
@@ -1573,19 +1641,19 @@ export default function ProductDetails() {
                                                         )?.toFixed(2) + ""
                                                       )?.split(".")[0]
                                                     }
-                                                    <sub
+                                                    {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
-                                                    >
-                                                      {
+                                                    > */}
+                                                      .{
                                                         (
                                                           Number.parseFloat(
                                                             price?.INR
                                                           )?.toFixed(2) + ""
                                                         )?.split(".")[1]
                                                       }
-                                                    </sub>
+                                                    {/* </sub> */}
                                                   </>
                                                 )
                                               : price?.USD &&
@@ -1632,13 +1700,13 @@ export default function ProductDetails() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
+                                                      > */}
+                                                        .{
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -1650,7 +1718,7 @@ export default function ProductDetails() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      </sub>
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )
@@ -1691,13 +1759,13 @@ export default function ProductDetails() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
+                                                      > */}
+                                                        .{
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -1709,7 +1777,7 @@ export default function ProductDetails() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      </sub>
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )}
@@ -1752,12 +1820,12 @@ export default function ProductDetails() {
                                                         .toString()
                                                         .split(".")[0]
                                                     }
-                                                    <sub
+                                                    {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
-                                                    >
-                                                      {
+                                                    > */}
+                                                      .{
                                                         (
                                                           parseFloat(
                                                             price?.INR
@@ -1766,7 +1834,7 @@ export default function ProductDetails() {
                                                           .toString()
                                                           .split(".")[1]
                                                       }
-                                                    </sub>
+                                                    {/* </sub> */}
                                                   </>
                                                 )
                                               : price?.USD && (
@@ -1780,12 +1848,12 @@ export default function ProductDetails() {
                                                         .toString()
                                                         .split(".")[0]
                                                     }
-                                                    <sub
+                                                    {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
-                                                    >
-                                                      {
+                                                    > */}
+                                                      .{
                                                         (
                                                           parseFloat(
                                                             price?.USD
@@ -1794,7 +1862,7 @@ export default function ProductDetails() {
                                                           .toString()
                                                           .split(".")[1]
                                                       }
-                                                    </sub>
+                                                    {/* </sub> */}
                                                   </>
                                                 )}
 
@@ -1837,13 +1905,13 @@ export default function ProductDetails() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
+                                                      > */}
+                                                        .{
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -1855,7 +1923,7 @@ export default function ProductDetails() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      </sub>
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )
@@ -1895,13 +1963,13 @@ export default function ProductDetails() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
+                                                      > */}
+                                                        .{
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -1913,7 +1981,7 @@ export default function ProductDetails() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      </sub>
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )}
@@ -1941,7 +2009,8 @@ export default function ProductDetails() {
                                               showforgotPasswordModal: false,
                                               showOtpModal: false,
                                               showNewPasswordModal: false,
-                                              showSignupCartModal: false
+                                              showSignupCartModal: false,
+                                              showSignupBuyModal: false,
                                             })
                                           );
                                     }}
@@ -1957,7 +2026,8 @@ export default function ProductDetails() {
                                             product?.img_1
                                           ),
                                           handleCartPosition(event))
-                                        : handleSignupCart(product)
+                                        :
+                                        handleSignupCart(product,1)
                                     }}
                                   >
                                     {animateProductId === product?.id ? (
@@ -2040,47 +2110,7 @@ export default function ProductDetails() {
           <Footer />
         </div>
       </div>
-      <div className="nk-sticky-badge">
-        <ul>
-          <li>
-            <a
-              href="/"
-              className="nk-sticky-badge-icon nk-sticky-badge-home"
-              data-bs-toggle="tooltip"
-              data-bs-placement="right"
-              data-bs-custom-className="nk-tooltip"
-              data-bs-title="View Demo"
-            >
-              <em className="icon ni ni-home-fill"></em>
-            </a>
-          </li>
-          <li>
-            <a
-              onClick={() =>
-                isLoggedIn
-                  ? navigate(`${userLang}/cart`)
-                  : dispatch(
-                    usersignupinModal({
-                      showSignupModal: false,
-                      showLoginModal: true,
-                      showforgotPasswordModal: false,
-                      showOtpModal: false,
-                      showNewPasswordModal: false,
-                      showSignupCartModal: false
-                    }))
-              }
-              className="nk-sticky-badge-icon nk-sticky-badge-purchase"
-              id="cart-button"
-              data-bs-toggle="tooltip"
-              data-bs-custom-className="nk-tooltip"
-              data-bs-title="Purchase Now"
-              aria-label="Purchase Now"
-            >
-              <em className="icon ni ni-cart-fill"></em>
-            </a>
-          </li>
-        </ul>
-      </div>
+
     </>
   );
 }

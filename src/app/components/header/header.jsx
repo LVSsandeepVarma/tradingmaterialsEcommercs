@@ -10,6 +10,7 @@ import { Modal } from "react-bootstrap";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
 import moment from "moment";
+import CryptoJS from "crypto-js";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import "animate.css";
@@ -34,6 +35,8 @@ import ChatForm from "../Chatbot/chatbot";
 import UpdateProfile from "../modals/updateProfile";
 import CookieBanner from "./cookiesBanner";
 import SignupCartModal from "../modals/signupcart";
+import SignupBuyNowModal from "../modals/signupBuyNow";
+import SessionExpired from "../modals/sessionExpired";
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -57,6 +60,7 @@ export default function Header() {
   const [bundleClicked, setBundleClicked] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [bottomOfferDisplay, setBottomOfferDisplay] = useState("block");
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
   const [showOffer, setShowOffer] = useState(false);
   const [cookieResponse, setCookieResponse] = useState(false);
 
@@ -249,12 +253,7 @@ export default function Header() {
             sessionStorage.removeItem("expiry");
             dispatch(logoutUser());
           } else {
-            dispatch(
-              updateNotifications({
-                type: "warning",
-                message: "Oops!",
-              })
-            );
+            setShowSessionExpiry(true)
           }
           // navigate("/login")
         }
@@ -274,12 +273,13 @@ export default function Header() {
           sessionStorage.removeItem("expiry");
           dispatch(logoutUser());
         } else {
-          dispatch(
-            updateNotifications({
-              type: "warning",
-              message: "Oops!",
-            })
-          );
+          // dispatch(
+          //   updateNotifications({
+          //     type: "warning",
+          //     message: "Oops!",
+          //   })
+          // );
+          setShowSessionExpiry(true)
         }
       } finally {
         dispatch(hideLoader());
@@ -292,6 +292,7 @@ export default function Header() {
           showforgotPasswordModal: false,
           showOtpModal: false,
           showNewPasswordModal: false,
+          showSignupBuyModal: false,
         })
       );
     }
@@ -355,7 +356,7 @@ export default function Header() {
         window.navigator.userAgent.includes("Macintosh")
       ) {
         const timeOut = setTimeout(() => {
-          if (modals?.showLoginModal === false) {
+          if (modals?.showLoginModal === false ) {
             if (!isLoggedIn) {
               showSignupPopup();
             }
@@ -364,7 +365,9 @@ export default function Header() {
         if (
           modals?.showLoginModal ||
           modals?.showSignupModal ||
-          modals?.showforgotPasswordModal
+          modals?.showforgotPasswordModal || 
+          modals?.showSignupCartModal ||
+          modals?.showSignupBuyModal
         ) {
           clearTimeout(timeOut);
         }
@@ -495,8 +498,14 @@ export default function Header() {
     setMouseOverEvent(true);
   }
 
+  function handleSessionExpiryClose (){
+      setShowSessionExpiry(false)
+      navigate("/?login")
+  }
+
   return (
     <>
+    <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
       {/* {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
@@ -557,6 +566,12 @@ export default function Header() {
       {modals?.showSignupCartModal == true && (
         <SignupCartModal
           show={modals?.showSignupCartModal}
+          onHide={() => handleCloseModals}
+        />
+      )}
+      {modals?.showSignupBuyModal == true && (
+        <SignupBuyNowModal
+          show={modals?.showSignupBuyModal}
           onHide={() => handleCloseModals}
         />
       )}
@@ -937,10 +952,18 @@ export default function Header() {
                                     </li>
                                     <li className="col-lg-12 p-0">
                                       <a
-                                        href={`${userLang}/`}
+                                        href={`/orders/${CryptoJS?.AES?.encrypt(
+                                          `${userData?.client?.id}`,
+                                          "order_details"
+                                        )
+                                          ?.toString()
+                                          .replace(/\//g, "_")
+                                          .replace(/\+/g, "-")}`}
+                                          target="_blank"
+                                          rel="noreferrer"
                                         className="nk-nav-link"
                                       >
-                                        inbox
+                                        Orders
                                       </a>
                                     </li>
                                     <li className="col-lg-12 p-0">
@@ -970,6 +993,7 @@ export default function Header() {
                                     showOtpModal: false,
                                     showNewPasswordModal: false,
                                     showSignupCartModal: false,
+                                    showSignupBuyModal: false,
                                   })
                                 );
                               }}
@@ -1046,6 +1070,7 @@ export default function Header() {
                                   showOtpModal: false,
                                   showNewPasswordModal: false,
                                   showSignupCartModal: false,
+                                  showSignupBuyModal: false,
                                 })
                               );
                             }
@@ -1100,6 +1125,7 @@ export default function Header() {
                                   showOtpModal: false,
                                   showNewPasswordModal: false,
                                   showSignupCartModal: false,
+                                  showSignupBuyModal: false,
                                 })
                               );
                             }
@@ -1207,6 +1233,7 @@ export default function Header() {
                         showOtpModal: false,
                         showNewPasswordModal: false,
                         showSignupCartModal: false,
+                        showSignupBuyModal: false,
                       })
                     )
               }
@@ -1232,6 +1259,7 @@ export default function Header() {
                         showOtpModal: false,
                         showNewPasswordModal: false,
                         showSignupCartModal: false,
+                        showSignupBuyModal: false,
                       })
                     )
               }

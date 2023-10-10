@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // ShippingAddressModal.js
 import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
@@ -14,6 +15,8 @@ import { usersignupinModal } from "../../../features/signupinModals/signupinSlic
 import { Alert, Divider } from "@mui/material";
 import { updateclientType } from "../../../features/clientType/clientType";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 // eslint-disable-next-line react/prop-types, no-unused-vars
 const SignupCartModal = ({ show, onHide }) => {
@@ -32,6 +35,8 @@ const SignupCartModal = ({ show, onHide }) => {
   const [useriP, setUserIp] = useState("");
   const [cartData, setCartData] = useState();
   const [productQty, setProductQty] = useState(1);
+  const [emailVerificationStatus, setEmailVerificationStatus] = useState(false)
+  const [emailVerifyLoader, setEmailVerifyLoader] = useState(false)
 
   const loginStatus = useSelector((state) => state?.login?.value);
   console.log(loginStatus, window.location.host, window.location.hostname);
@@ -46,6 +51,15 @@ const SignupCartModal = ({ show, onHide }) => {
   useEffect(() => {
     setCartData(JSON.parse(localStorage.getItem("productData")));
     console.log();
+  }, []);
+
+  useEffect(() => {
+    if (localStorage.getItem("productTempQty")) {
+      setProductQty(localStorage.getItem("productTempQty"));
+      localStorage.removeItem("productTempQty");
+    } else {
+      setProductQty(1);
+    }
   }, []);
 
   useEffect(() => {
@@ -75,6 +89,20 @@ const SignupCartModal = ({ show, onHide }) => {
     }
   }
 
+  function handleEmailvalidation(email) {
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
+    if (email === "") {
+      setEmailError("Email is required");
+      return false
+    } else if (!emailRegex.test(email)) {
+      setEmailError("Invalid email");
+      return false
+    } else {
+      setEmailError("");
+      return true
+    }
+  } 
+
   function phoneValidation(phone) {
     const phoneRegex = /^[0-9]+$/;
     if (phone?.length === 0) {
@@ -85,6 +113,21 @@ const SignupCartModal = ({ show, onHide }) => {
       setPhoneError("Invalid phone number");
     } else if (phone?.length > 15) {
       setPhoneError("Invalid phone number");
+    } else {
+      setPhoneError("");
+    }
+  }
+
+  function passwordValidation(phone) {
+    const phoneRegex = /^[0-9]+$/;
+    if (phone?.length === 0) {
+      setPhoneError("Password is required");
+    } else if (!phoneRegex.test(phone)) {
+      setPhoneError("Invalid password");
+    } else if (phone?.length <= 7) {
+      setPhoneError("Invalid password");
+    } else if (phone?.length > 15) {
+      setPhoneError("Invalid password");
     } else {
       setPhoneError("");
     }
@@ -112,7 +155,7 @@ const SignupCartModal = ({ show, onHide }) => {
     } else if (!namePattern.test(name)) {
       setLastNameError("Last name should contain only alphabets");
     } else if (name?.length < 1) {
-      setLastNameError("Min 1 characters are required");
+      setLastNameError("Last name is required");
     } else if (name?.length > 50) {
       setLastNameError("Max 50 characters are required");
     } else {
@@ -122,12 +165,19 @@ const SignupCartModal = ({ show, onHide }) => {
 
   function handleEmailChange(e) {
     setEmail(e?.target?.value);
-    emailValidaiton(e?.target?.value);
+    emailValidaiton(e?.target?.value)
+    if(handleEmailvalidation(e?.target?.value)){
+      handleEmailVerification(e?.target?.value)
+    }
   }
 
   function handlePhoneChange(e) {
     setPhone(e?.target?.value);
+    if(!emailVerificationStatus){
     phoneValidation(e?.target?.value);
+    }else{
+      passwordValidation(e?.target?.value)
+    }
   }
 
   function handleFirstNamechange(e) {
@@ -140,7 +190,127 @@ const SignupCartModal = ({ show, onHide }) => {
     lastNameVerification(e?.target?.value);
   }
 
+  async function handleEmailVerification(emailid) {
+    try{
+      setEmailVerifyLoader(true)
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/client/email/check",
+        { email: emailid },
+        {
+          headers: {
+            "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+            Accept: "application/json",
+          },
+        }
+      );
+      if(response?.data?.status){
+          setEmailVerificationStatus(false)
+          console.log(response?.data)
+      }
+    }catch(err){
+      console.log(err)
+      if(err?.response?.data?.errors["email"] == "The email has already been taken."){
+        setEmailVerificationStatus(true)
+      }
+    }finally{
+      setEmailVerifyLoader(false)
+    }
+  }
 
+
+  async function handleLoginFormSubmission() {
+    setApiError([]);
+    setSignupSuccessMsg("");
+    emailValidaiton(email);
+    phoneValidation(phone);
+
+    const currentUrl = window?.location?.href;
+    let updatedUrl;
+
+    if (
+      currentUrl &&
+      (currentUrl.startsWith("http://") || currentUrl.startsWith("https://"))
+    ) {
+      // Replace "http://" or "https://" with "www."
+      updatedUrl = currentUrl.replace(/^(https?:\/\/)/, "www.");
+
+      // Now, `updatedUrl` contains the modified URL with "www."
+      console.log(updatedUrl);
+    } else {
+      // The URL didn't start with "http://" or "https://"
+      updatedUrl = currentUrl;
+    }
+    // console.log(emailError, phoneError, firstNameError)
+    console.log(updatedUrl?.hostname, "hsname");
+    if (
+      emailError === "" &&
+      phoneError === ""
+    ) {
+      if (
+        (emailError === "" &&
+          phoneError === "" &&
+          email !== "" &&
+          phone !== "" )
+      ){
+        try {
+          setLocalLoader(true);
+          const response = await axios.post(
+            "https://admin.tradingmaterials.com/api/auth/login",
+            {
+              email: email,
+              password: phone,
+              domain: updatedUrl.split("/")[0],
+              ip_add: useriP,
+            },
+            {
+              headers: {
+                "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+                Accept: "application/json",
+              },
+            }
+          );
+          if (response?.data?.status) {
+            setSignupSuccessMsg(response?.data?.message);
+            localStorage.setItem("client_token", response?.data?.token);
+            localStorage.setItem("client_type", response?.data?.type);
+            console.log(response?.data?.first_name);
+            handleHide();
+            dispatch(
+              updateUsers({
+                first_name: response?.data?.first_name,
+                last_name: response?.data?.last_name,
+                cart_count: response?.data?.cart_count,
+                wish_count: response?.data?.wish_count,
+              })
+            );
+            dispatch(loginUser());
+            dispatch(updateclientType(response?.data?.type));
+            localStorage.removeItem("prodcutQty");
+            localStorage.setItem("prodcutQty", productQty);
+            // function for adding to cart
+            // navigate("/cart");
+
+            window.location.href = "/"
+          }
+        } catch (err) {
+          console.log("err", err);
+          if (err?.response?.data?.errors) {
+            setEmailError(err?.response?.data?.errors["email"]);
+            setPhoneError(err?.response?.data?.errors["password"]);
+            // setApiError([...Object?.values(err?.response?.data?.errors)]);
+          } else {
+            setApiError([err?.response?.data?.message]);
+          }
+          setTimeout(() => {
+            setApiError([]);
+            setSignupSuccessMsg("");
+          }, 8000);
+        } finally {
+          setLocalLoader(false);
+        }
+      }
+    }
+  }
 
   async function handleFormSubmission() {
     setApiError([]);
@@ -167,7 +337,7 @@ const SignupCartModal = ({ show, onHide }) => {
       updatedUrl = currentUrl;
     }
     // console.log(emailError, phoneError, firstNameError)
-
+    console.log(updatedUrl?.hostname, "hsname");
     if (
       emailError === "" &&
       phoneError === "" &&
@@ -192,7 +362,7 @@ const SignupCartModal = ({ show, onHide }) => {
               last_name: lastName,
               email: email,
               phone: phone,
-              domain: updatedUrl,
+              domain: updatedUrl.split("/")[0],
               ip_add: useriP,
             },
             {
@@ -218,10 +388,13 @@ const SignupCartModal = ({ show, onHide }) => {
             );
             dispatch(loginUser());
             dispatch(updateclientType("lead"));
-            localStorage.removeItem("prodcutQty")
-            localStorage.setItem("prodcutQty", productQty)
+            localStorage.removeItem("prodcutQty");
+            localStorage.setItem("prodcutQty", productQty);
             // function for adding to cart
-            navigate("/cart")
+            // navigate("/cart");
+
+            navigate("/");
+            window.location.reload();
           }
         } catch (err) {
           console.log("err", err);
@@ -251,6 +424,11 @@ const SignupCartModal = ({ show, onHide }) => {
       usersignupinModal({
         showSignupModal: false,
         showLoginModal: false,
+        showforgotPasswordModal: false,
+        showOtpModal: false,
+        showNewPasswordModal: false,
+        showSignupCartModal: false,
+        showSignupBuyModal: false,
       })
     );
     // document.getElementsByTagName(body).style =
@@ -299,12 +477,15 @@ const SignupCartModal = ({ show, onHide }) => {
                   <img src={cartData?.img_1} alt="product" />
                 </div>
                 <div className="">
-                  <p className="  font-bold " style={{
-                                            textOverflow: "ellipsis",
-                                            whiteSpace: "wrap",
-                                            overflow: "hidden",
-                                            width: "100%",
-                                          }}>
+                  <p
+                    className="  font-bold "
+                    style={{
+                      textOverflow: "ellipsis",
+                      whiteSpace: "wrap",
+                      overflow: "hidden",
+                      width: "100%",
+                    }}
+                  >
                     {cartData?.name}
                   </p>
                   <p>
@@ -345,10 +526,11 @@ const SignupCartModal = ({ show, onHide }) => {
             </div> */}
 
             <div className="card-body !text-left p-5 pb-0">
-              <p className="text-left mb-2  ">CONTACT DETAILS</p>
+              <p className={`text-left ${!emailVerificationStatus ? "mb-2 " : ""} `}>{!emailVerificationStatus ? "CONTACT DETAILS" : " CUSTOMER LOGIN"}</p>
+              {emailVerificationStatus && <small className="!text-blue-600 mb-2">This email is already registered.</small>}
               <Form>
                 <div className="row gy-4 !text-left">
-                  <div className="col-12 col-md-6">
+                  {!emailVerificationStatus && <div className="col-12 col-md-6">
                     <div className="form-group">
                       <p className="">First Name</p>
                       <div className="form-control-wrap">
@@ -360,14 +542,14 @@ const SignupCartModal = ({ show, onHide }) => {
                           onChange={handleFirstNamechange}
                         />
                         {firstNameError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error text-xs">
                             {firstNameError}
                           </p>
                         )}
                       </div>
                     </div>
-                  </div>
-                  <div className="col-12 col-md-6">
+                  </div>}
+                  {!emailVerificationStatus &&  <div className="col-12 col-md-6">
                     <div className="form-group">
                       <p className="">Last Name</p>
                       <div className="form-control-wrap">
@@ -379,26 +561,31 @@ const SignupCartModal = ({ show, onHide }) => {
                           onChange={handleLastNameChange}
                         />
                         {lastNameError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error text-xs">
                             {lastNameError}
                           </p>
                         )}
                       </div>
                     </div>
-                  </div>
+                  </div>}
                   <div className="col-12">
                     <div className="form-group">
-                      <p className="p">Email</p>
+                      <p className="p">Email {emailVerifyLoader && <CircularProgress className="ml-2" size={15}/>}</p>
                       <div className="form-control-wrap">
+                        <div >
                         <input
                           type="text"
                           className="form-control !text-[11px]"
                           style={{ borderRadius: 0 }}
                           placeholder="Enter here"
                           onChange={handleEmailChange}
+                          // onKeyUp={(e)=>handleEmailVerification(e?.target?.value)}
+                         
                         />
+                        
+                        </div>
                         {emailError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error text-xs">
                             {emailError}
                           </p>
                         )}
@@ -407,7 +594,7 @@ const SignupCartModal = ({ show, onHide }) => {
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <p className="">Phone</p>
+                      <p className="">{!emailVerificationStatus ? "Phone" : "Password"}</p>
                       <div className="form-control-wrap">
                         {/* <a
                               href="show-hide-password.html"
@@ -431,7 +618,7 @@ const SignupCartModal = ({ show, onHide }) => {
                           onChange={handlePhoneChange}
                         />
                         {phoneError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error text-xs">
                             {phoneError}
                           </p>
                         )}
@@ -471,7 +658,7 @@ const SignupCartModal = ({ show, onHide }) => {
                             >
                               <p
                                 key={ind}
-                                className="text-red-600 font-semibold"
+                                className="nk-message-error text-xs"
                               >
                                 {err}
                               </p>
@@ -526,13 +713,18 @@ const SignupCartModal = ({ show, onHide }) => {
                 </small>
                 <div
                   className={`ml-2 w-full buttonss-off cursor-pointer `}
-                  onClick={handleFormSubmission}
+                  onClick={()=>{
+                    if(emailVerificationStatus){
+                      handleLoginFormSubmission()
+                    }else{
+                      handleFormSubmission()
+                    }
+                  }}
                 >
-                  <a className="cart-btn w-full text-center">Checkout</a>
+                  <a className="cart-btn w-full text-center">Add to cart</a>
                 </div>
               </div>
             </div>
-            
           </div>
         </div>
       </Modal.Body>

@@ -60,7 +60,7 @@ export default function ShippingPolicy() {
                   <ul className="nk-list-link nk-list-link-page flush">
                     <li>
                       <a href="/terms-and-conditions" className="fs-16">
-                        Term &amp; Conditions
+                        Terms &amp; Conditions
                       </a>
                     </li>
                     <li>
@@ -123,6 +123,10 @@ export default function ShippingPolicy() {
                         your shipping address. Please note that these delivery
                         times are estimates and may be subject to unexpected
                         delays caused by factors beyond our control.
+                      </p>
+                      <br/>
+                      <p className="fs-16">
+                        For delivery across India, the normal shipping duration time will be 3-4 days.
                       </p>
                     </div>
                     <div className="pb-5">

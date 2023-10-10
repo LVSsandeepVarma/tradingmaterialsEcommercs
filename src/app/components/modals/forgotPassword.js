@@ -68,6 +68,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
     if (emailError === "" && email !== "") {
       try {
         dispatch(showLoader());
+        setLocalLoader(true)
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/lead/reset-password-link",
           {
@@ -92,6 +93,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
         }, 8000);
       } finally {
         dispatch(hideLoader());
+        setLocalLoader(false)
       }
     }
   }
@@ -105,6 +107,9 @@ const ForgotPasswordModal = ({ show, onHide }) => {
         showforgotPasswordModal: false,
         showOtpModal: false,
         showNewPasswordModal: false,
+        showSignupCartModal: false,
+        showSignupBuyModal: false,
+
       })
     );
     // document.getElementsByTagName(body).style =
@@ -202,7 +207,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                           onChange={(e) => handleEmailChange(e)}
                         />
                         {emailError && (
-                          <p className="text-red-600 font-semibold">
+                          <p className="nk-message-error text-xs">
                             {emailError}
                           </p>
                         )}
@@ -241,7 +246,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                             >
                               <p
                                 key={ind}
-                                className="text-red-600 font-semibold"
+                                className="nk-message-error text-xs"
                               >
                                 {err}
                               </p>

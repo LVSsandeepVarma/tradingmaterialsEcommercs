@@ -20,6 +20,7 @@ import CryptoJS from "crypto-js";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import OrderPlacedRepresentativeModal from "../../modals/orderplaced";
 import {
+  ButtonBase,
   Dialog,
   DialogActions,
   DialogContent,
@@ -28,6 +29,7 @@ import {
   Divider,
 } from "@mui/material";
 import DeleteAlert from "../../alerts/deleteAlert";
+import SessionExpired from "../../modals/sessionExpired";
 
 export default function AddToCart() {
   const dispatch = useDispatch();
@@ -47,6 +49,7 @@ export default function AddToCart() {
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
   const [promocode, setPromocode] = useState("");
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
   const [showPlaceOrderModal, setShowPlaceOrderModal] = useState(false);
   const [apiErr, setApiErr] = useState([]);
   const [activeShippingAddress, setActiveShippingAddress] = useState(
@@ -119,23 +122,12 @@ export default function AddToCart() {
             );
         }
       } else {
-        console.log(response?.data);
-        dispatch(
-          updateNotifications({
-            type: "warning",
-            message: "Oops!",
-          })
-        );
+        setShowSessionExpiry(true)
         // navigate("/login")
       }
     } catch (err) {
       console.log(err, "err");
-      dispatch(
-        updateNotifications({
-          type: "warning",
-          message: "Oops!",
-        })
-      );
+      setShowSessionExpiry(true)
     } finally {
       dispatch(hideLoader());
     }
@@ -179,7 +171,7 @@ export default function AddToCart() {
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
         setAllProducts(response?.data?.data?.cart_details);
-        // getUserInfo();
+        getUserInfo();
         applyPromoCode();
         // const productData = JSON.parse(localStorage.getItem("productData"))
 
@@ -188,12 +180,17 @@ export default function AddToCart() {
       }
     } catch (err) {
       console.log(err);
+      if(err?.response?.data?.message?.includes("Token")){
+          setShowSessionExpiry(true)
+      }else{
+
       dispatch(
         updateNotifications({
           type: "error",
           message: err?.response?.data?.message,
         })
       );
+      }
     } finally {
       dispatch(hideLoader());
     }
@@ -229,12 +226,16 @@ export default function AddToCart() {
       }
     } catch (err) {
       console.log(err);
+      if(err?.response?.data?.message?.includes("Token")){
+        setShowSessionExpiry(true)
+    }else{
       dispatch(
         updateNotifications({
           type: "error",
           message: err?.response?.data?.message,
         })
       );
+    }
     } finally {
       dispatch(hideLoader());
     }
@@ -354,12 +355,7 @@ export default function AddToCart() {
         applyPromoCode();
       } else {
         console.log(response?.data);
-        dispatch(
-          updateNotifications({
-            type: "warning",
-            message: "Oops!",
-          })
-        );
+        setShowSessionExpiry(true)
         // navigate("/login")
       }
     } catch (err) {
@@ -483,8 +479,15 @@ export default function AddToCart() {
     console.log(agreeStatus, "afree");
   };
 
+  function handleSessionExpiryClose (){
+    setShowSessionExpiry(false)
+    navigate("/?login")
+}
+
   return (
     <>
+        <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
+
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px]">
           <div className="loader"></div>
@@ -616,7 +619,7 @@ export default function AddToCart() {
                                           )
                                         }
                                       />
-                                      <div className="w-75">
+                                      <div className="w-70">
                                         <p
                                           className="prod-title mb-0 !text-lg cursor-pointer"
                                           onClick={() =>
@@ -636,7 +639,7 @@ export default function AddToCart() {
                                             textOverflow: "ellipsis",
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
-                                            width: "90%",
+                                            width: "80%",
                                           }}
                                         >
                                           {product?.product?.name}
@@ -756,20 +759,20 @@ export default function AddToCart() {
                       </table>
                     ) : (
                       <div className="text-center w-full font-bold text-gray-700 ">
-                        <p>No products found in cart</p>
+                        <p>Your cart is empty</p>
                         <p
-                          className="nav-link text-green-900 cursor-pointer"
-                          onClick={() => navigate("/")}
+                          className="nav-link text-black  mt-5"
+                          
                         >
                           {" "}
-                          Click here to add items
+                          Click here to <Button variant="outlined" className="border p-1 text-xs !border-green-600 !text-green-600"  onClick={() => navigate("/")}>add products</Button>
                         </p>
                       </div>
                     )}
                   </div>
                 </div>
                 <hr className="mt-2" />
-                {userData?.client?.primary_address?.length === 0 && (
+                {userData?.client?.primary_address?.length === 0 && allProducts?.length > 0 && (
                   <span className="text-danger !mt-2 !text-xs ">
                     Please add Address before placing order.
                   </span>
@@ -905,7 +908,7 @@ export default function AddToCart() {
                     )}
                     {!billingSameAsShipping && (
                       <>
-                        {userData?.client?.address?.length == 1 && (
+                        {userData?.client?.address?.length == 1 && allProducts?.length > 0 &&  (
                           <span className="text-danger !mt-1  !text-xs ">
                             Please add Address before placing order.
                           </span>
@@ -935,8 +938,8 @@ export default function AddToCart() {
                                             <input
                                               type="checkbox"
                                               checked={
-                                                add?.id ===
-                                                activeShippingAddress
+                                                activeShippingAddressChecked ===
+                                              ind
                                               }
                                               onChange={() => {
                                                 handleShippingAddressChange(
@@ -1163,7 +1166,7 @@ export default function AddToCart() {
                             Discount:
                           </p>
                           <p className="m-0 fs-14 text-danger w-75">
-                            {discount} ({discountPercentage}%)
+                          ₹ {discount} ({discountPercentage}%)
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -1208,7 +1211,7 @@ export default function AddToCart() {
                         apiErr?.map((err, ind) => (
                           <span
                             key={ind}
-                            className="text-red-800 font-semibold"
+                            className="nk-message-error text-xs"
                           >
                             {err}
                           </span>
@@ -1282,7 +1285,7 @@ export default function AddToCart() {
           </Button>
           <Button
             variant="outlined"
-            className="border !border-red-600 !text-red-600"
+            className="border !border-red-600 nk-message-error text-xs"
             onClick={() => {
               setShowDeleteAlert(false)
             }}

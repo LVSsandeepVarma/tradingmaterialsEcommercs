@@ -3,8 +3,8 @@ import Header from "../header/header";
 import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import Footer from "../footer/footer";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
+// import { Swiper, SwiperSlide } from "swiper/react";
+// import { Autoplay, Pagination } from "swiper/modules";
 import {
   Button,
   Dialog,
@@ -99,10 +99,10 @@ export default function Career() {
     } else if (!namePattern.test(name)) {
       setLastNameErr("Last name should contain only alphabets");
       return false;
-    } else if (name?.length < 3) {
-      setLastNameErr("Min 3 characters are required");
+    } else if (name?.length < 1) {
+      setLastNameErr("Last name is required");
     } else if (name?.length > 100) {
-      setLastNameErr("Max 100 characters are required");
+      setLastNameErr("Maximum limit exceeded");
     } else {
       setLastNameErr("");
       return true;
@@ -158,7 +158,7 @@ export default function Career() {
     }
   }
   function handleExperienceValidation(exp) {
-    const experiencePattern = /^[a-zA-Z0-9-.]*$/;
+    const experiencePattern = /^[a-z A-Z 0-9-. ]+$/;
     if (exp === "") {
       setExperienceErr("Experience is required");
       return false;
@@ -368,7 +368,7 @@ export default function Career() {
                   </div>
                 </div>
               </div>
-              <div
+              {/* <div
                 className="nk-section-content"
                 data-aos="fade-up"
                 data-aos-delay="250"
@@ -433,7 +433,7 @@ export default function Career() {
 
                   <div className="swiper-pagination"></div>
                 </Swiper>
-              </div>
+              </div> */}
             </section>
             <section className="nk-section">
               <div className="nk-mask blur-1 right top"></div>
@@ -449,7 +449,7 @@ export default function Career() {
                         <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-5">
                           <em className="icon ni ni-bar-chart-fill"></em>
                         </div>
-                        <h5>Career Growth</h5>
+                        <h5 className="!font-bold text-lg">Career Growth</h5>
                         <p className="fs-16 line-clamp-3">
                           Planning around your career development is essential
                           for reaching your goals, workplace accomplishments and
@@ -468,7 +468,7 @@ export default function Career() {
                         <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-5">
                           <em className="icon ni ni-building-fill"></em>
                         </div>
-                        <h5>Great Culture</h5>
+                        <h5 className="!font-bold text-lg">Great Culture</h5>
                         <p className="fs-16 line-clamp-3">
                           Our working culture encouraged to work as a team, have
                           each other&apos;s back, and bring the best outcomes in
@@ -487,8 +487,8 @@ export default function Career() {
                         <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-5">
                           <em className="icon ni ni-clock-fill"></em>
                         </div>
-                        <h5>Flexible Hours</h5>
-                        <p className="fs-16 line-clamp-3">
+                        <h5 className="!font-bold text-lg">Flexible Hours</h5>
+                        <p className="fs-16 line-clamp-3" id="open_positions">
                           Employees break down their workday into
                           non-consecutive chunks of time — 8 a.m. to noon and 4
                           p.m. to 8 p.m.
@@ -499,7 +499,7 @@ export default function Career() {
                 </div>
               </div>
             </section>
-            <section className="nk-section nk-section-info-about">
+            {/* <section className="nk-section nk-section-info-about">
               <div className="nk-mask blur-1 left center"></div>
               <div className="container">
                 <div className="row flex-row-reverse align-items-center justify-content-between">
@@ -546,7 +546,7 @@ export default function Career() {
                   </div>
                 </div>
               </div>
-            </section>
+            </section> */}
             <section className="nk-section nk-section-positions">
               <div className="nk-mask blur-1 right top"></div>
               <div className="nk-mask blur-1 left bottom"></div>
@@ -584,7 +584,7 @@ export default function Career() {
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
                                 <span className="fs-14 fw-semibold text-uppercase">
-                                  Banglore
+                                  Bangalore
                                 </span>
                               </p>
                               -
@@ -671,7 +671,7 @@ export default function Career() {
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
                                 <span className="fs-14 fw-semibold text-uppercase">
-                                  Banglore
+                                  Bangalore
                                 </span>
                               </p>
                               -
@@ -716,7 +716,7 @@ export default function Career() {
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
                                 <span className="fs-14 fw-semibold text-uppercase">
-                                  Banglore
+                                  Bangalore
                                 </span>
                               </p>
                               -
@@ -766,7 +766,7 @@ export default function Career() {
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
                                 <span className="fs-14 fw-semibold text-uppercase">
-                                  Banglore
+                                  Bangalore
                                 </span>
                               </p>
                               -
@@ -813,7 +813,7 @@ export default function Career() {
                               <p className="d-flex align-items-center gap-1 mb-0">
                                 <em className="icon ni ni-map-pin-fill"></em>
                                 <span className="fs-14 fw-semibold text-uppercase">
-                                  Banglore
+                                  Bangalore
                                 </span>
                               </p>
                               -
@@ -914,12 +914,10 @@ export default function Career() {
                 variant="standard"
               />
               {firstNameErr && (
-                <p className="text-red-600 font-semibold drop-shadow-lg !text-sm">
-                  {firstNameErr}
-                </p>
+                <p className="nk-message-error text-xs">{firstNameErr}</p>
               )}
               <TextField
-                autoFocus
+                
                 margin="dense"
                 id="lname"
                 label="Last Name"
@@ -932,9 +930,7 @@ export default function Career() {
                 variant="standard"
               />
               {lastNameErr && (
-                <p className="text-red-600 font-semibold drop-shadow-lg !text-sm">
-                  {lastNameErr}
-                </p>
+                <p className="nk-message-error text-xs">{lastNameErr}</p>
               )}
               {/* <TextField
             autoFocus
@@ -946,11 +942,11 @@ export default function Career() {
             variant="standard"
           /> */}
               <TextField
-                autoFocus
+                
                 margin="dense"
                 id="phone"
                 label="Phone number"
-                type="number"
+                type="tel"
                 value={phone}
                 onChange={(e) => {
                   handlechange("phone", e.target.value);
@@ -959,12 +955,10 @@ export default function Career() {
                 variant="standard"
               />
               {phoneErr && (
-                <p className="text-red-600 font-semibold drop-shadow-lg !text-sm">
-                  {phoneErr}
-                </p>
+                <p className="nk-message-error text-xs">{phoneErr}</p>
               )}
               <TextField
-                autoFocus
+                
                 margin="dense"
                 id="position"
                 label="Position"
@@ -978,12 +972,10 @@ export default function Career() {
                 variant="standard"
               />
               {positionErr && (
-                <p className="text-red-600 font-semibold drop-shadow-lg !text-sm">
-                  {positionErr}
-                </p>
+                <p className="nk-message-error text-xs">{positionErr}</p>
               )}
               <TextField
-                autoFocus
+                
                 margin="dense"
                 id="experience"
                 label="Experience"
@@ -996,12 +988,10 @@ export default function Career() {
                 variant="standard"
               />
               {experienceErr && (
-                <p className="text-red-600 font-semibold drop-shadow-lg !text-sm">
-                  {experienceErr}
-                </p>
+                <p className="nk-message-error text-xs">{experienceErr}</p>
               )}
               <TextField
-                autoFocus
+                
                 margin="dense"
                 id="description"
                 label="Description"
@@ -1014,9 +1004,7 @@ export default function Career() {
                 variant="standard"
               />
               {descriptionErr && (
-                <p className="text-red-600 font-semibold drop-shadow-lg !text-sm">
-                  {descriptionErr}
-                </p>
+                <p className="nk-message-error text-xs">{descriptionErr}</p>
               )}
               <Form.Group controlId="formFileSm" className="mt-3">
                 <Form.Label>Upload you Resume</Form.Label>
@@ -1028,11 +1016,7 @@ export default function Career() {
                   size="sm"
                 />
               </Form.Group>
-              {fileErr && (
-                <p className="text-red-600 font-semibold drop-shadow-lg !text-sm">
-                  {fileErr}
-                </p>
-              )}
+              {fileErr && <p className="nk-message-error text-xs">{fileErr}</p>}
             </DialogContent>
             {success && (
               <p className="text-green-400 text-center font-semibold drop-shadow-lg !text-sm">
@@ -1044,7 +1028,7 @@ export default function Career() {
                 return (
                   <p
                     key={ind}
-                    className="text-red-700 text-xs text-center font-semibold mb1 mt-1 text-left"
+                    className="nk-message-error text-xs mb1 mt-1 text-left"
                   >
                     {err}
                   </p>

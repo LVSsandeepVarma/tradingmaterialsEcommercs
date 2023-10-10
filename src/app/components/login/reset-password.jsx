@@ -64,14 +64,22 @@ export default function NewPassword() {
   }
 
   function passwordValidation(password) {
+    console.log(password?.length, passwordError)
     if (password?.length === 0) {
       setPasswordError("Password is required");
     } else if (password?.length <= 5) {
       setPasswordError("password is Too short");
     } else if (password?.length <= 7 && password?.length > 5) {
-      setPasswordError("min 8 digits required");
-    } else if (confirmPassword != "" && confirmPassword !== password) {
-      setconfirmPasswordError("password and confirm password does not match");
+      setPasswordError("Invalid password");
+    } else if (password?.length >=8) {
+      if(confirmPassword != "" && confirmPassword !== password){
+        setconfirmPasswordError("password and confirm password does not match");
+        
+      }
+      setPasswordError("")
+      
+    }else if (confirmPassword != "" && confirmPassword == password){
+      setconfirmPasswordError("")
     } else {
       setPasswordError("");
     }
@@ -93,12 +101,12 @@ export default function NewPassword() {
     console.log(confirmPassword, password);
     confirmPasswordValidaiton(confirmPassword);
     passwordValidation(password);
-    // if (
-    //   confirmPasswordError === "" &&
-    //   passwordError === "" &&
-    //   confirmPassword !== "" &&
-    //   password !== ""
-    // ) {
+    if (
+      confirmPasswordError === "" &&
+      passwordError === "" &&
+      confirmPassword !== "" &&
+      password !== ""
+    ) {
     try {
       dispatch(showLoader());
       const url = location.hash;
@@ -114,37 +122,9 @@ export default function NewPassword() {
       if (response?.data?.status) {
         localStorage.removeItem("passHash");
         setLoginsuccessMsg(response?.data?.message);
-        //   localStorage.removeItem("client_token");
-        //   localStorage.setItem("client_token", response?.data?.token);
-        //   // localStorage
-        //   console.log(response?.data?.first_name);
-        //   dispatch(
-        //     updateUsers({
-        //       first_name: response?.data?.first_name,
-        //       last_name: response?.data?.last_name,
-        //       cart_count: response?.data?.cart_count,
-        //       wish_count: response?.data?.wish_count,
-        //     })
-        //   );
-        //   dispatch(updateclientType(response?.data?.type));
-        //   localStorage.setItem("client_type", response?.data?.type);
-        //   dispatch(loginUser());
-        //   if (response?.data?.data?.type === "client") {
-        //     navigate(`https://client.tradingmaterials.com/dashboard/`);
-        //   } else {
-        //     navigate(`${userLang}/profile`);
-        //   }
 
-        //   setTimeout(() => {
-        //     localStorage.removeItem("token");
-        //     dispatch(
-        //       updateNotifications({
-        //         type: "warning",
-        //         message: "Session expired, Login again.",
-        //       })
-        //     );
         setTimeout(() => {
-          navigate(`${userLang}/login`);
+          navigate(`/?login`);
         }, 2000);
 
         //   }, 3600000);
@@ -168,7 +148,7 @@ export default function NewPassword() {
     } finally {
       dispatch(hideLoader());
     }
-    // }
+    }
   }
 
   return (
@@ -240,7 +220,7 @@ export default function NewPassword() {
                             />
                           </div>
                           {passwordError && (
-                            <p className="text-red-600 font-semibold">
+                            <p className="nk-message-error text-xs">
                               {passwordError}
                             </p>
                           )}
@@ -277,11 +257,9 @@ export default function NewPassword() {
                             />
                           </div>
                           {confirmPasswordError && (
-                            <Alert variant="outlined" severity="error">
-                              <p className="text-red-600 font-semibold">
+                              <p className="nk-message-error text-xs">
                                 {confirmPasswordError}
                               </p>
-                            </Alert>
                           )}
                         </div>
                       </div>
@@ -342,7 +320,7 @@ export default function NewPassword() {
                                 >
                                   <p
                                     key={ind}
-                                    className="text-red-600 font-semibold"
+                                    className="nk-message-error text-xs"
                                   >
                                     {err}
                                   </p>

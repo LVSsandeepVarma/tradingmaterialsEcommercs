@@ -59,7 +59,7 @@ export default function Refund() {
                   <ul className="nk-list-link nk-list-link-page flush">
                     <li>
                       <a href="/terms-and-conditions" className="fs-16">
-                        Term &amp; Conditions
+                        Terms &amp; Conditions
                       </a>
                     </li>
                     <li>

@@ -75,14 +75,15 @@ export default function ReviewDialog({type, open, handleClose, reviewId}) {
             dispatch(hideLoader())
         }
     }else{
-        setReportErr("Reason for reporting is required")
+        setReportErr("Report is required")
     }
     }
 
     function handleReportUpdate(e){
         console.log(e?.target?.value)
         if(e?.target?.value === ""){
-            setReportErr("report is required")
+          setReport(e?.target?.value)
+            setReportErr("Report is required")
         }else if (e?.target?.value !== ""){
             setReport(e?.target?.value)
             setReportErr("")
@@ -95,7 +96,7 @@ export default function ReviewDialog({type, open, handleClose, reviewId}) {
         <DialogTitle>{type=== "report" ? "Submit a Report" : "Helpful"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {type === "report" ? "Please mention your reason for reporting this review." : "Thank you fro your Feedback."}
+            {type === "report" ? "Please mention your reason for reporting this review." : "Thank you for your Feedback."}
           </DialogContentText>
          {type=== "report" && <>
          <TextField
@@ -109,7 +110,7 @@ export default function ReviewDialog({type, open, handleClose, reviewId}) {
             onChange={handleReportUpdate}
             value={report}
           />
-          <p className='text-red-700'>
+          <p className='nk-message-error text-xs'>
             {reportErr}
           </p>
         
@@ -125,7 +126,7 @@ export default function ReviewDialog({type, open, handleClose, reviewId}) {
                               
                               <p
                                 key={ind}
-                                className="text-red-600 font-semibold"
+                                className="nk-message-error text-xs"
                               >
                                 {err}
                               </p>

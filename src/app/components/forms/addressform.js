@@ -6,6 +6,9 @@ import * as Yup from "yup";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { updateaddressStatus } from "../../../features/address/addressSlice";
+import { useNavigate } from "react-router-dom";
+import SessionExpired from "../modals/sessionExpired";
+
 
 const AddressSchema = Yup.object().shape({
   city: Yup.string().matches( /^[A-Za-z& ]{3,100}$/, "Invalid City").required("City is required"),
@@ -21,8 +24,12 @@ const AddressSchema = Yup.object().shape({
 const AddressForm = ({ type, data, closeModal }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
+  const [apiErr, setApiErr] = useState("")
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
+
 
   const dispatch = useDispatch();
+  const navigate = useNavigate()
 
   function generateRandomTwoDigitNumber() {
     return Math.floor(Math.random() * 90) + 10; // Generates a random number between 10 and 99 (inclusive)
@@ -34,6 +41,7 @@ const AddressForm = ({ type, data, closeModal }) => {
     try {
       setIsFailure(false);
       setIsSuccess(false);
+      setApiErr("")
       const token = localStorage.getItem("client_token");
       const formData =
         type === "add"
@@ -67,10 +75,30 @@ const AddressForm = ({ type, data, closeModal }) => {
       if (response?.data?.status) {
         setIsSuccess(true);
         dispatch(updateaddressStatus(`true-${generateRandomTwoDigitNumber()}`));
-        closeModal();
+        setTimeout(()=>{
+          closeModal();
+        }, 1000)
+        
       }
     } catch (err) {
-      setIsFailure(true);
+
+      
+      
+      if (err?.response?.data?.errors) {
+        // setAddr(err?.response?.data?.errors["email"]);
+        // setPasswordError(err?.response?.data?.errors["password"]);
+        setApiErr([Object?.values(err?.response?.data?.errors)]);
+      } else {
+        console.log(err?.response)
+        if(err?.response?.data?.message?.includes("Token")){
+          // closeModal();
+          setShowSessionExpiry(true)
+          
+        }else{
+          setIsFailure(true);
+        setApiErr([err?.response?.data?.message]);
+        }
+      }
     }
 
     setTimeout(() => {
@@ -79,8 +107,15 @@ const AddressForm = ({ type, data, closeModal }) => {
     }, 6000);
   };
 
+  function handleSessionExpiryClose (){
+    setShowSessionExpiry(false)
+    navigate("/?login")
+}
+
   return (
     <>
+        <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
+
       {isSuccess && (
         <div className="w-full flex justify-center items-center">
           <div
@@ -108,7 +143,7 @@ const AddressForm = ({ type, data, closeModal }) => {
             animationFillMode: "forwards",
           }}
         >
-          Address submission failed!
+          {apiErr}
         </div>
         </div>
       )}
@@ -157,7 +192,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                 <ErrorMessage
                   name="add_1"
                   component="div"
-                  className="text-red-500 text-xs"
+                  className="nk-message-error text-xs"
                 />
               </div>
               <div className="form-group mt-3 ">
@@ -197,7 +232,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <ErrorMessage
                     name="city"
                     component="div"
-                    className="text-red-500 text-xs"
+                    className="nk-message-error text-xs"
                   />
                 </div>
                 <div className="form-group mt-3 ">
@@ -219,7 +254,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <ErrorMessage
                     name="state"
                     component="div"
-                    className="text-red-500 text-xs"
+                    className="nk-message-error text-xs"
                   />
                 </div>
               </div>
@@ -245,7 +280,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <ErrorMessage
                     name="country"
                     component="div"
-                    className="text-red-500 text-xs"
+                    className="nk-message-error text-xs"
                   />
                 </div>
                 <div className="form-group mt-3 ">
@@ -259,15 +294,16 @@ const AddressForm = ({ type, data, closeModal }) => {
                     placeholder="Postal code"
                     disabled
                   /> :  <Field
-                  type="number"
+                  type="tel"
                   name="zip"
+                  pattern = "/^[0-9]{5,10}$|^[0-9]{3}\s[0-9]{3}$/"
                   className="form-control addressInput"
                   placeholder="Postal code"
                 />}
                   <ErrorMessage
                     name="zip"
                     component="div"
-                    className="text-red-500 text-xs"
+                    className="nk-message-error text-xs"
                   />
                 </div>
               </div>
