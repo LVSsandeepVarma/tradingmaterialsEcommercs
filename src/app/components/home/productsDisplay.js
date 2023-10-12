@@ -1052,6 +1052,7 @@ export default function ProductsDisplay() {
                   <div className="nk-section-content-products">
                     <div className="row justify-content-between align-items-center pb-5">
                       <div className="col-sm-6">
+                        {!isSearchResult && <p className="text-left text-xl font-semibold text-black">Our Products</p>}
                         {isSearchResult && (
                           <h6 className="fs-16 fw-normal !text-left">
                             Showing {resultsCount} results
@@ -1439,7 +1440,7 @@ export default function ProductsDisplay() {
                                   showLoader === true) && (
                                   <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
                                     <Box sx={{ pt: 0.5 }}>
-                                      <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                      <div className="nk-card overflow-hidden rounded-3 h-100 border text-left ">
                                         <Skeleton
                                           animation="wave"
                                           variant="rectangular"
@@ -1492,10 +1493,10 @@ export default function ProductsDisplay() {
                                 )}
                                 {showPlaceHolderLoader === false && (
                                   <div
-                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px] group hover:drop-shadow-xl"
+                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px] group hover:drop-shadow-lg"
                                     id={`img-${product?.id}`}
                                   >
-                                    <div className="nk-card overflow-hidden rounded-3 h-100 border text-left ">
+                                    <div className="nk-card overflow-hidden rounded-3  border text-left ">
                                       <div className="nk-card-img  relative">
                                         <a
                                           href={`${userLang}/product-detail/${
@@ -1587,7 +1588,7 @@ export default function ProductsDisplay() {
                                             } Reviews){" "}
                                           </span>
                                         </div>
-                                        <div className="d-flex align-items-center justify-content-start">
+                                        <div className="d-flex align-items-center justify-content-start mb-2 ">
                                           {product?.prices?.map((price) => (
                                             <>
                                               {currentUserlang === "en" &&
@@ -2078,7 +2079,7 @@ export default function ProductsDisplay() {
                                         </div>
                                       </div>
                                       {product?.discount > 0 && (
-                                        <div className="flex justify-end items-end   !mt-2">
+                                        <div className="flex justify-end items-end ">
                                           <div
                                             className="flex absolute items-center justify-center img-box !drop-shadow-lg
 

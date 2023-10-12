@@ -29330,6 +29330,8 @@ a:hover .btn-zoom:before {
   left: 12px;
   position: absolute;
   transform: translateY(-50%);
+  /* padding: 16px; */
+  /* padding-Top: 8px */
 }
 
 .form-check {
@@ -29403,7 +29405,7 @@ a:hover .btn-zoom:before {
 
 .form-control-icon.end {
   left: auto;
-  right: 16px;
+  right: 6px;
 }
 
 .form-control-icon.end + .form-control {

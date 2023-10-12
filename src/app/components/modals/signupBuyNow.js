@@ -14,6 +14,7 @@ import { usersignupinModal } from "../../../features/signupinModals/signupinSlic
 import { Alert, Divider } from "@mui/material";
 import { updateclientType } from "../../../features/clientType/clientType";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import CircularProgress from "@mui/material/CircularProgress";
 
 // eslint-disable-next-line react/prop-types, no-unused-vars
 const SignupBuyNowModal = ({ show, onHide }) => {
@@ -30,6 +31,10 @@ const SignupBuyNowModal = ({ show, onHide }) => {
   const [signupSuccessMsg, setSignupSuccessMsg] = useState("");
   const [localLoader, setLocalLoader] = useState(false);
   const [useriP, setUserIp] = useState("");
+  const [emailVerificationStatus, setEmailVerificationStatus] = useState(false);
+  const [emailVerifyLoader, setEmailVerifyLoader] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   //   const [cartData, setCartData] = useState();
   // eslint-disable-next-line no-unused-vars
   const [productQty, setProductQty] = useState(1);
@@ -55,15 +60,14 @@ const SignupBuyNowModal = ({ show, onHide }) => {
       .then((data) => setUserIp(data.ip));
   }, []);
 
-  useEffect(()=>{
-    if(localStorage.getItem("productTempQty")){
-    setProductQty(localStorage.getItem("productTempQty"))
-    localStorage.removeItem("productTempQty")
-    }else{
-        setProductQty(1)
+  useEffect(() => {
+    if (localStorage.getItem("productTempQty")) {
+      setProductQty(localStorage.getItem("productTempQty"));
+      localStorage.removeItem("productTempQty");
+    } else {
+      setProductQty(1);
     }
-    
-  },[])
+  }, []);
 
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
@@ -75,12 +79,26 @@ const SignupBuyNowModal = ({ show, onHide }) => {
     }
   }, []);
 
+  function handleEmailvalidation(email) {
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
+    if (email === "") {
+      setEmailError("Email is required");
+      return false;
+    } else if (!emailRegex.test(email)) {
+      setEmailError("Invalid email format");
+      return false;
+    } else {
+      setEmailError("");
+      return true;
+    }
+  }
+
   function emailValidaiton(email) {
     const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("Invalid email");
+      setEmailError("Invalid email format");
     } else {
       setEmailError("");
     }
@@ -93,9 +111,9 @@ const SignupBuyNowModal = ({ show, onHide }) => {
     } else if (!phoneRegex.test(phone)) {
       setPhoneError("Invalid phone number");
     } else if (phone?.length <= 7) {
-      setPhoneError("Invalid phone number");
+      setPhoneError("Phone number should contain 8 - 15 digits only");
     } else if (phone?.length > 15) {
-      setPhoneError("Invalid phone number");
+      setPhoneError("Phone number should contain 8 - 15 digits only");
     } else {
       setPhoneError("");
     }
@@ -110,7 +128,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
     } else if (name?.length < 3) {
       setFirstNameError("Min 3 characters are required");
     } else if (name?.length > 50) {
-      setFirstNameError("Max 50 characters are required");
+      setFirstNameError("Maximum limit exceeded");
     } else {
       setFirstNameError("");
     }
@@ -125,7 +143,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
     } else if (name?.length < 1) {
       setLastNameError("Last name is required");
     } else if (name?.length > 50) {
-      setLastNameError("Max 50 characters are required");
+      setLastNameError("Maximum limit exceeded");
     } else {
       setLastNameError("");
     }
@@ -134,9 +152,13 @@ const SignupBuyNowModal = ({ show, onHide }) => {
   function handleEmailChange(e) {
     setEmail(e?.target?.value);
     emailValidaiton(e?.target?.value);
+    if (handleEmailvalidation(e?.target?.value)) {
+      handleEmailVerification(e?.target?.value);
+    }
   }
 
   function handlePhoneChange(e) {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
     setPhone(e?.target?.value);
     phoneValidation(e?.target?.value);
   }
@@ -149,6 +171,127 @@ const SignupBuyNowModal = ({ show, onHide }) => {
   function handleLastNameChange(e) {
     setLastName(e?.target?.value);
     lastNameVerification(e?.target?.value);
+  }
+
+  async function handleEmailVerification(emailid) {
+    try {
+      setEmailVerifyLoader(true);
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/client/email/check",
+        { email: emailid },
+        {
+          headers: {
+            "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+            Accept: "application/json",
+          },
+        }
+      );
+      if (response?.data?.status) {
+        setEmailVerificationStatus(false);
+        console.log(response?.data);
+      }
+    } catch (err) {
+      console.log(err);
+      if (
+        err?.response?.data?.errors["email"] ==
+        "The email has already been taken."
+      ) {
+        setEmailVerificationStatus(true);
+      }
+    } finally {
+      setEmailVerifyLoader(false);
+    }
+  }
+
+  async function handleLoginFormSubmission() {
+    setApiError([]);
+    setSignupSuccessMsg("");
+    emailValidaiton(email);
+    phoneValidation(phone);
+
+    const currentUrl = window?.location?.href;
+    let updatedUrl;
+
+    if (
+      currentUrl &&
+      (currentUrl.startsWith("http://") || currentUrl.startsWith("https://"))
+    ) {
+      // Replace "http://" or "https://" with "www."
+      updatedUrl = currentUrl.replace(/^(https?:\/\/)/, "www.");
+
+      // Now, `updatedUrl` contains the modified URL with "www."
+      console.log(updatedUrl);
+    } else {
+      // The URL didn't start with "http://" or "https://"
+      updatedUrl = currentUrl;
+    }
+    // console.log(emailError, phoneError, firstNameError)
+    console.log(updatedUrl?.hostname, "hsname");
+    if (emailError === "" && phoneError === "") {
+      if (
+        emailError === "" &&
+        phoneError === "" &&
+        email !== "" &&
+        phone !== ""
+      ) {
+        try {
+          setLocalLoader(true);
+          const response = await axios.post(
+            "https://admin.tradingmaterials.com/api/auth/login",
+            {
+              email: email,
+              password: phone,
+              domain: "www.tradingmaterials.com",
+              ip_add: useriP,
+            },
+            {
+              headers: {
+                "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+                Accept: "application/json",
+              },
+            }
+          );
+          if (response?.data?.status) {
+            setSignupSuccessMsg(response?.data?.message);
+            localStorage.setItem("client_token", response?.data?.token);
+            localStorage.setItem("client_type", response?.data?.type);
+            console.log(response?.data?.first_name);
+            handleHide();
+            dispatch(
+              updateUsers({
+                first_name: response?.data?.first_name,
+                last_name: response?.data?.last_name,
+                cart_count: response?.data?.cart_count,
+                wish_count: response?.data?.wish_count,
+              })
+            );
+            dispatch(loginUser());
+            dispatch(updateclientType(response?.data?.type));
+            localStorage.removeItem("prodcutQty");
+            localStorage.setItem("prodcutQty", productQty);
+            // function for adding to cart
+            // navigate("/cart");
+
+            window.location.href = "/";
+          }
+        } catch (err) {
+          console.log("err", err);
+          if (err?.response?.data?.errors) {
+            setEmailError(err?.response?.data?.errors["email"]);
+            setPhoneError(err?.response?.data?.errors["password"]);
+            // setApiError([...Object?.values(err?.response?.data?.errors)]);
+          } else {
+            setApiError([err?.response?.data?.message]);
+          }
+          setTimeout(() => {
+            setApiError([]);
+            setSignupSuccessMsg("");
+          }, 8000);
+        } finally {
+          setLocalLoader(false);
+        }
+      }
+    }
   }
 
   async function handleFormSubmission() {
@@ -201,7 +344,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
               last_name: lastName,
               email: email,
               phone: phone,
-              domain: updatedUrl.split("/")[0],
+              domain: "www.tradingmaterials.com",
               ip_add: useriP,
             },
             {
@@ -358,51 +501,79 @@ const SignupBuyNowModal = ({ show, onHide }) => {
             </div>
 
             <div className="card-body !text-left p-2 pb-0">
-              <p className="text-left mb-2 !font-semibold ">CONTACT DETAILS</p>
+              <p
+                className={`text-left ${
+                  !emailVerificationStatus ? "mb-2 " : ""
+                } `}
+              >
+                {!emailVerificationStatus
+                  ? "CONTACT DETAILS"
+                  : " CUSTOMER LOGIN"}
+              </p>
+              {emailVerificationStatus && (
+                <small className="!text-blue-600 mb-2">
+                  This email is already registered.
+                </small>
+              )}
               <Divider className="my-2" />
               <Form>
                 <div className="row gy-4 !text-left">
-                  <div className="col-12 col-md-6">
-                    <div className="form-group">
-                      <p className="">First Name</p>
-                      <div className="form-control-wrap">
-                        <input
-                          type="text"
-                          className="form-control !text-[11px] "
-                          style={{ borderRadius: 0 }}
-                          placeholder="Enter here"
-                          onChange={handleFirstNamechange}
-                        />
-                        {firstNameError && (
-                          <p className="nk-message-error text-xs">
-                            {firstNameError}
-                          </p>
-                        )}
+                  {!emailVerificationStatus && (
+                    <div className="col-12 col-md-6">
+                      <div className="form-group">
+                        <p className="">
+                          First Name
+                          <sup className="text-red-600 !font-bold">*</sup>
+                        </p>
+                        <div className="form-control-wrap">
+                          <input
+                            type="text"
+                            className="form-control !text-[11px] "
+                            style={{ borderRadius: 0 }}
+                            placeholder="Enter here"
+                            onChange={handleFirstNamechange}
+                          />
+                          {firstNameError && (
+                            <p className="nk-message-error text-xs">
+                              {firstNameError}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="col-12 col-md-6">
-                    <div className="form-group">
-                      <p className="">Last Name</p>
-                      <div className="form-control-wrap">
-                        <input
-                          type="text"
-                          className="form-control !text-[11px]"
-                          style={{ borderRadius: 0 }}
-                          placeholder="Enter here"
-                          onChange={handleLastNameChange}
-                        />
-                        {lastNameError && (
-                          <p className="nk-message-error text-xs">
-                            {lastNameError}
-                          </p>
-                        )}
+                  )}
+                  {!emailVerificationStatus && (
+                    <div className="col-12 col-md-6">
+                      <div className="form-group">
+                        <p className="">
+                          Last Name
+                          <sup className="text-red-600 !font-bold">*</sup>
+                        </p>
+                        <div className="form-control-wrap">
+                          <input
+                            type="text"
+                            className="form-control !text-[11px]"
+                            style={{ borderRadius: 0 }}
+                            placeholder="Enter here"
+                            onChange={handleLastNameChange}
+                          />
+                          {lastNameError && (
+                            <p className="nk-message-error text-xs">
+                              {lastNameError}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                   <div className="col-12">
                     <div className="form-group">
-                      <p className="p">Email</p>
+                      <p className="p">
+                        Email<sup className="text-red-600 !font-bold">*</sup>
+                        {emailVerifyLoader && (
+                          <CircularProgress className="ml-2" size={15} />
+                        )}
+                      </p>
                       <div className="form-control-wrap">
                         <input
                           type="text"
@@ -421,35 +592,45 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <p className="">Phone</p>
+                      <p className="">
+                        {!emailVerificationStatus ? "Phone" : "Password"}
+                        <sup className="text-red-600 !font-bold">*</sup>
+                      </p>
                       <div className="form-control-wrap">
-                        {/* <a
-                              href="show-hide-password.html"
-                              className="form-control-icon end password-toggle"
-                              title="Toggle show/hide password"
-                            >
-                              <em className={`on icon ni ${
-                                  showPassword
-                                    ? "ni-eye-off-fill"
-                                    : "ni-eye-fill"
-                                } text-primary`}
-                                onClick={() => setShowPassword(!showPassword)}></em>
-                              <em className="off icon ni ni-eye-off-fill text-primary"></em>
-                            </a> */}
+                        {emailVerificationStatus && (
+                          <a
+                            // href="show-hide-password.html"
+                            className="form-control-icon end bg-white border-y password-toggle"
+                            title="Toggle show/hide password"
+                            style={{
+                              height: "100%",
+                            }}
+                          >
+                            <em
+                              className={`on icon ni cursor-pointer ${
+                                showPassword ? "ni-eye-off-fill" : "ni-eye-fill"
+                              } text-primary`}
+                              onClick={() => setShowPassword(!showPassword)}
+                            ></em>
+                            <em className="off icon ni ni-eye-off-fill text-primary"></em>
+                          </a>
+                        )}
                         <input
                           id="show-hide-password"
-                          type="text"
+                          type={
+                            !emailVerificationStatus || showPassword
+                              ? "text"
+                              : "password"
+                          }
                           className="form-control !text-[11px]"
                           style={{ borderRadius: 0 }}
                           placeholder="Enter here"
                           onChange={handlePhoneChange}
                         />
-                        {phoneError && (
-                          <p className="nk-message-error text-xs">
-                            {phoneError}
-                          </p>
-                        )}
                       </div>
+                      {phoneError && (
+                        <p className="nk-message-error text-xs">{phoneError}</p>
+                      )}
                     </div>
                   </div>
                   <div className="col-12">
@@ -483,10 +664,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                               severity="error"
                               className="mt-2"
                             >
-                              <p
-                                key={ind}
-                                className="nk-message-error text-xs"
-                              >
+                              <p key={ind} className="nk-message-error text-xs">
                                 {err}
                               </p>
                             </Alert>
@@ -497,7 +675,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                 </div>
               </Form>
             </div>
-            <Divider/>
+            <Divider />
             <div className="form-logo mb-3">
               <a
                 href={`${userLang}/`}
@@ -507,7 +685,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                   className="logo-img"
                   src="/images/tm-logo-1.png"
                   alt="logo"
-                  style={{ width: "25%" }}
+                  style={{ width: "28%" }}
                 />
               </a>
             </div>
@@ -539,9 +717,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                 <ul className="text-sm pl-2">
                   <li>- Order With Comfort</li>
                   <li>- Pay when you receive the the order</li>
-                  <li className="">
-                    - Delivery charges applicable [150 INR]
-                  </li>
+                  <li className="">- Delivery charges applicable [150 INR]</li>
                 </ul>
               </div>
             </div>
@@ -568,7 +744,13 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                 </small>
                 <div
                   className={`ml-2 w-full buttonss-off cursor-pointer `}
-                  onClick={handleFormSubmission}
+                  onClick={() => {
+                    if (emailVerificationStatus) {
+                      handleLoginFormSubmission();
+                    } else {
+                      handleFormSubmission();
+                    }
+                  }}
                 >
                   <a className="cart-btn w-full text-center">Buy Now</a>
                   <div className="flex justify-center w-full items-center mt-2 pl-[10px]">

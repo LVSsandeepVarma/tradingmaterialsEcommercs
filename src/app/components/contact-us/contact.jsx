@@ -26,7 +26,6 @@ export default function Contact() {
     fetch("https://api.ipify.org?format=json")
       .then((response) => response.json())
       .then((data) => setUserIp(data.ip));
-      
   }, []);
 
   function validName(name) {
@@ -34,14 +33,14 @@ export default function Contact() {
     if (name === "") {
       setNameErr("Full name is required");
       return false;
-    }else if (!namePattern.test(name)) {
+    } else if (!namePattern.test(name)) {
       setNameErr("Full name should contain only alphabets");
       return false;
     } else if (name?.length < 3) {
       setNameErr("Min 3 characters are required");
     } else if (name?.length > 100) {
       setNameErr("Max 100 characters are required");
-    }  else {
+    } else {
       setNameErr("");
       return true;
     }
@@ -56,7 +55,7 @@ export default function Contact() {
       setEmailErr("");
       return true;
     } else {
-      setEmailErr("Invalid Email");
+      setEmailErr("Invalid email format");
       return false;
     }
   }
@@ -70,10 +69,10 @@ export default function Contact() {
       setPhoneError("Invalid phone number");
       return false;
     } else if (phone?.length <= 7) {
-      setPhoneError("Invalid phone number");
+      setPhoneError("Phone number should contain 8 - 15 digits only");
       return false;
     } else if (phone?.length > 15) {
-      setPhoneError("Invalid phone number");
+      setPhoneError("Phone number should contain 8 - 15 digits only");
       return false;
     } else {
       setPhoneError("");
@@ -102,6 +101,7 @@ export default function Contact() {
     validEmail(e.target.value);
   }
   function handlePhoneChange(e) {
+    e.target.value =  e.target.value.replace(/[^0-9]/g, '');
     setPhone(e.target.value);
     phoneValidation(e.target.value);
   }
@@ -111,32 +111,39 @@ export default function Contact() {
   }
 
   async function handlesubmit(e) {
-    console.log(userIp,"ip")
+    console.log(userIp, "ip");
     e.preventDefault();
     validName(name);
     validEmail(email);
     phoneValidation(phone);
     descValidation(desc);
-    
-    const currentUrl = window?.location?.href;
-   let  updatedUrl;
 
-   if (currentUrl && (currentUrl.startsWith('http://') || currentUrl.startsWith('https://'))) {
+    const currentUrl = window?.location?.href;
+    let updatedUrl;
+
+    if (
+      currentUrl &&
+      (currentUrl.startsWith("http://") || currentUrl.startsWith("https://"))
+    ) {
       // Replace "http://" or "https://" with "www."
-     updatedUrl = currentUrl.replace(/^(https?:\/\/)/, 'www.');
-      
+      updatedUrl = currentUrl.replace(/^(https?:\/\/)/, "www.");
+
       // Now, `updatedUrl` contains the modified URL with "www."
       console.log(updatedUrl);
     } else {
       // The URL didn't start with "http://" or "https://"
-      updatedUrl = currentUrl
+      updatedUrl = currentUrl;
     }
 
     if (
-      nameErr === "" && name !== "" &&
-      emailErr === "" && email !== "" &&
-      phoneError === "" && phone !== "" &&
-      descErr === "" && desc !== ""
+      nameErr === "" &&
+      name !== "" &&
+      emailErr === "" &&
+      email !== "" &&
+      phoneError === "" &&
+      phone !== "" &&
+      descErr === "" &&
+      desc !== ""
     ) {
       try {
         dispatch(showLoader());
@@ -148,14 +155,14 @@ export default function Contact() {
             name: name,
             message: desc,
             ip_address: userIp,
-            domain: updatedUrl.split("/")[0]
+            domain: "www.tradingmaterials.com",
           }
         );
         if (response?.data?.status) {
           setSuccessMsg(response?.data?.message);
-          setTimeout(()=>{
-            window.location.reload()
-          },2000)
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         }
       } catch (err) {
         if (err?.response?.data?.errors) {
@@ -217,10 +224,10 @@ export default function Contact() {
                             <em className="icon ni ni-cc-alt2-fill"></em>
                           </div>
                           <h4 className="!font-bold text-2xl">
-                          Billing & Payments
+                            Billing & Payments
                           </h4>
                           <p className="l">
-                          For any doubts related to payment and invoices.
+                            For any doubts related to payment and invoices.
                             <br />
                             <br />
                             You can contact our Billing & Finance Team.
@@ -241,10 +248,10 @@ export default function Contact() {
                             <em className="icon ni ni-users-fill"></em>
                           </div>
                           <h4 className="!font-bold text-2xl">
-                          Account Management Team
+                            Account Management Team
                           </h4>
                           <p className="">
-                          For updating or removing your profile.
+                            For updating or removing your profile.
                             <br />
                             <br />
                             You can contact our Account Management Team.
@@ -265,10 +272,10 @@ export default function Contact() {
                             <em className="icon ni ni-puzzle-fill"></em>
                           </div>
                           <h4 className="!font-bold text-2xl">
-                          Order Processing Team
+                            Order Processing Team
                           </h4>
                           <p className="">
-                          For doubts regarding you order/ any products.
+                            For doubts regarding you order/ any products.
                             <br />
                             <br />
                             You can contact our Order Processing Team.
@@ -473,7 +480,7 @@ export default function Contact() {
                           <h5 className="!font-bold text-xl">
                             Plans &amp; Pricing
                           </h5>
-                          <p className="line-clamp-2">
+                          <p className="line-clamp-6">
                             Choose from our flexible plans and competitive
                             pricing options to find the best fit for your
                             business needs and budget.
@@ -494,7 +501,7 @@ export default function Contact() {
                           <h5 className="!font-bold text-xl">
                             Frequently Asked Questions
                           </h5>
-                          <p className="line-clamp-2">
+                          <p className="line-clamp-6">
                             Find answers to commonly asked questions about our
                             product or service in our comprehensive FAQ section.
                           </p>

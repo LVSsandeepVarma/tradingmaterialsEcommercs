@@ -746,7 +746,7 @@ export default function AddToCart() {
                                         />
                                         <p
                                           className="prod-desc mb-0 text-success"
-                                          style={{ marginLeft: "5px" }}
+                                          style={{ marginRight: "5px" }}
                                         >
                                           Quick Delivery
                                         </p>
@@ -1024,6 +1024,7 @@ export default function AddToCart() {
                             onClick={() => {
                               setShowModal(true);
                               setFormType("add");
+                              setAddressUpdateType("shipping");
                             }}
                             style={{
                               background: "#54a8c7",
@@ -1203,7 +1204,7 @@ export default function AddToCart() {
                             : true
                         }
                         onClick={handlePlaceOrder}
-                        className="btn btn-primary w-100 rounded-none"
+                        className="btn btn-primary w-100 rounded-none face"
                       >
                         Place Order
                       </button>
@@ -1276,7 +1277,7 @@ export default function AddToCart() {
         <DialogActions className="!mr-2 !mb-2">
           <Button
             variant="outlined"
-            className="border !border-blue-600 !text-blue-600"
+            className="border !border-blue-600 !p-2 !text-blue-600"
             onClick={() => {
               handleDeleteFromCart(deleteProductId);
               setShowDeleteAlert(false);

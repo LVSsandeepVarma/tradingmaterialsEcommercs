@@ -11,12 +11,12 @@ import SessionExpired from "../modals/sessionExpired";
 
 
 const AddressSchema = Yup.object().shape({
-  city: Yup.string().matches( /^[A-Za-z& ]{3,100}$/, "Invalid City").required("City is required"),
-  state: Yup.string().matches( /^[A-Za-z& ]{3,100}$/, "Invalid State").required("State is required"),
-  country: Yup.string().matches( /^[A-Za-z ]{3,100}$/ , "Invalid Country").required("Country is required"),
-  add_1: Yup.string().matches(/^.{10,200}$/, "Min 10 and max 200 are allowed").required("Street Address 1 is required"),
+  city: Yup.string().matches( /^[A-Za-z& ]{3,50}$/, "Invalid City").required("City is required"),
+  state: Yup.string().matches( /^[A-Za-z& ]{3,50}$/, "Invalid State").required("State is required"),
+  country: Yup.string().matches( /^[A-Za-z ]{5,50}$/ , "Invalid Country").required("Country is required"),
+  add_1: Yup.string().matches(/^.{10,200}$/, "Invalid Address").required("Street Address 1 is required"),
   add_2: Yup.string(),
-  zip: Yup.string().matches(/^[0-9]{5,10}$|^[0-9]{3}\s[0-9]{3}$/, 'Invalid format').required("Postal Code is required"),
+  zip: Yup.string().matches(/^[0-9 ]{3,20}$/, 'Invalid format').required("Postal Code is required"),
 });
 
 
@@ -175,7 +175,9 @@ const AddressForm = ({ type, data, closeModal }) => {
             <div className="grid !px-5 pb-5">
               <div className="form-group mt-3 ">
                 <label className="font-semibold" htmlFor="add_1">
-                  Street Address 1
+                  Street Address 1<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup>
                 </label>
                 {type==="view" ? <Field
                   type="text"
@@ -215,7 +217,9 @@ const AddressForm = ({ type, data, closeModal }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4 ">
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="city">
-                    City
+                    City<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup>
                   </label>
                   {type==="view" ? <Field
                     type="text"
@@ -237,7 +241,9 @@ const AddressForm = ({ type, data, closeModal }) => {
                 </div>
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="state">
-                    State
+                    State<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup>
                   </label>
                  {type==="view" ?  <Field
                     type="text"
@@ -261,7 +267,9 @@ const AddressForm = ({ type, data, closeModal }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="country">
-                    Country
+                    Country<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup>
                   </label>
                   {type=== "view" ? <Field
                     type="text"
@@ -285,7 +293,9 @@ const AddressForm = ({ type, data, closeModal }) => {
                 </div>
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="zip">
-                    Postalcode
+                    Postalcode<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup>
                   </label>
                   {type==="view" ? <Field
                     type="text"
@@ -294,9 +304,9 @@ const AddressForm = ({ type, data, closeModal }) => {
                     placeholder="Postal code"
                     disabled
                   /> :  <Field
-                  type="tel"
+                  type="text"
                   name="zip"
-                  pattern = "/^[0-9]{5,10}$|^[0-9]{3}\s[0-9]{3}$/"
+                  // pattern = "/^[0-9]{5,10}$|^[0-9]{3}\s[0-9]{3}$/"
                   className="form-control addressInput"
                   placeholder="Postal code"
                 />}

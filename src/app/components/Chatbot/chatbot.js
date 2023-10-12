@@ -38,7 +38,7 @@ export default function ChatForm({ hide }) {
     if (email === "") {
       setEmailErr("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailErr("Invalid email");
+      setEmailErr("Invalid email format");
     } else {
       setEmailErr("");
     }
@@ -71,9 +71,9 @@ export default function ChatForm({ hide }) {
     } else if (!phoneRegex.test(mobile)) {
       setPhoneErr("Invalid Phone number");
     } else if (mobile?.length <= 7) {
-      setPhoneErr("Invalid phone number");
+      setPhoneErr("Phone number should contain 8 - 15 digits only");
     } else if (mobile?.length > 15) {
-      setPhoneErr("Invalid phone number");
+      setPhoneErr("Phone number should contain 8 - 15 digits only");
     } else {
       setPhoneErr("");
     }
@@ -87,6 +87,7 @@ export default function ChatForm({ hide }) {
 
   const handlePhonechange = (e) => {
     setApiErr([]);
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
     setPhone(e.target.value);
     isValidMobile(e.target.value);
   };
@@ -126,7 +127,11 @@ export default function ChatForm({ hide }) {
         dispatch(showLoader());
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/instant/enq/store",
-          { phone: phone, domain: updatedUrl.split("/")[0], ip_address: userIp },
+          {
+            phone: phone,
+            domain: "www.tradingmaterials.com",
+            ip_address: userIp,
+          },
           {
             headers: {
               "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
@@ -144,9 +149,9 @@ export default function ChatForm({ hide }) {
           if (isLoggedIn) {
             localStorage.setItem("offerEmail", userData?.client?.email);
           }
-          setTimeout(()=>{
+          setTimeout(() => {
             window.location.reload();
-          },2000)
+          }, 2000);
         }
       } catch (err) {
         if (err?.response?.data?.errors) {
@@ -174,6 +179,7 @@ export default function ChatForm({ hide }) {
             <h2 className="h1text !font-bold !w-full mt-0 pt-0">
               Get 10% Off on First Order
             </h2>
+
             <p
               className="  cursor-pointer offer-bottom-right flex justify-end mr-2"
               onClick={() => hide("none")}
@@ -183,7 +189,11 @@ export default function ChatForm({ hide }) {
           </div>
           <div className="flex justify-around items-center">
             <div className="w-full relative" style={{ zIndex: "999999" }}>
-              {successMsg?.length > 0 && <p className="text-sm text-green-500 w-fit bg-slate-100 p-1  font-semibold ">Offer Code Applied</p>}
+              {successMsg?.length > 0 && (
+                <p className="text-sm text-green-500 w-fit bg-slate-100 p-1  font-semibold ">
+                  Offer Code Applied
+                </p>
+              )}
               {successMsg?.length == 0 && (
                 <div className="text-input-off">
                   <input
@@ -228,16 +238,16 @@ export default function ChatForm({ hide }) {
                 })}
             </div>
             <div className="cardss">
-            <div className="illustration">
-              <lottie-player
-                src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json"
-                fill="transparent"
-                background="transparent"
-                speed="1"
-                loop=""
-                autoplay="true"
-              ></lottie-player>
-            </div>
+              <div className="illustration">
+                <lottie-player
+                  src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json"
+                  fill="transparent"
+                  background="transparent"
+                  speed="1"
+                  loop=""
+                  autoplay="true"
+                ></lottie-player>
+              </div>
             </div>
             <span className="imgs relative" style={{ zIndex: "9999" }}>
               <img src="/images/offer-box.png" alt="product-image" />

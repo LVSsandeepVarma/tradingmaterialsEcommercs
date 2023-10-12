@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import axios from "axios";
-import { updateNotifications } from "../../../features/notifications/notificationSlice";
+// import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import { logoutUser } from "../../../features/login/loginSlice";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import { updateUsers } from "../../../features/users/userSlice";
@@ -105,12 +105,7 @@ export default function UpdateProfile({ open, handleClose }) {
             sessionStorage.removeItem("offerPhone")
             sessionStorage.removeItem("expiry")
           } else {
-            dispatch(
-              updateNotifications({
-                type: "warning",
-                message: "Oops!",
-              })
-            );
+            setShowSessionExpiry(true)
           }
           // navigate("/login")
         }
@@ -130,12 +125,7 @@ export default function UpdateProfile({ open, handleClose }) {
           sessionStorage.removeItem("offerPhone")
             sessionStorage.removeItem("expiry")
         } else {
-          dispatch(
-            updateNotifications({
-              type: "warning",
-              message: "Oops!",
-            })
-          );
+          setShowSessionExpiry(true)
         }
       } finally {
         dispatch(hideLoader());

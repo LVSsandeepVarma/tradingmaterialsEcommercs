@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Modal } from 'react-bootstrap'
 import { BsExclamationCircle } from 'react-icons/bs'
 import { FaCheckCircle } from 'react-icons/fa'
@@ -7,6 +7,12 @@ import { FaCheckCircle } from 'react-icons/fa'
 // eslint-disable-next-line react/prop-types
 export default function AddToFav({showModal, closeModal, addedToFavImg, modalMessage , wishMsg}) {
   console.log(wishMsg, "msggg")
+
+  useEffect(()=>{
+    setTimeout(()=>{
+      closeModal()
+    }, 2000)
+  },[])
   return (
     <Modal show={showModal} onHide={closeModal} className="!border-0" centered>
           <Modal.Body className="border-0 !bg-[#e5e7eb]">

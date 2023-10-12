@@ -12,6 +12,8 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  ThemeProvider,
+  createTheme,
 } from "@mui/material";
 import { Form } from "react-bootstrap";
 import axios from "axios";
@@ -46,6 +48,44 @@ export default function Career() {
   const [apiErr, setApiErr] = useState([]);
   const [formTitle, setFormTitle] = useState("");
 
+  const openingsData = [
+    {
+      category: "Development",
+      role: "Full Stack Web Developer",
+      location: "BANGALORE",
+      type: "FULL TIME",
+      desc: "To join our tiny but mighty team in Bangalore, we are now looking for a highly driven Full Stack Developer with a strong focus on Node and React JavaScript. The best applicant will have at least three years of full stack development experience and a track record of producing high-caliber software solutions.",
+    },
+    {
+      category: "Inventory",
+      role: "Inventory Supervisor",
+      location: "BANGALORE",
+      type: "FULL TIME",
+      desc: "To manage and monitor all warehouse activities, guarantee effective procedures, and increase warehouse efficiency, we are looking for an experienced warehouse supervisor. The duties of the warehouse supervisor include managing staff, organizing logistical procedures, assuring the quality of the items, and creating pertinent documentation.",
+    },
+    {
+      category: "",
+      role: "Store Manager",
+      location: "BANGALORE",
+      type: "FULL TIME",
+      desc: "To handle the daily activities of our business, we are looking for an experienced and devoted store manager. The chosen candidate will be in charge of staff management, assuring top-notch customer service, constantly hitting sales goals, and inventory management.",
+    },
+    {
+      category: "Logistics",
+      role: "Delivery Manager",
+      location: "BANGALORE",
+      type: "FULL TIME",
+      desc: "In our software industry, we re looking for a Senior Delivery Manager with experience to manage the efficient completion of customer projects. Coordinating project proposals, overseeing execution, fostering client relationships, and enforcing established procedures are all part of this function. Strong technical knowledge, outstanding leadership skills, and a track record of successfully completing projects within predetermined constraints are necessary.",
+    },
+    {
+      category: "",
+      role: "Delivery Partner",
+      location: "BANGALORE",
+      type: "FULL TIME",
+      desc: "For the position of Delivery Partner, we are searching for applicants with at least zero years of experience. Candidates with prior Full-Time employment experience are welcome to apply. The Delivery Managers Two Wheeler, Delivery Boy Have Bike & License, Goods Vehicle Driving Experience, 2 Wheeler Chalane Aana Chahiye, and Delivery are skills needed for a courier position.-General Education or High School Diploma.",
+    },
+  ];
+
   useEffect(() => {
     dispatch(hideLoader);
   }, []);
@@ -73,6 +113,16 @@ export default function Career() {
     //   // if(file != ""){setFile("")}
     //   }
   };
+
+  const theme = createTheme({
+    components: {
+      MuiFormLabel: {
+        styleOverrides: {
+          asterisk: { color: "red" },
+        },
+      },
+    },
+  });
 
   function validFirstName(name) {
     const namePattern = /^[A-Za-z ]+$/;
@@ -118,7 +168,7 @@ export default function Career() {
   //       setEmailErr("");
   //       return true;
   //     } else {
-  //       setEmailErr("Invalid Email");
+  //       setEmailErr("Invalid email format");
   //       return false;
   //     }
   //   }
@@ -132,10 +182,10 @@ export default function Career() {
       setPhoneErr("Invalid phone number");
       return false;
     } else if (phone?.length <= 7) {
-      setPhoneErr("Invalid phone number");
+      setPhoneErr("Phone number should contain 8 - 15 digits only");
       return false;
     } else if (phone?.length > 15) {
-      setPhoneErr("Invalid phone number");
+      setPhoneErr("Phone number should contain 8 - 15 digits only");
       return false;
     } else {
       setPhoneErr("");
@@ -208,6 +258,7 @@ export default function Career() {
     } else if (inputType == "lastName") {
       setLastName(value), validLastName(value);
     } else if (inputType == "phone") {
+      value = value?.replace(/[^0-9]/g, '');
       setPhone(value), phoneValidation(value);
     } else if (inputType == "experience") {
       setExperience(value), handleExperienceValidation(value);
@@ -568,289 +619,60 @@ export default function Career() {
                     </div>
                   </div>
                 </div>
-                <div className="nk-section-content border rounded-3 p-5 p-md-7">
-                  <div className="row mb-5">
-                    <div className="col-lg-3">
-                      <h4 className="mb-5 mb-lg-0">Development</h4>
-                    </div>
-                    <div className="col-lg-9">
-                      <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
-                        <div className="row gx-5 justify-content-md-between align-items-center">
-                          <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2 !font-bold !text-left">
-                              Full Stack Web Developer
-                            </h5>
-                            <div className="d-flex gap-2 align-items-center text-primary mb-2">
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-map-pin-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Bangalore
-                                </span>
-                              </p>
-                              -
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-clock-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Full Time
-                                </span>
-                              </p>
+                <div className="nk-section-content border rounded-3 p-5 pt-2 p-md-3">
+                  {openingsData?.map((openingInfo, ind) => (
+                    <>
+                      <div key={ind} className="row mb-5 ">
+                        <div className="col-lg-3">
+                          <h4 className="mb-5 mb-lg-0 !font-semibold text-lg">
+                            {openingInfo?.category != ""
+                              ? openingInfo?.category
+                              : ""}
+                          </h4>
+                        </div>
+                        <div className="col-lg-9  ">
+                          <div className="position-card ps-lg-2 pb-2 !p-3 border-bottom drop-shadow-sm hover:shadow-lg">
+                            <div className="row gx-5 justify-content-md-between align-items-center">
+                              <div className="position-card-info col-md-8 ">
+                                <h5 className="mb-2 !font-bold !text-left">
+                                  {openingInfo?.role}
+                                </h5>
+                                <div className="d-flex gap-2 align-items-center text-primary mb-2">
+                                  <p className="d-flex align-items-center gap-1 mb-0">
+                                    <em className="icon ni ni-map-pin-fill"></em>
+                                    <span className="fs-14 fw-semibold text-uppercase">
+                                      {openingInfo?.location}
+                                    </span>
+                                  </p>
+                                  -
+                                  <p className="d-flex align-items-center gap-1 mb-0">
+                                    <em className="icon ni ni-clock-fill"></em>
+                                    <span className="fs-14 fw-semibold text-uppercase">
+                                      {openingInfo?.type}
+                                    </span>
+                                  </p>
+                                </div>
+                                <p className="fs-14 line-clamp-6 text-start">
+                                  {openingInfo?.desc}
+                                </p>
+                              </div>
+                              <div className="col-md-4 col-xl-3">
+                                <a
+                                  onClick={() => {
+                                    setShowForm(true),
+                                      setFormTitle(openingInfo?.role);
+                                  }}
+                                  className="btn btn-outline-dark border w-100"
+                                >
+                                  Apply Now
+                                </a>
+                              </div>
                             </div>
-                            <p className="fs-14 line-clamp-6 text-start">
-                              To join our tiny but mighty team in Bangalore, we
-                              are now looking for a highly driven Full Stack
-                              Developer with a strong focus on Node and React
-                              JavaScript. The best applicant will have at least
-                              three years of full stack development experience
-                              and a track record of producing high-caliber
-                              software solutions.
-                            </p>
-                          </div>
-                          <div className="col-md-4 col-xl-3">
-                            <a
-                              onClick={() => {
-                                setShowForm(true),
-                                  setFormTitle("Full Stack Web Developer");
-                              }}
-                              className="btn btn-outline-dark border w-100"
-                            >
-                              Apply Now
-                            </a>
                           </div>
                         </div>
                       </div>
-                      {/* <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
-                        <div className="row gx-5 justify-content-md-between align-items-center">
-                          <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2">Full Stack Developer</h5>
-                            <div className="d-flex gap-2 align-items-center text-primary mb-2">
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-map-pin-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  san francisco
-                                </span>
-                              </p>
-                              -
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-clock-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Full Time
-                                </span>
-                              </p>
-                            </div>
-                            <p className="fs-14 line-clamp-2">
-                              Lorem ipsum dolor sit amet, consectetur adipiscing
-                              elit morbi in gravida sem enim sed in at euismod
-                              tortor et. Lorem ipsum dolor sit amet, consectetur
-                              adipiscing elit morbi. lorem
-                            </p>
-                          </div>
-                          <div className="col-md-4 col-xl-3">
-                            <a
-                              onClick={()=>setShowForm(true)}
-                              className="btn btn-outline-dark border w-100"
-                            >
-                              Apply Now
-                            </a>
-                          </div>
-                        </div>
-                      </div> */}
-                    </div>
-                  </div>
-                  <div className="row mb-5">
-                    <div className="col-lg-3">
-                      <h4 className="mb-5 mb-lg-0">Inventory</h4>
-                    </div>
-                    <div className="col-lg-9">
-                      <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
-                        <div className="row gx-5 justify-content-md-between align-items-center">
-                          <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2 !font-bold !text-left">
-                              Inventory Supervisor
-                            </h5>
-                            <div className="d-flex gap-2 align-items-center text-primary mb-2">
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-map-pin-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Bangalore
-                                </span>
-                              </p>
-                              -
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-clock-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Full Time
-                                </span>
-                              </p>
-                            </div>
-                            <p className="fs-14 line-clamp-6 text-start">
-                              To manage and monitor all warehouse activities,
-                              guarantee effective procedures, and increase
-                              warehouse efficiency, we are looking for an
-                              experienced warehouse supervisor. The duties of
-                              the warehouse supervisor include managing staff,
-                              organizing logistical procedures, assuring the
-                              quality of the items, and creating pertinent
-                              documentation.
-                            </p>
-                          </div>
-                          <div className="col-md-4 col-xl-3">
-                            <a
-                              onClick={() => {
-                                setShowForm(true),
-                                  setFormTitle("Inventory Supervisor");
-                              }}
-                              className="btn btn-outline-dark border w-100"
-                            >
-                              Apply Now
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
-                        <div className="row gx-5 justify-content-md-between align-items-center">
-                          <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2 !font-bold !text-left">
-                              Store Manager
-                            </h5>
-                            <div className="d-flex gap-2 align-items-center text-primary mb-2">
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-map-pin-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Bangalore
-                                </span>
-                              </p>
-                              -
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-clock-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Full Time
-                                </span>
-                              </p>
-                            </div>
-                            <p className="fs-14 line-clamp-6 text-start">
-                              To handle the daily activities of our business, we
-                              are looking for an experienced and devoted store
-                              manager. The chosen candidate will be in charge of
-                              staff management, assuring top-notch customer
-                              service, constantly hitting sales goals, and
-                              inventory management.
-                            </p>
-                          </div>
-                          <div className="col-md-4 col-xl-3">
-                            <a
-                              onClick={() => {
-                                setShowForm(true),
-                                  setFormTitle("Store Manager");
-                              }}
-                              className="btn btn-outline-dark border w-100"
-                            >
-                              Apply Now
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-lg-3">
-                      <h4 className="mb-5 mb-lg-0">Logistics</h4>
-                    </div>
-                    <div className="col-lg-9">
-                      <div className="position-card ps-lg-2 pb-5 mb-5 border-bottom">
-                        <div className="row gx-5 justify-content-md-between align-items-center">
-                          <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2 !font-bold !text-left">
-                              Delivery Manager
-                            </h5>
-                            <div className="d-flex gap-2 align-items-center text-primary mb-2">
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-map-pin-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Bangalore
-                                </span>
-                              </p>
-                              -
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-clock-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Full Time
-                                </span>
-                              </p>
-                            </div>
-                            <p className="fs-14 line-clamp-6 text-start">
-                              In our software industry, we&nbsp;re looking for a
-                              Senior Delivery Manager with experience to manage
-                              the efficient completion of customer projects.
-                              Coordinating project proposals, overseeing
-                              execution, fostering client relationships, and
-                              enforcing established procedures are all part of
-                              this function. Strong technical knowledge,
-                              outstanding leadership skills, and a track record
-                              of successfully completing projects within
-                              predetermined constraints are necessary.
-                            </p>
-                          </div>
-                          <div className="col-md-4 col-xl-3">
-                            <a
-                              onClick={() => {
-                                setShowForm(true),
-                                  setFormTitle("Delivery Manager");
-                              }}
-                              className="btn btn-outline-dark border w-100"
-                            >
-                              Apply Now
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="position-card ps-lg-2 pb-5">
-                        <div className="row gx-5 justify-content-md-between align-items-center">
-                          <div className="position-card-info col-md-8 px-lg-0 mb-5 mb-md-0">
-                            <h5 className="mb-2 !font-bold !text-left">
-                              Delivery Partner
-                            </h5>
-                            <div className="d-flex gap-2 align-items-center text-primary mb-2">
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-map-pin-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Bangalore
-                                </span>
-                              </p>
-                              -
-                              <p className="d-flex align-items-center gap-1 mb-0">
-                                <em className="icon ni ni-clock-fill"></em>
-                                <span className="fs-14 fw-semibold text-uppercase">
-                                  Full Time
-                                </span>
-                              </p>
-                            </div>
-                            <p className="fs-14 line-clamp-6 text-start">
-                              For the position of Delivery Partner, we are
-                              searching for applicants with at least zero years
-                              of experience. Candidates with prior Full-Time
-                              employment experience are welcome to apply. The
-                              Delivery Managers Two Wheeler, Delivery Boy Have
-                              Bike & License, Goods Vehicle Driving Experience,
-                              2 Wheeler Chalane Aana Chahiye, and Delivery are
-                              skills needed for a courier position.-General
-                              Education or High School Diploma.
-                            </p>
-                          </div>
-                          <div className="col-md-4 col-xl-3">
-                            <a
-                              onClick={() => {
-                                setShowForm(true),
-                                  setFormTitle("Delivery Partner");
-                              }}
-                              className="btn btn-outline-dark border w-100"
-                            >
-                              Apply Now
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    </>
+                  ))}
                 </div>
               </div>
             </section>
@@ -900,39 +722,42 @@ export default function Career() {
               {/* <DialogContentText>
             
           </DialogContentText> */}
-              <TextField
-                autoFocus
-                margin="dense"
-                id="fname"
-                label="First Name"
-                type="text"
-                fullWidth
-                value={firstName}
-                onChange={(e) => {
-                  handlechange("firstName", e.target.value);
-                }}
-                variant="standard"
-              />
-              {firstNameErr && (
-                <p className="nk-message-error text-xs">{firstNameErr}</p>
-              )}
-              <TextField
-                
-                margin="dense"
-                id="lname"
-                label="Last Name"
-                type="text"
-                value={lastName}
-                onChange={(e) => {
-                  handlechange("lastName", e.target.value);
-                }}
-                fullWidth
-                variant="standard"
-              />
-              {lastNameErr && (
-                <p className="nk-message-error text-xs">{lastNameErr}</p>
-              )}
-              {/* <TextField
+              <ThemeProvider theme={theme}>
+                <TextField
+                  autoFocus
+                  required
+                  margin="dense"
+                  id="fname"
+                  label="First Name"
+                  type="text"
+                  fullWidth
+                  value={firstName}
+                  onChange={(e) => {
+                    handlechange("firstName", e.target.value);
+                  }}
+                  variant="standard"
+                />
+                {firstNameErr && (
+                  <p className="nk-message-error text-xs">{firstNameErr}</p>
+                )}
+
+                <TextField
+                  required
+                  margin="dense"
+                  id="lname"
+                  label="Last Name"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => {
+                    handlechange("lastName", e.target.value);
+                  }}
+                  fullWidth
+                  variant="standard"
+                />
+                {lastNameErr && (
+                  <p className="nk-message-error text-xs">{lastNameErr}</p>
+                )}
+                {/* <TextField
             autoFocus
             margin="dense"
             id="email"
@@ -941,82 +766,88 @@ export default function Career() {
             fullWidth
             variant="standard"
           /> */}
-              <TextField
-                
-                margin="dense"
-                id="phone"
-                label="Phone number"
-                type="tel"
-                value={phone}
-                onChange={(e) => {
-                  handlechange("phone", e.target.value);
-                }}
-                fullWidth
-                variant="standard"
-              />
-              {phoneErr && (
-                <p className="nk-message-error text-xs">{phoneErr}</p>
-              )}
-              <TextField
-                
-                margin="dense"
-                id="position"
-                label="Position"
-                type="text"
-                value={position}
-                autoComplete={false}
-                onChange={(e) => {
-                  handlechange("position", e.target.value);
-                }}
-                fullWidth
-                variant="standard"
-              />
-              {positionErr && (
-                <p className="nk-message-error text-xs">{positionErr}</p>
-              )}
-              <TextField
-                
-                margin="dense"
-                id="experience"
-                label="Experience"
-                type="text"
-                value={experience}
-                onChange={(e) => {
-                  handlechange("experience", e.target.value);
-                }}
-                fullWidth
-                variant="standard"
-              />
-              {experienceErr && (
-                <p className="nk-message-error text-xs">{experienceErr}</p>
-              )}
-              <TextField
-                
-                margin="dense"
-                id="description"
-                label="Description"
-                type="textarea"
-                value={description}
-                onChange={(e) => {
-                  handlechange("description", e.target.value);
-                }}
-                fullWidth
-                variant="standard"
-              />
-              {descriptionErr && (
-                <p className="nk-message-error text-xs">{descriptionErr}</p>
-              )}
-              <Form.Group controlId="formFileSm" className="mt-3">
-                <Form.Label>Upload you Resume</Form.Label>
-                <Form.Control
-                  type="file"
-                  value={file}
-                  onChange={handleFileChange}
-                  accept="application/pdf"
-                  size="sm"
+                <TextField
+                  required
+                  margin="dense"
+                  id="phone"
+                  label="Phone number"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => {
+                    handlechange("phone", e.target.value);
+                  }}
+                  fullWidth
+                  variant="standard"
                 />
-              </Form.Group>
-              {fileErr && <p className="nk-message-error text-xs">{fileErr}</p>}
+                {phoneErr && (
+                  <p className="nk-message-error text-xs">{phoneErr}</p>
+                )}
+                <TextField
+                  required
+                  margin="dense"
+                  id="position"
+                  label="Position"
+                  type="text"
+                  value={position}
+                  autoComplete={false}
+                  onChange={(e) => {
+                    handlechange("position", e.target.value);
+                  }}
+                  fullWidth
+                  variant="standard"
+                />
+                {positionErr && (
+                  <p className="nk-message-error text-xs">{positionErr}</p>
+                )}
+                <TextField
+                  required
+                  margin="dense"
+                  id="experience"
+                  label="Experience"
+                  type="text"
+                  value={experience}
+                  onChange={(e) => {
+                    handlechange("experience", e.target.value);
+                  }}
+                  fullWidth
+                  variant="standard"
+                />
+                {experienceErr && (
+                  <p className="nk-message-error text-xs">{experienceErr}</p>
+                )}
+                <TextField
+                  required
+                  margin="dense"
+                  id="description"
+                  label="Description"
+                  type="textarea"
+                  value={description}
+                  onChange={(e) => {
+                    handlechange("description", e.target.value);
+                  }}
+                  fullWidth
+                  variant="standard"
+                />
+                {descriptionErr && (
+                  <p className="nk-message-error text-xs">{descriptionErr}</p>
+                )}
+                <Form.Group controlId="formFileSm" className="mt-3">
+                  <Form.Label>
+                    Upload you Resume{" "}
+                    <sup className="text-[#ff2424] text-sm !font-bold">*</sup>
+                  </Form.Label>
+                  <Form.Control
+                    type="file"
+                    value={file}
+                    onChange={handleFileChange}
+                    accept="application/pdf"
+                    size="sm"
+                  />
+                </Form.Group>
+                {fileErr && (
+                  <p className="nk-message-error text-xs">{fileErr}</p>
+                )}
+              </ThemeProvider>
             </DialogContent>
             {success && (
               <p className="text-green-400 text-center font-semibold drop-shadow-lg !text-sm">

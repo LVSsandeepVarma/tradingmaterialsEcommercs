@@ -31,13 +31,14 @@ import { FaMinusCircle } from "react-icons/fa";
 import CryptoJS from "crypto-js";
 import Invoices from "./invoices";
 import { BsFillBoxSeamFill } from "react-icons/bs";
-import { MdOutlineAlternateEmail } from "react-icons/md";
+// import { MdOutlineAlternateEmail } from "react-icons/md";
 import { BiSolidPhoneCall } from "react-icons/bi";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { logoutUser } from "../../../features/login/loginSlice";
 import AddToFav from "../modals/addToFav";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import SessionExpired from "../modals/sessionExpired";
+import EmailIcon from '@mui/icons-material/Email';
 
 const drawerWidth = 240;
 
@@ -429,7 +430,7 @@ export default function SideBar() {
                     width: "90%",
                   }}
                 >
-                  <MdOutlineAlternateEmail className="mr-1" size={16} />
+                  <EmailIcon className="mr-1" fontSize="small" />
                   {userData?.client?.email}
                 </p>
                 <p
@@ -575,7 +576,7 @@ export default function SideBar() {
             {activeIndex === 0 && (
               <>
                 <div>
-                  <h4 className="!font-bold !text-gray-900">Billing address</h4>
+                  {/* <h4 className="!font-bold !text-gray-900">Billing address</h4>
                   <div>
                     <small className="w-full !text-left">
                       {userData?.client?.primary_address?.length > 0 ? "Showing All Billing address available" : "No Address Found"}
@@ -628,12 +629,12 @@ export default function SideBar() {
                     </div>
 
                     <Divider className="py-2" />
-                  </div>
-                  <h4 className="mt-5 !font-bold">Shippping address</h4>
+                  </div> */}
+                  <h4 className="mt-5 !font-bold">Address</h4>
                   <div>
                     <small className="w-full !text-left">
                      
-                      {userData?.client?.primary_address?.length > 0 ? "Showing All Shipping address available" : "No Address Found"}
+                      {userData?.client?.primary_address?.length > 0 ? "Showing all addresses" : "No Address Found"}
                     </small>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4  mb-2">
                       {userData?.client?.address?.map((address, ind) => (
@@ -644,13 +645,20 @@ export default function SideBar() {
                           {/* !min-w-[75%]  sm:!min-w-[25%] sm:max-w-[40%] */}
                           <CardActionArea
                             onClick={() => {
-                              setAddressUpdateType("shipping");
+                              if(ind == 0){
+                                setAddressUpdateType("primary");
                               setShowModal(true);
                               setFormType("update");
                               setAddressData(userData?.client?.address[ind]);
+                              }else{
+                              setAddressUpdateType("");
+                              setShowModal(true);
+                              setFormType("update");
+                              setAddressData(userData?.client?.address[ind]);
+                              }
                             }}
                           >
-                            <h3 className="!font-bold">Address - {ind + 1}</h3>
+                            <h3 className={`!font-bold ${ind == 0 ? "!text-blue-600" : ""}`}>{ind == 0 ? "Primary Address" : `Address - ${ind + 1}`}</h3>
                             <p className="truncate">{address?.add_1},</p>
                             {address?.add_2 !== null
                                   ? `${address?.add_2},`
@@ -665,7 +673,7 @@ export default function SideBar() {
                       <Button
                         className="!ml-2"
                         onClick={() => {
-                          setAddressUpdateType("shipping");
+                          setAddressUpdateType("");
                           setShowModal(true);
                           setAddressData([]);
                           setFormType("add");

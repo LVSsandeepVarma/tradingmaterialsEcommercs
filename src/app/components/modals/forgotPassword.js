@@ -49,7 +49,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("invalid email");
+      setEmailError("Invalid email format");
     } else {
       setEmailError("");
     }
@@ -67,8 +67,8 @@ const ForgotPasswordModal = ({ show, onHide }) => {
     emailValidaiton(email);
     if (emailError === "" && email !== "") {
       try {
-        dispatch(showLoader());
-        setLocalLoader(true)
+        // dispatch(showLoader());
+        setLocalLoader(true);
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/lead/reset-password-link",
           {
@@ -92,8 +92,8 @@ const ForgotPasswordModal = ({ show, onHide }) => {
           setEmailSentMsg("");
         }, 8000);
       } finally {
-        dispatch(hideLoader());
-        setLocalLoader(false)
+        // dispatch(hideLoader());
+        setLocalLoader(false);
       }
     }
   }
@@ -109,7 +109,6 @@ const ForgotPasswordModal = ({ show, onHide }) => {
         showNewPasswordModal: false,
         showSignupCartModal: false,
         showSignupBuyModal: false,
-
       })
     );
     // document.getElementsByTagName(body).style =
@@ -198,7 +197,9 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                 <div className="row gy-4">
                   <div className="col-12">
                     <div className="form-group text-left">
-                      <label className="form-label">Email</label>
+                      <label className="form-label">
+                        Email<sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <input
                           type="email"
@@ -239,15 +240,12 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                         apiError?.map((err, ind) => {
                           return (
                             <Alert
-                            key={ind}
+                              key={ind}
                               variant="outlined"
                               severity="error"
                               className="!mt-2"
                             >
-                              <p
-                                key={ind}
-                                className="nk-message-error text-xs"
-                              >
+                              <p key={ind} className="nk-message-error text-xs">
                                 {err}
                               </p>
                             </Alert>

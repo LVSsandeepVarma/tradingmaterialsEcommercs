@@ -33,7 +33,6 @@ const LoginModal = ({ show, onHide }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [saveCredentials, setSavecredentials] = useState(false);
 
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,10 +49,8 @@ const LoginModal = ({ show, onHide }) => {
     console.log("lang", lang, userLang);
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-
     } else {
       dispatch(userLanguage(""));
-
     }
   }, []);
 
@@ -62,7 +59,7 @@ const LoginModal = ({ show, onHide }) => {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("Invalid email");
+      setEmailError("Invalid email format");
     } else {
       setEmailError("");
     }
@@ -75,7 +72,7 @@ const LoginModal = ({ show, onHide }) => {
       setPasswordError("");
     }
   }
-onkeydown
+  onkeydown;
   function handleEmailChange(e) {
     setEmail(e?.target?.value);
     emailValidaiton(e?.target?.value);
@@ -138,13 +135,18 @@ onkeydown
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
           if (response?.data?.type === "client") {
-            window.open (`https://client.tradingmaterials.com/auto-login/${localStorage.getItem("client_token")}`, "_blank");
+            window.open(
+              `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
+                "client_token"
+              )}`,
+              "_blank"
+            );
           } else {
-            console.log(window.location.pathname)
-            if(window.location.pathname.includes("orders")){
+            console.log(window.location.pathname);
+            if (window.location.pathname.includes("orders")) {
               // window.location.reload()
-              onHide()
-            }else{
+              onHide();
+            } else {
               navigate(`${userLang}/profile`);
             }
           }
@@ -161,14 +163,13 @@ onkeydown
           }, 3600000);
         }
       } catch (err) {
-        
         console.log("err", err);
         if (err?.response?.data?.errors) {
           setEmailError(err?.response?.data?.errors["email"]);
           setPasswordError(err?.response?.data?.errors["password"]);
           // setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
-          console.log(err?.response)
+          console.log(err?.response);
           setApiError([err?.response?.data?.message]);
         }
         setTimeout(() => {
@@ -283,7 +284,9 @@ onkeydown
                 <div className="row gy-4 !text-left">
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label ">Email</label>
+                      <label className="form-label ">
+                        Email<sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <input
                           type="email"
@@ -293,20 +296,20 @@ onkeydown
                           value={email}
                         />
                         {emailError && (
-                          <p className="nk-message-error">
-                            {emailError}
-                          </p>
+                          <p className="nk-message-error">{emailError}</p>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label">Password</label>
+                      <label className="form-label">
+                        Password<sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <a
                           // href="show-hide-password.html"
-                          className="form-control-icon end password-toggle"
+                          className="form-control-icon end bg-white border-y password-toggle"
                           title="Toggle show/hide password"
                         >
                           <em
@@ -328,9 +331,7 @@ onkeydown
                       </div>
                     </div>
                     {passwordError && (
-                      <p className="nk-message-error ">
-                        {passwordError}
-                      </p>
+                      <p className="nk-message-error ">{passwordError}</p>
                     )}
                   </div>
                   <div className="col-12">
@@ -344,7 +345,10 @@ onkeydown
                           checked={saveCredentials}
                           onChange={() => setSavecredentials(!saveCredentials)}
                         />
-                        <label className="form-check-label" htmlFor="rememberMe">
+                        <label
+                          className="form-check-label"
+                          htmlFor="rememberMe"
+                        >
                           {" "}
                           Remember Me{" "}
                         </label>
@@ -381,8 +385,8 @@ onkeydown
                       <div className="terms-tex mt-2 text-lg">
                         <p>
                           By signing up, you agree to the <br></br>{" "}
-                          <a href="/terms-and-conditions">Terms of Service</a> and{" "}
-                          <a href="/privacy-policy">Privacy Policy</a>.{" "}
+                          <a href="/terms-and-conditions">Terms of Service</a>{" "}
+                          and <a href="/privacy-policy">Privacy Policy</a>.{" "}
                         </p>
                       </div>{" "}
                       {loginSuccessMsg && (
@@ -398,22 +402,19 @@ onkeydown
                       )}
                       {apiError?.length > 0 &&
                         apiError?.map((err, ind) => {
-                          if(err?.length > 0){
-                          return (
-                            <Alert
-                            key={ind}
-                              variant="outlined"
-                              severity="error"
-                              className="mt-2"
-                            >
-                              <p
+                          if (err?.length > 0) {
+                            return (
+                              <Alert
                                 key={ind}
-                                className="nk-message-error "
+                                variant="outlined"
+                                severity="error"
+                                className="mt-2"
                               >
-                                {err}
-                              </p>
-                            </Alert>
-                          );
+                                <p key={ind} className="nk-message-error ">
+                                  {err}
+                                </p>
+                              </Alert>
+                            );
                           }
                         })}
                     </div>

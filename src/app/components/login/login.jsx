@@ -61,7 +61,7 @@ export default function Login() {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("Invalid email");
+      setEmailError("Invalid email format");
     } else {
       setEmailError("");
     }
@@ -70,7 +70,7 @@ export default function Login() {
   function passwordValidation(password) {
     if (password?.length === 0) {
       setPasswordError("Password is required");
-    } else if (password?.length <= 7) {
+    } else if (password?.length <= 7 || password?.length > 15) {
       setPasswordError("Invalid password");
     } else {
       setPasswordError("");
@@ -228,7 +228,10 @@ export default function Login() {
                     <div className="row gy-4 !text-left">
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label ">Email</label>
+                          <label className="form-label ">
+                            Email
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <input
                               type="email"
@@ -247,7 +250,10 @@ export default function Login() {
                       </div>
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">Password</label>
+                          <label className="form-label">
+                            Password
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <a
                               // href="show-hide-password.html"
@@ -275,9 +281,7 @@ export default function Login() {
                           </div>
                         </div>
                         {passwordError && (
-                          <p className="nk-message-error">
-                            {passwordError}
-                          </p>
+                          <p className="nk-message-error">{passwordError}</p>
                         )}
                       </div>
                       <div className="col-12">

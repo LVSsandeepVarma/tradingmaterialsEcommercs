@@ -61,7 +61,7 @@ const SignupModal = ({ show, onHide }) => {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("Invalid email");
+      setEmailError("Invalid email format");
     } else {
       setEmailError("");
     }
@@ -74,9 +74,9 @@ const SignupModal = ({ show, onHide }) => {
     } else if (!phoneRegex.test(phone)) {
       setPhoneError("Invalid phone number");
     } else if (phone?.length <= 7) {
-      setPhoneError("Invalid phone number");
+      setPhoneError("Phone number should contain 8 - 15 digits only");
     } else if (phone?.length > 15) {
-      setPhoneError("Invalid phone number");
+      setPhoneError("Phone number should contain 8 - 15 digits only");
     } else {
       setPhoneError("");
     }
@@ -91,7 +91,7 @@ const SignupModal = ({ show, onHide }) => {
     } else if (name?.length < 3) {
       setFirstNameError("Min 3 characters are required");
     } else if (name?.length > 50) {
-      setFirstNameError("Max 50 characters are required");
+      setFirstNameError("Maximum limit exceeded");
     } else {
       setFirstNameError("");
     }
@@ -118,6 +118,7 @@ const SignupModal = ({ show, onHide }) => {
   }
 
   function handlePhoneChange(e) {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
     setPhone(e?.target?.value);
     phoneValidation(e?.target?.value);
   }
@@ -182,7 +183,7 @@ const SignupModal = ({ show, onHide }) => {
               last_name: lastName,
               email: email,
               phone: phone,
-              domain: updatedUrl?.split("/")[0],
+              domain: "www.tradingmaterials.com",
               ip_add: useriP,
             },
             {
@@ -340,7 +341,10 @@ const SignupModal = ({ show, onHide }) => {
                 <div className="row gy-4 !text-left">
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label">First Name</label>
+                      <label className="form-label">
+                        First Name
+                        <sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <input
                           type="text"
@@ -358,7 +362,10 @@ const SignupModal = ({ show, onHide }) => {
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label">Last Name</label>
+                      <label className="form-label">
+                        Last Name
+                        <sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <input
                           type="text"
@@ -376,7 +383,9 @@ const SignupModal = ({ show, onHide }) => {
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label">Email</label>
+                      <label className="form-label">
+                        Email<sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <input
                           type="text"
@@ -394,7 +403,9 @@ const SignupModal = ({ show, onHide }) => {
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label">Phone</label>
+                      <label className="form-label">
+                        Phone<sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         {/* <a
                               href="show-hide-password.html"
@@ -455,10 +466,7 @@ const SignupModal = ({ show, onHide }) => {
                               severity="error"
                               className="mt-2"
                             >
-                              <p
-                                key={ind}
-                                className="nk-message-error text-xs"
-                              >
+                              <p key={ind} className="nk-message-error text-xs">
                                 {err}
                               </p>
                             </Alert>

@@ -351,17 +351,17 @@ export default function Header() {
       //
 
       //
-      if (
-        window.navigator.userAgent.includes("Windows") ||
-        window.navigator.userAgent.includes("Macintosh")
-      ) {
+      // if (
+      //   window.navigator.userAgent.includes("Windows") ||
+      //   window.navigator.userAgent.includes("Macintosh")
+      // ) {
         const timeOut = setTimeout(() => {
           if (modals?.showLoginModal === false ) {
             if (!isLoggedIn) {
               showSignupPopup();
             }
           }
-        }, 10000);
+        }, 5000);
         if (
           modals?.showLoginModal ||
           modals?.showSignupModal ||
@@ -375,7 +375,7 @@ export default function Header() {
           clearTimeout(timeOut);
         };
       }
-    }
+    // }
   }, [isLoggedIn, modals]);
 
   // useEffect(() => {
@@ -619,48 +619,49 @@ export default function Header() {
               paddingTop: "9px !important",
             }}
           >
-            <div className="flex !shadow-xl">
-              {!mouseOverEvent && (
+            <div className="row !ml-0 !mr-0 !shadow-xl">
+              {!mouseOverEvent &&  (
                 <div
-                  className={`d-flex drop-shadow-lg shadow-lg flex-col w-[50%] items-center justify-center `}
+                  className={`d-flex drop-shadow-lg shadow-lg flex-col col-12 col-md-6  items-center justify-center `}
                   style={{
                     background: "linear-gradient(45deg, #5582bf, transparent)",
                   }}
                 >
                   <div className="absolute"></div>
                   <h3
-                    className="!font-bold text-black text-left pl-3 pt-3 "
-                    style={{ fontSize: "25px", height: "100%" }}
+                    className="!font-bold text-black text-lg sm:text-2xl text-left pl-3 pt-3 "
+                    style={{  height: "100%" }}
                   >
                     Get 10% off Now
                   </h3>
-                  <div className="popup-img  !text-left">
-                    <img src="/images/offer-nobg.png" alt="offer-img" />
+                  <small className="text-black">On first Order</small>
+                  <div className="popup-img flex justify-center">
+                    <img src="/images/offer-nobg.png" className="w-[50%] sm:w-auto" alt="offer-img" />
                   </div>
                   <div
                     className="offer-tex  p-0 pb-2 flex items-center justify-center  "
                     style={{ textAlign: "left !important" }}
                   >
                     <div className=" !text-center">
-                      <h3 className="!font-bold text-black text-2xl text-left  ">
-                        on First Order
+                      <h3 className="!font-bold text-black text-sm sm:text-xl text-center  ">
+                      Get you offer message Instantly
                       </h3>
                     </div>
                   </div>
                 </div>
               )}
               <div
-                className={` d-flex flex-col drop-shadow-xl ${
+                className={` d-flex flex-col col-12 col-md-6 drop-shadow-xl w-full md:w-[50%] ${
                   !mouseOverEvent ? "w-[40%] " : "!w-full "
                 } ${
                   mouseOverEvent ? "pt-3 pb-3" : ""
-                } items-center !justify-center `}
+                } items-center !justify-around `}
               >
                 <div className="d-flex items-center justify-center ">
                   <img
-                    className={`${
+                    className={` ${
                       mouseOverEvent ? "max-w-[30%]" : "max-w-[50%]"
-                    }`}
+                    } w-[30%] md:w-[50%]` }
                     src="/images/oneDayLeft.png"
                     alt="oneDayleft_png"
                   ></img>
@@ -673,7 +674,7 @@ export default function Header() {
                       : "tb-space d-flex justify-center  mt-[22px] w-full"
                   } `}
                 >
-                  <div className={`${mouseOverEvent ? "" : "!inline"} `}>
+                  <div className={`${mouseOverEvent ? "" : "!inline w-full"} w-full`}>
                     <div></div>
                     <Offer
                       mouseOverEvent={handleMouseOverEvent}

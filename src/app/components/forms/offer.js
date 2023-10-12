@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { hidePopup } from "../../../features/popups/popusSlice";
 
 // eslint-disable-next-line react/prop-types
-export default function Offer({mouseOverEvent , isMouseEntered}) {
+export default function Offer({ mouseOverEvent, isMouseEntered }) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [emailErr, setEmailErr] = useState("");
@@ -28,7 +28,7 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
     if (email === "") {
       setEmailErr("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailErr("Invalid email");
+      setEmailErr("Invalid email format");
     } else {
       setEmailErr("");
     }
@@ -42,9 +42,9 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
     } else if (!phoneRegex.test(mobile)) {
       setPhoneErr("Invalid Phone number");
     } else if (mobile?.length <= 7) {
-      setPhoneErr("Invalid phone number");
+      setPhoneErr("Phone number should contain 8 - 15 digits only");
     } else if (mobile?.length > 15) {
-      setPhoneErr("Invalid phone number");
+      setPhoneErr("Phone number should contain 8 - 15 digits onlyr");
     } else {
       setPhoneErr("");
     }
@@ -56,6 +56,7 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
   };
 
   const handlePhonechange = (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
     setPhone(e.target.value);
     isValidMobile(e.target.value);
   };
@@ -65,19 +66,22 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
     e.preventDefault();
     isValidMobile(phone);
     emailValidaiton(email);
-    
-    const currentUrl = window?.location?.href;
-   let  updatedUrl;
 
-   if (currentUrl && (currentUrl.startsWith('http://') || currentUrl.startsWith('https://'))) {
+    const currentUrl = window?.location?.href;
+    let updatedUrl;
+
+    if (
+      currentUrl &&
+      (currentUrl.startsWith("http://") || currentUrl.startsWith("https://"))
+    ) {
       // Replace "http://" or "https://" with "www."
-     updatedUrl = currentUrl.replace(/^(https?:\/\/)/, 'www.');
-      
+      updatedUrl = currentUrl.replace(/^(https?:\/\/)/, "www.");
+
       // Now, `updatedUrl` contains the modified URL with "www."
       console.log(updatedUrl);
     } else {
       // The URL didn't start with "http://" or "https://"
-      updatedUrl = currentUrl
+      updatedUrl = currentUrl;
     }
     if (
       emailErr === "" &&
@@ -93,7 +97,7 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
           {
             email: email,
             phone: phone,
-            domain: updatedUrl.split("/")[0],
+            domain: "www.tradingmaterials.com",
             ip_add: userIp,
           },
           {
@@ -142,9 +146,7 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
           onChange={handleEmailChange}
         />
         {emailErr && (
-          <p className="nk-message-error  mb-1 text-xs text-left">
-            {emailErr}
-          </p>
+          <p className="nk-message-error  mb-1 text-xs text-left">{emailErr}</p>
         )}
 
         <input
@@ -159,9 +161,7 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
           }}
         />
         {phoneErr && (
-          <p className="nk-message-error mb-1 text-xs  text-left">
-            {phoneErr}
-          </p>
+          <p className="nk-message-error mb-1 text-xs  text-left">{phoneErr}</p>
         )}
 
         {successMsg?.length > 0 && (
@@ -170,25 +170,30 @@ export default function Offer({mouseOverEvent , isMouseEntered}) {
         {apiErr?.length > 0 &&
           apiErr?.map((err, ind) => {
             return (
-              <p
-                key={ind}
-                className="text-red-600 text-sm text-sm"
-              >
+              <p key={ind} className="text-red-600 text-sm text-sm">
                 {err}
               </p>
             );
           })}
-        <div className={`${isMouseEntered ? "w-full flex justify-center" : ""}`}>
+        <div
+          className={`${
+            isMouseEntered
+              ? "w-full flex justify-center"
+              : "w-full flex justify-center "
+          } `}
+        >
           <div className={`buttonss-off cursor-pointer `}>
-            <a className="cart-btn" onClick={handleSubmit}>
-              Sign Up
+            <a className="cart-btn  !text-xs" onClick={handleSubmit}>
+              Claim Offer
             </a>
           </div>
-          {isMouseEntered && <div className={`ml-2 buttonss-off cursor-pointer `}>
-            <a className="cart-btn" onClick={()=> dispatch(hidePopup())}>
-              Later
-            </a>
-          </div>}
+          {
+            <div className={`ml-2 buttonss-off cursor-pointer `}>
+              <a className="cart-btn" onClick={() => dispatch(hidePopup())}>
+                Later
+              </a>
+            </div>
+          }
         </div>
       </form>
     </>

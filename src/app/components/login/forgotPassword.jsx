@@ -33,7 +33,7 @@ export default function ForgotPassword() {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("invalid email");
+      setEmailError("Invalid email format");
     } else {
       setEmailError("");
     }
@@ -84,9 +84,9 @@ export default function ForgotPassword() {
   return (
     <>
       {/* {!loaderState && ( */}
-        <div className="preloader !backdrop-blur-[1px]">
-          <div className="loader"></div>
-        </div>
+      <div className="preloader !backdrop-blur-[1px]">
+        <div className="loader"></div>
+      </div>
       {/* // )} */}
       <div className="nk-app-root !text-left">
         <main className="nk-pages">
@@ -125,7 +125,10 @@ export default function ForgotPassword() {
                     <div className="row gy-4">
                       <div className="col-12">
                         <div className="form-group text-left">
-                          <label className="form-label">Email</label>
+                          <label className="form-label">
+                            Email
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <input
                               type="email"
@@ -171,10 +174,7 @@ export default function ForgotPassword() {
                                   severity="error"
                                   className="!mt-2"
                                 >
-                                  <p
-                                    key={ind}
-                                    className="nk-message-error"
-                                  >
+                                  <p key={ind} className="nk-message-error">
                                     {err}
                                   </p>
                                 </Alert>

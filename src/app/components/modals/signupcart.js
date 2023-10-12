@@ -15,8 +15,7 @@ import { usersignupinModal } from "../../../features/signupinModals/signupinSlic
 import { Alert, Divider } from "@mui/material";
 import { updateclientType } from "../../../features/clientType/clientType";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import CircularProgress from '@mui/material/CircularProgress';
-
+import CircularProgress from "@mui/material/CircularProgress";
 
 // eslint-disable-next-line react/prop-types, no-unused-vars
 const SignupCartModal = ({ show, onHide }) => {
@@ -35,8 +34,9 @@ const SignupCartModal = ({ show, onHide }) => {
   const [useriP, setUserIp] = useState("");
   const [cartData, setCartData] = useState();
   const [productQty, setProductQty] = useState(1);
-  const [emailVerificationStatus, setEmailVerificationStatus] = useState(false)
-  const [emailVerifyLoader, setEmailVerifyLoader] = useState(false)
+  const [emailVerificationStatus, setEmailVerificationStatus] = useState(false);
+  const [emailVerifyLoader, setEmailVerifyLoader] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const loginStatus = useSelector((state) => state?.login?.value);
   console.log(loginStatus, window.location.host, window.location.hostname);
@@ -83,7 +83,7 @@ const SignupCartModal = ({ show, onHide }) => {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("Invalid email");
+      setEmailError("Invalid email format");
     } else {
       setEmailError("");
     }
@@ -93,15 +93,15 @@ const SignupCartModal = ({ show, onHide }) => {
     const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
-      return false
+      return false;
     } else if (!emailRegex.test(email)) {
-      setEmailError("Invalid email");
-      return false
+      setEmailError("Invalid email format");
+      return false;
     } else {
       setEmailError("");
-      return true
+      return true;
     }
-  } 
+  }
 
   function phoneValidation(phone) {
     const phoneRegex = /^[0-9]+$/;
@@ -110,9 +110,9 @@ const SignupCartModal = ({ show, onHide }) => {
     } else if (!phoneRegex.test(phone)) {
       setPhoneError("Invalid phone number");
     } else if (phone?.length <= 7) {
-      setPhoneError("Invalid phone number");
+      setPhoneError("Phone number should contain 8 - 15 digits only");
     } else if (phone?.length > 15) {
-      setPhoneError("Invalid phone number");
+      setPhoneError("Phone number should contain 8 - 15 digits only");
     } else {
       setPhoneError("");
     }
@@ -142,7 +142,7 @@ const SignupCartModal = ({ show, onHide }) => {
     } else if (name?.length < 3) {
       setFirstNameError("Min 3 characters are required");
     } else if (name?.length > 50) {
-      setFirstNameError("Max 50 characters are required");
+      setFirstNameError("Maximum limit exceeded");
     } else {
       setFirstNameError("");
     }
@@ -157,7 +157,7 @@ const SignupCartModal = ({ show, onHide }) => {
     } else if (name?.length < 1) {
       setLastNameError("Last name is required");
     } else if (name?.length > 50) {
-      setLastNameError("Max 50 characters are required");
+      setLastNameError("Maximum limit exceeded");
     } else {
       setLastNameError("");
     }
@@ -165,18 +165,18 @@ const SignupCartModal = ({ show, onHide }) => {
 
   function handleEmailChange(e) {
     setEmail(e?.target?.value);
-    emailValidaiton(e?.target?.value)
-    if(handleEmailvalidation(e?.target?.value)){
-      handleEmailVerification(e?.target?.value)
+    emailValidaiton(e?.target?.value);
+    if (handleEmailvalidation(e?.target?.value)) {
+      handleEmailVerification(e?.target?.value);
     }
   }
 
   function handlePhoneChange(e) {
     setPhone(e?.target?.value);
-    if(!emailVerificationStatus){
-    phoneValidation(e?.target?.value);
-    }else{
-      passwordValidation(e?.target?.value)
+    if (!emailVerificationStatus) {
+      phoneValidation(e?.target?.value);
+    } else {
+      passwordValidation(e?.target?.value);
     }
   }
 
@@ -191,8 +191,8 @@ const SignupCartModal = ({ show, onHide }) => {
   }
 
   async function handleEmailVerification(emailid) {
-    try{
-      setEmailVerifyLoader(true)
+    try {
+      setEmailVerifyLoader(true);
       const response = await axios.post(
         "https://admin.tradingmaterials.com/api/client/email/check",
         { email: emailid },
@@ -203,20 +203,22 @@ const SignupCartModal = ({ show, onHide }) => {
           },
         }
       );
-      if(response?.data?.status){
-          setEmailVerificationStatus(false)
-          console.log(response?.data)
+      if (response?.data?.status) {
+        setEmailVerificationStatus(false);
+        console.log(response?.data);
       }
-    }catch(err){
-      console.log(err)
-      if(err?.response?.data?.errors["email"] == "The email has already been taken."){
-        setEmailVerificationStatus(true)
+    } catch (err) {
+      console.log(err);
+      if (
+        err?.response?.data?.errors["email"] ==
+        "The email has already been taken."
+      ) {
+        setEmailVerificationStatus(true);
       }
-    }finally{
-      setEmailVerifyLoader(false)
+    } finally {
+      setEmailVerifyLoader(false);
     }
   }
-
 
   async function handleLoginFormSubmission() {
     setApiError([]);
@@ -242,16 +244,13 @@ const SignupCartModal = ({ show, onHide }) => {
     }
     // console.log(emailError, phoneError, firstNameError)
     console.log(updatedUrl?.hostname, "hsname");
-    if (
-      emailError === "" &&
-      phoneError === ""
-    ) {
+    if (emailError === "" && phoneError === "") {
       if (
-        (emailError === "" &&
-          phoneError === "" &&
-          email !== "" &&
-          phone !== "" )
-      ){
+        emailError === "" &&
+        phoneError === "" &&
+        email !== "" &&
+        phone !== ""
+      ) {
         try {
           setLocalLoader(true);
           const response = await axios.post(
@@ -259,7 +258,7 @@ const SignupCartModal = ({ show, onHide }) => {
             {
               email: email,
               password: phone,
-              domain: updatedUrl.split("/")[0],
+              domain: "www.tradingmaterials.com",
               ip_add: useriP,
             },
             {
@@ -290,7 +289,7 @@ const SignupCartModal = ({ show, onHide }) => {
             // function for adding to cart
             // navigate("/cart");
 
-            window.location.href = "/"
+            window.location.href = "/";
           }
         } catch (err) {
           console.log("err", err);
@@ -362,7 +361,7 @@ const SignupCartModal = ({ show, onHide }) => {
               last_name: lastName,
               email: email,
               phone: phone,
-              domain: updatedUrl.split("/")[0],
+              domain: "www.tradingmaterials.com",
               ip_add: useriP,
             },
             {
@@ -526,63 +525,88 @@ const SignupCartModal = ({ show, onHide }) => {
             </div> */}
 
             <div className="card-body !text-left p-5 pb-0">
-              <p className={`text-left ${!emailVerificationStatus ? "mb-2 " : ""} `}>{!emailVerificationStatus ? "CONTACT DETAILS" : " CUSTOMER LOGIN"}</p>
-              {emailVerificationStatus && <small className="!text-blue-600 mb-2">This email is already registered.</small>}
+              <p
+                className={`text-left ${
+                  !emailVerificationStatus ? "mb-2 " : ""
+                } `}
+              >
+                {!emailVerificationStatus
+                  ? "CONTACT DETAILS"
+                  : " CUSTOMER LOGIN"}
+              </p>
+              {emailVerificationStatus && (
+                <small className="!text-blue-600 mb-2">
+                  This email is already registered.
+                </small>
+              )}
               <Form>
                 <div className="row gy-4 !text-left">
-                  {!emailVerificationStatus && <div className="col-12 col-md-6">
-                    <div className="form-group">
-                      <p className="">First Name</p>
-                      <div className="form-control-wrap">
-                        <input
-                          type="text"
-                          className="form-control !text-[11px] "
-                          style={{ borderRadius: 0 }}
-                          placeholder="Enter here"
-                          onChange={handleFirstNamechange}
-                        />
-                        {firstNameError && (
-                          <p className="nk-message-error text-xs">
-                            {firstNameError}
-                          </p>
-                        )}
+                  {!emailVerificationStatus && (
+                    <div className="col-12 col-md-6">
+                      <div className="form-group">
+                        <p className="">
+                          First Name
+                          <sup className="text-red-600 !font-bold">*</sup>
+                        </p>
+                        <div className="form-control-wrap">
+                          <input
+                            type="text"
+                            className="form-control !text-[11px] "
+                            style={{ borderRadius: 0 }}
+                            placeholder="Enter here"
+                            onChange={handleFirstNamechange}
+                          />
+                          {firstNameError && (
+                            <p className="nk-message-error text-xs">
+                              {firstNameError}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>}
-                  {!emailVerificationStatus &&  <div className="col-12 col-md-6">
-                    <div className="form-group">
-                      <p className="">Last Name</p>
-                      <div className="form-control-wrap">
-                        <input
-                          type="text"
-                          className="form-control !text-[11px]"
-                          style={{ borderRadius: 0 }}
-                          placeholder="Enter here"
-                          onChange={handleLastNameChange}
-                        />
-                        {lastNameError && (
-                          <p className="nk-message-error text-xs">
-                            {lastNameError}
-                          </p>
-                        )}
+                  )}
+                  {!emailVerificationStatus && (
+                    <div className="col-12 col-md-6">
+                      <div className="form-group">
+                        <p className="">
+                          Last Name
+                          <sup className="text-red-600 !font-bold">*</sup>
+                        </p>
+                        <div className="form-control-wrap">
+                          <input
+                            type="text"
+                            className="form-control !text-[11px]"
+                            style={{ borderRadius: 0 }}
+                            placeholder="Enter here"
+                            onChange={handleLastNameChange}
+                          />
+                          {lastNameError && (
+                            <p className="nk-message-error text-xs">
+                              {lastNameError}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>}
+                  )}
                   <div className="col-12">
                     <div className="form-group">
-                      <p className="p">Email {emailVerifyLoader && <CircularProgress className="ml-2" size={15}/>}</p>
+                      <p className="p">
+                        Email<sup className="text-red-600 !font-bold">*</sup>{" "}
+                        {emailVerifyLoader && (
+                          <CircularProgress className="ml-2" size={15} />
+                        )}
+                      </p>
                       <div className="form-control-wrap">
-                        <div >
-                        <input
-                          type="text"
-                          className="form-control !text-[11px]"
-                          style={{ borderRadius: 0 }}
-                          placeholder="Enter here"
-                          onChange={handleEmailChange}
-                          // onKeyUp={(e)=>handleEmailVerification(e?.target?.value)}
-                         
-                        />
-                        
+                        <div>
+                          <input
+                            type="text"
+                            className="form-control !text-[11px]"
+                            style={{ borderRadius: 0 }}
+                            placeholder="Enter here"
+                            onChange={handleEmailChange}
+                            // onKeyUp={(e)=>handleEmailVerification(e?.target?.value)}
+                          />
                         </div>
                         {emailError && (
                           <p className="nk-message-error text-xs">
@@ -594,35 +618,45 @@ const SignupCartModal = ({ show, onHide }) => {
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <p className="">{!emailVerificationStatus ? "Phone" : "Password"}</p>
+                      <p className="">
+                        {!emailVerificationStatus ? "Phone" : "Password"}
+                        <sup className="text-red-600 !font-bold">*</sup>
+                      </p>
                       <div className="form-control-wrap">
-                        {/* <a
-                              href="show-hide-password.html"
-                              className="form-control-icon end password-toggle"
-                              title="Toggle show/hide password"
-                            >
-                              <em className={`on icon ni ${
-                                  showPassword
-                                    ? "ni-eye-off-fill"
-                                    : "ni-eye-fill"
-                                } text-primary`}
-                                onClick={() => setShowPassword(!showPassword)}></em>
-                              <em className="off icon ni ni-eye-off-fill text-primary"></em>
-                            </a> */}
+                        {emailVerificationStatus && (
+                          <a
+                            // href="show-hide-password.html"
+                            className="form-control-icon end bg-white border-y password-toggle"
+                            title="Toggle show/hide password"
+                            style={{
+                              height: "100%",
+                            }}
+                          >
+                            <em
+                              className={`on icon ni cursor-pointer ${
+                                showPassword ? "ni-eye-off-fill" : "ni-eye-fill"
+                              } text-primary`}
+                              onClick={() => setShowPassword(!showPassword)}
+                            ></em>
+                            <em className="off icon ni ni-eye-off-fill text-primary"></em>
+                          </a>
+                        )}
                         <input
                           id="show-hide-password"
-                          type="text"
+                          type={
+                            !emailVerificationStatus || showPassword
+                              ? "text"
+                              : "password"
+                          }
                           className="form-control !text-[11px]"
                           style={{ borderRadius: 0 }}
                           placeholder="Enter here"
                           onChange={handlePhoneChange}
                         />
-                        {phoneError && (
-                          <p className="nk-message-error text-xs">
-                            {phoneError}
-                          </p>
-                        )}
                       </div>
+                      {phoneError && (
+                        <p className="nk-message-error text-xs">{phoneError}</p>
+                      )}
                     </div>
                   </div>
                   <div className="col-12">
@@ -656,10 +690,7 @@ const SignupCartModal = ({ show, onHide }) => {
                               severity="error"
                               className="mt-2"
                             >
-                              <p
-                                key={ind}
-                                className="nk-message-error text-xs"
-                              >
+                              <p key={ind} className="nk-message-error text-xs">
                                 {err}
                               </p>
                             </Alert>
@@ -683,7 +714,7 @@ const SignupCartModal = ({ show, onHide }) => {
                   className="logo-img"
                   src="/images/tm-logo-1.png"
                   alt="logo"
-                  style={{ width: "25%" }}
+                  style={{ width: "28%" }}
                 />
               </a>
             </div>
@@ -713,11 +744,11 @@ const SignupCartModal = ({ show, onHide }) => {
                 </small>
                 <div
                   className={`ml-2 w-full buttonss-off cursor-pointer `}
-                  onClick={()=>{
-                    if(emailVerificationStatus){
-                      handleLoginFormSubmission()
-                    }else{
-                      handleFormSubmission()
+                  onClick={() => {
+                    if (emailVerificationStatus) {
+                      handleLoginFormSubmission();
+                    } else {
+                      handleFormSubmission();
                     }
                   }}
                 >

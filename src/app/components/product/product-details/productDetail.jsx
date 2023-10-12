@@ -1121,8 +1121,10 @@ export default function ProductDetails() {
                               </button>
                             </li>
                             <li>
-                              <button
-                                className="btn btn-white text-primary"
+                              <Button
+                              variant="outlined"
+                                className="p-2 text-primary"
+                                style={{borderRadius:"0.75rem"}}
                                 onClick={() => {
                                   return isLoggedIn
                                     ? handleAddToCart(product?.product_id, product?.product?.img_1)
@@ -1130,27 +1132,28 @@ export default function ProductDetails() {
                                 }}
                               >
                                 Add To Cart
-                              </button>
+                              </Button>
                             </li>
                           </ul>
-                          <div className="d-flex align-items-center gap-1 pt-4">
-                            <em className="icon ni ni-heart-fill text-primary "></em>
+                          <div className="d-flex align-items-center gap-1 pt-4 cursor-pointer group" 
+                          onClick={() => {
+                            isLoggedIn
+                              ? handleAddToWishList(product?.product_id, product?.product?.img_1)
+                              : dispatch(
+                                usersignupinModal({
+                                  showSignupModal: false,
+                                  showLoginModal: true,
+                                  showforgotPasswordModal: false,
+                                  showOtpModal: false,
+                                  showNewPasswordModal: false,
+                                  showSignupCartModal: false,
+                                  showSignupBuyModal: false,
+                                }))
+                          }}>
+                            <em className="icon ni ni-heart-fill text-primary group-hover:!text-violet-900"></em>
                             <p
-                              className="fs-16 fw-semibold text-gray-1200 cursor-pointer"
-                              onClick={() => {
-                                isLoggedIn
-                                  ? handleAddToWishList(product?.product_id, product?.product?.img_1)
-                                  : dispatch(
-                                    usersignupinModal({
-                                      showSignupModal: false,
-                                      showLoginModal: true,
-                                      showforgotPasswordModal: false,
-                                      showOtpModal: false,
-                                      showNewPasswordModal: false,
-                                      showSignupCartModal: false,
-                                      showSignupBuyModal: false,
-                                    }))
-                              }}
+                              className="fs-16 fw-semibold text-gray-1200 cursor-pointer group-hover:!text-violet-900"
+                              
                             >
                               {" "}
                               Add to WishList{" "}
@@ -1158,7 +1161,7 @@ export default function ProductDetails() {
                           </div>
                         </div>
                         <div className="pt-5">
-                          <p className="fs-14 !text-left flex items-center">
+                          <p className="fs-14 !text-left flex items-center drop-shadow-lg">
                             <LocationOnOutlinedIcon className="!w-[18px]"/> Delivery across all over India
                           </p>
                           <div className="nk-social d-sm-flex align-items-center mt-2 gap-3 pb-2" id="product_reviews">

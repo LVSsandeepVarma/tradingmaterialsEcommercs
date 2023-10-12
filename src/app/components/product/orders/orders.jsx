@@ -601,7 +601,7 @@ export default function Orders() {
 
                                   <div className="col-lg-7 ps-lg-0 !drop-shadow-lg">
                                     <div className="gap-5">
-                                      <p className="m-0 fs-16 w-100 td-text-3 !text-left group-hover:!font-bold group-hover:!text-black">
+                                      <p className="m-0 fs-16 w-100 td-text-3 !text-left !font-bold group-hover:!text-black">
                                         {product?.name}
                                       </p>
                                     </div>
@@ -612,7 +612,7 @@ export default function Orders() {
                                           {currentUserlang === "en" &&
                                             price?.INR && (
                                               <p
-                                                className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                                className={`fs-16 m-0 text-gray-1200 text-start group-hover:fw-bold !mr-2  !w-full`}
                                               >
                                                 {currentUserlang === "en"
                                                   ? price?.INR && (
@@ -646,20 +646,20 @@ export default function Orders() {
                                                             )?.toFixed(2) + ""
                                                           )?.split(".")[0]
                                                         }
-                                                        <sub
+                                                        {/* <sub
                                                           style={{
                                                             verticalAlign:
                                                               "super",
                                                           }}
-                                                        >
-                                                          {
+                                                        > */}
+                                                          .{
                                                             (
                                                               Number.parseFloat(
                                                                 price?.INR
                                                               )?.toFixed(2) + ""
                                                             )?.split(".")[1]
                                                           }
-                                                        </sub>
+                                                        {/* </sub> */}
                                                       </>
                                                     )
                                                   : price?.USD &&
@@ -707,13 +707,13 @@ export default function Orders() {
                                                               .toString()
                                                               .split(".")[0]
                                                           }
-                                                          <sub
+                                                          {/* <sub
                                                             style={{
                                                               verticalAlign:
                                                                 "super",
                                                             }}
-                                                          >
-                                                            {
+                                                          > */}
+                                                            .{
                                                               (
                                                                 parseFloat(
                                                                   price?.INR *
@@ -726,7 +726,7 @@ export default function Orders() {
                                                                 .toString()
                                                                 .split(".")[1]
                                                             }
-                                                          </sub>
+                                                          {/* </sub> */}
                                                         </del>
                                                       </>
                                                     )

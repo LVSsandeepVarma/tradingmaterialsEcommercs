@@ -690,17 +690,17 @@ export default function Checkout() {
                             allProducts?.map((product, ind) => {
                               return (
                                 <tr key={ind}>
-                                  <td className="w-50">
-                                    <div className="d-flex align-items-start">
+                                  <td className="">
+                                    <div className="d-flex justify-between hover:!shadow-lg align-items-center">
                                       <img
                                         src={product?.product?.img_1}
                                         alt="product-image"
-                                        className="mb-0 mr-2"
-                                        width="150px"
+                                        className="mb-0 mr-2 cursor-pointer w-[25%] lg:w-[20%]"
+                                        // width="150px"
                                       />
-                                      <div className="w-75">
+                                      <div className="min-w-[70%] max-w-[70%] md:min-w-[59%] md:max-w-[59%]">
                                         <p
-                                          className="prod-title mb-0"
+                                          className="prod-title mb-0 text-xs lg:!text-md md:!text-sm  cursor-pointer"
                                           style={{
                                             textOverflow: "ellipsis",
                                             whiteSpace: "nowrap",
@@ -711,13 +711,13 @@ export default function Checkout() {
                                           {product?.product?.name}
                                         </p>
 
-                                        <p className="prod-desc mb-1 text-success">
+                                        <p className="prod-desc  mb-1 text-success  text-xs lg:!text-md md:!text-sm">
                                           In Stock
                                         </p>
                                         <div className=" ">
                                           <div id="counter" className="">
                                             Qty:
-                                            <span className="fs-18 m-0 text-gray-1200 !text-xs !font-bold !ml-1 !mr-2r">
+                                            <span className="fs-18 m-0 text-gray-1200 text-xs lg:!text-md md:!text-sm !font-bold !ml-1 !mr-2r">
                                               {product?.qty || 1}
                                             </span>
                                           </div>
@@ -725,13 +725,13 @@ export default function Checkout() {
                                             className="!mt-3"
                                             // style={{ marginLeft: "1rem" }}
                                           >
-                                            <span className="total text-white font-semibold">
+                                            <span className="total text-white font-semibold text-xs lg:!text-md md:!text-sm">
                                               ₹ {product?.price}
                                             </span>{" "}
                                           </div>
                                         </div>
                                       </div>
-                                      <div className="d-flex align-items-center w-25">
+                                      <div className="hidden md:flex flex-wrap align-items-center">
                                         <img
                                           src="https://cdn-icons-png.flaticon.com/512/2203/2203145.png"
                                           className="mb-0 mr-1"
@@ -740,7 +740,7 @@ export default function Checkout() {
                                         />
                                         <p
                                           className="prod-desc mb-0 text-success"
-                                          style={{ marginLeft: "5px" }}
+                                          style={{ marginRight: "5px" }}
                                         >
                                           Quick Delivery
                                         </p>
@@ -1029,7 +1029,9 @@ export default function Checkout() {
                               <Form onSubmit={handleSubmit}>
                                 <Form.Group>
                                   <label className="font-bold !text-sm mt-3 m-0">
-                                    Card Number
+                                    Card Number<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup>
                                   </label>
                                   <div className="relative m-0">
                                     <input
@@ -1058,7 +1060,9 @@ export default function Checkout() {
                                 </Form.Group>
                                 <Form.Group>
                                   <label className="font-bold !text-sm mt-3 m-0 ">
-                                    Expiry date
+                                    Expiry date<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup>
                                   </label>
                                   <div className="relative">
                                     <input
@@ -1085,7 +1089,9 @@ export default function Checkout() {
                                 </Form.Group>
                                 <Form.Group>
                                   <label className="font-bold !text-sm mt-3 m-0">
-                                    CVV
+                                    CVV<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup>
                                   </label>
                                   <div className="relative">
                                     <input
@@ -1112,7 +1118,9 @@ export default function Checkout() {
                                 </Form.Group>
                                 <Form.Group>
                                   <label className="font-bold !text-sm mt-3 m-0">
-                                    Name on the card
+                                    Name on the card<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup>
                                   </label>
                                   <div className="relative">
                                     <input

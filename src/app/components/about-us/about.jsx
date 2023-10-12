@@ -281,7 +281,7 @@ export default function About() {
                         <h5 className="!font-bold !text-left !text-xl">
                           Outcomes That Count
                         </h5>
-                        <p className="text line-clamp-2 !text-left">
+                        <p className="text line-clamp-6 !text-left">
                           At Trading Materials, we stand by the significance of
                           results. We&apos;re dedicated to achieving concrete
                           outcomes and measurable impact for our clients.{" "}
@@ -298,7 +298,7 @@ export default function About() {
                         <h5 className="!font-bold !text-left !text-xl">
                           Devotion
                         </h5>
-                        <p className="text line-clamp-2 !text-left">
+                        <p className="text line-clamp-6 !text-left">
                           Devotion remains integral to our ethos at Trading
                           Materials. Our pledge revolves around delivering
                           exceptional service.
@@ -315,7 +315,7 @@ export default function About() {
                         <h5 className="!font-bold !text-left !text-xl">
                           Advancement
                         </h5>
-                        <p className="text line-clamp-2 !text-left">
+                        <p className="text line-clamp-6 !text-left">
                           Advancement is deeply rooted in Trading Materials
                           values. We embrace constant learning, enhancement, and
                           broadening our capabilities.
@@ -332,7 +332,7 @@ export default function About() {
                         <h5 className="!font-bold !text-left !text-xl">
                           Collaboration
                         </h5>
-                        <p className="text line-clamp-2">
+                        <p className="text line-clamp-6">
                           Collaboration is a cornerstone at Trading Materials.
                           We emphasize the potency of teamwork and the
                           harmonious synergy that collective effort brings.
@@ -349,7 +349,7 @@ export default function About() {
                         <h5 className="!font-bold !text-left !text-xl">
                           Ingenuity
                         </h5>
-                        <p className="text line-clamp-2">
+                        <p className="text line-clamp-6">
                           Ingenuity pulses through the veins of Trading
                           Materials. We&apos;re relentless in our pursuit of
                           pushing limits and questioning the status quo.
@@ -366,7 +366,7 @@ export default function About() {
                         <h5 className="!font-bold !text-left !text-xl">
                           Responsibility
                         </h5>
-                        <p className="text line-clamp-2">
+                        <p className="text line-clamp-6">
                           Responsibility is foundational at Trading Materials.
                           We firmly believe in taking ownership and being
                           accountable.

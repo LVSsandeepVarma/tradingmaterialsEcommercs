@@ -48,7 +48,7 @@ export default function Register() {
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
-      setEmailError("Invalid email");
+      setEmailError("Invalid email format");
     } else {
       setEmailError("");
     }
@@ -61,9 +61,9 @@ export default function Register() {
     } else if (!phoneRegex.test(phone)) {
       setPhoneError("Invalid Phone number");
     } else if (phone?.length <= 7) {
-      setPhoneError("Invalid phone number");
+      setPhoneError("Phone number should contain 8 - 15 digits only");
     } else if (phone?.length > 15) {
-      setPhoneError("Invalid phone number");
+      setPhoneError("Phone number should contain 8 - 15 digits only");
     } else {
       setPhoneError("");
     }
@@ -73,13 +73,13 @@ export default function Register() {
     const namePattern = /^[A-Za-z ]+$/;
     if (name === "") {
       setFirstNameError("First name is required");
-    }else if (!namePattern.test(name)) {
+    } else if (!namePattern.test(name)) {
       setFirstNameError("First name should contain only alphabets");
     } else if (name?.length < 3) {
       setFirstNameError("Min 3 characters are required");
     } else if (name?.length > 50) {
-      setFirstNameError("Max 50 characters are required");
-    }  else {
+      setFirstNameError("Maximum limit exceeded");
+    } else {
       setFirstNameError("");
     }
   }
@@ -88,13 +88,13 @@ export default function Register() {
     const namePattern = /^[A-Za-z ]+$/;
     if (name === "") {
       setLastNameError("Last name is required");
-    }else if (!namePattern.test(name)) {
+    } else if (!namePattern.test(name)) {
       setLastNameError("Last name should contain only alphabets");
     } else if (name?.length < 1) {
       setLastNameError("Last name is required");
     } else if (name?.length > 50) {
-      setLastNameError("Max 50 characters are required");
-    }  else {
+      setLastNameError("Maximum limit exceeded");
+    } else {
       setLastNameError("");
     }
   }
@@ -105,6 +105,7 @@ export default function Register() {
   }
 
   function handlePhoneChange(e) {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
     setPhone(e?.target?.value);
     phoneValidation(e?.target?.value);
   }
@@ -250,7 +251,10 @@ export default function Register() {
                     <div className="row gy-4 !text-left">
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">First Name</label>
+                          <label className="form-label">
+                            First Name
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <input
                               type="text"
@@ -268,7 +272,10 @@ export default function Register() {
                       </div>
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">Last Name</label>
+                          <label className="form-label">
+                            Last Name
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <input
                               type="text"
@@ -286,7 +293,10 @@ export default function Register() {
                       </div>
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">Email</label>
+                          <label className="form-label">
+                            Email
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <input
                               type="text"
@@ -304,7 +314,10 @@ export default function Register() {
                       </div>
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">Phone</label>
+                          <label className="form-label">
+                            Phone
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <input
                               id="show-hide-password"
@@ -314,9 +327,7 @@ export default function Register() {
                               onChange={handlePhoneChange}
                             />
                             {phoneError && (
-                              <p className="nk-message-error">
-                                {phoneError}
-                              </p>
+                              <p className="nk-message-error">{phoneError}</p>
                             )}
                           </div>
                         </div>

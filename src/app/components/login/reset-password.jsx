@@ -56,6 +56,8 @@ export default function NewPassword() {
     //   /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (confirmPassword?.length === 0) {
       setconfirmPasswordError("confirm Password is required");
+    }else if (confirmPassword?.length <8 || confirmPassword?.length> 15 ) {
+      setconfirmPasswordError("Invalid confirm password")
     } else if (confirmPassword !== password) {
       setconfirmPasswordError("password and confirm password does not match");
     } else {
@@ -69,12 +71,20 @@ export default function NewPassword() {
       setPasswordError("Password is required");
     } else if (password?.length <= 5) {
       setPasswordError("password is Too short");
-    } else if (password?.length <= 7 && password?.length > 5) {
+    } else if ((password?.length <= 7 && password?.length > 5) || password?.length >15) {
+
       setPasswordError("Invalid password");
-    } else if (password?.length >=8) {
       if(confirmPassword != "" && confirmPassword !== password){
+        // console.log(password, confirmPassword, "confm")
+        setconfirmPasswordError("Invalid confirm password");
+      }
+    } else if (password?.length >=8 && password?.length<= 15 ) {
+      if(confirmPassword != "" && confirmPassword !== password){
+        // console.log(password, confirmPassword, "confm")
         setconfirmPasswordError("password and confirm password does not match");
         
+      }if (confirmPassword != "" && confirmPassword == password){
+        setconfirmPasswordError("")
       }
       setPasswordError("")
       
@@ -194,22 +204,24 @@ export default function NewPassword() {
                     <div className="row gy-4 !text-left">
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">Password</label>
+                          <label className="form-label">Password<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup></label>
                           <div className="form-control-wrap">
                             <a
                               // href="show-hide-password.html"
-                              className="form-control-icon end password-toggle"
+                              className="form-control-icon end bg-white border-y password-toggle"
                               title="Toggle show/hide password"
                             >
                               <em
-                                className={`on icon ni cursor-pointer ${
+                                className={`on icon ni cursor-pointer bg-white w-[15%]  ${
                                   showPassword
                                     ? "ni-eye-off-fill"
                                     : "ni-eye-fill"
                                 } text-primary`}
                                 onClick={() => setShowPassword(!showPassword)}
                               ></em>
-                              <em className="off icon ni ni-eye-off-fill text-primary"></em>
+                              <em className="off icon  ni ni-eye-off-fill text-primary"></em>
                             </a>
                             <input
                               id="show-hide-password"
@@ -229,12 +241,14 @@ export default function NewPassword() {
                       <div className="col-12">
                         <div className="form-group">
                           <label className="form-label ">
-                            Confirm Password
+                            Confirm Password<sup className="text-red-600 !font-bold">
+                                    *
+                                  </sup>
                           </label>
                           <div className="form-control-wrap">
                             <a
                               // href="show-hide-password.html"
-                              className="form-control-icon end password-toggle"
+                              className="form-control-icon end bg-white border-y password-toggle"
                               title="Toggle show/hide password"
                             >
                               <em
@@ -350,22 +364,21 @@ export default function NewPassword() {
                     <em className="icon ni ni-quote-left text-white"></em>
                   </div>
                   <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
-                    We’re building a better application now
+                    Join to all traders community
                   </h1>
                   <div className="nk-auth-quote ms-sm-5">
                     <div className="nk-auth-quote-inner">
                       <p className="small">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Venenatis magna massa semper tristique. Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit. Venenatis
-                        magna massa semper tristique dotset.
+                        The trading materials is about to have a twist on forum
+                        and community space for all who love to trade and make
+                        their own living.
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
                           <img src="/images/avatar/a.jpg" alt="avatar" />
                         </div>
                         <div className="media-text">
-                          <div className="h5 mb-0 !font-bold">Wade Warren</div>
+                          <div className="h5 mb-0 !font-bold">Founder</div>
                           <span className="small">3 months ago</span>
                         </div>
                       </div>

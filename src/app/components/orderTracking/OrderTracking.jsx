@@ -127,7 +127,7 @@ export default function OrderTacker() {
   function emailValidaiton(email) {
     const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email != "" && !emailRegex.test(email)) {
-      setEmailErr("Invalid email");
+      setEmailErr("Invalid email format");
       return false;
     } else {
       setEmailErr("");
@@ -184,9 +184,11 @@ export default function OrderTacker() {
         }
       } catch (err) {
         console.log(err);
-        if(err?.response?.data?.errors){
-          setOrderNoErr(Object.values(err?.response?.data?.errors["order_number"]))
-          setEmailErr(Object.values(err?.response?.data?.errors["email"]))
+        if (err?.response?.data?.errors) {
+          setOrderNoErr(
+            Object.values(err?.response?.data?.errors["order_number"])
+          );
+          setEmailErr(Object.values(err?.response?.data?.errors["email"]));
         }
         setApiErr(err?.response?.data?.message);
       } finally {
@@ -259,27 +261,32 @@ export default function OrderTacker() {
                   windowWidth == "horizontal" && (
                     <div className="col-md-12 col-lg-6 mb-6 pt-5 sm:pt-0 grid ">
                       <div className="ml-0 md:ml-4 lg:ml-8">
-                      <p className="mb-2 text-start md:text-left">
-                        Your Order: <b className="!text-blue-600">{orderData?.order_number} </b> <br />
-                        <p className="">
-                          Order Status:{" "}
-                          <b className="!text-blue-600">{steps[orderData?.status]}</b>
-                        </p>{" "}
-                        <p className="">
-                        Updated on:{" "}
-                        <b className="!text-blue-600">{new Date(orderData?.updated_at).toLocaleDateString(
-                          "en-GB",
-                          {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          }
-                        )}
-                        </b>
-                      </p>
-                      </p>
+                        <p className="mb-2 text-start md:text-left">
+                          Your Order:{" "}
+                          <b className="!text-blue-600">
+                            {orderData?.order_number}{" "}
+                          </b>{" "}
+                          <br />
+                          <p className="">
+                            Order Status:{" "}
+                            <b className="!text-blue-600">
+                              {steps[orderData?.status]}
+                            </b>
+                          </p>{" "}
+                          <p className="">
+                            Updated on:{" "}
+                            <b className="!text-blue-600">
+                              {new Date(
+                                orderData?.updated_at
+                              ).toLocaleDateString("en-GB", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </b>
+                          </p>
+                        </p>
                       </div>
-                      
 
                       <CustomizedSteppers
                         orderStatus={
@@ -290,31 +297,35 @@ export default function OrderTacker() {
                             : orderData?.status - 1
                         }
                       />
-                      <p className="text-center cursor-pointer hover:!text-blue-600" onClick={()=>{
-                        if(orderData?.status != "0"){
-                          window.location.href = `https://client.tradingmaterials.com/login`
-                        }else{
-                          dispatch(
-                            usersignupinModal({
-                              showSignupModal: false,
-                              showLoginModal: true,
-                              showforgotPasswordModal: false,
-                              showOtpModal: false,
-                              showNewPasswordModal: false,
-                              showSignupCartModal: false,
-        showSignupBuyModal: false,
-
-                            })
-                          );
-                        }
-                      }}>Login to your account</p>
+                      <p
+                        className="text-center cursor-pointer hover:!text-blue-600"
+                        onClick={() => {
+                          if (orderData?.status != "0") {
+                            window.location.href = `https://client.tradingmaterials.com/login`;
+                          } else {
+                            dispatch(
+                              usersignupinModal({
+                                showSignupModal: false,
+                                showLoginModal: true,
+                                showforgotPasswordModal: false,
+                                showOtpModal: false,
+                                showNewPasswordModal: false,
+                                showSignupCartModal: false,
+                                showSignupBuyModal: false,
+                              })
+                            );
+                          }
+                        }}
+                      >
+                        Login to your account
+                      </p>
                     </div>
                   )}
 
                 {!submitted && !orderData?.name && (
                   <div className="col-12 col-md-12 col-lg-6 card bg-white drop-shadow-lg shadow-lg  p-10">
                     <h1 className="!text-xl  lg:!text-4xl  text-center ">
-                      <b>Track your</b> order
+                      <b>Track your order</b>
                     </h1>
                     <div className="flex justify-center w-full">
                       <div className="form-control-wrap hover:drop-shadow-lg w-[100%]  mt-3">
