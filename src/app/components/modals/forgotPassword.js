@@ -222,7 +222,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                         type="button"
                         onClick={handleFormSubmission}
                       >
-                        Send Reset Link
+                        Request Reset Link
                       </button>
                       {emailSentMsg && (
                         <Alert

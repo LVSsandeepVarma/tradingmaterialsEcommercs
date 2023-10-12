@@ -165,7 +165,7 @@ export default function Offer({ mouseOverEvent, isMouseEntered }) {
         )}
 
         {successMsg?.length > 0 && (
-          <p className="text-green-900 text-sm ">{successMsg}</p>
+          <p className="text-green-900 text-sm ">Offer code applied successfully</p>
         )}
         {apiErr?.length > 0 &&
           apiErr?.map((err, ind) => {

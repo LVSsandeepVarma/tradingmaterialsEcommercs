@@ -181,7 +181,7 @@ export default function Otp() {
                             type="button"
                             onClick={handleFormSubmission}
                           >
-                            Send Reset Link
+                            Verify OTP
                           </button>
 
                           {/* {successMEssage && (

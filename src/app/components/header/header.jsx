@@ -620,7 +620,7 @@ export default function Header() {
             }}
           >
             <div className="row !ml-0 !mr-0 !shadow-xl">
-              {!mouseOverEvent &&  (
+              {!mouseOverEvent  &&  (
                 <div
                   className={`d-flex drop-shadow-lg shadow-lg flex-col col-12 col-md-6  items-center justify-center `}
                   style={{
@@ -643,8 +643,8 @@ export default function Header() {
                     style={{ textAlign: "left !important" }}
                   >
                     <div className=" !text-center">
-                      <h3 className="!font-bold text-black text-sm sm:text-xl text-center  ">
-                      Get you offer message Instantly
+                      <h3 className="!font-bold text-slate-200 drop-shadow-xl shadow text-sm sm:text-sm text-center hover:scale-105 ">
+                      Get you offer message&nbsp;Instantly
                       </h3>
                     </div>
                   </div>

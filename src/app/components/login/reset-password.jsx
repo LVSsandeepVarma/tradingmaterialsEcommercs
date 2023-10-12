@@ -55,11 +55,11 @@ export default function NewPassword() {
     // const confirmPasswordRegex =
     //   /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (confirmPassword?.length === 0) {
-      setconfirmPasswordError("confirm Password is required");
+      setconfirmPasswordError("Confirm Password is required");
     }else if (confirmPassword?.length <8 || confirmPassword?.length> 15 ) {
-      setconfirmPasswordError("Invalid confirm password")
+      setconfirmPasswordError("Password does not match")
     } else if (confirmPassword !== password) {
-      setconfirmPasswordError("password and confirm password does not match");
+      setconfirmPasswordError("Password does not match");
     } else {
       setconfirmPasswordError("");
     }
@@ -67,21 +67,61 @@ export default function NewPassword() {
 
   function passwordValidation(password) {
     console.log(password?.length, passwordError)
+    // const passwordRegex = /^(?=.*[A-Za-z0-9])(?=.*[^A-Za-z0-9]).+$/
+    const hasAlpha = /[A-Za-z]/;
+    const hasNumaricals = /\d/;
+    const hasSpecialCharecters = /[^A-Za-z0-9]/
+    console.log(hasAlpha.test(password),hasNumaricals.test(password),hasSpecialCharecters.test(password),"tessst")
     if (password?.length === 0) {
       setPasswordError("Password is required");
-    } else if (password?.length <= 5) {
-      setPasswordError("password is Too short");
-    } else if ((password?.length <= 7 && password?.length > 5) || password?.length >15) {
+    } else if ((password?.length <= 7 ) || password?.length >15) {
 
-      setPasswordError("Invalid password");
+      setPasswordError("Password should contain 8 - 15 characters only");
       if(confirmPassword != "" && confirmPassword !== password){
         // console.log(password, confirmPassword, "confm")
-        setconfirmPasswordError("Invalid confirm password");
+        setconfirmPasswordError("Password does not match");
       }
-    } else if (password?.length >=8 && password?.length<= 15 ) {
+    }
+     else if (password?.length >=8 && password?.length<= 15 ) {
+
+      if(!hasAlpha.test(password)){
+        setPasswordError("Atleast one alphabet is required ")
+        console.log("tessst")
+        if(confirmPassword != "" && confirmPassword !== password){
+          // console.log(password, confirmPassword, "confm")
+          setconfirmPasswordError("Password does not match");
+          
+        }if (confirmPassword != "" && confirmPassword == password){
+          setconfirmPasswordError("")
+        }
+        return
+      }else if(!hasNumaricals.test(password)){
+        setPasswordError("Atleast one number is required")
+        console.log("tessst")
+        if(confirmPassword != "" && confirmPassword !== password){
+          // console.log(password, confirmPassword, "confm")
+          setconfirmPasswordError("Password does not match");
+          
+        }if (confirmPassword != "" && confirmPassword == password){
+          setconfirmPasswordError("")
+        }
+        return
+      }else if(!hasSpecialCharecters.test(password)){
+        setPasswordError("Atleast one special character is required")
+        console.log("tessst")
+        if(confirmPassword != "" && confirmPassword !== password){
+          // console.log(password, confirmPassword, "confm")
+          setconfirmPasswordError("Password does not match");
+          
+        }if (confirmPassword != "" && confirmPassword == password){
+          setconfirmPasswordError("")
+        }
+        return
+      }
+
       if(confirmPassword != "" && confirmPassword !== password){
         // console.log(password, confirmPassword, "confm")
-        setconfirmPasswordError("password and confirm password does not match");
+        setconfirmPasswordError("Password does not match");
         
       }if (confirmPassword != "" && confirmPassword == password){
         setconfirmPasswordError("")
@@ -204,7 +244,7 @@ export default function NewPassword() {
                     <div className="row gy-4 !text-left">
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">Password<sup className="text-red-600 !font-bold">
+                          <label className="form-label">New Password<sup className="text-red-600 !font-bold">
                                     *
                                   </sup></label>
                           <div className="form-control-wrap">
@@ -232,7 +272,7 @@ export default function NewPassword() {
                             />
                           </div>
                           {passwordError && (
-                            <p className="nk-message-error text-xs">
+                            <p className="nk-message-error text-xs mt-1">
                               {passwordError}
                             </p>
                           )}
@@ -271,7 +311,7 @@ export default function NewPassword() {
                             />
                           </div>
                           {confirmPasswordError && (
-                              <p className="nk-message-error text-xs">
+                              <p className="nk-message-error text-xs mt-1">
                                 {confirmPasswordError}
                               </p>
                           )}
@@ -309,7 +349,7 @@ export default function NewPassword() {
                             type="button"
                             onClick={handleFormSubmission}
                           >
-                            Login to Your Account
+                            Reset Password
                           </button>
                           {loginSuccessMsg && (
                             <Alert

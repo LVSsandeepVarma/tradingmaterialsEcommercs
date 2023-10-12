@@ -21,6 +21,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import OrderPlacedRepresentativeModal from "../../modals/orderplaced";
 import {
   ButtonBase,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -42,7 +43,8 @@ export default function AddToCart() {
   const clientType = useSelector((state) => state?.clientType?.value);
   const addressStatus = useSelector((state) => state?.addressStatus?.value);
   const [deleteProductId, setDeleteProductId] = useState();
-
+  const [ increamentDecreamentLoader, setIncreamentDecreamentLoader] = useState(false)
+  const [activeProductId, setActiveProductId] = useState("")
   const [showModal, setShowModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
@@ -50,6 +52,7 @@ export default function AddToCart() {
   const [fomrType, setFormType] = useState("add");
   const [promocode, setPromocode] = useState("");
   const [showSessionExppiry, setShowSessionExpiry] = useState(false)
+
   const [showPlaceOrderModal, setShowPlaceOrderModal] = useState(false);
   const [apiErr, setApiErr] = useState([]);
   const [activeShippingAddress, setActiveShippingAddress] = useState(
@@ -220,7 +223,21 @@ export default function AddToCart() {
         // getUserInfo();
         applyPromoCode();
         // const productData = JSON.parse(localStorage.getItem("productData"))
-
+        if(status == "add"){
+          setQuantities((prevQuantities) => ({
+            ...prevQuantities,
+            [productId]: (prevQuantities[productId] || 0) + 1,
+          }));
+        }
+        if(status == "remove"){
+          setQuantities((prevQuantities) => {
+            const currentQuantity = prevQuantities[productId] || 0;
+            return {
+              ...prevQuantities,
+              [productId]: currentQuantity > 1 ? currentQuantity - 1 : 1,
+            };
+          });
+        }
         localStorage.removeItem("productData");
         localStorage.removeItem("productQty");
       }
@@ -327,11 +344,13 @@ export default function AddToCart() {
 
   // Function to handle incrementing the quantity for a product
   const handleIncrement = (productId) => {
-    setQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: (prevQuantities[productId] || 0) + 1,
-    }));
+    // setActiveProductId(productId)
+    // setIncreamentDecreamentLoader(true)
     handleAddToCart(productId, "add");
+    setTimeout(()=>{
+      setIncreamentDecreamentLoader(false)
+      setActiveProductId()
+    },800)
   };
 
   //deleting from the cart
@@ -368,13 +387,10 @@ export default function AddToCart() {
   // Function to handle decrementing the quantity for a product
   const handleDecrement = (productId) => {
     if (quantities[productId] > 1) {
-      setQuantities((prevQuantities) => {
-        const currentQuantity = prevQuantities[productId] || 0;
-        return {
-          ...prevQuantities,
-          [productId]: currentQuantity > 1 ? currentQuantity - 1 : 1,
-        };
-      });
+      // setActiveProductId(productId)
+      // setIncreamentDecreamentLoader(true)
+      
+      
       handleAddToCart(productId, "remove");
     } else {
       setQuantities((prevQuantities) => {
@@ -384,6 +400,10 @@ export default function AddToCart() {
         };
       });
     }
+    setTimeout(()=>{
+      setIncreamentDecreamentLoader(false)
+      setActiveProductId()
+    },800)
     // handleAddToCart(productId, "remove");
   };
 
@@ -668,16 +688,19 @@ export default function AddToCart() {
                                           className="d-flex items-center  "
                                           style={{ marginTop: "2rem" }}
                                         >
-                                          <div
+                                          {increamentDecreamentLoader && activeProductId == product?.product_id && <CircularProgress  color="secondary" size={25}/>}
+                                          {(activeProductId != product?.product_id) && <div
                                             id="counter"
                                             className="nk-counter"
                                           >
                                             <button
                                             className=" text-xs lg:!text-md md:!text-sm"
-                                              onClick={() =>
+                                              onClick={() =>{
+                                                setIncreamentDecreamentLoader(true);
+                                                setActiveProductId(product.product_id)
                                                 handleDecrement(
                                                   product.product_id
-                                                )
+                                                )}
                                               }
                                             >
                                               -
@@ -687,15 +710,18 @@ export default function AddToCart() {
                                                 1}
                                             </span>
                                             <button className=" text-xs lg:!text-md md:!text-sm"
-                                              onClick={() =>
+                                              onClick={() =>{
+                                                setIncreamentDecreamentLoader(true);
+                                                setActiveProductId(product.product_id)
                                                 handleIncrement(
                                                   product.product_id
                                                 )
                                               }
+                                            }
                                             >
                                               +
                                             </button>
-                                          </div>
+                                          </div>}
                                           <div
                                             className="!ml-8 w-full"
                                             style={{ marginLeft: "1rem" }}

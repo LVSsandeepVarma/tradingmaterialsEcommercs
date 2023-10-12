@@ -68,6 +68,8 @@ const LoginModal = ({ show, onHide }) => {
   function passwordValidation(password) {
     if (password?.length === 0) {
       setPasswordError("Password is required");
+    }else if(password?.length >15){
+      setPasswordError("Maximum limit exceeded");
     } else {
       setPasswordError("");
     }
