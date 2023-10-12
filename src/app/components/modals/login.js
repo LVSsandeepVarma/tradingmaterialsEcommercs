@@ -338,9 +338,9 @@ const LoginModal = ({ show, onHide }) => {
                   </div>
                   <div className="col-12">
                     <div className="d-flex flex-wrap align-items-start  justify-content-between text-center">
-                      <div className="form-check">
+                      <div className="form-check cursor-pointer" onClick={()=>setSavecredentials(!saveCredentials)}>
                         <input
-                          className="form-check-input"
+                          className="form-check-input cursor-pointer"
                           type="checkbox"
                           value=""
                           id="rememberMe"
@@ -348,8 +348,10 @@ const LoginModal = ({ show, onHide }) => {
                           onChange={() => setSavecredentials(!saveCredentials)}
                         />
                         <label
-                          className="form-check-label"
-                          htmlFor="rememberMe"
+                          className="form-check-label cursor-pointer"
+                          // htmlFor="rememberMe"
+                          // onClick={()=>setSavecredentials(true)}
+
                         >
                           {" "}
                           Remember Me{" "}

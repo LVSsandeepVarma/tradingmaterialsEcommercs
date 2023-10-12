@@ -1135,6 +1135,13 @@ export default function SideBar() {
                                             {product?.price}
                                             {product?.discount > 0 && (
                                               <del className="text-gray-800 !ml-2">
+                                                <sub
+                                              style={{
+                                                verticalAlign: "super",
+                                              }}
+                                            >
+                                              ₹
+                                            </sub>
                                                 {
                                                                 (
                                                                   parseFloat(

@@ -246,8 +246,11 @@ export default function Checkout() {
     const addCvv = e.target.value;
     setCVV(addCvv);
     console.log(addCvv.match(/^[0-9]+$/), addCvv);
-    if (addCvv?.length > 3 || addCvv?.length < 3) {
-      setCVVError("CVV required");
+    if(addCvv == ""){
+      setCVVError("CVV is required")
+    }
+    else if (addCvv?.length > 3 || addCvv?.length < 3) {
+      setCVVError("Invalid CVV");
     } else if (addCvv.match(/^[0-9]+$/) === null) {
       setCVVError("Invalid CVV");
     } else {
@@ -314,13 +317,17 @@ export default function Checkout() {
 
   const handleCardNumberChange = (event) => {
     const formattedValue = formatCardNumber(event.target.value);
-
+    setCardNumber(formattedValue);
     if (validateCardNumber(formattedValue)) {
       setCardNumberError("");
     } else {
+      if(event.target.value == ""){
+        setCardNumberError("Card number is required")
+      }else{
       setCardNumberError("Please enter a valid card number.");
+      }
     }
-    setCardNumber(formattedValue);
+    
     if (apiError?.length > 0) {
       setApiError([]);
     }
@@ -331,7 +338,11 @@ export default function Checkout() {
     if (validateExpiry(formattedValue)) {
       setExpiryError("");
     } else {
-      setExpiryError("Expiry field required");
+      if(event.target.value == "/" || event.target.value == ""){
+      setExpiryError("Expiry is required");
+      }else{
+        setExpiryError("Invalid expiry")
+      }
     }
     setExpiry(formattedValue);
     if (apiError?.length > 0) {
@@ -369,16 +380,32 @@ export default function Checkout() {
         // setIsSuccess(true)
       } else {
         if (isNameValid === null) {
+          if(nameOnCard != ""){
           setNameErr("Invalid name");
+          }else{
+            setNameErr("Name is required")
+          }
         }
         if (isCardNumberValid === false) {
-          setCardNumberError("Card number is invalid");
+          if(cardNumber != ""){
+            setCardNumberError("Card number is invalid");
+          }else{
+            setCardNumberError("Card number is required")
+          }
         }
         if (isExpiryValid === null) {
+          if(expiry != ""){
           setExpiryError("Invalid card expiry");
+          }else{
+            setExpiryError("Expiry is required")
+          }
         }
         if (isCVVValid === false) {
+          if(cvvError != ""){
           setCVVError("Invalid CVV");
+          }else{
+            setCVVError("CVV is required")
+          }
         }
         // setIsFailure(true)
       }
@@ -1046,7 +1073,7 @@ export default function Checkout() {
                                       //   !validateCardNumber(cardNumber)
                                       // }
                                     />
-                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400" >
                                       <FaCreditCard size={15} color="gray" />
                                     </div>
                                   </div>
@@ -1131,7 +1158,16 @@ export default function Checkout() {
                                       onChange={handleNameChage}
                                       // isInvalid={nameOnCard && !validateName(name)}
                                     />
-                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400"
+                                    style={{
+                                      background: "#f3f3f3",
+                                      right: "7px",
+                                      paddingTop:"2px",
+                                      paddingRight:"2px",
+                                      top: "15px"
+
+                                    }}
+                                    >
                                       <MdOutlineAccountCircle
                                         size={20}
                                         color="gray"

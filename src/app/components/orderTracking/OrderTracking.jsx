@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +23,7 @@ export default function OrderTacker() {
   const loaderState = useSelector((state) => state?.loader?.value);
   const [email, setEmail] = useState("");
   const [orderNo, setOrderNo] = useState("");
+  const isLoggedIn = useSelector((state) => state.login?.value);
   // eslint-disable-next-line no-unused-vars
   const [submitted, setSubmitted] = useState(false);
   const [emailErr, setEmailErr] = useState("");
@@ -221,25 +223,33 @@ export default function OrderTacker() {
                       </p>
                     )}
                     {submitted &&
-                      windowWidth == "vertical" &&
-                      orderData != null && (
+                      // windowWidth == "vertical" &&
+                      orderData != null && 
+                      (
                         <p className="text-2xl text-center md: text-start">
                           Your Order-<b>{orderData?.order_number} </b> is{" "}
                           <b className="">{steps[orderData?.status]}</b>
                         </p>
                       )}
                     <div className="flex justify-center">
-                      {((windowWidth == "vertical" &&
-                        !submitted &&
-                        orderData == null) ||
-                        windowWidth == "horizontal") && (
+                      {
+                      // ((
+                        // !submitted 
+                        // orderData == nul)
+                        // windowWidth == "horizontal"
+                        // )) && (
                         <img
                           src="/images/gifs/truck-tm1.gif"
                           alt="delvery"
                           className="w-[44%] "
                         />
-                      )}
-                      {windowWidth == "vertical" && icons[orderData?.status]}
+                      // )
+                      }
+                      {/* {windowWidth == "vertical" && icons[orderData?.status == "0"
+                            ? "1"
+                            : orderData?.status >= 4
+                            ? "4"
+                            : orderData?.status]} */}
                     </div>
                     <div
                       className="mt-5 p-3 "
@@ -258,24 +268,25 @@ export default function OrderTacker() {
                 </div>
                 {submitted &&
                   orderData != null &&
-                  windowWidth == "horizontal" && (
-                    <div className="col-md-12 col-lg-6 mb-6 pt-5 sm:pt-0 grid ">
+                  // windowWidth == "horizontal" && (
+                    <div className="col-md-12 col-lg-6 mb-6 pt-5 sm:pt-0 grid place-items-center ">
+                      <div className="flex justify-around items-center w-full">
                       <div className="ml-0 md:ml-4 lg:ml-8">
-                        <p className="mb-2 text-start md:text-left">
+                        <p className="mb-2 text-start md:text-left text-xs md:text-sm lg:text-xl !mb-3">
                           Your Order:{" "}
-                          <b className="!text-blue-600">
+                          <b className="!text-blue-600 text-xs md:text-sm lg:text-xl">
                             {orderData?.order_number}{" "}
                           </b>{" "}
                           <br />
-                          <p className="">
+                          <p className="text-xs md:text-sm lg:text-xl ">
                             Order Status:{" "}
-                            <b className="!text-blue-600">
+                            <b className="!text-blue-600 text-xs md:text-sm lg:text-xl !mb-2">
                               {steps[orderData?.status]}
                             </b>
                           </p>{" "}
-                          <p className="">
+                          <p className="text-xs md:text-sm lg:text-xl !mb-2">
                             Updated on:{" "}
-                            <b className="!text-blue-600">
+                            <b className="!text-blue-600 text-xs md:text-sm lg:text-xl ">
                               {new Date(
                                 orderData?.updated_at
                               ).toLocaleDateString("en-GB", {
@@ -287,6 +298,16 @@ export default function OrderTacker() {
                           </p>
                         </p>
                       </div>
+                      <Button
+                        onClick={() => {
+                          setSubmitted(false);
+                        }}
+                        variant="outlined"
+                        startIcon={<CompareArrowsIcon className="!w-[18px]" />}
+                      >
+                        Try Again
+                      </Button>
+                      </div>
 
                       <CustomizedSteppers
                         orderStatus={
@@ -297,7 +318,7 @@ export default function OrderTacker() {
                             : orderData?.status - 1
                         }
                       />
-                      <p
+                      {!isLoggedIn && <p
                         className="text-center cursor-pointer hover:!text-blue-600"
                         onClick={() => {
                           if (orderData?.status != "0") {
@@ -318,9 +339,10 @@ export default function OrderTacker() {
                         }}
                       >
                         Login to your account
-                      </p>
+                      </p>}
                     </div>
-                  )}
+                  // )
+                  }
 
                 {!submitted && !orderData?.name && (
                   <div className="col-12 col-md-12 col-lg-6 card bg-white drop-shadow-lg shadow-lg  p-10">

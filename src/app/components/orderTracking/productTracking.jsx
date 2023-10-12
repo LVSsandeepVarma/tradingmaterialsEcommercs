@@ -47,11 +47,11 @@ function QontoStepIcon(props) {
   const { active, completed, className } = props;
 
   return (
-    <QontoStepIconRoot ownerState={{ active }} className={className}>
+    <QontoStepIconRoot  ownerState={{ active }} className={className}>
       {completed ? (
-        <Check className="QontoStepIcon-completedIcon" />
+        <Check className="QontoStepIcon-completedIcon !text-xs md:!text-lg" />
       ) : (
-        <div className="QontoStepIcon-circle" />
+        <div className="QontoStepIcon-circle !text-xs md:!text-lg" />
       )}
     </QontoStepIconRoot>
   );
@@ -96,7 +96,8 @@ const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
-const ColorlibStepIconRoot = styled("div")(({ theme, ownerState }) => ({
+const ColorlibStepIconRoot = styled("div")(({ theme, ownerState }) => (
+  {
   backgroundColor:
     theme.palette.mode === "dark" ? theme.palette.grey[700] : "#ccc",
   zIndex: 1,
@@ -123,10 +124,10 @@ function ColorlibStepIcon(props) {
 
   const icons = {
     // 0: <MdOutlinePendingActions className="w-fit h-[30px]" />,
-    1: <FaBoxes className="w-fit h-[30px]" />,
-    2: <BsFillFileEarmarkCheckFill className="w-fit h-[30px]" />,
-    3: <TbTruckDelivery className="w-fit h-[30px] " />,
-    4: <FaBoxOpen className="w-fit h-[30px] flex justify-end" />,
+    1: <FaBoxes className="w-fit h-[20px] sm:h-[30px]" />,
+    2: <BsFillFileEarmarkCheckFill className="w-fit 061020231570h-[30px]" />,
+    3: <TbTruckDelivery className="w-fit h-[20px] sm:h-[30px] " />,
+    4: <FaBoxOpen className="w-fit h-[20px] sm:h-[30px] flex justify-end" />,
     // 8: <FaWindowClose className="w-fit h-[30px]" />,
     // 9: <GiReturnArrow className="!w-fit h-[30px]" />,
   };
@@ -195,7 +196,7 @@ export default function CustomizedSteppers({ orderStatus }) {
 //   },[]);
 
   return (
-    <Stack sx={{ width: "100%" }} spacing={"12px"}>
+    <Stack sx={{ width: "100%" }} spacing={"12px"} className="!w-full" >
       <Stepper alternativeLabel orientation={"horizontal"}   activeStep={parseInt(orderStatus)}  connector={<ColorlibConnector />}>
         {steps.map((label,index) => 
             (
