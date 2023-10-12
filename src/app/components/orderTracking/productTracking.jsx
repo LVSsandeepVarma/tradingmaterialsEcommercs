@@ -43,6 +43,8 @@ const QontoStepIconRoot = styled("div")(({ theme, ownerState }) => ({
   },
 }));
 
+
+
 function QontoStepIcon(props) {
   const { active, completed, className } = props;
 
@@ -117,6 +119,10 @@ const ColorlibStepIconRoot = styled("div")(({ theme, ownerState }) => (
     backgroundImage:
       "linear-gradient( 136deg, rgb(242,113,33) 0%, rgb(233,64,87) 50%, rgb(138,35,135) 100%)",
   }),
+  // "@media (max-width: 380px)": {
+  //   width: 30,
+  //   height: 30,
+  // },
 }));
 
 function ColorlibStepIcon(props) {
@@ -173,30 +179,10 @@ const steps = [
 // eslint-disable-next-line react/prop-types
 export default function CustomizedSteppers({ orderStatus }) {
   console.log(orderStatus);
-  const [windowWidth, setWindowWidth] = useState("vertical");
 
-  // Function to update the window width state
-//   const updateWindowWidth = () => {
-//     if (window.innerWidth < 780) setWindowWidth("vertical");
-//     else setWindowWidth("horizontal")
-//     console.log(window.innerWidth, "innerWidth")
-
-    
-//   };
-
-//   useEffect(() => {
-//     // Add an event listener to listen for window resize events
-//     window.addEventListener("resize", updateWindowWidth);
-
-
-//     // Clean up the event listener when the component unmounts
-//     return () => {
-//       window.removeEventListener("resize", updateWindowWidth);
-//     };
-//   },[]);
 
   return (
-    <Stack sx={{ width: "100%" }} spacing={"12px"} className="!w-full" >
+    <Stack sx={{ width: "100%" }} spacing={4}  >
       <Stepper alternativeLabel orientation={"horizontal"}   activeStep={parseInt(orderStatus)}  connector={<ColorlibConnector />}>
         {steps.map((label,index) => 
             (

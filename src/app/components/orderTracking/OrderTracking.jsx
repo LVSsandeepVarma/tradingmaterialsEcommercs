@@ -269,8 +269,8 @@ export default function OrderTacker() {
                 {submitted &&
                   orderData != null &&
                   // windowWidth == "horizontal" && (
-                    <div className="col-md-12 col-lg-6 mb-6 pt-5 sm:pt-0 grid place-items-center ">
-                      <div className="flex justify-around items-center w-full">
+                    <div className="col-md-12 col-lg-6 mb-6 pt-5 sm:pt-0 grid place-items-center !pr-0 !pl-0">
+                      <div className="flex justify-around items-center w-full mb-[16px]">
                       <div className="ml-0 md:ml-4 lg:ml-8">
                         <p className="mb-2 text-start md:text-left text-xs md:text-sm lg:text-xl !mb-3">
                           Your Order:{" "}
@@ -319,7 +319,7 @@ export default function OrderTacker() {
                         }
                       />
                       {!isLoggedIn && <p
-                        className="text-center cursor-pointer hover:!text-blue-600"
+                        className="text-center cursor-pointer hover:!text-blue-600 !mt-8 sm:mt-[auto]"
                         onClick={() => {
                           if (orderData?.status != "0") {
                             window.location.href = `https://client.tradingmaterials.com/login`;
