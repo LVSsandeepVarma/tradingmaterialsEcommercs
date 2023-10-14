@@ -64,27 +64,28 @@ export default function Footer() {
                   <div className="nk-footer-info text-start">
                     <h5 className="title !text-start !font-bold !mb-[2px]">Pages</h5>
                     <ul className="row gy-1 gy-sm-4">
-                      <li className="col-12 !mt-[2.25rem]">
-                        <a href="/about">About Us</a>
-                      </li>
+                      
                       {/* <li className="col-12"><a href="pricing.php">Pricing </a></li> */}
-                      <li className="col-12">
+                      <li className="col-12 !mt-[2.25rem] cursor-pointer">
                         <a href="/">Trading Materials</a>
                       </li>
-                      <li className="col-12">
+                      <li className="col-12  cursor-pointer">
+                        <a href="/about">About Us</a>
+                      </li>
+                      <li className="col-12 cursor-pointer">
                         <a href="/contact">Contact</a>
                       </li>
-                      <li className="col-12">
+                      <li className="col-12 cursor-pointer">
                         <a href="/careers">Careers</a>
                       </li>
-                      <li className="col-12">
+                      <li className="col-12 cursor-pointer">
                         <a href="/faq">FAQ</a>
                       </li>
                     </ul>
                   </div>
                 </div>
 
-                {/* <div className="col-md-8 col-lg-2 col-xxl-2">
+                {/* <div className="col-md-8 col-lg-2 col-xxl-2"> 
                         <div className="nk-footer-info">
                             <h5 className="title">Utility Pages</h5>
                             <ul className="row gy-1 gy-sm-4">

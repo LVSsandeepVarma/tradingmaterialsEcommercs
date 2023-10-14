@@ -267,6 +267,7 @@ export default function NewPassword() {
                               id="show-hide-password"
                               type={showPassword ? "text" : "password"}
                               className="form-control"
+                              maxLength={15}
                               placeholder="Enter your password"
                               onChange={handlePasswordChange}
                             />
@@ -306,6 +307,7 @@ export default function NewPassword() {
                             <input
                               type={showConfirmPassword ? "text" : "password"}
                               className="form-control"
+                              maxLength={15}
                               placeholder="Enter confirm Password"
                               onChange={handleconfirmPasswordChange}
                             />

@@ -643,8 +643,8 @@ export default function Header() {
                     style={{ textAlign: "left !important" }}
                   >
                     <div className=" !text-center">
-                      <h3 className="!font-bold text-slate-200 drop-shadow-xl shadow text-sm sm:text-sm text-center hover:scale-105 ">
-                      Get you offer message&nbsp;Instantly
+                      <h3 className="!font-bold text-slate-200 drop-shadow-xl shadow text-sm sm:text-md text-center hover:scale-105 ">
+                      Get your offer message&nbsp;Instantly
                       </h3>
                     </div>
                   </div>
@@ -915,23 +915,27 @@ export default function Header() {
                           <li className="nk-nav-item has-sub">
                             <Divider orientation="vertical" />
                             <div className="text-left nk-nav-item  !block has-sub ">
-                              <p className="nk-nav-link pb-0  pt-0 !text-xs">
+                              <p className="nk-nav-link pb-0 !w-full  pt-0 !text-xs">
                                 {greetUser}
-                              </p>
-
+                              
+                                </p>
                               <a
-                                className="nk-nav-link nk-nav-toggle cursor-pointer pt-0 pb-0 !text-blue-900"
-                                style={{ width: "1px" }}
+                                className="nk-nav-link  nk-nav-toggle cursor-pointer pt-0 pb-0 !text-blue-900"
+                                // style={{ width: "1px" }}
                                 onClick={() =>
                                   activeDropDown === "profile"
                                     ? setActiveDropDown("")
                                     : setActiveDropDown("profile")
                                 }
                               >
-                                <span className="nk-nav-text capitalize  !text-sm">
-                                  {userData?.client?.first_name}
-                                </span>
+                                <p className="hidden sm:block capitalize !text-sm !text-start tr" >
+                                  {userData?.client?.first_name?.length > 10 ? userData?.client?.first_name?.slice(0,10)+"..." : userData?.client?.first_name}
+                                </p>
+                                <p className="block sm:hidden capitalize !text-sm !text-start tr" >
+                                  {userData?.client?.first_name?.length > 35 ? userData?.client?.first_name?.slice(0,35)+"..." : userData?.client?.first_name}
+                                </p>
                               </a>
+                              
                               <ul
                                 className={`nk-nav-sub  ${
                                   activeDropDown === "profile" ? "!block" : ""

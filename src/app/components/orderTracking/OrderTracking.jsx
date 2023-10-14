@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import Header from "../header/header";
 import Footer from "../footer/footer";
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, ThemeProvider, createTheme } from "@mui/material";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { FaBoxOpen, FaBoxes, FaWindowClose } from "react-icons/fa";
 import { TbTruckDelivery } from "react-icons/tb";
@@ -108,6 +108,16 @@ export default function OrderTacker() {
     ),
   };
 
+  const theme = createTheme({
+    components: {
+      MuiFormLabel: {
+        styleOverrides: {
+          asterisk: { color: "red" },
+        },
+      },
+    },
+  });
+
   // Function to update the window width state
   const updateWindowWidth = () => {
     if (window.innerWidth < 800) setWindowWidth("vertical");
@@ -139,6 +149,7 @@ export default function OrderTacker() {
 
   function orderNoValidation(ordNo) {
     if (ordNo == "") {
+      
       setOrderNoErr("Order No is required");
       return false;
     } else if (ordNo?.length < 6 || ordNo?.length > 20) {
@@ -151,8 +162,10 @@ export default function OrderTacker() {
   }
 
   const handleOrderNoChange = (ordNo) => {
+    ordNo = ordNo.replace(/[^0-9]/g, '')
     setSubmitted(false);
     setOrderNo(ordNo);
+    console.log(ordNo)
     orderNoValidation(ordNo);
   };
 
@@ -301,6 +314,7 @@ export default function OrderTacker() {
                       <Button
                         onClick={() => {
                           setSubmitted(false);
+                          setOrderData(null)
                         }}
                         variant="outlined"
                         startIcon={<CompareArrowsIcon className="!w-[18px]" />}
@@ -344,13 +358,14 @@ export default function OrderTacker() {
                   // )
                   }
 
-                {!submitted && !orderData?.name && (
+                {!submitted && (
                   <div className="col-12 col-md-12 col-lg-6 card bg-white drop-shadow-lg shadow-lg  p-10">
                     <h1 className="!text-xl  lg:!text-4xl  text-center ">
                       <b>Track your order</b>
                     </h1>
                     <div className="flex justify-center w-full">
                       <div className="form-control-wrap hover:drop-shadow-lg w-[100%]  mt-3">
+                      
                         <TextField
                           fullWidth
                           label="Email"
@@ -365,14 +380,17 @@ export default function OrderTacker() {
                       </div>
                     </div>
                     <div className="form-control-wrap hover:drop-shadow-lg w-[100%]  mt-3">
+                    <ThemeProvider theme={theme}>
                       <TextField
                         value={orderNo}
                         onChange={(e) => handleOrderNoChange(e.target.value)}
                         className=""
+                        required
                         fullWidth
                         label="Order No"
                         variant="outlined"
                       />
+                      </ThemeProvider>
                       <p
                         className="nk-message-error text-xs font-semibold !inline"
                         style={
@@ -392,7 +410,7 @@ export default function OrderTacker() {
                       Track Order
                     </Button>
                     {apiErr && (
-                      <p className="nk-message-error font-bold !text-xs">
+                      <p className="nk-message-error font-bold !text-xs mt-2">
                         {apiErr}
                       </p>
                     )}
@@ -411,6 +429,7 @@ export default function OrderTacker() {
                       <Button
                         onClick={() => {
                           setSubmitted(false);
+                          setOrderData()
                         }}
                         variant="outlined"
                         startIcon={<CompareArrowsIcon className="!w-[18px]" />}

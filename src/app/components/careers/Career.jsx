@@ -501,7 +501,7 @@ export default function Career() {
                           <em className="icon ni ni-bar-chart-fill"></em>
                         </div>
                         <h5 className="!font-bold text-lg">Career Growth</h5>
-                        <p className="fs-16 line-clamp-3">
+                        <p className="fs-16 ">
                           Planning around your career development is essential
                           for reaching your goals, workplace accomplishments and
                           hard skills.
@@ -520,7 +520,7 @@ export default function Career() {
                           <em className="icon ni ni-building-fill"></em>
                         </div>
                         <h5 className="!font-bold text-lg">Great Culture</h5>
-                        <p className="fs-16 line-clamp-3">
+                        <p className="fs-16 ">
                           Our working culture encouraged to work as a team, have
                           each other&apos;s back, and bring the best outcomes in
                           every project.
@@ -539,7 +539,7 @@ export default function Career() {
                           <em className="icon ni ni-clock-fill"></em>
                         </div>
                         <h5 className="!font-bold text-lg">Flexible Hours</h5>
-                        <p className="fs-16 line-clamp-3" id="open_positions">
+                        <p className="fs-16 " id="open_positions">
                           Employees break down their workday into
                           non-consecutive chunks of time — 8 a.m. to noon and 4
                           p.m. to 8 p.m.
@@ -652,7 +652,7 @@ export default function Career() {
                                     </span>
                                   </p>
                                 </div>
-                                <p className="fs-14 line-clamp-6 text-start">
+                                <p className="fs-14  text-start pb-2">
                                   {openingInfo?.desc}
                                 </p>
                               </div>

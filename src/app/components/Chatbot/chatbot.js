@@ -200,6 +200,7 @@ export default function ChatForm({ hide }) {
                     type="text"
                     id="input1"
                     value={phone}
+                    maxLength={15}
                     onChange={handlePhonechange}
                     placeholder="Phone Number!"
                   />

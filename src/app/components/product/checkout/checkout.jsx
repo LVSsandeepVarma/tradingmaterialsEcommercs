@@ -16,7 +16,7 @@ import Form from "react-bootstrap/Form";
 import { FaCreditCard, FaCalendarAlt, FaLock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
+import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import {
   Accordion,
   AccordionDetails,
@@ -32,6 +32,7 @@ import CryptoJS from "crypto-js";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
 import styled from "@emotion/styled";
+import moment from "moment";
 
 export default function Checkout() {
   const dispatch = useDispatch();
@@ -243,13 +244,14 @@ export default function Checkout() {
   // }, [allProducts, quantities]);
 
   const handleCvvChange = (e) => {
-    const addCvv = e.target.value;
+
+    const addCvv = e.target.value.replace(/[^0-9]/g, '');
+    
     setCVV(addCvv);
     console.log(addCvv.match(/^[0-9]+$/), addCvv);
-    if(addCvv == ""){
-      setCVVError("CVV is required")
-    }
-    else if (addCvv?.length > 3 || addCvv?.length < 3) {
+    if (addCvv == "") {
+      setCVVError("CVV is required");
+    } else if (addCvv?.length > 3 || addCvv?.length < 3) {
       setCVVError("Invalid CVV");
     } else if (addCvv.match(/^[0-9]+$/) === null) {
       setCVVError("Invalid CVV");
@@ -262,6 +264,7 @@ export default function Checkout() {
   };
 
   const handleNameChage = (e) => {
+    e.target.value = e.target.value.replace(/[^A-Za-z ]/g, '')
     const addName = e.target.value;
     setNameOnCard(addName);
     if (addName?.length == 0) {
@@ -298,14 +301,30 @@ export default function Checkout() {
     // Implement your expiry date validation logic here
     // For example, you can check if the expiry date is in the future and in the valid format
     // Return true if the expiry date is valid, otherwise false
-    return value.match(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/);
+    
+    if(!value.match(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/)){
+      return false
+    }else{
+
+      const year = value.split("/")[1]
+      const currentYear = moment().year().toString()
+      console.log(parseInt(currentYear.slice(2, 4)) , parseInt(year), "yeeeer")
+      
+      if(parseInt(currentYear.slice(2, 4)) > parseInt(year)){
+        return false
+      }
+      if(value?.length <= 1){
+        return false
+      }
+      return true
+    }
   };
 
   const validateCardNumber = (value) => {
     // Implement your card number validation logic here
     // For example, you can use a library like 'card-validator'
     // Return true if the card number is valid, otherwise false
-    return value?.length >= 12 && value?.length <= 19;
+    return value?.length >= 17 && value?.length <= 19;
   };
 
   const validateCVV = (value) => {
@@ -321,13 +340,13 @@ export default function Checkout() {
     if (validateCardNumber(formattedValue)) {
       setCardNumberError("");
     } else {
-      if(event.target.value == ""){
-        setCardNumberError("Card number is required")
-      }else{
-      setCardNumberError("Please enter a valid card number.");
+      if (event.target.value == "") {
+        setCardNumberError("Card number is required");
+      } else {
+        setCardNumberError("Please enter a valid card number.");
       }
     }
-    
+
     if (apiError?.length > 0) {
       setApiError([]);
     }
@@ -336,12 +355,13 @@ export default function Checkout() {
   const handleExpiryChange = (event) => {
     const formattedValue = formatExpiry(event.target.value);
     if (validateExpiry(formattedValue)) {
+      
       setExpiryError("");
     } else {
-      if(event.target.value == "/" || event.target.value == ""){
-      setExpiryError("Expiry is required");
-      }else{
-        setExpiryError("Invalid expiry")
+      if (formattedValue == "/" || formattedValue == "") {
+        setExpiryError("Expiry is required");
+      } else {
+        setExpiryError("Invalid expiry");
       }
     }
     setExpiry(formattedValue);
@@ -380,31 +400,31 @@ export default function Checkout() {
         // setIsSuccess(true)
       } else {
         if (isNameValid === null) {
-          if(nameOnCard != ""){
-          setNameErr("Invalid name");
-          }else{
-            setNameErr("Name is required")
+          if (nameOnCard != "") {
+            setNameErr("Invalid name");
+          } else {
+            setNameErr("Name is required");
           }
         }
         if (isCardNumberValid === false) {
-          if(cardNumber != ""){
+          if (cardNumber != "") {
             setCardNumberError("Card number is invalid");
-          }else{
-            setCardNumberError("Card number is required")
+          } else {
+            setCardNumberError("Card number is required");
           }
         }
-        if (isExpiryValid === null) {
-          if(expiry != ""){
-          setExpiryError("Invalid card expiry");
-          }else{
-            setExpiryError("Expiry is required")
+        if (isExpiryValid === false) {
+          if (expiry != "") {
+            setExpiryError("Invalid card expiry");
+          } else {
+            setExpiryError("Expiry is required");
           }
         }
         if (isCVVValid === false) {
-          if(cvvError != ""){
-          setCVVError("Invalid CVV");
-          }else{
-            setCVVError("CVV is required")
+          if (cvvError != "") {
+            setCVVError("Invalid CVV");
+          } else {
+            setCVVError("CVV is required");
           }
         }
         // setIsFailure(true)
@@ -566,7 +586,7 @@ export default function Checkout() {
         dispatch(showLoader());
         const paymentData = {
           payment_type: "Stripe",
-          payment_mode : paymentType,
+          payment_mode: paymentType,
           client_id: client_id,
           order_id: id,
           total: total,
@@ -604,11 +624,18 @@ export default function Checkout() {
       } catch (err) {
         console.log(err);
         if (err?.response?.data?.errors) {
+
           setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
+          if(err?.response?.data?.message?.includes("unknown")){
+            setApiError(["Payment unsuccessful. Kindly consider an alternative Indian card for your transaction."])
+          }else{
           setApiError([err?.response?.data?.message]);
-          dispatch(hideLoader());
+          }
+         
         }
+      }finally{
+        dispatch(hideLoader());
       }
     }
   }
@@ -794,20 +821,21 @@ export default function Checkout() {
                   </div>
                 </div>
                 {/* <hr className="" /> */}
-                <div className="mt-5">
+                <div className="">
                   {orderData ? (
-                    <div className="nk-section-blog-details mt-3 mb-3">
+                    <div className="nk-section-blog-details  mb-3">
                       {orderData?.order?.note != null && (
                         <div>
                           <h4 className="mb-1 !font-bold">Comments</h4>
-                          <ul className="d-flex flex-column gap-2 pb-0">
+                          <ul className="d-flex flex-column gap-2 pb-2">
                             <li className="d-flex align-items-center gap-5 text-gray-1200">
                               {orderData?.order?.note}
                             </li>
                           </ul>
                         </div>
+
                       )}
-                      {/* <Divider className="mt-2 mb-2" /> */}
+                      <Divider className="mt-2 mb-2" />
                       <h4 className="mb-3 !font-bold">Billing Address</h4>
                       <ul className="d-flex flex-column gap-2 pb-0">
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -934,16 +962,18 @@ export default function Checkout() {
                                 control={<Radio size="sm" />}
                                 label="Online Secure Payment [Cards]"
                               />
-                              <img src="/images/vma.png" width={"18%"}/>
+                              <img
+                                src="/images/vma.png"
+                                style={{ objectFit: "contain", width: "25%" }}
+                              />
                             </div>
                           </Typography>
                         </AccordionSummary>
                         <AccordionDetails>
                           <Typography>
                             <ol className="text-xs">
-                            <li>- No delivery charges applied</li>
+                              <li>- No delivery charges applied</li>
                               <li>- Choose from our secure online payments</li>
-                              
                             </ol>
                           </Typography>
                         </AccordionDetails>
@@ -973,7 +1003,11 @@ export default function Checkout() {
                                 control={<Radio size="sm" />}
                                 label="Cash On Delivery"
                               />
-                              <img src="/images/cash-on-delivery-tm.png" width={"5%"} alt="cod"/>
+                              <img
+                                src="/images/cash-on-delivery-tm.png"
+                                width={"5%"}
+                                alt="cod"
+                              />
                             </div>
                           </Typography>
                         </AccordionSummary>
@@ -983,10 +1017,9 @@ export default function Checkout() {
                               <li>- Order With Comfort</li>
                               <li>- Pay when you receive the the order</li>
                               <li className="text-xs">
-                              - Delivery charges applicable [150 INR]
-                            </li>
+                                - Delivery charges applicable [150 INR]
+                              </li>
                             </ol>
-                            
                           </Typography>
                         </AccordionDetails>
                       </Accordion>
@@ -999,200 +1032,203 @@ export default function Checkout() {
                       aria-labelledby="payment_type"
                       name="payment_type"
                     >
-                      {userData?.client?.payment_types?.map((payment, ind)=>(
-                      <Accordion
-                      key={ind}
-                        expanded={activePaymentMethodAccordion == payment?.name}
-                        onChange={() => {
-                          // if payment type is online only
-                          // if(paymentType == "online"){
-                          setActivePaymentMethodAccordion(payment?.name),
-                            setActivePAymentType(payment?.name);
-                          // }
-                        }}
-                      >
-                        <AccordionSummary
-                          // expandIcon={<ExpandMoreIcon />}
-                          aria-controls="panel4bh-content"
-                          id="panel4bh-header"
-                          className={`${
+                      {userData?.client?.payment_types?.map((payment, ind) => (
+                        <Accordion
+                          key={ind}
+                          expanded={
                             activePaymentMethodAccordion == payment?.name
-                              ? "bg-gray-600 drop-shadow-lg"
-                              : ""
-                          }`}
+                          }
+                          onChange={() => {
+                            // if payment type is online only
+                            // if(paymentType == "online"){
+                            setActivePaymentMethodAccordion(payment?.name),
+                              setActivePAymentType(payment?.name);
+                            // }
+                          }}
                         >
-                          <Typography sx={{ width: "100%", flexShrink: 0 }}>
-                            <div
-                              className={`flex "justify-around
+                          <AccordionSummary
+                            // expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel4bh-content"
+                            id="panel4bh-header"
+                            className={`${
+                              activePaymentMethodAccordion == payment?.name
+                                ? "bg-gray-600 drop-shadow-lg"
+                                : ""
+                            }`}
+                          >
+                            <Typography sx={{ width: "100%", flexShrink: 0 }}>
+                              <div
+                                className={`flex "justify-around
                               `}
-                            >
-                              
-                              
+                              >
                                 <FormControlLabel
                                   className="!w-full text-sm"
-                                  value="stripe"
+                                  value={payment?.name}
                                   checked={
-                                    activePaymentMethodAccordion == payment?.name
+                                    activePaymentMethodAccordion ==
+                                    payment?.name
                                       ? true
                                       : false
                                   }
                                   control={<Radio size="sm" />}
-                                  label="Stripe"
+                                  label={payment?.name}
                                 />
-                              
-                              <img
-                                src={`/images/stripe.png`}
-                                className="ml-2"
-                                width={"12%"}
-                                alt={`${paymentType?.name}`}
-                              />
-                            </div>
-                          </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          {activePaymentMethod === payment?.name  ? (
-                            <>
-                              <Divider className="mt-2" />
-                              <Form onSubmit={handleSubmit}>
-                                <Form.Group>
-                                  <label className="font-bold !text-sm mt-3 m-0">
-                                    Card Number<sup className="text-red-600 !font-bold">
-                                    *
-                                  </sup>
-                                  </label>
-                                  <div className="relative m-0">
-                                    <input
-                                      maxLength={19}
-                                      type="text"
-                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                      placeholder="Enter card number"
-                                      value={cardNumber}
-                                      onChange={handleCardNumberChange}
-                                      required
-                                      // onInvalid={
-                                      //   !validateCardNumber(cardNumber)
-                                      // }
-                                    />
-                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400" >
-                                      <FaCreditCard size={15} color="gray" />
-                                    </div>
-                                  </div>
-                                  {cardNumberError ? (
-                                    <p className="nk-message-error !text-xs !m-0 !p-0 !text-left">
-                                      {cardNumberError}
-                                    </p>
-                                  ) : (
-                                    ""
-                                  )}
-                                </Form.Group>
-                                <Form.Group>
-                                  <label className="font-bold !text-sm mt-3 m-0 ">
-                                    Expiry date<sup className="text-red-600 !font-bold">
-                                    *
-                                  </sup>
-                                  </label>
-                                  <div className="relative">
-                                    <input
-                                      type="text"
-                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                      placeholder="MM/YY"
-                                      value={expiry}
-                                      onChange={handleExpiryChange}
-                                      required
-                                      maxLength={5}
-                                      // onInvalid={!validateExpiry(expiry)}
-                                    />
-                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                      <FaCalendarAlt size={15} color="gray" />
-                                    </div>
-                                  </div>
-                                  {expiryError ? (
-                                    <p className="nk-message-error !text-left !text-xs !m-0 !p-0">
-                                      {expiryError}
-                                    </p>
-                                  ) : (
-                                    ""
-                                  )}
-                                </Form.Group>
-                                <Form.Group>
-                                  <label className="font-bold !text-sm mt-3 m-0">
-                                    CVV<sup className="text-red-600 !font-bold">
-                                    *
-                                  </sup>
-                                  </label>
-                                  <div className="relative">
-                                    <input
-                                      type="password"
-                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                      placeholder="Enter CVV"
-                                      value={cvv}
-                                      onChange={handleCvvChange}
-                                      required
-                                      maxLength={3}
-                                      // onInvalid={!validateCVV(cvv)}
-                                    />
-                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                      <FaLock size={15} color="gray" />
-                                    </div>
-                                  </div>
-                                  {cvvError ? (
-                                    <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
-                                      {cvvError}
-                                    </p>
-                                  ) : (
-                                    ""
-                                  )}
-                                </Form.Group>
-                                <Form.Group>
-                                  <label className="font-bold !text-sm mt-3 m-0">
-                                    Name on the card<sup className="text-red-600 !font-bold">
-                                    *
-                                  </sup>
-                                  </label>
-                                  <div className="relative">
-                                    <input
-                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                      type="text"
-                                      placeholder="Enter account holder name"
-                                      value={nameOnCard}
-                                      onChange={handleNameChage}
-                                      // isInvalid={nameOnCard && !validateName(name)}
-                                    />
-                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400"
-                                    style={{
-                                      background: "#f3f3f3",
-                                      right: "7px",
-                                      paddingTop:"2px",
-                                      paddingRight:"2px",
-                                      top: "15px"
 
-                                    }}
-                                    >
-                                      <MdOutlineAccountCircle
-                                        size={20}
-                                        color="gray"
+                                <img
+                                  src={payment?.name=="Stripe" ? `/images/stripe.png` : payment?.image}
+                                  className="ml-2"
+                                  width={"12%"}
+                                  alt={`${paymentType?.name}`}
+                                />
+                              </div>
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            {activePaymentMethod == "Stripe" ? (
+                              <>
+                                <Divider className="mt-2" />
+                                {payment?.name == "Stripe" &&  <Form onSubmit={handleSubmit}>
+                                  <Form.Group>
+                                    <label className="font-bold !text-sm mt-3 m-0">
+                                      Card Number
+                                      <sup className="text-red-600 !font-bold">
+                                        *
+                                      </sup>
+                                    </label>
+                                    <div className="relative m-0">
+                                      <input
+                                        maxLength={19}
+                                        type="text"
+                                        className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                        placeholder="Enter card number"
+                                        value={cardNumber}
+                                        onChange={handleCardNumberChange}
+                                        required
+                                        // onInvalid={
+                                        //   !validateCardNumber(cardNumber)
+                                        // }
                                       />
+                                      <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                        <FaCreditCard size={15} color="gray" />
+                                      </div>
                                     </div>
-                                  </div>
-                                  {nameErr ? (
-                                    <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
-                                      {nameErr}
-                                    </p>
-                                  ) : (
-                                    ""
-                                  )}
-                                </Form.Group>
-                              </Form>
-                            </>
-                          ) : (
-                            <Typography>
-                            Nunc vitae orci ultricies, auctor nunc in, volutpat
-                            nisl. Integer sit amet egestas eros, vitae egestas
-                            augue. Duis vel est augue.
-                          </Typography>
-                          )}
-                        </AccordionDetails>
-                      </Accordion>
+                                    {cardNumberError ? (
+                                      <p className="nk-message-error !text-xs !m-0 !p-0 !text-left">
+                                        {cardNumberError}
+                                      </p>
+                                    ) : (
+                                      ""
+                                    )}
+                                  </Form.Group>
+                                  <Form.Group>
+                                    <label className="font-bold !text-sm mt-3 m-0 ">
+                                      Expiry date
+                                      <sup className="text-red-600 !font-bold">
+                                        *
+                                      </sup>
+                                    </label>
+                                    <div className="relative">
+                                      <input
+                                        type="text"
+                                        className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                        placeholder="MM/YY"
+                                        value={expiry}
+                                        onChange={handleExpiryChange}
+                                        required
+                                        maxLength={5}
+                                        // onInvalid={!validateExpiry(expiry)}
+                                      />
+                                      <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                        <FaCalendarAlt size={15} color="gray" />
+                                      </div>
+                                    </div>
+                                    {expiryError ? (
+                                      <p className="nk-message-error !text-left !text-xs !m-0 !p-0">
+                                        {expiryError}
+                                      </p>
+                                    ) : (
+                                      ""
+                                    )}
+                                  </Form.Group>
+                                  <Form.Group>
+                                    <label className="font-bold !text-sm mt-3 m-0">
+                                      CVV
+                                      <sup className="text-red-600 !font-bold">
+                                        *
+                                      </sup>
+                                    </label>
+                                    <div className="relative">
+                                      <input
+                                        type="password"
+                                        className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                        placeholder="Enter CVV"
+                                        value={cvv}
+                                        onChange={handleCvvChange}
+                                        required
+                                        maxLength={3}
+                                        // onInvalid={!validateCVV(cvv)}
+                                      />
+                                      <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                        <FaLock size={15} color="gray" />
+                                      </div>
+                                    </div>
+                                    {cvvError ? (
+                                      <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
+                                        {cvvError}
+                                      </p>
+                                    ) : (
+                                      ""
+                                    )}
+                                  </Form.Group>
+                                  <Form.Group>
+                                    <label className="font-bold !text-sm mt-3 m-0">
+                                      Name on the card
+                                      <sup className="text-red-600 !font-bold">
+                                        *
+                                      </sup>
+                                    </label>
+                                    <div className="relative">
+                                      <input
+                                        className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                        type="text"
+                                        placeholder="Enter account holder name"
+                                        value={nameOnCard}
+                                        onChange={handleNameChage}
+                                        // isInvalid={nameOnCard && !validateName(name)}
+                                      />
+                                      <div
+                                        className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400"
+                                        style={{
+                                          background: "#f3f3f3",
+                                          right: "7px",
+                                          paddingTop: "2px",
+                                          paddingRight: "2px",
+                                          top: "15px",
+                                        }}
+                                      >
+                                        <MdOutlineAccountCircle
+                                          size={20}
+                                          color="gray"
+                                        />
+                                      </div>
+                                    </div>
+                                    {nameErr ? (
+                                      <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
+                                        {nameErr}
+                                      </p>
+                                    ) : (
+                                      ""
+                                    )}
+                                  </Form.Group>
+                                </Form>}
+                              </>
+                            ) : (
+                              <Typography className="!text-xs">
+                               After clicking “Pay now”, you will be redirected to Razorpay Secure (UPI, Cards, Wallets, NetBanking) to complete your purchase securely.
+                              </Typography>
+                            )}
+                          </AccordionDetails>
+                        </Accordion>
                       ))}
                       {/* <Accordion
                         expanded={activePaymentMethodAccordion == "Razorpay" && paymentType == "online"}
@@ -1466,11 +1502,14 @@ export default function Checkout() {
                       </div>
                       <ul className="d-flex flex-column gap-2 pb-5">
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-[30%]">
                             Sub Total:
                           </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            ₹ {parseFloat(orderData?.order?.sub_total)?.toFixed(2)}
+                          <p className="m-0 fs-14 text-gray-1200 w-[70%]">
+                            ₹{" "}
+                            {parseFloat(orderData?.order?.sub_total)?.toFixed(
+                              2
+                            )}
                           </p>
                         </li>
                         {/* <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -1482,36 +1521,48 @@ export default function Checkout() {
                         </p>
                       </li> */}
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-[30%]">
                             Tax:
                           </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                          ₹ {parseFloat(orderData?.order?.total_tax)?.toFixed(2)}
+                          <p className="m-0 fs-14 text-gray-1200 w-[70%]">
+                            ₹{" "}
+                            {parseFloat(orderData?.order?.total_tax)?.toFixed(
+                              2
+                            )}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-[30%]">
                             Discount:
                           </p>
-                          <p className="m-0 fs-14 text-danger w-75">
+                          <p className="m-0 fs-14 text-danger w-[70%]">
                             {orderData?.order?.discount_type === "percentage"
-                              ? `₹ ${parseFloat(orderData?.order?.discount_amount)?.toFixed(2)} ( ${orderData?.order?.discount}%)`
-                              : "₹" + parseFloat(orderData?.order?.discount_amount)?.toFixed(2)}
+                              ? `₹ ${parseFloat(
+                                  orderData?.order?.discount_amount
+                                )?.toFixed(2)} ( ${
+                                  orderData?.order?.discount
+                                }%)`
+                              : "₹" +
+                                parseFloat(
+                                  orderData?.order?.discount_amount
+                                )?.toFixed(2)}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-16 fw-semibold text-uppercase w-25">
+                          <p className="m-0 fs-16 fw-semibold text-uppercase w-[30%]">
                             Total:
                           </p>
-                          <p className="m-0 fs-16 fw-semibold text-dark w-75">
+                          <p className="m-0 fs-16 fw-semibold text-dark w-[70%]">
                             ₹ {parseFloat(orderData?.order?.total)?.toFixed(2)}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-14 w-25 text-uppercase fw-semibold">
-                            {paymentType == "online" ? "Delivery Charges:" : "Delivery Charges"}
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-[30%]">
+                            {paymentType == "online"
+                              ? "Delivery Charges:"
+                              : "Delivery Charges:"}
                           </p>
-                          <p className="m-0 fs-16 fw-semibold text-dark w-75">
+                          <p className="m-0 fs-16 fw-semibold text-dark w-[70%]">
                             {paymentType == "online" ? "₹ 0.00" : "₹ 150.00"}
                           </p>
                         </li>
@@ -1539,24 +1590,36 @@ export default function Checkout() {
                                 orderData?.client_id
                               );
                             } else if (activePaymentMethod === "Stripe") {
-                              if(cardNumberError != "" || cvvError != "" || nameErr !="" || expiryError != ""){
-                                setActivePaymentMethodAccordion("Stripe")
-                              }else{
-                              createOrderWithStripe(
-                                orderData?.order_id,
-                                paymentType == "cod" ? "150": orderData?.order?.total,
-                                orderData?.client_id,
-                                orderData?.city,
-                                orderData?.state,
-                                orderData?.country,
-                                orderData?.pincode,
-                                orderData?.address_1
-                              );
+                              if (
+                                cardNumberError != "" ||
+                                cvvError != "" ||
+                                nameErr != "" ||
+                                expiryError != ""
+                              ) {
+                                setActivePaymentMethodAccordion("Stripe");
+                              } else {
+                                createOrderWithStripe(
+                                  orderData?.order_id,
+                                  paymentType == "cod"
+                                    ? "150"
+                                    : orderData?.order?.total,
+                                  orderData?.client_id,
+                                  orderData?.city,
+                                  orderData?.state,
+                                  orderData?.country,
+                                  orderData?.pincode,
+                                  orderData?.address_1
+                                );
                               }
                             }
                           }}
                         >
-                          Proceed to pay {paymentType == "online" ? " "+parseFloat(orderData?.order?.total)?.toFixed(2)+" INR" : " 150.00 INR"}
+                          Proceed to pay{" "}
+                          {paymentType == "online"
+                            ? " " +
+                              parseFloat(orderData?.order?.total)?.toFixed(2) +
+                              " INR"
+                            : " 150.00 INR"}
                         </button>
                       )}
                       {userData?.client?.payment_types?.length == 0 && (
@@ -1577,10 +1640,7 @@ export default function Checkout() {
                               severity="error"
                               className="!mt-2"
                             >
-                              <p
-                                key={ind}
-                                className="nk-message-error text-xs"
-                              >
+                              <p key={ind} className="nk-message-error text-xs">
                                 {err}
                               </p>
                             </Alert>

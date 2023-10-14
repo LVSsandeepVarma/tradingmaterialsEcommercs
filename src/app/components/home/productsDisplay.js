@@ -71,7 +71,8 @@ export default function ProductsDisplay() {
   const [modalMessage, setModalMessage] = useState("");
   const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
   const [showSessionExppiry, setShowSessionExpiry] = useState(false)
-
+  const [filteredResult, setFilteredResult] = useState(false)
+  const [filteredBundleResult, setFilteredBundleResults] = useState(false)
   const [animateProductId, setAnimateProductId] = useState("");
   // eslint-disable-next-line no-unused-vars
   // const [cartPosition, setCartPosition] = useState({ x: 0, y: 0 });
@@ -288,6 +289,7 @@ export default function ProductsDisplay() {
     console.log(productsFilter);
     setFilteredProducts({ ...productsFilter });
     setFilteredSubcatproducts({ ...productsFilter });
+    setFilteredResult(false)
     setAllProducts(products?.products);
     if (localStorage?.getItem("client_token")) {
       dispatch(loginUser());
@@ -345,6 +347,7 @@ export default function ProductsDisplay() {
     showSingleProduct
   ) {
     setStockCount("inStock");
+    setFilteredResult(true)
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId, subCategoryIds, subId);
     let subIDs;
@@ -401,6 +404,7 @@ export default function ProductsDisplay() {
     if (Object.values(filterProducts).every((value) => value === false)) {
       filterProducts["all"] = true;
       setSubCategoryIds([]);
+      setFilteredResult(false)
       setAllProducts(products?.products);
     } else if (filterProducts["all"]) {
       filterProducts["all"] = false;
@@ -420,6 +424,7 @@ export default function ProductsDisplay() {
         filterProducts[key] = key === "all" ? true : false;
       });
       setSubCategoryIds([]);
+      setFilteredResult(false)
       setAllProducts(products?.products);
     }
     console.log(filterProducts);
@@ -436,6 +441,7 @@ export default function ProductsDisplay() {
     isStock
   ) {
     setStockCount("inStock");
+    setFilteredBundleResults(true)
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId);
     let subIDs;
@@ -487,6 +493,7 @@ export default function ProductsDisplay() {
     // checks if all the filter options are false
     if (Object.values(filterProducts).every((value) => value === false)) {
       filterProducts["all"] = true;
+      setFilteredBundleResults(false)
       setBundleSubCategoryIds([]);
       setSubCatProducts(products?.products);
     } else if (filterProducts["all"]) {
@@ -504,6 +511,7 @@ export default function ProductsDisplay() {
       keys.forEach((key) => {
         filterProducts[key] = key === "all" ? true : false;
       });
+      setFilteredBundleResults(false)
       setBundleSubCategoryIds([]);
       setSubCatProducts(products?.products);
 
@@ -518,26 +526,26 @@ export default function ProductsDisplay() {
   }
 
   //function for handling filtering based on in stock or out stock
-  function filterstockProducts() {
+  function filterstockProducts(stock) {
     filtersubcatProducts("all", 0, false, "stock");
     addFilterProducts("all", 0, false);
     let currentActiveCheckbox;
-    if (stockCount === "inStock") {
-      setStockCount("outStock");
-      currentActiveCheckbox = "outStock";
-    } else {
+    if (stock === "inStock") {
       setStockCount("inStock");
       currentActiveCheckbox = "inStock";
+    } else {
+      setStockCount("outStock");
+      currentActiveCheckbox = "outStock";
     }
 
     const completeProducts = products?.products;
-    const outOfStockBundleProducts = products?.sub_categories;
+    const outOfStockBundleProducts = products?.products;
     console.log(completeProducts, typeof completeProducts);
     console.log(outOfStockBundleProducts, products);
     const res =
       currentActiveCheckbox === "inStock"
         ? completeProducts?.filter((product) => product?.stock?.stock > 0)
-        : completeProducts?.filter((product) => product?.stock?.stock === 0);
+        : completeProducts?.filter((product) => product?.stock?.stock == "0");
     // const result =
     //   currentActiveCheckbox === "inStock"
     //     ? outOfStockBundleProducts?.filter(
@@ -547,7 +555,11 @@ export default function ProductsDisplay() {
     //         (product) => product?.combo == 1
     //       );
     setAllProducts(res);
-    setSubCatProducts(res);
+    const bundleRes =
+      currentActiveCheckbox === "inStock"
+        ? outOfStockBundleProducts?.filter((product) => product?.stock?.stock != "0" && product?.combo == "1")
+        : outOfStockBundleProducts?.filter((product) => product?.stock?.stock == "0" && product?.combo == "1");
+    setSubCatProducts(bundleRes);
 
     console.log(res);
   }
@@ -849,7 +861,7 @@ export default function ProductsDisplay() {
                               name="search"
                               className="form-control  !py-2 !ps-10 border"
                               placeholder={t("product_search")}
-                              required
+                              // required
                               onChange={handlesearchProducts}
                             />
                             {/* <Button>Show Results</Button> */}
@@ -864,7 +876,7 @@ export default function ProductsDisplay() {
                         </h6>
                         <ul className="d-flex gy-4 flex-column !text-left">
                           <li>
-                            <div className="form-check d-flex align-items-center">
+                            <div className="form-check d-flex align-items-center cursor-pointer"  >
                               <input
                                 className="form-check-input"
                                 type="checkbox"
@@ -875,9 +887,12 @@ export default function ProductsDisplay() {
                                 }
                                 checked={filteredProducts["all"]}
                               />
-                              <div className="d-flex w-100 align-items-center justify-content-between">
+                              <div className="d-flex w-100 align-items-center justify-content-between cursor-pointer" onClick={() =>
+                                  addFilterProducts("all", 0, false)}>
                                 <label
-                                  className="form-check-label fs-14 text-gray-1200"
+                                  className="form-check-label fs-14 text-gray-1200 cursor-pointer"
+                                  onClick={() =>
+                                    addFilterProducts("all", 0, false)}
                                   htmlFor="all-category"
                                 >
                                   All Trading Materials
@@ -909,7 +924,14 @@ export default function ProductsDisplay() {
                                     />
                                     <div className="d-flex w-100 align-items-center justify-content-between">
                                       <label
-                                        className="form-check-label fs-14 text-gray-1200"
+                                        className="form-check-label fs-14 text-gray-1200 cursor-pointer"
+                                        onClick={() =>
+                                          addFilterProducts(
+                                            product?.name,
+                                            product?.id,
+                                            false
+                                          )
+                                        }
                                         // for="tablet"
                                       >
                                         {product?.name}
@@ -931,7 +953,7 @@ export default function ProductsDisplay() {
                         </h6>
                         <ul className="d-flex gy-4 flex-column">
                           <li>
-                            <div className="form-check d-flex align-items-center">
+                            <div className="form-check d-flex align-items-center cursor-pointer" onClick={() => filtersubcatProducts("all", 0)}>
                               <input
                                 className="form-check-input"
                                 type="checkbox"
@@ -940,21 +962,26 @@ export default function ProductsDisplay() {
                                 onChange={() => filtersubcatProducts("all", 0)}
                                 checked={filteredSubcatProducts["all"]}
                               />
+                              <div className="d-flex w-100 align-items-center justify-content-between" onClick={() => filtersubcatProducts("all", 0)}>
                               <label
-                                className="form-check-label fs-14 text-gray-1200"
+                                className="form-check-label fs-14 text-gray-1200 cursor-pointer"
                                 // for="themenio"
                                 onClick={() => filteredSubcatProducts["all"]}
                               >
                                 {" "}
                                 All Trading Materials Pack on Shop{" "}
                               </label>
+                              <span className="fs-14 text-gray-1200">
+                                  {bundleProductCount}
+                                </span>
+                                </div>
                             </div>
                           </li>
                           {products?.sub_categories?.map((product, ind) => (
                             <>
                               {product?.combo == 1 && (
                                 <li id="bundles" key={`combo-${ind}`}>
-                                  <div className="form-check d-flex align-items-center">
+                                  <div className="form-check d-flex align-items-center cursor-pointer">
                                     <input
                                       className="form-check-input"
                                       type="checkbox"
@@ -970,9 +997,14 @@ export default function ProductsDisplay() {
                                         filteredSubcatProducts[product?.name]
                                       }
                                     />
-                                    <div className="d-flex w-100 align-items-center justify-content-between cursor-pointer">
+                                    <div className="d-flex w-100 align-items-center justify-content-between " onClick={() => {
+                                        filtersubcatProducts(
+                                          product?.name,
+                                          product?.id
+                                        );
+                                      }}>
                                       <label
-                                        className="form-check-label fs-14 text-gray-1200"
+                                        className="form-check-label fs-14 text-gray-1200 cursor-pointer"
                                         // for="tablet"
                                       >
                                         {product?.name}
@@ -1000,14 +1032,14 @@ export default function ProductsDisplay() {
                                 type="checkbox"
                                 name="stock"
                                 id="in-stock"
-                                onChange={filterstockProducts}
+                                onChange={()=>filterstockProducts("inStock")}
                                 checked={
                                   stockCount === "inStock" ? true : false
                                 }
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
-                                  className="form-check-label fs-14 text-gray-1200"
+                                  className="form-check-label fs-14 text-gray-1200 cursor-pointer"
                                   htmlFor="in-stock"
                                 >
                                   In Stock
@@ -1025,14 +1057,14 @@ export default function ProductsDisplay() {
                                 type="checkbox"
                                 name="stock"
                                 id="out-stock"
-                                onChange={filterstockProducts}
+                                onChange={()=>filterstockProducts("outStock")}
                                 checked={
                                   stockCount === "outStock" ? true : false
                                 }
                               />
-                              <div className="d-flex w-100 align-items-center justify-content-between">
+                              <div className="d-flex w-100 align-items-center justify-content-between ">
                                 <label
-                                  className="form-check-label fs-14 text-gray-1200"
+                                  className="form-check-label fs-14 text-gray-1200 cursor-pointer"
                                   htmlFor="out-stock"
                                 >
                                   Out Of Stock
@@ -1429,7 +1461,7 @@ export default function ProductsDisplay() {
                       {!isNoProducts &&
                         allProducts?.map((product) => {
                           if (
-                            product?.combo === 0 ||
+                            product?.combo == 0 && (product?.stock?.stock != "0" || filteredResult || stockCount == "outStock") ||
                             // product?.combo === 1 ||
                             isSearchResult
                           ) {
@@ -2129,7 +2161,7 @@ export default function ProductsDisplay() {
               )}
               {subCatProducts?.length !== 0 &&
                 subCatProducts?.map((product) => {
-                  if (product?.combo) {
+                  if (product?.combo && (product?.stock?.stock != "0" || filteredBundleResult)) {
                     return (
                       <>
                         {(showPlaceHolderLoader === true ||

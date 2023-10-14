@@ -7,7 +7,6 @@ import { Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { userLanguage } from "../../../features/userLang/userLang";
-import { updateNotifications } from "../../../features/notifications/notificationSlice";
 // import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { loginUser } from "../../../features/login/loginSlice";
 import axios from "axios";
@@ -17,6 +16,7 @@ import { Form } from "react-bootstrap";
 import { updateclientType } from "../../../features/clientType/clientType";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import { Alert } from "@mui/material";
+import SessionExpired from "./sessionExpired";
 
 // eslint-disable-next-line no-unused-vars
 const LoginModal = ({ show, onHide }) => {
@@ -28,6 +28,7 @@ const LoginModal = ({ show, onHide }) => {
   const [passwordError, setPasswordError] = useState("");
   const [localLoader, setLocalLoader] = useState(false);
   const [apiError, setApiError] = useState([]);
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false);
   const [loginSuccessMsg, setLoginsuccessMsg] = useState("");
   // const loaderState = useSelector((state) => state.loader?.value);
   const [showPassword, setShowPassword] = useState(false);
@@ -68,7 +69,7 @@ const LoginModal = ({ show, onHide }) => {
   function passwordValidation(password) {
     if (password?.length === 0) {
       setPasswordError("Password is required");
-    }else if(password?.length >15){
+    } else if (password?.length > 15) {
       setPasswordError("Maximum limit exceeded");
     } else {
       setPasswordError("");
@@ -155,12 +156,7 @@ const LoginModal = ({ show, onHide }) => {
           handleHide();
           setTimeout(() => {
             localStorage.removeItem("token");
-            dispatch(
-              updateNotifications({
-                type: "warning",
-                message: "Oops!",
-              })
-            );
+            setShowSessionExpiry(true);
             navigate(`${userLang}/?login`);
           }, 3600000);
         }
@@ -201,239 +197,256 @@ const LoginModal = ({ show, onHide }) => {
     // document.getElementsByTagName(body).style =
   };
 
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/?login");
+  }
+
   return (
-    <Modal
-      show={show}
-      onHide={handleHide}
-      // scrollable
-      // size="lg"
-      className="!backdrop-blur-[1px] !overflow-auto !h-[100%] "
-      dialogClassName="modal-25"
-      style={{ marginTop: "0 !important" }}
-    >
-      <Modal.Header closeButton={true} className="noBorderBottom  pt-[16px]">
-        <Modal.Title
-          className="text-[#072d52] !font-semibold !text-center w-full "
-          style={{ borderBottom: 0 }}
-        >
-          Account
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body className="!pt-0">
-        <div className="nk-split-col ">
-          {localLoader && (
-            <div className="preloader  !backdrop-blur-[1px]">
-              <div className="loader"></div>
-            </div>
-          )}
-
-          <div
-            className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[auto]  "
-            style={{
-              border: 0,
-            }}
-            data-aos="fade-up"
+    <>
+      <SessionExpired
+        open={showSessionExppiry}
+        handleClose={handleSessionExpiryClose}
+      />
+      <Modal
+        show={show}
+        onHide={handleHide}
+        // scrollable
+        // size="lg"
+        className="!backdrop-blur-[1px] !overflow-auto !h-[100%] "
+        dialogClassName="modal-25"
+        style={{ marginTop: "0 !important" }}
+      >
+        <Modal.Header closeButton={true} className="noBorderBottom  pt-[16px]">
+          <Modal.Title
+            className="text-[#072d52] !font-semibold !text-center w-full "
+            style={{ borderBottom: 0 }}
           >
-            <div className="account-steps">
-              <div className="step"></div>
-              <div className="step"></div>
-            </div>
-            <div className="card-body !text-left p-5">
-              <div className="nk-form-card-head text-center pb-5">
-                <div className="form-logo mb-3">
-                  <a
-                    href={`${userLang}/`}
-                    className="flex justify-center w-full"
-                  >
-                    <img
-                      className="logo-img "
-                      src="/images/tm-logo-1.png"
-                      alt="logo"
-                    />
-                  </a>
-                </div>
-                <h3
-                  className="title mb-2 font-semibold !font-bold"
-                  style={{ fontSize: "1.5rem" }}
-                >
-                  Login to your account
-                </h3>
-                {/* <small className="text font-semibold text-lg">To Offers</small> */}
-                <p className="text-sm">
-                  Not a member yet?{" "}
-                  <a
-                    onClick={() =>
-                      dispatch(
-                        usersignupinModal({
-                          showSignupModal: true,
-                          showLoginModal: false,
-                          showforgotPasswordModal: false,
-                          showOtpModal: false,
-                          showNewPasswordModal: false,
-                          showSignupCartModal: false,
-                          showSignupBuyModal: false,
-                        })
-                      )
-                    }
-                    className="btn-link text-primary cursor-pointer"
-                  >
-                    Sign Up
-                  </a>
-                  .
-                </p>
+            Account
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="!pt-0">
+          <div className="nk-split-col ">
+            {localLoader && (
+              <div className="preloader  !backdrop-blur-[1px]">
+                <div className="loader"></div>
               </div>
-              <Form>
-                <div className="row gy-4 !text-left">
-                  <div className="col-12">
-                    <div className="form-group">
-                      <label className="form-label ">
-                        Email<sup className="text-red-600 !font-bold">*</sup>
-                      </label>
-                      <div className="form-control-wrap">
-                        <input
-                          type="email"
-                          className="form-control"
-                          placeholder="Enter your email"
-                          onChange={handleEmailChange}
-                          value={email}
-                        />
-                        {emailError && (
-                          <p className="nk-message-error">{emailError}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-12">
-                    <div className="form-group">
-                      <label className="form-label">
-                        Password<sup className="text-red-600 !font-bold">*</sup>
-                      </label>
-                      <div className="form-control-wrap">
-                        <a
-                          // href="show-hide-password.html"
-                          className="form-control-icon end bg-white border-y password-toggle"
-                          title="Toggle show/hide password"
-                        >
-                          <em
-                            className={`on icon ni cursor-pointer ${
-                              showPassword ? "ni-eye-off-fill" : "ni-eye-fill"
-                            } text-primary`}
-                            onClick={() => setShowPassword(!showPassword)}
-                          ></em>
-                          <em className="off icon ni ni-eye-off-fill text-primary"></em>
-                        </a>
-                        <input
-                          id="show-hide-password"
-                          type={showPassword ? "text" : "password"}
-                          className="form-control"
-                          placeholder="Enter your password"
-                          onChange={handlePasswordChange}
-                          value={password}
-                        />
-                      </div>
-                    </div>
-                    {passwordError && (
-                      <p className="nk-message-error ">{passwordError}</p>
-                    )}
-                  </div>
-                  <div className="col-12">
-                    <div className="d-flex flex-wrap align-items-start  justify-content-between text-center">
-                      <div className="form-check cursor-pointer" onClick={()=>setSavecredentials(!saveCredentials)}>
-                        <input
-                          className="form-check-input cursor-pointer"
-                          type="checkbox"
-                          value=""
-                          id="rememberMe"
-                          checked={saveCredentials}
-                          onChange={() => setSavecredentials(!saveCredentials)}
-                        />
-                        <label
-                          className="form-check-label cursor-pointer"
-                          // htmlFor="rememberMe"
-                          // onClick={()=>setSavecredentials(true)}
+            )}
 
-                        >
-                          {" "}
-                          Remember Me{" "}
-                        </label>
-                      </div>
-                      <a
-                        onClick={() =>
-                          dispatch(
-                            usersignupinModal({
-                              showSignupModal: false,
-                              showLoginModal: false,
-                              showforgotPasswordModal: true,
-                              showOtpModal: false,
-                              showNewPasswordModal: false,
-                              showSignupCartModal: false,
-                              showSignupBuyModal: false,
-                            })
-                          )
-                        }
-                        className="d-inline-block fs-16 cursor-pointer pt-0"
-                      >
-                        Forgot Password?
-                      </a>
-                    </div>
+            <div
+              className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[auto]  "
+              style={{
+                border: 0,
+              }}
+              data-aos="fade-up"
+            >
+              <div className="account-steps">
+                <div className="step"></div>
+                <div className="step"></div>
+              </div>
+              <div className="card-body !text-left p-5">
+                <div className="nk-form-card-head text-center pb-5">
+                  <div className="form-logo mb-3">
+                    <a
+                      href={`${userLang}/`}
+                      className="flex justify-center w-full"
+                    >
+                      <img
+                        className="logo-img "
+                        src="/images/tm-logo-1.png"
+                        alt="logo"
+                      />
+                    </a>
                   </div>
-                  <div className="col-12">
-                    <div className="form-group">
-                      <button
-                        className="btn btn-block btn-primary"
-                        type="button"
-                        onClick={handleFormSubmission}
-                      >
-                        Login to Your Account
-                      </button>
-                      <div className="terms-tex mt-2 text-lg">
-                        <p>
-                          By signing up, you agree to the <br></br>{" "}
-                          <a href="/terms-and-conditions">Terms of Service</a>{" "}
-                          and <a href="/privacy-policy">Privacy Policy</a>.{" "}
-                        </p>
-                      </div>{" "}
-                      {loginSuccessMsg && (
-                        <Alert
-                          variant="outlined"
-                          severity="success"
-                          className="mt-2"
-                        >
-                          <p className="text-green-900 font-semibold">
-                            {loginSuccessMsg}
-                          </p>
-                        </Alert>
-                      )}
-                      {apiError?.length > 0 &&
-                        apiError?.map((err, ind) => {
-                          if (err?.length > 0) {
-                            return (
-                              <Alert
-                                key={ind}
-                                variant="outlined"
-                                severity="error"
-                                className="mt-2"
-                              >
-                                <p key={ind} className="nk-message-error ">
-                                  {err}
-                                </p>
-                              </Alert>
-                            );
-                          }
-                        })}
-                    </div>
-                  </div>
+                  <h3
+                    className="title mb-2 font-semibold !font-bold"
+                    style={{ fontSize: "1.5rem" }}
+                  >
+                    Login to your account
+                  </h3>
+                  {/* <small className="text font-semibold text-lg">To Offers</small> */}
+                  <p className="text-sm">
+                    Not a member yet?{" "}
+                    <a
+                      onClick={() =>
+                        dispatch(
+                          usersignupinModal({
+                            showSignupModal: true,
+                            showLoginModal: false,
+                            showforgotPasswordModal: false,
+                            showOtpModal: false,
+                            showNewPasswordModal: false,
+                            showSignupCartModal: false,
+                            showSignupBuyModal: false,
+                          })
+                        )
+                      }
+                      className="btn-link text-primary cursor-pointer"
+                    >
+                      Sign Up
+                    </a>
+                    .
+                  </p>
                 </div>
-              </Form>
-              {/* <!--<div className="pt-4 text-center">
+                <Form>
+                  <div className="row gy-4 !text-left">
+                    <div className="col-12">
+                      <div className="form-group">
+                        <label className="form-label ">
+                          Email<sup className="text-red-600 !font-bold">*</sup>
+                        </label>
+                        <div className="form-control-wrap">
+                          <input
+                            type="email"
+                            className="form-control"
+                            placeholder="Enter your email"
+                            onChange={handleEmailChange}
+                            value={email}
+                          />
+                          {emailError && (
+                            <p className="nk-message-error">{emailError}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-12">
+                      <div className="form-group">
+                        <label className="form-label">
+                          Password
+                          <sup className="text-red-600 !font-bold">*</sup>
+                        </label>
+                        <div className="form-control-wrap">
+                          <a
+                            // href="show-hide-password.html"
+                            className="form-control-icon end bg-transparent border-y password-toggle"
+                            title="Toggle show/hide password"
+                          >
+                            <em
+                              className={`on icon ni cursor-pointer ${
+                                showPassword ? "ni-eye-off-fill" : "ni-eye-fill"
+                              } text-primary`}
+                              onClick={() => setShowPassword(!showPassword)}
+                            ></em>
+                            <em className="off icon ni ni-eye-off-fill text-primary"></em>
+                          </a>
+                          <input
+                            id="show-hide-password"
+                            type={showPassword ? "text" : "password"}
+                            className="form-control"
+                            maxLength="15"
+                            placeholder="Enter your password"
+                            onChange={handlePasswordChange}
+                            value={password}
+                          />
+                        </div>
+                      </div>
+                      {passwordError && (
+                        <p className="nk-message-error ">{passwordError}</p>
+                      )}
+                    </div>
+                    <div className="col-12">
+                      <div className="d-flex flex-wrap align-items-start  justify-content-between text-center">
+                        <div
+                          className="form-check cursor-pointer"
+                          onClick={() => setSavecredentials(!saveCredentials)}
+                        >
+                          <input
+                            className="form-check-input cursor-pointer"
+                            type="checkbox"
+                            value=""
+                            id="rememberMe"
+                            checked={saveCredentials}
+                            onChange={() =>
+                              setSavecredentials(!saveCredentials)
+                            }
+                          />
+                          <label
+                            className="form-check-label cursor-pointer"
+                            // htmlFor="rememberMe"
+                            // onClick={()=>setSavecredentials(true)}
+                          >
+                            {" "}
+                            Remember Me{" "}
+                          </label>
+                        </div>
+                        <a
+                          onClick={() =>
+                            dispatch(
+                              usersignupinModal({
+                                showSignupModal: false,
+                                showLoginModal: false,
+                                showforgotPasswordModal: true,
+                                showOtpModal: false,
+                                showNewPasswordModal: false,
+                                showSignupCartModal: false,
+                                showSignupBuyModal: false,
+                              })
+                            )
+                          }
+                          className="d-inline-block fs-16 cursor-pointer pt-0"
+                        >
+                          Forgot Password?
+                        </a>
+                      </div>
+                    </div>
+                    <div className="col-12">
+                      <div className="form-group">
+                        <button
+                          className="btn btn-block btn-primary"
+                          type="button"
+                          onClick={handleFormSubmission}
+                        >
+                          Login to Your Account
+                        </button>
+                        <div className="terms-tex mt-2 text-lg">
+                          <p>
+                            By signing up, you agree to the <br></br>{" "}
+                            <a href="/terms-and-conditions">Terms and conditions</a>{" "}
+                            and <a href="/privacy-policy">Privacy Policy</a>.{" "}
+                          </p>
+                        </div>{" "}
+                        {loginSuccessMsg && (
+                          <Alert
+                            variant="outlined"
+                            severity="success"
+                            className="mt-2"
+                          >
+                            <p className="text-green-900 font-semibold">
+                              {loginSuccessMsg}
+                            </p>
+                          </Alert>
+                        )}
+                        {apiError?.length > 0 &&
+                          apiError?.map((err, ind) => {
+                            if (err?.length > 0) {
+                              return (
+                                <Alert
+                                  key={ind}
+                                  variant="outlined"
+                                  severity="error"
+                                  className="mt-2"
+                                >
+                                  <p key={ind} className="nk-message-error ">
+                                    {err}
+                                  </p>
+                                </Alert>
+                              );
+                            }
+                          })}
+                      </div>
+                    </div>
+                  </div>
+                </Form>
+                {/* <!--<div className="pt-4 text-center">
                                 <div className="small overline-title-sep"><span className="bg-white px-2 text-base">or register with</span></div>
                             </div>
                             <div className="pt-4"><a href="#" className="btn btn-outline-gray-50 text-dark w-100"><img src="images/icon/a.png" alt="" className="icon"><span>Sign Up with Google</span></a></div>--> */}
+              </div>
             </div>
           </div>
-        </div>
-      </Modal.Body>
-    </Modal>
+        </Modal.Body>
+      </Modal>
+    </>
   );
 };
 

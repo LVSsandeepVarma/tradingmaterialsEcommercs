@@ -111,7 +111,7 @@ export default function About() {
                             <h4 className="text-capitalize !text-2xl !text-left !font-bold">
                               Company Growth
                             </h4>
-                            <p>
+                            <p className="!text-left">
                               {" "}
                               Fostering exponential advancement by embracing
                               innovation.
@@ -134,7 +134,7 @@ export default function About() {
                             <h4 className="text-capitalize !text-2xl !text-left !font-bold">
                               Team Members
                             </h4>
-                            <p>
+                            <p className="!text-left">
                               {" "}
                               The dynamic prowess of our team fuels our journey.{" "}
                             </p>
@@ -156,7 +156,7 @@ export default function About() {
                             <h4 className="text-capitalize !text-2xl !text-left !font-bold">
                               Ongoing Projects
                             </h4>
-                            <p>
+                            <p className="!text-left">
                               {" "}
                               Diverse initiatives at play, propelling our
                               mission forward.{" "}
@@ -179,7 +179,7 @@ export default function About() {
                             <h4 className="text-capitalize !text-2xl !text-left !font-bold">
                               Customer Delight
                             </h4>
-                            <p>
+                            <p className="!text-left">
                               Our prime concern is ensuring customer happiness.
                             </p>
                           </div>

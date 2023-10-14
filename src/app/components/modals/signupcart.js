@@ -37,6 +37,7 @@ const SignupCartModal = ({ show, onHide }) => {
   const [emailVerificationStatus, setEmailVerificationStatus] = useState(false);
   const [emailVerifyLoader, setEmailVerifyLoader] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [submitted, setSubmitted] = useState(false)
 
   const loginStatus = useSelector((state) => state?.login?.value);
   console.log(loginStatus, window.location.host, window.location.hostname);
@@ -55,7 +56,7 @@ const SignupCartModal = ({ show, onHide }) => {
 
   useEffect(() => {
     if (localStorage.getItem("productTempQty")) {
-      setProductQty(localStorage.getItem("productTempQty"));
+      setProductQty(parseInt(localStorage.getItem("productTempQty")));
       localStorage.removeItem("productTempQty");
     } else {
       setProductQty(1);
@@ -118,16 +119,11 @@ const SignupCartModal = ({ show, onHide }) => {
     }
   }
 
-  function passwordValidation(phone) {
-    const phoneRegex = /^[0-9]+$/;
-    if (phone?.length === 0) {
+  function passwordValidation(password) {
+    if (password?.length === 0) {
       setPhoneError("Password is required");
-    } else if (!phoneRegex.test(phone)) {
-      setPhoneError("Invalid password");
-    } else if (phone?.length <= 7) {
-      setPhoneError("Invalid password");
-    } else if (phone?.length > 15) {
-      setPhoneError("Invalid password");
+    } else if (password?.length > 15) {
+      setPhoneError("Maximum limit exceeded");
     } else {
       setPhoneError("");
     }
@@ -172,10 +168,13 @@ const SignupCartModal = ({ show, onHide }) => {
   }
 
   function handlePhoneChange(e) {
-    setPhone(e?.target?.value);
+    
     if (!emailVerificationStatus) {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '')
+      setPhone(e?.target?.value);
       phoneValidation(e?.target?.value);
     } else {
+      setPhone(e?.target?.value);
       passwordValidation(e?.target?.value);
     }
   }
@@ -205,6 +204,9 @@ const SignupCartModal = ({ show, onHide }) => {
       );
       if (response?.data?.status) {
         setEmailVerificationStatus(false);
+        if(phone != ""){
+          phoneValidation(phone)
+        }
         console.log(response?.data);
       }
     } catch (err) {
@@ -214,6 +216,9 @@ const SignupCartModal = ({ show, onHide }) => {
         "The email has already been taken."
       ) {
         setEmailVerificationStatus(true);
+        if(phone !=""){
+          passwordValidation(phone)
+        }
       }
     } finally {
       setEmailVerifyLoader(false);
@@ -224,7 +229,7 @@ const SignupCartModal = ({ show, onHide }) => {
     setApiError([]);
     setSignupSuccessMsg("");
     emailValidaiton(email);
-    phoneValidation(phone);
+    passwordValidation(phone);
 
     const currentUrl = window?.location?.href;
     let updatedUrl;
@@ -253,6 +258,11 @@ const SignupCartModal = ({ show, onHide }) => {
       ) {
         try {
           setLocalLoader(true);
+          setSubmitted(true)
+          setTimeout(()=>{
+            setSubmitted(false)
+          },1500)
+
           const response = await axios.post(
             "https://admin.tradingmaterials.com/api/auth/login",
             {
@@ -354,6 +364,10 @@ const SignupCartModal = ({ show, onHide }) => {
       ) {
         try {
           setLocalLoader(true);
+          setSubmitted(true)
+          setTimeout(()=>{
+            setSubmitted(false)
+          },1500)
           const response = await axios.post(
             "https://admin.tradingmaterials.com/api/client/store",
             {
@@ -467,15 +481,15 @@ const SignupCartModal = ({ show, onHide }) => {
           >
             <div>
               <div className="flex justify-between mb-2">
-                <p>PRODUCT</p>
-                <p className="!text-blue-600">TOTAL</p>
+                <p className="drop-shadow-xl">PRODUCT</p>
+                {/* <p className="!text-blue-600 drop-shadow-xl">TOTAL</p> */}
               </div>
               <Divider />
-              <div className="grid grid-cols-3 gap-3 p-2 !pr-0">
-                <div>
+              <div className="grid gap-3 p-2 !pr-0 drop-shadow-lg" style={{gridTemplateColumns: "1fr 2fr"}}>
+                <div className="">
                   <img src={cartData?.img_1} alt="product" />
                 </div>
-                <div className="">
+                <div className="flex flex-col justify-between">
                   <p
                     className="  font-bold "
                     style={{
@@ -487,15 +501,19 @@ const SignupCartModal = ({ show, onHide }) => {
                   >
                     {cartData?.name}
                   </p>
+                  <div className="flex justify-between">
                   <p>
                     <label className="pr-1">Rs. </label>
                     {cartData?.prices[0]?.INR}
                   </p>
-                  <div id="counter" className="nk-counter">
+                  {/* <p className="!text-blue-600">Total</p> */}
+                  </div>
+                 <div className="flex justify-between">
+                 <div id="counter" className="nk-counter">
                     <button
                       onClick={() => {
                         if (productQty >= 2) {
-                          setProductQty(productQty - 1);
+                          setProductQty(parseInt(productQty) - 1);
                         }
                       }}
                     >
@@ -504,18 +522,24 @@ const SignupCartModal = ({ show, onHide }) => {
                     <span id="count">{productQty}</span>
                     <button
                       onClick={() => {
-                        setProductQty(productQty + 1);
+                        setProductQty(parseInt(productQty) + 1);
                       }}
                     >
                       +
                     </button>
                   </div>
-                </div>
-                <div>
-                  <p className="text-right !text-blue-600">
-                    Rs. {parseInt(cartData?.prices[0]?.INR) * productQty}
+                  <div>
+                  <p className="text-right !text-blue-600 font-semibold flex gap-1 flex-wrap justify-end ">
+                  <p className="!text-blue-600 ">Total:</p> Rs. {parseInt(cartData?.prices[0]?.INR) * parseInt(productQty)}
                   </p>
                 </div>
+                 </div>
+                </div>
+                {/* <div>
+                  <p className="text-right !text-blue-600">
+                    Rs. {parseInt(cartData?.prices[0]?.INR) * parseInt(productQty)}
+                  </p>
+                </div> */}
               </div>
               <Divider className="mt-2" />
             </div>
@@ -524,7 +548,7 @@ const SignupCartModal = ({ show, onHide }) => {
               <div className="step"></div>
             </div> */}
 
-            <div className="card-body !text-left p-5 pb-0">
+            <div className="card-body !text-left p-5 pb-0 drop-shadow-lg" >
               <p
                 className={`text-left ${
                   !emailVerificationStatus ? "mb-2 " : ""
@@ -649,6 +673,7 @@ const SignupCartModal = ({ show, onHide }) => {
                               : "password"
                           }
                           className="form-control !text-[11px]"
+                          maxLength={15}
                           style={{ borderRadius: 0 }}
                           placeholder="Enter here"
                           onChange={handlePhoneChange}
@@ -705,45 +730,46 @@ const SignupCartModal = ({ show, onHide }) => {
                             </div>
                             <div className="pt-4"><a href="#" className="btn btn-outline-gray-50 text-dark w-100"><img src="images/icon/a.png" alt="" className="icon"><span>Sign Up with Google</span></a></div>--> */}
             </div>
-            <div className="form-logo mb-3">
+            <div className="form-logo mb-1 drop-shadow-lg">
               <a
                 href={`${userLang}/`}
-                className="flex justify-center w-full mt-2"
+                className="flex justify-center w-full "
               >
                 <img
                   className="logo-img"
                   src="/images/tm-logo-1.png"
                   alt="logo"
-                  style={{ width: "28%" }}
+                  style={{ width: "35%" }}
                 />
               </a>
             </div>
-            <div className="flex justify-center w-full items-center mt-2 pl-[8px]">
+            <div className="flex justify-center w-full items-center my-2 pl-[8px] drop-shadow-lg">
               <img
                 src="/images/paymentMethods.jpg"
                 alt="payment_methods"
                 style={{ width: "50%" }}
               />
-              <p className="capitalize text-[11px] ">
+              <p className="capitalize text-[11px] drop-shadow-lg">
                 <LocalShippingIcon className="!w-[18px] mr-1 ml-2" />
                 Cash on Delivery
               </p>
             </div>
             <Divider />
             <div>
-              <div className="flex justify-between mt-2">
+              <div className="flex justify-between mt-2 drop-shadow-lg">
                 <p className="!text-blue-600">Subtotal:</p>
                 <p className="!text-blue-600">
                   <label className="!text-blue-600">Rs.</label>{" "}
                   {parseInt(cartData?.prices[0]?.INR) * productQty}
                 </p>
               </div>
-              <div className="mt-[7%]">
-                <small className="mt-2 pl-[8px]">
+              <div className="mt-[7%] drop-shadow-lg">
+                <small className="mt-2 pl-[8px] drop-shadow-lg">
                   Tax included and shipping calculated at checkout
                 </small>
                 <div
-                  className={`ml-2 w-full buttonss-off cursor-pointer `}
+                  className={`ml-2 w-full buttonss-off cursor-pointer drop-shadow-lg`}
+                  aria-disabled = {submitted}
                   onClick={() => {
                     if (emailVerificationStatus) {
                       handleLoginFormSubmission();

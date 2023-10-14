@@ -153,6 +153,7 @@ export default function Offer({ mouseOverEvent, isMouseEntered }) {
           className="form-control border-b-1 !text-white border-white bg-transparent hover:drop-shadow-lg mb-2 placeholder-white w-full "
           placeholder="Mobile "
           onChange={handlePhonechange}
+          maxLength={15}
           onMouseEnter={mouseOverEvent}
           style={{
             border: "0px",

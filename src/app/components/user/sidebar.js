@@ -538,7 +538,7 @@ export default function SideBar() {
           </Drawer>
           <Divider />
           <Box
-            className="drop-shadow-lg"
+            className="drop-shadow-lg "
             component="main"
             sx={{
               flexGrow: 1,
@@ -631,7 +631,7 @@ export default function SideBar() {
                     <Divider className="py-2" />
                   </div> */}
                   <h4 className="mt-5 !font-bold">Address</h4>
-                  <div>
+                  <div className="!mb-3">
                     <small className="w-full !text-left">
                      
                       {userData?.client?.primary_address?.length > 0 ? "Showing all addresses" : "No Address Found"}
@@ -663,15 +663,15 @@ export default function SideBar() {
                             {address?.add_2 !== null
                                   ? `${address?.add_2},`
                                   : ""}
-                            <p>{address?.city},</p>
-                            <p>{address?.zip},</p>
-                            <p>{address?.state},</p>
-                            <p>{address?.country}.</p>
+                            <p className="truncate">{address?.city},</p>
+                            <p className="truncate">{address?.zip},</p>
+                            <p className="truncate">{address?.state},</p>
+                            <p className="truncate">{address?.country}.</p>
                           </CardActionArea>
                         </div>
                       ))}
                       <Button
-                        className="!ml-2"
+                        className="!ml-2 !mt-7"
                         onClick={() => {
                           setAddressUpdateType("");
                           setShowModal(true);

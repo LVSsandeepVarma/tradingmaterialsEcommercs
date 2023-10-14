@@ -5,7 +5,6 @@ import { Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { userLanguage } from "../../../features/userLang/userLang";
-import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import { loginUser } from "../../../features/login/loginSlice";
 import axios from "axios";
 import { updateUsers } from "../../../features/users/userSlice";
@@ -14,6 +13,7 @@ import { Form } from "react-bootstrap";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import { Alert } from "@mui/material";
 import { updateclientType } from "../../../features/clientType/clientType";
+import SessionExpired from "./sessionExpired";
 
 // eslint-disable-next-line react/prop-types, no-unused-vars
 const SignupModal = ({ show, onHide }) => {
@@ -26,6 +26,7 @@ const SignupModal = ({ show, onHide }) => {
   const [phoneError, setPhoneError] = useState("");
   const [firstNameError, setFirstNameError] = useState("");
   const [lastNameError, setLastNameError] = useState("");
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
   const [apiError, setApiError] = useState([]);
   const [signupSuccessMsg, setSignupSuccessMsg] = useState("");
   const [localLoader, setLocalLoader] = useState(false);
@@ -214,12 +215,7 @@ const SignupModal = ({ show, onHide }) => {
 
             setTimeout(() => {
               localStorage.removeItem("token");
-              dispatch(
-                updateNotifications({
-                  type: "warning",
-                  message: "Oops!",
-                })
-              );
+              setShowSessionExpiry(true)
               navigate(`${userLang}/login`);
             }, 3600000);
           }
@@ -262,7 +258,17 @@ const SignupModal = ({ show, onHide }) => {
     // document.getElementsByTagName(body).style =
   };
 
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/?login");
+  }
+
   return (
+    <>
+    <SessionExpired
+        open={showSessionExppiry}
+        handleClose={handleSessionExpiryClose}
+      />
     <Modal
       show={show}
       onHide={handleHide}
@@ -485,6 +491,7 @@ const SignupModal = ({ show, onHide }) => {
         </div>
       </Modal.Body>
     </Modal>
+    </>
   );
 };
 

@@ -34,6 +34,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
   const [emailVerificationStatus, setEmailVerificationStatus] = useState(false);
   const [emailVerifyLoader, setEmailVerifyLoader] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [submitted, setSubmitted] = useState(false)
 
   //   const [cartData, setCartData] = useState();
   // eslint-disable-next-line no-unused-vars
@@ -104,6 +105,16 @@ const SignupBuyNowModal = ({ show, onHide }) => {
     }
   }
 
+  function passwordValidation(password) {
+    if (password?.length === 0) {
+      setPhoneError("Password is required");
+    } else if (password?.length > 15) {
+      setPhoneError("Maximum limit exceeded");
+    } else {
+      setPhoneError("");
+    }
+  }
+
   function phoneValidation(phone) {
     const phoneRegex = /^[0-9]+$/;
     if (phone?.length === 0) {
@@ -158,9 +169,15 @@ const SignupBuyNowModal = ({ show, onHide }) => {
   }
 
   function handlePhoneChange(e) {
-    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-    setPhone(e?.target?.value);
-    phoneValidation(e?.target?.value);
+    
+    if (!emailVerificationStatus) {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '')
+      setPhone(e?.target?.value);
+      phoneValidation(e?.target?.value);
+    } else {
+      setPhone(e?.target?.value);
+      passwordValidation(e?.target?.value);
+    }
   }
 
   function handleFirstNamechange(e) {
@@ -188,6 +205,9 @@ const SignupBuyNowModal = ({ show, onHide }) => {
       );
       if (response?.data?.status) {
         setEmailVerificationStatus(false);
+        if(phone != ""){
+          phoneValidation(phone)
+        }
         console.log(response?.data);
       }
     } catch (err) {
@@ -197,6 +217,9 @@ const SignupBuyNowModal = ({ show, onHide }) => {
         "The email has already been taken."
       ) {
         setEmailVerificationStatus(true);
+        if(phone !=""){
+          passwordValidation(phone)
+        }
       }
     } finally {
       setEmailVerifyLoader(false);
@@ -207,7 +230,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
     setApiError([]);
     setSignupSuccessMsg("");
     emailValidaiton(email);
-    phoneValidation(phone);
+    passwordValidation(phone);
 
     const currentUrl = window?.location?.href;
     let updatedUrl;
@@ -236,6 +259,10 @@ const SignupBuyNowModal = ({ show, onHide }) => {
       ) {
         try {
           setLocalLoader(true);
+          setSubmitted(true)
+          setTimeout(()=>{
+            setSubmitted(false)
+          },1500)
           const response = await axios.post(
             "https://admin.tradingmaterials.com/api/auth/login",
             {
@@ -337,6 +364,10 @@ const SignupBuyNowModal = ({ show, onHide }) => {
       ) {
         try {
           setLocalLoader(true);
+          setSubmitted(true)
+          setTimeout(()=>{
+            setSubmitted(false)
+          },1500)
           const response = await axios.post(
             "https://admin.tradingmaterials.com/api/client/store",
             {
@@ -624,6 +655,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                           }
                           className="form-control !text-[11px]"
                           style={{ borderRadius: 0 }}
+                          maxLength={15}
                           placeholder="Enter here"
                           onChange={handlePhoneChange}
                         />
@@ -744,6 +776,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                 </small>
                 <div
                   className={`ml-2 w-full buttonss-off cursor-pointer `}
+                  aria-disabled = {submitted}
                   onClick={() => {
                     if (emailVerificationStatus) {
                       handleLoginFormSubmission();

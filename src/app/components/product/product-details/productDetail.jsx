@@ -1207,7 +1207,7 @@ export default function ProductDetails() {
                   </div>
                   <div className="nk-nav-tabs nav-tabs-s2 py-5 py-lg-7">
                     <ul className="nav nav-tabs" >
-                      <li className="nav-item" onClick={() => setTabValue(1)}>
+                      <li className="nav-item cursor-pointer" onClick={() => setTabValue(1)}>
                         <a
                           className={`${
                             tabValue === 1 ? "nav-link active" : "nav-link"
@@ -1219,7 +1219,7 @@ export default function ProductDetails() {
                           Product Details{" "}
                         </a>
                       </li>
-                      <li className="nav-item" onClick={() => setTabValue(2)}>
+                      <li className="nav-item cursor-pointer" onClick={() => setTabValue(2)}>
                         <a
                           className={`${
                             tabValue === 2 ? "nav-link active" : "nav-link"
@@ -1368,7 +1368,7 @@ export default function ProductDetails() {
                                           alt="customer-profile"
                                           src={review?.client?.profile_img}
                                         />
-                                        <p className="ml-2 font-bold">
+                                        <p className="ml-2 font-bold capitalize">
                                           {review?.client?.first_name}{" "}
                                           {review?.client?.last_name}{" "}
                                         </p>
