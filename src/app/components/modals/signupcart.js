@@ -732,11 +732,12 @@ const SignupCartModal = ({ show, onHide }) => {
             </div>
             <div className="form-logo mb-1 drop-shadow-lg">
               <a
-                href={`${userLang}/`}
+                // href={`${userLang}/`}
                 className="flex justify-center w-full "
               >
                 <img
-                  className="logo-img"
+                  className="logo-img cursor-pointer"
+                  onClick={()=>window.location.href="/"}
                   src="/images/tm-logo-1.png"
                   alt="logo"
                   style={{ width: "35%" }}

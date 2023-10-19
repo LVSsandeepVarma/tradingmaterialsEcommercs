@@ -245,7 +245,7 @@ export default function Career() {
       setFileErr("Resume is required");
       return false;
     } else if (!filePattern.test(file)) {
-      setFileErr("Only pdf's are allowed");
+      setFileErr("Only pdf is allowed");
     } else {
       setFileErr("");
     }
@@ -833,7 +833,7 @@ export default function Career() {
                 )}
                 <Form.Group controlId="formFileSm" className="mt-3">
                   <Form.Label>
-                    Upload you Resume{" "}
+                    Upload your Resume{" "}
                     <sup className="text-[#ff2424] text-sm !font-bold">*</sup>
                   </Form.Label>
                   <Form.Control

@@ -14,7 +14,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
-import { updateCartCount, updateWishListCount } from "../../../features/cartWish/focusedCount";
+import {
+  updateCartCount,
+  updateWishListCount,
+} from "../../../features/cartWish/focusedCount";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -29,7 +32,7 @@ import Header from "../header/header";
 import { useNavigate } from "react-router-dom";
 import { FaMinusCircle } from "react-icons/fa";
 import CryptoJS from "crypto-js";
-import Invoices from "./invoices";
+// import Invoices from "./invoices";
 import { BsFillBoxSeamFill } from "react-icons/bs";
 // import { MdOutlineAlternateEmail } from "react-icons/md";
 import { BiSolidPhoneCall } from "react-icons/bi";
@@ -38,7 +41,7 @@ import { logoutUser } from "../../../features/login/loginSlice";
 import AddToFav from "../modals/addToFav";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import SessionExpired from "../modals/sessionExpired";
-import EmailIcon from '@mui/icons-material/Email';
+import EmailIcon from "@mui/icons-material/Email";
 
 const drawerWidth = 240;
 
@@ -107,8 +110,7 @@ export default function SideBar() {
   const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
   const isLoggedIn = useSelector((state) => state?.login?.value);
   const [dialogShow, setDialogShow] = useState(false);
-  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
-
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false);
 
   const [formType, setFormType] = useState("add");
   const dispatch = useDispatch();
@@ -171,12 +173,11 @@ export default function SideBar() {
         dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
       } else {
         console.log(response?.data);
-        setShowSessionExpiry(true)
+        setShowSessionExpiry(true);
         // navigate("/login")
       }
     } catch (err) {
       console.log(err);
-      
     } finally {
       dispatch(hideLoader());
     }
@@ -224,12 +225,11 @@ export default function SideBar() {
       if (response?.status) {
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
-        sessionStorage.removeItem("offerPhone")
-            sessionStorage.removeItem("expiry")
+        sessionStorage.removeItem("offerPhone");
+        sessionStorage.removeItem("expiry");
         dispatch(updateNotifications({ type: "", message: "" }));
-        navigate(`${userLang}/`)
+        navigate(`${userLang}/`);
         window.location.reload();
-        
       }
     } catch (err) {
       console.log("err", err);
@@ -242,91 +242,92 @@ export default function SideBar() {
     if (index !== 3 && index !== 4 && index !== 1 && index != 0) {
       setActiveIndex(index);
     } else {
-
-      if(index === 3){
-      window.open(
-        `/orders/${CryptoJS?.AES?.encrypt(
-          `${userData?.client?.id}`,
-          "order_details"
-        )
-          ?.toString()
-          .replace(/\//g, "_")
-          .replace(/\+/g, "-")}`,
-        "_blank"
-      );
-        }
-        else if(index === 4){
-          handleLogout()
-        } else if(index == 1){
-          window.location.href = "/cart"
-        } else if(index == 0){
-          window.location.href = "/profile"
-        }
+      if (index === 3) {
+        window.open(
+          `/orders/${CryptoJS?.AES?.encrypt(
+            `${userData?.client?.id}`,
+            "order_details"
+          )
+            ?.toString()
+            .replace(/\//g, "_")
+            .replace(/\+/g, "-")}`,
+          "_blank"
+        );
+      } else if (index === 4) {
+        handleLogout();
+      } else if (index == 1) {
+        window.location.href = "/cart";
+      } else if (index == 0) {
+        window.location.href = "/profile";
+      }
     }
   };
 
-    // function for handling add to cart animation
-    async function handleAddToCart(productId, productImg) {
-      try {
-        // setAnimateProductId(productId);
-        dispatch(showLoader());
-        const response = await axios?.post(
-          "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
-          {
-            product_id: productId,
-            qty: 1,
-            client_id: userData?.client?.id,
+  // function for handling add to cart animation
+  async function handleAddToCart(productId, productImg) {
+    try {
+      // setAnimateProductId(productId);
+      dispatch(showLoader());
+      const response = await axios?.post(
+        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+        {
+          product_id: productId,
+          qty: 1,
+          client_id: userData?.client?.id,
+        },
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
           },
-          {
-            headers: {
-              "access-token": localStorage.getItem("client_token"),
-            },
-          }
-        );
-        if (response?.data?.status) {
-          setAddedToFavImg(productImg);
-          setDialogShow(true);
-          setModalMessage("Added to your Cart successfully");
-          dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
-          dispatch(updateCart(response?.data?.data?.cart_details));
-          dispatch(updateCartCount(response?.data?.data?.cart_count));
-          getUserInfo(productId);
-          if (userData?.client?.wishlist?.length > 0) {
-            const ids = userData?.client?.wishlist?.map(
-              (item) => item?.product_id
+        }
+      );
+      if (response?.data?.status) {
+        setAddedToFavImg(productImg);
+        setDialogShow(true);
+        setModalMessage("Added to your Cart successfully");
+        dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
+        dispatch(updateCart(response?.data?.data?.cart_details));
+        dispatch(updateCartCount(response?.data?.data?.cart_count));
+        getUserInfo(productId);
+        if (userData?.client?.wishlist?.length > 0) {
+          const ids = userData?.client?.wishlist?.map(
+            (item) => item?.product_id
+          );
+          const isPresent = ids?.includes(productId);
+          console.log(isPresent, ids, productId, "prest");
+          if (isPresent) {
+            dispatch(
+              updateWishListCount(userData?.client?.wishlist?.length - 1)
             );
-            const isPresent = ids?.includes(productId);
-            console.log(isPresent, ids, productId, "prest");
-            if (isPresent) {
-              dispatch(
-                updateWishListCount(userData?.client?.wishlist?.length - 1)
-              );
-              setShowWishlistRemoveMsg(true);
-            } else {
-              setShowWishlistRemoveMsg(false);
-            }
+            setShowWishlistRemoveMsg(true);
+          } else {
+            setShowWishlistRemoveMsg(false);
           }
         }
-      } catch (err) {
-        console.log(err);
-      } finally {
-        dispatch(hideLoader());
       }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
     }
-    const closedialogModal = () => {
-      setDialogShow(false);
-      setModalMessage("");
-      setAddedToFavImg("");
-    }; 
+  }
+  const closedialogModal = () => {
+    setDialogShow(false);
+    setModalMessage("");
+    setAddedToFavImg("");
+  };
 
-    function handleSessionExpiryClose (){
-      setShowSessionExpiry(false)
-      navigate("/?login")
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/?login");
   }
 
   return (
     <>
-        <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
+      <SessionExpired
+        open={showSessionExppiry}
+        handleClose={handleSessionExpiryClose}
+      />
 
       <ShippingAddressModal
         show={showModal}
@@ -342,7 +343,7 @@ export default function SideBar() {
         </div>
       )}
 
-{addedToFavImg !== "" && (
+      {addedToFavImg !== "" && (
         <AddToFav
           showModal={dialogShow}
           closeModal={closedialogModal}
@@ -468,15 +469,14 @@ export default function SideBar() {
                     >
                       {text === "Logout" && (
                         <LogoutIcon
-                        size={20}
-                        className="mr-7"
-                        sx={{
-                          minWidth: 0,
-                          mr: open ? 3 : "auto",
-                          justifyContent: "center"
-                        }}
-                        >
-                        </LogoutIcon>
+                          size={20}
+                          className="mr-7"
+                          sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : "auto",
+                            justifyContent: "center",
+                          }}
+                        ></LogoutIcon>
                       )}
                       {text === "Orders" && (
                         <BsFillBoxSeamFill
@@ -633,8 +633,9 @@ export default function SideBar() {
                   <h4 className="mt-5 !font-bold">Address</h4>
                   <div className="!mb-3">
                     <small className="w-full !text-left">
-                     
-                      {userData?.client?.primary_address?.length > 0 ? "Showing all addresses" : "No Address Found"}
+                      {userData?.client?.primary_address?.length > 0
+                        ? "Showing all addresses"
+                        : "No Address Found"}
                     </small>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4  mb-2">
                       {userData?.client?.address?.map((address, ind) => (
@@ -645,28 +646,36 @@ export default function SideBar() {
                           {/* !min-w-[75%]  sm:!min-w-[25%] sm:max-w-[40%] */}
                           <CardActionArea
                             onClick={() => {
-                              if(ind == 0){
+                              if (ind == 0) {
                                 setAddressUpdateType("primary");
-                              setShowModal(true);
-                              setFormType("update");
-                              setAddressData(userData?.client?.address[ind]);
-                              }else{
-                              setAddressUpdateType("");
-                              setShowModal(true);
-                              setFormType("update");
-                              setAddressData(userData?.client?.address[ind]);
+                                setShowModal(true);
+                                setFormType("update");
+                                setAddressData(userData?.client?.address[ind]);
+                              } else {
+                                setAddressUpdateType("");
+                                setShowModal(true);
+                                setFormType("update");
+                                setAddressData(userData?.client?.address[ind]);
                               }
                             }}
                           >
-                            <h3 className={`!font-bold ${ind == 0 ? "!text-blue-600" : ""}`}>{ind == 0 ? "Primary Address" : `Address - ${ind + 1}`}</h3>
+                            <h3
+                              className={`!font-bold ${
+                                ind == 0 ? "!text-blue-600" : ""
+                              }`}
+                            >
+                              {ind == 0
+                                ? "Primary Address"
+                                : `Address - ${ind + 1}`}
+                            </h3>
                             <p className="truncate">{address?.add_1},</p>
                             {address?.add_2 !== null
-                                  ? `${address?.add_2},`
-                                  : ""}
+                              ? `${address?.add_2},`
+                              : ""}
                             <p className="truncate">{address?.city},</p>
-                            <p className="truncate">{address?.zip},</p>
                             <p className="truncate">{address?.state},</p>
-                            <p className="truncate">{address?.country}.</p>
+                            <p className="truncate">{address?.country},</p>
+                            <p className="truncate">{address?.zip}.</p>
                           </CardActionArea>
                         </div>
                       ))}
@@ -871,18 +880,19 @@ export default function SideBar() {
                                                 verticalAlign: "super",
                                               }}
                                             > */}
-                                              .{
-                                                (
-                                                  parseFloat(
-                                                    product?.price *
-                                                      (100 /
-                                                        product?.product
-                                                          ?.discount)
-                                                  )?.toFixed(2) + ""
-                                                )
-                                                  .toString()
-                                                  .split(".")[1]
-                                              }
+                                            .
+                                            {
+                                              (
+                                                parseFloat(
+                                                  product?.price *
+                                                    (100 /
+                                                      product?.product
+                                                        ?.discount)
+                                                )?.toFixed(2) + ""
+                                              )
+                                                .toString()
+                                                .split(".")[1]
+                                            }
                                             {/* </sub> */}
                                           </del>
                                         )}
@@ -1118,9 +1128,7 @@ export default function SideBar() {
 
                                           <span className=" fs-12 text-gray-800">
                                             {" "}
-                                            ({
-                                              product?.review
-                                            } Reviews){" "}
+                                            ({product?.review} Reviews){" "}
                                           </span>
                                         </div>
                                         <div className="d-flex align-items-center justify-content-start">
@@ -1136,58 +1144,57 @@ export default function SideBar() {
                                             {product?.discount > 0 && (
                                               <del className="text-gray-800 !ml-2">
                                                 <sub
-                                              style={{
-                                                verticalAlign: "super",
-                                              }}
-                                            >
-                                              ₹
-                                            </sub>
+                                                  style={{
+                                                    verticalAlign: "super",
+                                                  }}
+                                                >
+                                                  ₹
+                                                </sub>
                                                 {
-                                                                (
-                                                                  parseFloat(
-                                                                    product?.price *
-                                                                      (100 /
-                                                                        (100 -
-                                                                          product?.discount))
-                                                                  )?.toFixed(
-                                                                    2
-                                                                  ) + ""
-                                                                )
-                                                                  .toString()
-                                                                  .split(".")[0]
-                                                              }
+                                                  (
+                                                    parseFloat(
+                                                      product?.price *
+                                                        (100 /
+                                                          (100 -
+                                                            product?.discount))
+                                                    )?.toFixed(2) + ""
+                                                  )
+                                                    .toString()
+                                                    .split(".")[0]
+                                                }
                                                 {/* <sub
                                                   style={{
                                                     verticalAlign: "super",
                                                   }}
                                                 > */}
-                                                  .{
-                                                    (
-                                                      parseFloat(
-                                                        product?.price *
-                                                          (100 /
-                                                            product?.discount)
-                                                      )?.toFixed(2) + ""
-                                                    )
-                                                      .toString()
-                                                      .split(".")[1]
-                                                  }
+                                                .
+                                                {
+                                                  (
+                                                    parseFloat(
+                                                      product?.price *
+                                                        (100 /
+                                                          product?.discount)
+                                                    )?.toFixed(2) + ""
+                                                  )
+                                                    .toString()
+                                                    .split(".")[1]
+                                                }
                                                 {/* </sub> */}
                                               </del>
                                             )}
                                           </p>
 
                                           <div className="flex justify-end w-full items-center">
-                                      <button
-                                        className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
-                                        // eslint-disable-next-line no-unused-vars
-                                        onClick={(event) => {
-                                          return isLoggedIn
-                                            ? handleAddToCart(
-                                                product?.product?.id,
-                                                product?.product?.img_1
-                                              )
-                                            : dispatch(
+                                            <button
+                                              className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                              // eslint-disable-next-line no-unused-vars
+                                              onClick={(event) => {
+                                                return isLoggedIn
+                                                  ? handleAddToCart(
+                                                      product?.product?.id,
+                                                      product?.product?.img_1
+                                                    )
+                                                  : dispatch(
                                                       usersignupinModal({
                                                         showSignupModal: false,
                                                         showLoginModal: true,
@@ -1196,19 +1203,19 @@ export default function SideBar() {
                                                         showNewPasswordModal: false,
                                                       })
                                                     );
-                                        }}
-                                      >
-                                        {animateProductId ===
-                                        product?.product?.id ? (
-                                          <img
-                                            src="/images/addedtocart.gif"
-                                            className="max-w-[45px]"
-                                          />
-                                        ) : (
-                                          <em className="icon ni ni-cart text-2xl "></em>
-                                        )}
-                                      </button>
-                                    </div>
+                                              }}
+                                            >
+                                              {animateProductId ===
+                                              product?.product?.id ? (
+                                                <img
+                                                  src="/images/addedtocart.gif"
+                                                  className="max-w-[45px]"
+                                                />
+                                              ) : (
+                                                <em className="icon ni ni-cart text-2xl "></em>
+                                              )}
+                                            </button>
+                                          </div>
 
                                           {/* {product?.prices?.map(
                                             (price, ind) => (
@@ -1340,7 +1347,7 @@ export default function SideBar() {
                   {/* {userData?.client?.orders?.length === 0 && (
                     <p>Your Orders are empty</p>
                   )} */}
-                  <Invoices />
+                  {/* <Invoices /> */}
                 </div>
               </>
             )}

@@ -41,7 +41,7 @@ const CookieBanner = ({storeResponse}) => {
           // left: ,
           // right: 0,
           maxWidth: "100%",
-          zIndex: 9999999,
+          zIndex: 1000,
           backgroundColor: "#ffffff",
           padding: "10px",
           display: "flex",

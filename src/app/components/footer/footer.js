@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="container">
             <div className="nk-footer-content">
               <div className="row gy-5 gy-xl-0 justify-content-start justify-content-xl-between">
-                <div className="col-md-8 col-lg-4 col-xxl-4 !mt-[100px] md:!mt-[106px] lg:!mt-[0px]">
+                <div className="col-md-12 col-lg-4 col-xxl-4 !mt-[100px] md:!mt-[106px] lg:!mt-[0px]">
                   <div className="nk-footer-brand pb-5 pb-lg-0">
                     <div className="nk-footer-brand-info mb-4">
                       <div className="nk-footer-logo flex !justify-start !text-left">
@@ -60,7 +60,7 @@ export default function Footer() {
                   </div>
                 </div>
 
-                <div className="col-md-8 col-lg-2 col-xxl-2 ">
+                <div className="col-md-12 col-lg-2 col-xxl-2 ">
                   <div className="nk-footer-info text-start">
                     <h5 className="title !text-start !font-bold !mb-[2px]">Pages</h5>
                     <ul className="row gy-1 gy-sm-4">
@@ -97,7 +97,7 @@ export default function Footer() {
                         </div>
                     </div> */}
 
-                <div className="col-md-8 col-lg-4 col-xxl-4">
+                <div className="col-md-12 col-lg-4 col-xxl-4">
                   <div className="nk-footer-info ">
                     <h5 className="title !text-start !font-bold !mb-[24px]">
                       Get In Touch
@@ -147,7 +147,7 @@ export default function Footer() {
                       <h5 className="title !font-bold !text-xl">
                         Our Courier Partners
                       </h5>
-                      <div className="nk-footer-logo mb-5 mb-md-0">
+                      <div className="nk-footer-logo md:flex md:justify-center lg:justify-start mb-5 mb-md-0">
                         <img
                           className="logo-img"
                           src="/images/partner-logos.png"
@@ -159,8 +159,8 @@ export default function Footer() {
                 </div>
 
                 <div className="col-lg-6 col-md-12 col-sm-12">
-                  <div className="nk-footer-brand">
-                    <div className="nk-footer-brand-info">
+                  <div className="nk-footer-brand md:flex md:justify-center lg:justify-start">
+                    <div className="nk-footer-brand-info ">
                       <h5 className="title !text-xl !font-bold">
                         We Accept Card Payment
                       </h5>

@@ -13,7 +13,10 @@ import { logoutUser } from "../../../features/login/loginSlice";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
-import { updateCartCount, updateWishListCount } from "../../../features/cartWish/focusedCount";
+import {
+  updateCartCount,
+  updateWishListCount,
+} from "../../../features/cartWish/focusedCount";
 import { useNavigate } from "react-router-dom";
 import SessionExpired from "./sessionExpired";
 
@@ -24,16 +27,13 @@ export default function UpdateProfile({ open, handleClose }) {
   const isLoggedIn = useSelector((state) => state.login?.value);
   const clientType = localStorage.getItem("client_type");
 
-
-
-
   // eslint-disable-next-line no-unused-vars
   const [status, setStatus] = useState();
   // eslint-disable-next-line no-unused-vars
   const [apiResponse, setApiResponse] = useState([]);
-  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   function validName(name) {
@@ -41,14 +41,14 @@ export default function UpdateProfile({ open, handleClose }) {
     if (name === "") {
       setNameErr("Full name is required");
       return false;
-    }else if (!namePattern.test(name)) {
+    } else if (!namePattern.test(name)) {
       setNameErr("Full name should contain only alphabets");
       return false;
     } else if (name?.length < 3) {
       setNameErr("Min 3 characters are required");
     } else if (name?.length > 100) {
       setNameErr("Max 100 characters are required");
-    }  else {
+    } else {
       setNameErr("");
       return true;
     }
@@ -59,7 +59,6 @@ export default function UpdateProfile({ open, handleClose }) {
     validName(e.target.value);
   };
 
-  
   const getUserInfo = async () => {
     console.log(location.pathname.includes("/product-detail"));
     if (isLoggedIn) {
@@ -102,10 +101,10 @@ export default function UpdateProfile({ open, handleClose }) {
           ) {
             localStorage.removeItem("client_token");
             dispatch(logoutUser());
-            sessionStorage.removeItem("offerPhone")
-            sessionStorage.removeItem("expiry")
+            sessionStorage.removeItem("offerPhone");
+            sessionStorage.removeItem("expiry");
           } else {
-            setShowSessionExpiry(true)
+            setShowSessionExpiry(true);
           }
           // navigate("/login")
         }
@@ -122,10 +121,10 @@ export default function UpdateProfile({ open, handleClose }) {
         ) {
           localStorage.removeItem("client_token");
           dispatch(logoutUser());
-          sessionStorage.removeItem("offerPhone")
-            sessionStorage.removeItem("expiry")
+          sessionStorage.removeItem("offerPhone");
+          sessionStorage.removeItem("expiry");
         } else {
-          setShowSessionExpiry(true)
+          setShowSessionExpiry(true);
         }
       } finally {
         dispatch(hideLoader());
@@ -139,7 +138,7 @@ export default function UpdateProfile({ open, handleClose }) {
           showOtpModal: false,
           showNewPasswordModal: false,
           showSignupCartModal: false,
-        showSignupBuyModal: false,
+          showSignupBuyModal: false,
         })
       );
     }
@@ -159,7 +158,7 @@ export default function UpdateProfile({ open, handleClose }) {
         if (response?.data?.status) {
           setStatus(response?.data?.status);
           setApiResponse([response?.data?.message]);
-          getUserInfo()
+          getUserInfo();
         }
         setTimeout(() => {
           handleClose();
@@ -178,14 +177,17 @@ export default function UpdateProfile({ open, handleClose }) {
     }
   };
 
-  function handleSessionExpiryClose (){
-    setShowSessionExpiry(false)
-    navigate("/?login")
-}
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/?login");
+  }
 
   return (
     <>
-    <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
+      <SessionExpired
+        open={showSessionExppiry}
+        handleClose={handleSessionExpiryClose}
+      />
       <Dialog open={open} keepMounted={true} fullWidth>
         <DialogTitle className=" drop-shadow-lg text-center bg-transparent">
           Profile Incomplete !

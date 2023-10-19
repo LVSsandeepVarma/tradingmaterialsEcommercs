@@ -43,15 +43,16 @@ export default function AddToCart() {
   const clientType = useSelector((state) => state?.clientType?.value);
   const addressStatus = useSelector((state) => state?.addressStatus?.value);
   const [deleteProductId, setDeleteProductId] = useState();
-  const [ increamentDecreamentLoader, setIncreamentDecreamentLoader] = useState(false)
-  const [activeProductId, setActiveProductId] = useState("")
+  const [increamentDecreamentLoader, setIncreamentDecreamentLoader] =
+    useState(false);
+  const [activeProductId, setActiveProductId] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
   const [promocode, setPromocode] = useState("");
-  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false);
 
   const [showPlaceOrderModal, setShowPlaceOrderModal] = useState(false);
   const [apiErr, setApiErr] = useState([]);
@@ -125,12 +126,12 @@ export default function AddToCart() {
             );
         }
       } else {
-        setShowSessionExpiry(true)
+        setShowSessionExpiry(true);
         // navigate("/login")
       }
     } catch (err) {
       console.log(err, "err");
-      setShowSessionExpiry(true)
+      setShowSessionExpiry(true);
     } finally {
       dispatch(hideLoader());
     }
@@ -183,16 +184,20 @@ export default function AddToCart() {
       }
     } catch (err) {
       console.log(err);
-      if(err?.response?.data?.message?.includes("Token")){
-          setShowSessionExpiry(true)
-      }else{
-
-      dispatch(
-        updateNotifications({
-          type: "error",
-          message: err?.response?.data?.message,
-        })
-      );
+      const errMsg = err?.response?.data?.message?.toLowerCase()
+      if (
+        errMsg?.includes("token") ||
+        errMsg?.includes("expired") ||
+        errMsg?.includes("expire")
+      ) {
+        setShowSessionExpiry(true);
+      } else {
+        dispatch(
+          updateNotifications({
+            type: "error",
+            message: err?.response?.data?.message,
+          })
+        );
       }
     } finally {
       dispatch(hideLoader());
@@ -223,13 +228,13 @@ export default function AddToCart() {
         // getUserInfo();
         applyPromoCode();
         // const productData = JSON.parse(localStorage.getItem("productData"))
-        if(status == "add"){
+        if (status == "add") {
           setQuantities((prevQuantities) => ({
             ...prevQuantities,
             [productId]: (prevQuantities[productId] || 0) + 1,
           }));
         }
-        if(status == "remove"){
+        if (status == "remove") {
           setQuantities((prevQuantities) => {
             const currentQuantity = prevQuantities[productId] || 0;
             return {
@@ -243,16 +248,21 @@ export default function AddToCart() {
       }
     } catch (err) {
       console.log(err);
-      if(err?.response?.data?.message?.includes("Token")){
-        setShowSessionExpiry(true)
-    }else{
-      dispatch(
-        updateNotifications({
-          type: "error",
-          message: err?.response?.data?.message,
-        })
-      );
-    }
+      const errMsg = err?.response?.data?.message?.toLowerCase()
+      if (
+        errMsg?.includes("token") ||
+        errMsg?.includes("expired") ||
+        errMsg?.includes("expire")
+      ) {
+        setShowSessionExpiry(true);
+      } else {
+        dispatch(
+          updateNotifications({
+            type: "error",
+            message: err?.response?.data?.message,
+          })
+        );
+      }
     } finally {
       dispatch(hideLoader());
     }
@@ -290,6 +300,14 @@ export default function AddToCart() {
       }
     } catch (err) {
       console.log(err, "err");
+      const errMsg = err?.response?.data?.message?.toLowerCase()
+      if (
+        errMsg?.includes("token") ||
+        errMsg?.includes("expired") ||
+        errMsg?.includes("expire")
+      ) {
+        setShowSessionExpiry(true);
+      }
     }
   };
 
@@ -347,10 +365,10 @@ export default function AddToCart() {
     // setActiveProductId(productId)
     // setIncreamentDecreamentLoader(true)
     handleAddToCart(productId, "add");
-    setTimeout(()=>{
-      setIncreamentDecreamentLoader(false)
-      setActiveProductId()
-    },800)
+    setTimeout(() => {
+      setIncreamentDecreamentLoader(false);
+      setActiveProductId();
+    }, 800);
   };
 
   //deleting from the cart
@@ -374,11 +392,19 @@ export default function AddToCart() {
         applyPromoCode();
       } else {
         console.log(response?.data);
-        setShowSessionExpiry(true)
+        setShowSessionExpiry(true);
         // navigate("/login")
       }
     } catch (err) {
       console.log(err);
+      const errMsg = err?.response?.data?.message?.toLowerCase()
+      if (
+        errMsg?.includes("token") ||
+        errMsg?.includes("expired") ||
+        errMsg?.includes("expire")
+      ) {
+        setShowSessionExpiry(true);
+      }
     } finally {
       dispatch(hideLoader());
     }
@@ -389,8 +415,7 @@ export default function AddToCart() {
     if (quantities[productId] > 1) {
       // setActiveProductId(productId)
       // setIncreamentDecreamentLoader(true)
-      
-      
+
       handleAddToCart(productId, "remove");
     } else {
       setQuantities((prevQuantities) => {
@@ -400,10 +425,10 @@ export default function AddToCart() {
         };
       });
     }
-    setTimeout(()=>{
-      setIncreamentDecreamentLoader(false)
-      setActiveProductId()
-    },800)
+    setTimeout(() => {
+      setIncreamentDecreamentLoader(false);
+      setActiveProductId();
+    }, 800);
     // handleAddToCart(productId, "remove");
   };
 
@@ -464,6 +489,7 @@ export default function AddToCart() {
           sessionStorage.setItem("expiry", JSON.stringify(expiryDate));
           sessionStorage.setItem("offerPhone", userData?.client?.phone);
         }
+        
         navigate(
           `/checkout/order_id/${CryptoJS?.AES?.encrypt(
             `${response?.data?.data?.order_id}`,
@@ -476,7 +502,15 @@ export default function AddToCart() {
       }
     } catch (err) {
       console.log("err", err);
-      if (err?.response?.data?.errors) {
+      const errMsg = err?.response?.data?.message?.toLowerCase()
+      if (
+        errMsg?.includes("token") ||
+        errMsg?.includes("expired") ||
+        errMsg?.includes("expire")
+      ) {
+        setShowSessionExpiry(true);
+      }
+      else if (err?.response?.data?.errors) {
         setApiErr([Object.values(err?.response?.data?.errors)]);
       } else {
         setApiErr([err?.response?.data?.message]);
@@ -499,14 +533,17 @@ export default function AddToCart() {
     console.log(agreeStatus, "afree");
   };
 
-  function handleSessionExpiryClose (){
-    setShowSessionExpiry(false)
-    navigate("/?login")
-}
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/?login");
+  }
 
   return (
     <>
-        <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
+      <SessionExpired
+        open={showSessionExppiry}
+        handleClose={handleSessionExpiryClose}
+      />
 
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px]">
@@ -688,40 +725,59 @@ export default function AddToCart() {
                                           className="d-flex items-center  "
                                           style={{ marginTop: "2rem" }}
                                         >
-                                          {increamentDecreamentLoader && activeProductId == product?.product_id && <CircularProgress  color="secondary" size={25}/>}
-                                          {(activeProductId != product?.product_id) && <div
-                                            id="counter"
-                                            className="nk-counter"
-                                          >
-                                            <button
-                                            className=" text-xs lg:!text-md md:!text-sm"
-                                              onClick={() =>{
-                                                setIncreamentDecreamentLoader(true);
-                                                setActiveProductId(product.product_id)
-                                                handleDecrement(
-                                                  product.product_id
-                                                )}
-                                              }
+                                          {increamentDecreamentLoader &&
+                                            activeProductId ==
+                                              product?.product_id && (
+                                              <CircularProgress
+                                                color="secondary"
+                                                size={25}
+                                              />
+                                            )}
+                                          {activeProductId !=
+                                            product?.product_id && (
+                                            <div
+                                              id="counter"
+                                              className="nk-counter"
                                             >
-                                              -
-                                            </button>
-                                            <span id="count">
-                                              {quantities[product.product_id] ||
-                                                1}
-                                            </span>
-                                            <button className=" text-xs lg:!text-md md:!text-sm"
-                                              onClick={() =>{
-                                                setIncreamentDecreamentLoader(true);
-                                                setActiveProductId(product.product_id)
-                                                handleIncrement(
+                                              <button
+                                                className=" text-xs lg:!text-md md:!text-sm"
+                                                onClick={() => {
+                                                  setIncreamentDecreamentLoader(
+                                                    true
+                                                  );
+                                                  setActiveProductId(
+                                                    product.product_id
+                                                  );
+                                                  handleDecrement(
+                                                    product.product_id
+                                                  );
+                                                }}
+                                              >
+                                                -
+                                              </button>
+                                              <span id="count">
+                                                {quantities[
                                                   product.product_id
-                                                )
-                                              }
-                                            }
-                                            >
-                                              +
-                                            </button>
-                                          </div>}
+                                                ] || 1}
+                                              </span>
+                                              <button
+                                                className=" text-xs lg:!text-md md:!text-sm"
+                                                onClick={() => {
+                                                  setIncreamentDecreamentLoader(
+                                                    true
+                                                  );
+                                                  setActiveProductId(
+                                                    product.product_id
+                                                  );
+                                                  handleIncrement(
+                                                    product.product_id
+                                                  );
+                                                }}
+                                              >
+                                                +
+                                              </button>
+                                            </div>
+                                          )}
                                           <div
                                             className="!ml-8 w-full"
                                             style={{ marginLeft: "1rem" }}
@@ -787,23 +843,28 @@ export default function AddToCart() {
                     ) : (
                       <div className="text-center w-full font-bold text-gray-700 ">
                         <p>Your cart is empty</p>
-                        <p
-                          className="nav-link text-black  mt-5"
-                          
-                        >
+                        <p className="nav-link text-black  mt-5">
                           {" "}
-                          Click here to <Button variant="outlined" className="border p-1 text-xs !border-green-600 !text-green-600"  onClick={() => navigate("/")}>add products</Button>
+                          Click here to{" "}
+                          <Button
+                            variant="outlined"
+                            className="border p-1 text-xs !border-green-600 !text-green-600"
+                            onClick={() => navigate("/")}
+                          >
+                            add products
+                          </Button>
                         </p>
                       </div>
                     )}
                   </div>
                 </div>
                 <hr className="mt-2" />
-                {userData?.client?.primary_address?.length === 0 && allProducts?.length > 0 && (
-                  <span className="text-danger !mt-2 !text-xs ">
-                    Please add Address before placing order.
-                  </span>
-                )}
+                {userData?.client?.primary_address?.length === 0 &&
+                  allProducts?.length > 0 && (
+                    <span className="text-danger !mt-2 !text-xs ">
+                      Please add Address before placing order.
+                    </span>
+                  )}
                 {cartProducts?.length > 0 && (
                   <div className="mt-2  drop-shadow-lg">
                     {userData ? (
@@ -935,11 +996,12 @@ export default function AddToCart() {
                     )}
                     {!billingSameAsShipping && (
                       <>
-                        {userData?.client?.address?.length == 1 && allProducts?.length > 0 &&  (
-                          <span className="text-danger !mt-1  !text-xs ">
-                            Please add Address before placing order.
-                          </span>
-                        )}
+                        {userData?.client?.address?.length == 1 &&
+                          allProducts?.length > 0 && (
+                            <span className="text-danger !mt-1  !text-xs ">
+                              Please add Address before placing order.
+                            </span>
+                          )}
                         <div className="nk-section-blog-details mt-1">
                           <div className="max-h-[220px] md:max-h-[225px] overflow-y-auto">
                             <h4 className="mb-3 !font-bold">
@@ -960,13 +1022,13 @@ export default function AddToCart() {
                                   if (add?.id !== activeBillingAddress) {
                                     return (
                                       <div className="" key={ind}>
-                                        <li className="d-flex align-items-center ">
+                                        <li className="d-flex align-items-center pb-1">
                                           <div className="!block">
                                             <input
                                               type="checkbox"
                                               checked={
                                                 activeShippingAddressChecked ===
-                                              ind
+                                                ind
                                               }
                                               onChange={() => {
                                                 handleShippingAddressChange(
@@ -990,7 +1052,7 @@ export default function AddToCart() {
                                           </div>
                                         </li>
 
-                                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                        <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
                                           <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                                             Full Name:
                                           </p>
@@ -998,7 +1060,7 @@ export default function AddToCart() {
                                             {userData?.client?.first_name}
                                           </p>
                                         </li>
-                                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                        <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
                                           <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                                             Address:
                                           </p>
@@ -1011,7 +1073,7 @@ export default function AddToCart() {
                                             {add?.country}, {add?.zip}
                                           </p>
                                         </li>
-                                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                        <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
                                           <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                                             Shipping Type:
                                           </p>
@@ -1194,7 +1256,7 @@ export default function AddToCart() {
                             Discount:
                           </p>
                           <p className="m-0 fs-14 text-danger w-75">
-                          ₹ {discount} ({discountPercentage}%)
+                            ₹ {discount} ({discountPercentage}%)
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -1237,10 +1299,7 @@ export default function AddToCart() {
 
                       {apiErr?.length > 0 &&
                         apiErr?.map((err, ind) => (
-                          <span
-                            key={ind}
-                            className="nk-message-error text-xs"
-                          >
+                          <span key={ind} className="nk-message-error text-xs">
                             {err}
                           </span>
                         ))}
@@ -1315,7 +1374,7 @@ export default function AddToCart() {
             variant="outlined"
             className="border !border-red-600 nk-message-error text-xs"
             onClick={() => {
-              setShowDeleteAlert(false)
+              setShowDeleteAlert(false);
             }}
             autoFocus
           >

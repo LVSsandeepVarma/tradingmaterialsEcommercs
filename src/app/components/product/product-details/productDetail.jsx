@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Helmet } from "react-helmet-async";
+// import { FacebookShareButton, TwitterShareButton } from 'react-share';
 import PrismaZoom from "react-prismazoom";
 import Footer from "../../footer/footer";
 import {
@@ -13,7 +14,7 @@ import Header from "../../header/header";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchAllProducts } from "../../../../features/products/productsSlice";
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 // import GitHubForkRibbon from 'react-github-fork-ribbon';
 import { updateUsers } from "../../../../features/users/userSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
@@ -50,7 +51,7 @@ export default function ProductDetails() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const products = useSelector((state) => state?.products?.value);
-  const userData = useSelector((state)=> state?.user?.value)
+  const userData = useSelector((state) => state?.user?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
   const clientType = useSelector((state) => state?.clientType?.value);
   // const [showPlaceHolderLoader, setShowPlaceHolderLoader] = useState(false);
@@ -68,10 +69,10 @@ export default function ProductDetails() {
   const [dialogType, setDialogType] = useState("helpful");
   const [apiError, setApiError] = useState([]);
   const [reviewIdErr, setReviewIdErr] = useState("");
-  const [addedToFavImg, setAddedToFavImg] = useState("")
-  const [showFavModal, setShowFavModal] = useState(false)
-  const [modalMessage, setModalMessage] = useState("")
-  const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false)
+  const [addedToFavImg, setAddedToFavImg] = useState("");
+  const [showFavModal, setShowFavModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
@@ -90,11 +91,10 @@ export default function ProductDetails() {
     };
   }, [animateProductId]);
 
-
   const handleCartPosition = () => {
     // const cartButtonRect = document
-      // ?.getElementById(`img-4`)
-      // ?.getBoundingClientRect();
+    // ?.getElementById(`img-4`)
+    // ?.getBoundingClientRect();
     // const top = cartButtonRect?.top;
     // const right = cartButtonRect?.left;
     // dispatch(
@@ -105,7 +105,6 @@ export default function ProductDetails() {
     //     productRight: right,
     //   })
     // );
-
     // Animate the product's movement towards the cart button
     // setCartPosition({ top: `${top}px`, right: `${right}px` });
   };
@@ -151,8 +150,8 @@ export default function ProductDetails() {
 
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
-        sessionStorage.removeItem("offerPhone")
-            sessionStorage.removeItem("expiry")
+        sessionStorage.removeItem("offerPhone");
+        sessionStorage.removeItem("expiry");
       }
     } catch (err) {
       console.log(err);
@@ -246,7 +245,6 @@ export default function ProductDetails() {
     fetchProductdetails();
   }, []);
 
-
   // function for handling add to cart (after login)
   async function handleAddToCart(productId, productImg) {
     try {
@@ -265,13 +263,13 @@ export default function ProductDetails() {
         }
       );
       if (response?.data?.status) {
-        setAddedToFavImg(productImg)
-        setShowFavModal(true)
-        setModalMessage("Added to your cart successfully")
-       
+        setAddedToFavImg(productImg);
+        setShowFavModal(true);
+        setModalMessage("Added to your cart successfully");
+
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
-        getUserInfo()
+        getUserInfo();
         if (userData.client?.wishlist?.length > 0) {
           const ids = userData?.client?.wishlist?.map(
             (item) => item?.product_id
@@ -287,7 +285,6 @@ export default function ProductDetails() {
         } else {
           setShowWishlistRemoveMsg(false);
         }
-        
       }
     } catch (err) {
       console.log(err);
@@ -327,9 +324,9 @@ export default function ProductDetails() {
         headerData
       );
       if (response?.data?.status) {
-        setAddedToFavImg(productImg)
-        setShowFavModal(true)
-        setModalMessage("Added to your wishlist successfully")
+        setAddedToFavImg(productImg);
+        setShowFavModal(true);
+        setModalMessage("Added to your wishlist successfully");
         // dispatch(updateWis(response?.data?.data?.cart_details));
         dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
         getUserInfo();
@@ -341,7 +338,7 @@ export default function ProductDetails() {
     }
   }
 
-  function handleBuyNow(id, img){
+  function handleBuyNow(id, img) {
     async function handleAddToCartFromBuyNow(productId, productImg) {
       try {
         // setAnimateProductId(productId);
@@ -359,26 +356,29 @@ export default function ProductDetails() {
           }
         );
         if (response?.data?.status) {
-          setAddedToFavImg(productImg)
-          setShowFavModal(true)
-          setModalMessage("Added to your cart successfully")
+          setAddedToFavImg(productImg);
+          setShowFavModal(true);
+          setModalMessage("Added to your cart successfully");
           // navigate("/cart")
-          window.location.href="/cart"
-         
+          window.location.href = "/cart";
+
           dispatch(updateCart(response?.data?.data?.cart_details));
           dispatch(updateCartCount(response?.data?.data?.cart_count));
-          if(userData?.client?.wishlist?.length >0){
-            const ids = userData?.client?.wishlist?.map(item =>item?.product_id)
-            const isPresent = ids?.includes(productId)
-            console.log(isPresent,ids,productId,"prest")
-            if(isPresent){
-              dispatch(updateWishListCount(userData?.client?.wishlist?.length -1))
-              setShowWishlistRemoveMsg(true)
-            }else{
-              setShowWishlistRemoveMsg(false)
+          if (userData?.client?.wishlist?.length > 0) {
+            const ids = userData?.client?.wishlist?.map(
+              (item) => item?.product_id
+            );
+            const isPresent = ids?.includes(productId);
+            console.log(isPresent, ids, productId, "prest");
+            if (isPresent) {
+              dispatch(
+                updateWishListCount(userData?.client?.wishlist?.length - 1)
+              );
+              setShowWishlistRemoveMsg(true);
+            } else {
+              setShowWishlistRemoveMsg(false);
             }
           }
-          
         }
       } catch (err) {
         console.log(err);
@@ -441,19 +441,17 @@ export default function ProductDetails() {
     }
   }
 
-  const closeModal=()=>{
+  const closeModal = () => {
     setShowFavModal(false);
-    setModalMessage("")
-    setAddedToFavImg("")
-  }
-
-  
+    setModalMessage("");
+    setAddedToFavImg("");
+  };
 
   //show cart without login (indirect login)
-  const handleSignupCart = (product,qty) =>{
-    localStorage.removeItem("productData")
-    localStorage.setItem("productTempQty", qty)
-    localStorage.setItem("productData", JSON.stringify(product))
+  const handleSignupCart = (product, qty) => {
+    localStorage.removeItem("productData");
+    localStorage.setItem("productTempQty", qty);
+    localStorage.setItem("productData", JSON.stringify(product));
     dispatch(
       usersignupinModal({
         showSignupModal: false,
@@ -465,106 +463,122 @@ export default function ProductDetails() {
         showSignupBuyModal: false,
       })
     );
-  }
+  };
 
-    //show checkout without login (indirect login)
-    const handleSignupBuynow = (product) =>{
-      localStorage.removeItem("productData")
-      localStorage.setItem("productTempQty", qunatity)
-      localStorage.setItem("productData", JSON.stringify(product))
-      dispatch(
-        usersignupinModal({
-          showSignupModal: false,
-          showLoginModal: false,
-          showforgotPasswordModal: false,
-          showOtpModal: false,
-          showNewPasswordModal: false,
-          showSignupCartModal: false,
-          showSignupBuyModal: true,
-        })
-      );
-    }
+  //show checkout without login (indirect login)
+  const handleSignupBuynow = (product) => {
+    localStorage.removeItem("productData");
+    localStorage.setItem("productTempQty", qunatity);
+    localStorage.setItem("productData", JSON.stringify(product));
+    dispatch(
+      usersignupinModal({
+        showSignupModal: false,
+        showLoginModal: false,
+        showforgotPasswordModal: false,
+        showOtpModal: false,
+        showNewPasswordModal: false,
+        showSignupCartModal: false,
+        showSignupBuyModal: true,
+      })
+    );
+  };
 
-    // social share
-    // const handleFacebookShare = (product) => {
-    //   // Generate the URL for the product being shared
-    //   const shareURL = `https://tradingmaterials.com/product-detail/${
-    //     product?.slug
-    //   }/${CryptoJS?.AES?.encrypt(
-    //     `${product?.id}`,
-    //     "trading_materials"
-    //   )
-    //     ?.toString()
-    //     .replace(/\//g, "_")
-    //     .replace(/\+/g, "-")}`;
-      
-    //   // Initialize the Facebook SDK
-    //   window.fbAsyncInit = function() {
-    //     FB.init({
-    //       appId: '275081505489831',
-    //       autoLogAppEvents: true,
-    //       xfbml: true,
-    //       version: 'v13.0',
-    //     });
-    //   };
-  
-    //   // Load the Facebook SDK asynchronously
-    //   (function(d, s, id) {
-    //     var js, fjs = d.getElementsByTagName(s)[0];
-    //     if (d.getElementById(id)) return;
-    //     js = d.createElement(s); js.id = id;
-    //     js.src = "https://connect.facebook.net/en_US/sdk.js";
-    //     fjs.parentNode.insertBefore(js, fjs);
-    //   }(document, 'script', 'facebook-jssdk'));
-  
-    //   // Once the Facebook SDK is loaded, share the product
-    //   window.fbAsyncInit();
-    //   FB.ui({
-    //     method: 'share_open_graph',
-    //     action_type: 'og.likes',
-    //     action_properties: JSON.stringify({
-    //       object: shareURL,
-    //       image: product.imageURL,
-    //       description: product.description,
-    //       message: 'Check out this awesome product!',
-    //     }),
-    //   });
-    // };
+  // social share
+  // const handleFacebookShare = (product) => {
+  //   // Generate the URL for the product being shared
+  //   const shareURL = `https://tradingmaterials.com/product-detail/${
+  //     product?.slug
+  //   }/${CryptoJS?.AES?.encrypt(
+  //     `${product?.id}`,
+  //     "trading_materials"
+  //   )
+  //     ?.toString()
+  //     .replace(/\//g, "_")
+  //     .replace(/\+/g, "-")}`;
 
+  //   // Initialize the Facebook SDK
+  //   window.fbAsyncInit = function() {
+  //     FB.init({
+  //       appId: '275081505489831',
+  //       autoLogAppEvents: true,
+  //       xfbml: true,
+  //       version: 'v13.0',
+  //     });
+  //   };
 
+  //   // Load the Facebook SDK asynchronously
+  //   (function(d, s, id) {
+  //     var js, fjs = d.getElementsByTagName(s)[0];
+  //     if (d.getElementById(id)) return;
+  //     js = d.createElement(s); js.id = id;
+  //     js.src = "https://connect.facebook.net/en_US/sdk.js";
+  //     fjs.parentNode.insertBefore(js, fjs);
+  //   }(document, 'script', 'facebook-jssdk'));
 
+  //   // Once the Facebook SDK is loaded, share the product
+  //   window.fbAsyncInit();
+  //   FB.ui({
+  //     method: 'share_open_graph',
+  //     action_type: 'og.likes',
+  //     action_properties: JSON.stringify({
+  //       object: shareURL,
+  //       image: product.imageURL,
+  //       description: product.description,
+  //       message: 'Check out this awesome product!',
+  //     }),
+  //   });
+  // };
 
   return (
     <>
-      <Helmet data-react-helmet="true">
-        <title>{`Trading Materials-${product?.product?.name}`}</title>
-        
-        <meta
-          name="og:image"
-          property="og:image"
-          content={`${product?.product?.img_1}`}
-          async
-        />
-        <meta name="type" property="og:type" content="website" async></meta>
-        <meta
-          name="title"
-          property="og:title"
-          content={`${product?.product?.name}`}
-          async
-        />
-        <meta
-          name="description"
-          property="og:description"
-          content="trading desc"
-          async
-        />
-        <meta
-          name="url"
-          property="og:url"
-          content={`${window.location.href}`}
-          async
-        ></meta>
-      </Helmet>
+      <head>
+        <Helmet data-react-helmet="true">
+          <title>{`Trading Materials - ${product?.product?.name}`}</title>
+
+          <meta
+            name="og:image"
+            property="og:image"
+            content={`${product?.product?.img_1}`}
+          />
+          <meta name="og:type" property="og:type" content="website" />
+          <meta
+            name="og:title"
+            property="og:title"
+            content={`${product?.product?.name}`}
+          />
+          <meta
+            name="og:description"
+            property="og:description"
+            content="trading desc"
+          />
+          <meta
+            name="og:url"
+            property="og:url"
+            content={`${window.location.href}`}
+          />
+
+          <meta
+            name="twitter:image"
+            property="twitter:image"
+            content={`${product?.product?.img_1}`}
+          />
+          <meta
+            name="twitter:title"
+            property="twitter:title"
+            content={`${product?.product?.name}`}
+          />
+          <meta
+            name="twitter:description"
+            property="twitter:description"
+            content="trading desc"
+          />
+          <meta
+            name="twitter:url"
+            property="twitter:url"
+            content={`${window.location.href}`}
+          />
+        </Helmet>
+      </head>
       {openReviewDialog && (
         <ReviewDialog
           open={openReviewDialog}
@@ -583,8 +597,15 @@ export default function ProductDetails() {
         />
       )}
 
-{addedToFavImg!== "" && 
-<AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} showWishlistRemove = {showWishlistRemoveMsg} />      }
+      {addedToFavImg !== "" && (
+        <AddToFav
+          showModal={showFavModal}
+          closeModal={closeModal}
+          modalMessage={modalMessage}
+          addedToFavImg={addedToFavImg}
+          showWishlistRemove={showWishlistRemoveMsg}
+        />
+      )}
 
       <div className="nk-body">
         <div className="nk-body-root">
@@ -1016,19 +1037,24 @@ export default function ProductDetails() {
                                 ({product?.product?.total_reviews} Reviews){" "}
                               </a>
                             </div>
-                            <a href="#" className="d-flex    text-gray-1200" onClick={()=>{
-                              if(!isLoggedIn){
-                                dispatch(
-                                  usersignupinModal({
-                                    showSignupModal: false,
-                                    showLoginModal: true,
-                                    showforgotPasswordModal: false,
-                                    showOtpModal: false,
-                                    showNewPasswordModal: false,
-                                    showSignupBuyModal: false,
-                                  }))
-                              }
-                            }}>
+                            <a
+                              href="#"
+                              className="d-flex    text-gray-1200"
+                              onClick={() => {
+                                if (!isLoggedIn) {
+                                  dispatch(
+                                    usersignupinModal({
+                                      showSignupModal: false,
+                                      showLoginModal: true,
+                                      showforgotPasswordModal: false,
+                                      showOtpModal: false,
+                                      showNewPasswordModal: false,
+                                      showSignupBuyModal: false,
+                                    })
+                                  );
+                                }
+                              }}
+                            >
                               <em className="icon ni ni-edit-alt text-gray-800"></em>
                               <span className="fs-14 ms-1">Write A Review</span>
                             </a>
@@ -1074,7 +1100,10 @@ export default function ProductDetails() {
                           <div className="flex justify-between">
                             <h4 className="mb-4 !text-2xl !font-bold !text-left">
                               {product?.product?.prices?.map((price, _ind) => (
-                                <p key={_ind} className=" m-0 text-gray-1200 text-start !text-xl !font-bold !mr-2 ">
+                                <p
+                                  key={_ind}
+                                  className=" m-0 text-gray-1200 text-start !text-xl !font-bold !mr-2 "
+                                >
                                   {currentUserlang === "en"
                                     ? price?.INR &&
                                       `₹${Number.parseFloat(price?.INR).toFixed(
@@ -1090,7 +1119,10 @@ export default function ProductDetails() {
                             <h4 className="mb-4 flex !text-xl !font-semibold !text-left">
                               Total:&nbsp;
                               {product?.product?.prices?.map((price, _ind) => (
-                                <p key={_ind} className=" m-0 text-start !text- !font-bold !mr-2 ">
+                                <p
+                                  key={_ind}
+                                  className=" m-0 text-start !text- !font-bold !mr-2 "
+                                >
                                   {currentUserlang === "en"
                                     ? price?.INR &&
                                       `₹${Number.parseFloat(
@@ -1110,51 +1142,64 @@ export default function ProductDetails() {
                           </p> */}
                           <ul className="d-flex align-items-center gap-2">
                             <li>
-                              <button className="btn btn-primary" onClick={() => {
+                              <button
+                                className="btn btn-primary"
+                                onClick={() => {
                                   return isLoggedIn
-                                    ? handleBuyNow(product?.product_id, product?.product?.img_1)
-
-                                    :  
-                                      handleSignupBuynow(product?.product)
-                                }}>
+                                    ? handleBuyNow(
+                                        product?.product_id,
+                                        product?.product?.img_1
+                                      )
+                                    : handleSignupBuynow(product?.product);
+                                }}
+                              >
                                 Buy Now
                               </button>
                             </li>
                             <li>
                               <Button
-                              variant="outlined"
+                                variant="outlined"
                                 className="p-2 text-primary"
-                                style={{borderRadius:"0.75rem"}}
+                                style={{ borderRadius: "0.75rem" }}
                                 onClick={() => {
                                   return isLoggedIn
-                                    ? handleAddToCart(product?.product_id, product?.product?.img_1)
-                                    :  handleSignupCart(product?.product, qunatity)
+                                    ? handleAddToCart(
+                                        product?.product_id,
+                                        product?.product?.img_1
+                                      )
+                                    : handleSignupCart(
+                                        product?.product,
+                                        qunatity
+                                      );
                                 }}
                               >
                                 Add To Cart
                               </Button>
                             </li>
                           </ul>
-                          <div className="d-flex align-items-center gap-1 pt-4 cursor-pointer group" 
-                          onClick={() => {
-                            isLoggedIn
-                              ? handleAddToWishList(product?.product_id, product?.product?.img_1)
-                              : dispatch(
-                                usersignupinModal({
-                                  showSignupModal: false,
-                                  showLoginModal: true,
-                                  showforgotPasswordModal: false,
-                                  showOtpModal: false,
-                                  showNewPasswordModal: false,
-                                  showSignupCartModal: false,
-                                  showSignupBuyModal: false,
-                                }))
-                          }}>
+                          <div
+                            className="d-flex align-items-center gap-1 pt-4 cursor-pointer group"
+                            onClick={() => {
+                              isLoggedIn
+                                ? handleAddToWishList(
+                                    product?.product_id,
+                                    product?.product?.img_1
+                                  )
+                                : dispatch(
+                                    usersignupinModal({
+                                      showSignupModal: false,
+                                      showLoginModal: true,
+                                      showforgotPasswordModal: false,
+                                      showOtpModal: false,
+                                      showNewPasswordModal: false,
+                                      showSignupCartModal: false,
+                                      showSignupBuyModal: false,
+                                    })
+                                  );
+                            }}
+                          >
                             <em className="icon ni ni-heart-fill text-primary group-hover:!text-violet-900"></em>
-                            <p
-                              className="fs-16 fw-semibold text-gray-1200 cursor-pointer group-hover:!text-violet-900"
-                              
-                            >
+                            <p className="fs-16 fw-semibold text-gray-1200 cursor-pointer group-hover:!text-violet-900">
                               {" "}
                               Add to WishList{" "}
                             </p>
@@ -1162,11 +1207,16 @@ export default function ProductDetails() {
                         </div>
                         <div className="pt-5">
                           <p className="fs-14 !text-left flex items-center drop-shadow-lg">
-                            <LocationOnOutlinedIcon className="!w-[18px]"/> Delivery across all over India
+                            <LocationOnOutlinedIcon className="!w-[18px]" />{" "}
+                            Delivery across all over India
                           </p>
-                          <div className="nk-social d-sm-flex align-items-center mt-2 gap-3 pb-2" id="product_reviews">
-                            <h6 className="fs-14 m-0 fw-semibold text-uppercase !leading-loose mb-2 text-left  mb-sm-0 " 
-                            // onClick={()=>{handleFacebookShare(product?.product)}}
+                          <div
+                            className="nk-social d-sm-flex align-items-center mt-2 gap-3 pb-2"
+                            id="product_reviews"
+                          >
+                            <h6
+                              className="fs-14 m-0 fw-semibold text-uppercase !leading-loose mb-2 text-left  mb-sm-0 "
+                              // onClick={()=>{handleFacebookShare(product?.product)}}
                             >
                               Share :
                             </h6>
@@ -1185,7 +1235,7 @@ export default function ProductDetails() {
                                   </p>
                                 </a>
                               </li>
-                              <li >
+                              <li>
                                 <a
                                   href="#"
                                   className="d-flex align-items-center text-gray-1200"
@@ -1193,7 +1243,7 @@ export default function ProductDetails() {
                                   <em className="icon ni ni-twitter text-primary"></em>
                                   <p className="fs-14 text-nowrap fw-semibold ms-1">
                                     Twitter{" "}
-                                    <span className=" fs-14 text-gray-800" >
+                                    <span className=" fs-14 text-gray-800">
                                       60
                                     </span>
                                   </p>
@@ -1206,11 +1256,16 @@ export default function ProductDetails() {
                     </div>
                   </div>
                   <div className="nk-nav-tabs nav-tabs-s2 py-5 py-lg-7">
-                    <ul className="nav nav-tabs" >
-                      <li className="nav-item cursor-pointer" onClick={() => setTabValue(1)}>
+                    <ul className="nav nav-tabs">
+                      <li
+                        className="nav-item cursor-pointer"
+                        onClick={() => setTabValue(1)}
+                      >
                         <a
                           className={`${
-                            tabValue === 1 ? "nav-link active" : "nav-link"
+                            tabValue === 1
+                              ? "nav-link active !text-blue-600"
+                              : "nav-link"
                           }`}
                           data-bs-toggle="tab"
                           data-bs-target="#tab-1"
@@ -1219,10 +1274,15 @@ export default function ProductDetails() {
                           Product Details{" "}
                         </a>
                       </li>
-                      <li className="nav-item cursor-pointer" onClick={() => setTabValue(2)}>
+                      <li
+                        className="nav-item cursor-pointer"
+                        onClick={() => setTabValue(2)}
+                      >
                         <a
                           className={`${
-                            tabValue === 2 ? "nav-link active" : "nav-link"
+                            tabValue === 2
+                              ? "nav-link active !text-blue-600"
+                              : "nav-link"
                           }`}
                           data-bs-toggle="tab"
                           data-bs-target="#tab-2"
@@ -1349,7 +1409,7 @@ export default function ProductDetails() {
                           </h1>
                           {product?.product?.total_reviews > 0 && (
                             <>
-                              <div className="text-left">
+                              <div className="text-left ">
                                 <h1 className="!font-bold text-3xl">
                                   Customer Ratings
                                 </h1>
@@ -1361,126 +1421,137 @@ export default function ProductDetails() {
                                 </div>
                                 <Divider />
                                 <div className="max-h-[450px] overflow-y-auto">
-                                  {product?.reviews?.sort((a,b)=> new Date(b?.created_at) - new Date(a?.created_at))?.map((review, _ind) => (
-                                    <div key={_ind} className="review mt-2">
-                                      <div className="flex items-center">
-                                        <Avatar
-                                          alt="customer-profile"
-                                          src={review?.client?.profile_img}
-                                        />
-                                        <p className="ml-2 font-bold capitalize">
-                                          {review?.client?.first_name}{" "}
-                                          {review?.client?.last_name}{" "}
-                                        </p>
-                                      </div>
-                                      <div className="flex">
-                                        {ratingStars(review?.rating)}
-                                        <label className="ml-2 text-sm font-bold !text-black">
-                                          {review?.title
-                                            ? review?.title
-                                            : "title"}
-                                        </label>
-                                      </div>
-                                      <span className="text-sm flex items-center">
-                                        Reviewed on{" "}
-                                        <b className="ml-2 mr-2">
-                                          {new Date(
-                                            review?.created_at
-                                          ).toLocaleDateString("en-GB", {
-                                            day: "2-digit",
-                                            month: "long",
-                                            year: "numeric",
-                                          })}
-                                        </b>{" "}
-                                        |
-                                        <span className="!text-xs text-[#c45500] ml-2">
-                                          {" "}
-                                          <VerifiedUserIcon className="!w-[12px]" />{" "}
-                                          Verified Purchase
-                                        </span>{" "}
-                                      </span>
-                                      <div>
-                                        <p className="text-black text-clip max-h-[125px] overflow-y-auto max-w-[900px] mb-2">
-                                          {review?.description}
-                                        </p>
-                                        <Button
-                                          className="btn-btn-primary mr-2 !text-xs "
-                                          size="small"
-                                          variant="outlined"
-                                          onClick={() => {
-                                            if (isLoggedIn) {
-                                              // setOpenHelpfulDialog(true);
-                                              setDialogType("helpful");
-                                              setReviewId(review?.id);
-                                              reviewHelpfulReport(review?.id);
-                                            } else {
-                                              dispatch(
-                                                usersignupinModal({
-                                                  showSignupModal: false,
-                                                  showLoginModal: true,
-                                                  showforgotPasswordModal: false,
-                                                  showOtpModal: false,
-                                                  showNewPasswordModal: false,
-                                                  showSignupCartModal: false,
-                                                  showSignupBuyModal: false,
-                                                }));
-                                            }
-                                          }}
-                                        >
-                                          Helpful
-                                        </Button>{" "}
-                                        |{" "}
-                                        <span
-                                          className="font-bold ml-2 cursor-pointer group-hover:text-gray-800"
-                                          onClick={() => {
-                                            if (isLoggedIn) {
-                                              setOpenReviewDialog(true);
-                                              setDialogType("report");
-                                              setReviewId(review?.id);
-                                            } else {
-                                              dispatch(
-                                                usersignupinModal({
-                                                  showSignupModal: false,
-                                                  showLoginModal: true,
-                                                  showforgotPasswordModal: false,
-                                                  showOtpModal: false,
-                                                  showNewPasswordModal: false,
-                                                  showSignupCartModal: false,
-                                                  showSignupBuyModal: false,
-                                                }));
-                                            }
-                                          }}
-                                        >
-                                          Report
+                                  {product?.reviews
+                                    ?.sort(
+                                      (a, b) =>
+                                        new Date(b?.created_at) -
+                                        new Date(a?.created_at)
+                                    )
+                                    ?.map((review, _ind) => (
+                                      <div
+                                        key={_ind}
+                                        className="review mt-2 hover:drop-shadow-lg"
+                                      >
+                                        <div className="flex items-center">
+                                          <Avatar
+                                            alt="customer-profile"
+                                            src={review?.client?.profile_img}
+                                          />
+                                          <p className="ml-2 font-bold capitalize">
+                                            {review?.client?.first_name}{" "}
+                                            {review?.client?.last_name}{" "}
+                                          </p>
+                                        </div>
+                                        <div className="flex">
+                                          {ratingStars(review?.rating)}
+                                          <label className="ml-2 text-sm font-bold !text-black">
+                                            {review?.title
+                                              ? review?.title
+                                              : "title"}
+                                          </label>
+                                        </div>
+                                        <span className="text-sm flex items-center">
+                                          Reviewed on{" "}
+                                          <b className="ml-2 mr-2">
+                                            {new Date(
+                                              review?.created_at
+                                            ).toLocaleDateString("en-GB", {
+                                              day: "2-digit",
+                                              month: "long",
+                                              year: "numeric",
+                                            })}
+                                          </b>{" "}
+                                          |
+                                          <span className="!text-xs text-[#c45500] ml-2">
+                                            {" "}
+                                            <VerifiedUserIcon className="!w-[12px]" />{" "}
+                                            Verified Purchase
+                                          </span>{" "}
                                         </span>
-                                        {reviewId === review?.id &&
-                                          apiError?.length > 0 &&
-                                          apiError?.map((err, ind) => {
-                                            return (
-                                              <p
-                                                key={ind}
-                                                className="nk-message-error !text-xs"
-                                              >
-                                                {err}
+                                        <div>
+                                          <p className="text-black text-clip max-h-[125px] overflow-y-auto max-w-[900px] mb-2">
+                                            {review?.description}
+                                          </p>
+                                          <Button
+                                            className="btn-btn-primary mr-2 !text-xs "
+                                            size="small"
+                                            variant="outlined"
+                                            onClick={() => {
+                                              if (isLoggedIn) {
+                                                // setOpenHelpfulDialog(true);
+                                                setDialogType("helpful");
+                                                setReviewId(review?.id);
+                                                reviewHelpfulReport(review?.id);
+                                              } else {
+                                                dispatch(
+                                                  usersignupinModal({
+                                                    showSignupModal: false,
+                                                    showLoginModal: true,
+                                                    showforgotPasswordModal: false,
+                                                    showOtpModal: false,
+                                                    showNewPasswordModal: false,
+                                                    showSignupCartModal: false,
+                                                    showSignupBuyModal: false,
+                                                  })
+                                                );
+                                              }
+                                            }}
+                                          >
+                                            Helpful
+                                          </Button>{" "}
+                                          |{" "}
+                                          <span
+                                            className="font-bold ml-2 cursor-pointer group-hover:text-gray-800"
+                                            onClick={() => {
+                                              if (isLoggedIn) {
+                                                setOpenReviewDialog(true);
+                                                setDialogType("report");
+                                                setReviewId(review?.id);
+                                              } else {
+                                                dispatch(
+                                                  usersignupinModal({
+                                                    showSignupModal: false,
+                                                    showLoginModal: true,
+                                                    showforgotPasswordModal: false,
+                                                    showOtpModal: false,
+                                                    showNewPasswordModal: false,
+                                                    showSignupCartModal: false,
+                                                    showSignupBuyModal: false,
+                                                  })
+                                                );
+                                              }
+                                            }}
+                                          >
+                                            Report
+                                          </span>
+                                          {reviewId === review?.id &&
+                                            apiError?.length > 0 &&
+                                            apiError?.map((err, ind) => {
+                                              return (
+                                                <p
+                                                  key={ind}
+                                                  className="nk-message-error !text-xs"
+                                                >
+                                                  {err}
+                                                </p>
+                                              );
+                                            })}
+                                          {reviewId === review?.id &&
+                                            reviewIdErr !== "" && (
+                                              <p className="nk-message-error !text-xs ">
+                                                {reviewIdErr}
                                               </p>
-                                            );
-                                          })}
-                                        {reviewId === review?.id &&
-                                          reviewIdErr !== "" && (
-                                            <p className="nk-message-error !text-xs ">
-                                              {reviewIdErr}
-                                            </p>
-                                          )}
+                                            )}
+                                        </div>
+                                        <div className="!w-fit">
+                                          <span className="text-sm">
+                                            {" "}
+                                            5 people found this helpful{" "}
+                                          </span>
+                                          <Divider />
+                                        </div>
                                       </div>
-                                      <div className="!w-fit">
-                                        <span className="text-sm">
-                                          {" "}
-                                          5 people found this helpful{" "}
-                                        </span>
-                                        <Divider />
-                                      </div>
-                                    </div>
-                                  ))}
+                                    ))}
                                 </div>
                               </div>
                             </>
@@ -1504,41 +1575,40 @@ export default function ProductDetails() {
                   </div>
                 </div>
                 <div className="row gy-5 justify-between ">
-              {/* overflow-auto !max-h-[354px] sm:!max-h-[500px] lg:!max-h-[670px] */}
-              {subCatProducts?.length === 0 && (
-                <p className="font-bold">No products to Display</p>
-              )}
-              {subCatProducts?.length !== 0 &&
-                subCatProducts?.map((product) => {
-                  if (product?.combo) {
-                    return (
-                      <>
-
-                          <div
-                            className="col-xl-4 col-lg-4 col-md-6 !pb-[27px] group hover:drop-shadow-xl"
-                            data-aos="fade-up"
-                            data-aos-delay="100"
-                          >
-                            <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
-                              <div className="nk-card-img relative">
-                                <a
-                                  href={`${userLang}/product-detail/${
-                                    product?.slug
-                                  }/${CryptoJS?.AES?.encrypt(
-                                    `${product?.id}`,
-                                    "trading_materials"
-                                  )
-                                    ?.toString()
-                                    .replace(/\//g, "_")
-                                    .replace(/\+/g, "-")}`}
-                                >
-                                  <img
-                                    src={product?.img_1}
-                                    alt="product-image"
-                                    className="w-100 group-hover:scale-105 transition duration-500"
-                                    // loading="lazy"
-                                  />
-                                  {/* {product?.stock?.stock < 10 && (
+                  {/* overflow-auto !max-h-[354px] sm:!max-h-[500px] lg:!max-h-[670px] */}
+                  {subCatProducts?.length === 0 && (
+                    <p className="font-bold">No products to Display</p>
+                  )}
+                  {subCatProducts?.length !== 0 &&
+                    subCatProducts?.map((product) => {
+                      if (product?.combo) {
+                        return (
+                          <>
+                            <div
+                              className="col-xl-4 col-lg-4 col-md-6 !pb-[27px] group hover:drop-shadow-xl"
+                              data-aos="fade-up"
+                              data-aos-delay="100"
+                            >
+                              <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
+                                <div className="nk-card-img relative">
+                                  <a
+                                    href={`${userLang}/product-detail/${
+                                      product?.slug
+                                    }/${CryptoJS?.AES?.encrypt(
+                                      `${product?.id}`,
+                                      "trading_materials"
+                                    )
+                                      ?.toString()
+                                      .replace(/\//g, "_")
+                                      .replace(/\+/g, "-")}`}
+                                  >
+                                    <img
+                                      src={product?.img_1}
+                                      alt="product-image"
+                                      className="w-100 group-hover:scale-105 transition duration-500"
+                                      // loading="lazy"
+                                    />
+                                    {/* {product?.stock?.stock < 10 && (
                                     <GitHubForkRibbon
                                       className="drop-shadow-xl subpixel-antialiased"
                                       color="orange"
@@ -1547,169 +1617,172 @@ export default function ProductDetails() {
                                       Only {product?.stock?.stock} left !!
                                     </GitHubForkRibbon>
                                   )} */}
-                                </a>
-                              </div>
-                              <div className="nk-card-info bg-white p-4">
-                                <a
-                                  href={`${userLang}/product-detail/${
-                                    product?.slug
-                                  }/${CryptoJS?.AES?.encrypt(
-                                    `${product?.id}`,
-                                    "trading_materials"
-                                  )
-                                    ?.toString()
-                                    .replace(/\//g, "_")
-                                    .replace(/\+/g, "-")}`}
-                                  className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
-                                  style={{
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    width: "90%",
-                                  }}
-                                >
-                                  {product?.name}
-                                  <br />
-                                  <span className="text-xs">
-                                    <p
-                                      className="!mt-5 text-gray-700"
-                                      onClick={() => {
-                                        navigate(
-                                          `${userLang}/product-detail/${
-                                            product?.slug
-                                          }/${CryptoJS?.AES?.encrypt(
-                                            `${product?.id}`,
-                                            "trading_materials"
-                                          )
-                                            ?.toString()
-                                            .replace(/\//g, "_")
-                                            .replace(/\+/g, "-")}`
-                                        );
-                                        dispatch(showLoader());
-                                      }}
-                                      dangerouslySetInnerHTML={{
-                                        __html:
-                                          product?.description?.length > 55
-                                            ? `${product?.description?.slice(
-                                                0,
-                                                55
-                                              )}...`
-                                            : product?.description,
-                                      }}
-                                    />
-                                  </span>
-                                </a>
-                                <div className="d-flex align-items-center mb-2 gap-1">
-                                  {ratingStars(product?.rating)}
-                                  <span className="fs-14 text-gray-800">
-                                    {" "}
-                                    {product?.total_reviews} Reviews{" "}
-                                  </span>
+                                  </a>
                                 </div>
-                                <div className="d-flex align-items-center justify-content-between mb-2">
-                                  {product?.prices?.map((price) => (
-                                    <>
-                                      {currentUserlang === "en" &&
-                                        price?.INR && (
-                                          <p
-                                            className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
-                                          >
-                                            {currentUserlang === "en"
-                                              ? price?.INR && (
-                                                  <sub
-                                                    style={{
-                                                      verticalAlign: "super",
-                                                    }}
-                                                  >
-                                                    ₹
-                                                  </sub>
-                                                )
-                                              : price?.USD && (
-                                                  <sub
-                                                    style={{
-                                                      verticalAlign: "super",
-                                                    }}
-                                                  >
-                                                    $
-                                                  </sub>
-                                                )}
+                                <div className="nk-card-info bg-white p-4">
+                                  <a
+                                    href={`${userLang}/product-detail/${
+                                      product?.slug
+                                    }/${CryptoJS?.AES?.encrypt(
+                                      `${product?.id}`,
+                                      "trading_materials"
+                                    )
+                                      ?.toString()
+                                      .replace(/\//g, "_")
+                                      .replace(/\+/g, "-")}`}
+                                    className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                    style={{
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      width: "90%",
+                                    }}
+                                  >
+                                    {product?.name}
+                                    <br />
+                                    <span className="text-xs">
+                                      <p
+                                        className="!mt-5 text-gray-700"
+                                        onClick={() => {
+                                          navigate(
+                                            `${userLang}/product-detail/${
+                                              product?.slug
+                                            }/${CryptoJS?.AES?.encrypt(
+                                              `${product?.id}`,
+                                              "trading_materials"
+                                            )
+                                              ?.toString()
+                                              .replace(/\//g, "_")
+                                              .replace(/\+/g, "-")}`
+                                          );
+                                          dispatch(showLoader());
+                                        }}
+                                        dangerouslySetInnerHTML={{
+                                          __html:
+                                            product?.description?.length > 55
+                                              ? `${product?.description?.slice(
+                                                  0,
+                                                  55
+                                                )}...`
+                                              : product?.description,
+                                        }}
+                                      />
+                                    </span>
+                                  </a>
+                                  <div className="d-flex align-items-center mb-2 gap-1">
+                                    {ratingStars(product?.rating)}
+                                    <span className="fs-14 text-gray-800">
+                                      {" "}
+                                      {product?.total_reviews} Reviews{" "}
+                                    </span>
+                                  </div>
+                                  <div className="d-flex align-items-center justify-content-between mb-2">
+                                    {product?.prices?.map((price) => (
+                                      <>
+                                        {currentUserlang === "en" &&
+                                          price?.INR && (
+                                            <p
+                                              className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                            >
+                                              {currentUserlang === "en"
+                                                ? price?.INR && (
+                                                    <sub
+                                                      style={{
+                                                        verticalAlign: "super",
+                                                      }}
+                                                    >
+                                                      ₹
+                                                    </sub>
+                                                  )
+                                                : price?.USD && (
+                                                    <sub
+                                                      style={{
+                                                        verticalAlign: "super",
+                                                      }}
+                                                    >
+                                                      $
+                                                    </sub>
+                                                  )}
 
-                                            {currentUserlang === "en"
-                                              ? price?.INR && (
-                                                  <>
-                                                    {
-                                                      (
-                                                        Number.parseFloat(
-                                                          price?.INR
-                                                        )?.toFixed(2) + ""
-                                                      )?.split(".")[0]
-                                                    }
-                                                    {/* <sub
+                                              {currentUserlang === "en"
+                                                ? price?.INR && (
+                                                    <>
+                                                      {
+                                                        (
+                                                          Number.parseFloat(
+                                                            price?.INR
+                                                          )?.toFixed(2) + ""
+                                                        )?.split(".")[0]
+                                                      }
+                                                      {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
                                                     > */}
-                                                      .{
+                                                      .
+                                                      {
                                                         (
                                                           Number.parseFloat(
                                                             price?.INR
                                                           )?.toFixed(2) + ""
                                                         )?.split(".")[1]
                                                       }
-                                                    {/* </sub> */}
-                                                  </>
-                                                )
-                                              : price?.USD &&
-                                                `${Number.parseFloat(
-                                                  price?.USD
-                                                )}`}
+                                                      {/* </sub> */}
+                                                    </>
+                                                  )
+                                                : price?.USD &&
+                                                  `${Number.parseFloat(
+                                                    price?.USD
+                                                  )}`}
 
-                                            {currentUserlang === "en" &&
-                                            product?.discount > 0
-                                              ? price?.INR &&
-                                                product?.discount > 0 && (
-                                                  <>
-                                                    <del className="text-gray-800 !ml-2">
-                                                      {currentUserlang === "en"
-                                                        ? price?.INR && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              ₹
-                                                            </sub>
+                                              {currentUserlang === "en" &&
+                                              product?.discount > 0
+                                                ? price?.INR &&
+                                                  product?.discount > 0 && (
+                                                    <>
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? price?.INR && (
+                                                              <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              >
+                                                                ₹
+                                                              </sub>
+                                                            )
+                                                          : price?.USD && (
+                                                              <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              >
+                                                                $
+                                                              </sub>
+                                                            )}
+                                                        {
+                                                          (
+                                                            parseFloat(
+                                                              price?.INR *
+                                                                (100 /
+                                                                  (100 -
+                                                                    product?.discount))
+                                                            )?.toFixed(2) + ""
                                                           )
-                                                        : price?.USD && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              $
-                                                            </sub>
-                                                          )}
-                                                      {
-                                                        (
-                                                          parseFloat(
-                                                            price?.INR *
-                                                              (100 /
-                                                                (100 -
-                                                                  product?.discount))
-                                                          )?.toFixed(2) + ""
-                                                        )
-                                                          .toString()
-                                                          .split(".")[0]
-                                                      }
-                                                      {/* <sub
+                                                            .toString()
+                                                            .split(".")[0]
+                                                        }
+                                                        {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
                                                       > */}
-                                                        .{
+                                                        .
+                                                        {
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -1721,54 +1794,56 @@ export default function ProductDetails() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      {/* </sub> */}
-                                                    </del>
-                                                  </>
-                                                )
-                                              : price?.USD &&
-                                                product?.discount > 0 && (
-                                                  <>
-                                                    <del className="text-gray-800 block !ml-2">
-                                                      {currentUserlang === "en"
-                                                        ? price?.INR && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              ₹
-                                                            </sub>
+                                                        {/* </sub> */}
+                                                      </del>
+                                                    </>
+                                                  )
+                                                : price?.USD &&
+                                                  product?.discount > 0 && (
+                                                    <>
+                                                      <del className="text-gray-800 block !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? price?.INR && (
+                                                              <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              >
+                                                                ₹
+                                                              </sub>
+                                                            )
+                                                          : price?.USD && (
+                                                              <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              >
+                                                                $
+                                                              </sub>
+                                                            )}
+                                                        {
+                                                          (
+                                                            parseFloat(
+                                                              price?.INR *
+                                                                (100 /
+                                                                  (100 -
+                                                                    product?.discount))
+                                                            )?.toFixed(2) + ""
                                                           )
-                                                        : price?.USD && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              $
-                                                            </sub>
-                                                          )}
-                                                      {
-                                                        (
-                                                          parseFloat(
-                                                            price?.INR *
-                                                              (100 /
-                                                                (100 -
-                                                                  product?.discount))
-                                                          )?.toFixed(2) + ""
-                                                        )
-                                                          .toString()
-                                                          .split(".")[0]
-                                                      }
-                                                      {/* <sub
+                                                            .toString()
+                                                            .split(".")[0]
+                                                        }
+                                                        {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
                                                       > */}
-                                                        .{
+                                                        .
+                                                        {
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -1780,55 +1855,56 @@ export default function ProductDetails() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      {/* </sub> */}
-                                                    </del>
-                                                  </>
-                                                )}
-                                          </p>
-                                        )}
-                                      {currentUserlang !== "en" &&
-                                        price?.USD && (
-                                          <p
-                                            className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
-                                          >
-                                            {currentUserlang === "en"
-                                              ? price?.INR && (
-                                                  <sub
-                                                    style={{
-                                                      verticalAlign: "super",
-                                                    }}
-                                                  >
-                                                    ₹
-                                                  </sub>
-                                                )
-                                              : price?.USD && (
-                                                  <sub
-                                                    style={{
-                                                      verticalAlign: "super",
-                                                    }}
-                                                  >
-                                                    $
-                                                  </sub>
-                                                )}
+                                                        {/* </sub> */}
+                                                      </del>
+                                                    </>
+                                                  )}
+                                            </p>
+                                          )}
+                                        {currentUserlang !== "en" &&
+                                          price?.USD && (
+                                            <p
+                                              className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                            >
+                                              {currentUserlang === "en"
+                                                ? price?.INR && (
+                                                    <sub
+                                                      style={{
+                                                        verticalAlign: "super",
+                                                      }}
+                                                    >
+                                                      ₹
+                                                    </sub>
+                                                  )
+                                                : price?.USD && (
+                                                    <sub
+                                                      style={{
+                                                        verticalAlign: "super",
+                                                      }}
+                                                    >
+                                                      $
+                                                    </sub>
+                                                  )}
 
-                                            {currentUserlang === "en"
-                                              ? price?.INR && (
-                                                  <>
-                                                    {
-                                                      (
-                                                        parseFloat(
-                                                          price?.INR
-                                                        )?.toFixed(2) + ""
-                                                      )
-                                                        .toString()
-                                                        .split(".")[0]
-                                                    }
-                                                    {/* <sub
+                                              {currentUserlang === "en"
+                                                ? price?.INR && (
+                                                    <>
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[0]
+                                                      }
+                                                      {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
                                                     > */}
-                                                      .{
+                                                      .
+                                                      {
                                                         (
                                                           parseFloat(
                                                             price?.INR
@@ -1837,26 +1913,27 @@ export default function ProductDetails() {
                                                           .toString()
                                                           .split(".")[1]
                                                       }
-                                                    {/* </sub> */}
-                                                  </>
-                                                )
-                                              : price?.USD && (
-                                                  <>
-                                                    {
-                                                      (
-                                                        parseFloat(
-                                                          price?.USD
-                                                        )?.toFixed(2) + ""
-                                                      )
-                                                        .toString()
-                                                        .split(".")[0]
-                                                    }
-                                                    {/* <sub
+                                                      {/* </sub> */}
+                                                    </>
+                                                  )
+                                                : price?.USD && (
+                                                    <>
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.USD
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[0]
+                                                      }
+                                                      {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
                                                     > */}
-                                                      .{
+                                                      .
+                                                      {
                                                         (
                                                           parseFloat(
                                                             price?.USD
@@ -1865,56 +1942,58 @@ export default function ProductDetails() {
                                                           .toString()
                                                           .split(".")[1]
                                                       }
-                                                    {/* </sub> */}
-                                                  </>
-                                                )}
+                                                      {/* </sub> */}
+                                                    </>
+                                                  )}
 
-                                            {currentUserlang === "en" &&
-                                            product?.discount > 0
-                                              ? price?.INR &&
-                                                product?.discount > 0 && (
-                                                  <>
-                                                    <del className="text-gray-800 !ml-2">
-                                                      {currentUserlang === "en"
-                                                        ? price?.INR && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              ₹
-                                                            </sub>
+                                              {currentUserlang === "en" &&
+                                              product?.discount > 0
+                                                ? price?.INR &&
+                                                  product?.discount > 0 && (
+                                                    <>
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? price?.INR && (
+                                                              <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              >
+                                                                ₹
+                                                              </sub>
+                                                            )
+                                                          : price?.USD && (
+                                                              <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              >
+                                                                $
+                                                              </sub>
+                                                            )}
+                                                        {
+                                                          (
+                                                            parseFloat(
+                                                              price?.INR *
+                                                                (100 /
+                                                                  (100 -
+                                                                    product?.discount))
+                                                            )?.toFixed(2) + ""
                                                           )
-                                                        : price?.USD && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              $
-                                                            </sub>
-                                                          )}
-                                                      {
-                                                        (
-                                                          parseFloat(
-                                                            price?.INR *
-                                                              (100 /
-                                                                (100 -
-                                                                  product?.discount))
-                                                          )?.toFixed(2) + ""
-                                                        )
-                                                          .toString()
-                                                          .split(".")[0]
-                                                      }
-                                                      {/* <sub
+                                                            .toString()
+                                                            .split(".")[0]
+                                                        }
+                                                        {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
                                                       > */}
-                                                        .{
+                                                        .
+                                                        {
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -1926,53 +2005,55 @@ export default function ProductDetails() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      {/* </sub> */}
-                                                    </del>
-                                                  </>
-                                                )
-                                              : price?.USD &&
-                                                product?.discount > 0 && (
-                                                  <>
-                                                    <del className="text-gray-800 !ml-2">
-                                                      {currentUserlang === "en"
-                                                        ? price?.INR && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              ₹
-                                                            </sub>
+                                                        {/* </sub> */}
+                                                      </del>
+                                                    </>
+                                                  )
+                                                : price?.USD &&
+                                                  product?.discount > 0 && (
+                                                    <>
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? price?.INR && (
+                                                              <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              >
+                                                                ₹
+                                                              </sub>
+                                                            )
+                                                          : price?.USD && (
+                                                              <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              >
+                                                                $
+                                                              </sub>
+                                                            )}
+                                                        {
+                                                          (
+                                                            parseFloat(
+                                                              price?.USD *
+                                                                (100 /
+                                                                  product?.discount)
+                                                            )?.toFixed(2) + ""
                                                           )
-                                                        : price?.USD && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              $
-                                                            </sub>
-                                                          )}
-                                                      {
-                                                        (
-                                                          parseFloat(
-                                                            price?.USD *
-                                                              (100 /
-                                                                product?.discount)
-                                                          )?.toFixed(2) + ""
-                                                        )
-                                                          .toString()
-                                                          .split(".")[0]
-                                                      }
-                                                      {/* <sub
+                                                            .toString()
+                                                            .split(".")[0]
+                                                        }
+                                                        {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
                                                       > */}
-                                                        .{
+                                                        .
+                                                        {
                                                           (
                                                             parseFloat(
                                                               price?.INR *
@@ -1984,93 +2065,91 @@ export default function ProductDetails() {
                                                             .toString()
                                                             .split(".")[1]
                                                         }
-                                                      {/* </sub> */}
-                                                    </del>
-                                                  </>
-                                                )}
-                                          </p>
-                                        )}
-                                    </>
-                                  ))}
-                                  <button
-                                    className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "end",
-                                      marginRight: "5px",
-                                    }}
-                                    onClick={() => {
-                                      isLoggedIn
-                                        ? handleAddToWishList(
-                                            product?.id,
-                                            product?.img_1
-                                          )
-                                        : dispatch(
-                                            usersignupinModal({
-                                              showSignupModal: false,
-                                              showLoginModal: true,
-                                              showforgotPasswordModal: false,
-                                              showOtpModal: false,
-                                              showNewPasswordModal: false,
-                                              showSignupCartModal: false,
-                                              showSignupBuyModal: false,
-                                            })
-                                          );
-                                    }}
-                                  >
-                                    <FaRegHeart size={18} />
-                                  </button>
-                                  <button
-                                    className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
-                                    onClick={(event) => {
-                                      return isLoggedIn
-                                        ? (handleAddToCart(
-                                            product?.id,
-                                            product?.img_1
-                                          ),
-                                          handleCartPosition(event))
-                                        :
-                                        handleSignupCart(product,1)
-                                    }}
-                                  >
-                                    {animateProductId === product?.id ? (
-                                      <img
-                                        src="/images/addedtocart.gif"
-                                        className="max-w-[45px]"
-                                      />
-                                    ) : (
-                                      <em className="icon ni ni-cart text-2xl"></em>
-                                    )}
-                                  </button>
+                                                        {/* </sub> */}
+                                                      </del>
+                                                    </>
+                                                  )}
+                                            </p>
+                                          )}
+                                      </>
+                                    ))}
+                                    <button
+                                      className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "end",
+                                        marginRight: "5px",
+                                      }}
+                                      onClick={() => {
+                                        isLoggedIn
+                                          ? handleAddToWishList(
+                                              product?.id,
+                                              product?.img_1
+                                            )
+                                          : dispatch(
+                                              usersignupinModal({
+                                                showSignupModal: false,
+                                                showLoginModal: true,
+                                                showforgotPasswordModal: false,
+                                                showOtpModal: false,
+                                                showNewPasswordModal: false,
+                                                showSignupCartModal: false,
+                                                showSignupBuyModal: false,
+                                              })
+                                            );
+                                      }}
+                                    >
+                                      <FaRegHeart size={18} />
+                                    </button>
+                                    <button
+                                      className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                      onClick={(event) => {
+                                        return isLoggedIn
+                                          ? (handleAddToCart(
+                                              product?.id,
+                                              product?.img_1
+                                            ),
+                                            handleCartPosition(event))
+                                          : handleSignupCart(product, 1);
+                                      }}
+                                    >
+                                      {animateProductId === product?.id ? (
+                                        <img
+                                          src="/images/addedtocart.gif"
+                                          className="max-w-[45px]"
+                                        />
+                                      ) : (
+                                        <em className="icon ni ni-cart text-2xl"></em>
+                                      )}
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            {product?.discount > 0 && (
-                              <div className="flex justify-end items-end ">
-                                <div
-                                  className="flex absolute items-center justify-center img-box !drop-shadow-lg
+                              {product?.discount > 0 && (
+                                <div className="flex justify-end items-end ">
+                                  <div
+                                    className="flex absolute items-center justify-center img-box !drop-shadow-lg
 
 "
-                                >
-                                  <img
-                                    src="/images/sale-2.png"
-                                    alt="ffer_label"
-                                    width={65}
-                                    className="drop-shadow-lg"
-                                  ></img>
-                                  <label className="absolute !font-bold text-white !text-xs right-1">
-                                    {product?.discount}%
-                                  </label>
+                                  >
+                                    <img
+                                      src="/images/sale-2.png"
+                                      alt="ffer_label"
+                                      width={65}
+                                      className="drop-shadow-lg"
+                                    ></img>
+                                    <label className="absolute !font-bold text-white !text-xs right-1">
+                                      {product?.discount}%
+                                    </label>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                        
-                      </>
-                    );
-                  }
-                })}
-            </div>
+                              )}
+                            </div>
+                          </>
+                        );
+                      }
+                    })}
+                </div>
               </div>
             </section>
             <section className="nk-section nk-cta-section nk-section-content-1">
@@ -2113,7 +2192,6 @@ export default function ProductDetails() {
           <Footer />
         </div>
       </div>
-
     </>
   );
 }

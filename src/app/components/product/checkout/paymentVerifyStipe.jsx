@@ -36,12 +36,13 @@ export default function PaymentVerifyStripe() {
   // State variable to store prices for each product
   const queryParams = new URLSearchParams(window.location.search)
   console.log(params, "params", queryParams.get("payment_intent"), queryParams.get("payment_intent_client_secret"))
-  const id = localStorage.getItem("order_id")
-  const decryptedId = CryptoJS.AES.decrypt(
-    id.replace(/_/g, "/").replace(/-/g, "+"),
-    "trading_materials_order"
-  ).toString(CryptoJS.enc.Utf8);
-  console.log(decryptedId);
+  const id = localStorage.getItem("id")
+  const orderID = localStorage.getItem("orderID")
+  // const decryptedId = CryptoJS.AES.decrypt(
+  //   id.replace(/_/g, "/").replace(/-/g, "+"),
+  //   "trading_materials_order"
+  // ).toString(CryptoJS.enc.Utf8);
+  // console.log(decryptedId);
 
   console.log(cartProducts, "gggggggg");
 
@@ -73,7 +74,7 @@ export default function PaymentVerifyStripe() {
       console.log(localStorage.getItem("client_token"));
       dispatch(showLoader());
       const response = await axios.get(
-        `https://admin.tradingmaterials.com/api/lead/product/checkout/view-order?order_id=${id}`,
+        `https://admin.tradingmaterials.com/api/lead/product/checkout/view-order?order_id=${orderID}`,
         {
           headers: {
             "access-token": localStorage.getItem("client_token"),
@@ -437,7 +438,7 @@ export default function PaymentVerifyStripe() {
                               </div>
                               <small
                                 className={`cursor-pointer hover:text-green-600  font-bold  ${paymentStatus === "loading" ? "" : "!text-white"}`}
-                                onClick={() => navigate(`/order-tracking/${id}`)}
+                                onClick={() => navigate(`/order-tracking/${orderID}`)}
                               >
                                 Do not Refresh the page, we will redirect to
                                 your orders in {time}
@@ -448,7 +449,7 @@ export default function PaymentVerifyStripe() {
                               <Button
                                 variant="contained"
                                 href={`/checkout/order_id/${CryptoJS?.AES?.encrypt(
-                                  `${id}`,
+                                  `${orderID}`,
                                   "trading_materials_order"
                                 )
                                   ?.toString()

@@ -27,6 +27,10 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { useTranslation } from "react-i18next";
 import { Box, Skeleton } from "@mui/material";
+// import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+// import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import moment from "moment";
 // import FloatingForm from "../forms/floatingForm";
@@ -80,7 +84,7 @@ export default function ProductsDisplay() {
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
-
+  
   const location = useLocation();
   const navigate = useNavigate();
   const positions = useSelector((state) => state?.position?.value);
@@ -114,6 +118,7 @@ export default function ProductsDisplay() {
     incrementDate();
   }, []);
 
+  // showing filtered products when choosed from other pages
   useEffect(() => {
     const productData = JSON.parse(localStorage.getItem("productData"));
     const qty = localStorage.getItem("prodcutQty");
@@ -129,7 +134,6 @@ export default function ProductsDisplay() {
 
   // function for handling add to cart directly {indirect login}
   async function handleAddToCartDirectly(productId, status, qty) {
-    // setAnimateProductId(productId)
     try {
       dispatch(showLoader());
       const response = await axios?.post(
@@ -341,6 +345,7 @@ export default function ProductsDisplay() {
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
 
+    // function for filtering single products
   function addFilterProducts(
     subCategoryName,
     subCategoryId,
@@ -784,6 +789,11 @@ export default function ProductsDisplay() {
     navigate("/?login")
 }
 
+
+const handleChange = (event) => {
+  handleSortingProducts(event.target.value);
+};
+
   return (
     <>
             <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
@@ -1092,14 +1102,21 @@ export default function ProductsDisplay() {
                         )}
                       </div>
                       <div className="col-sm-4 col-md-3 col-xl-2">
-                        <div className="nk-dropdown py-1 ps-2 pe-1 border rounded">
-                          <input
-                            type="checkbox"
-                            className="nk-dropdown-field"
-                            id="nk-sorting"
-                            hidden
-                          />
-                          <label
+                        <div className="nk-dropdown py-1 ps-2 pe-1" >
+                        <Select
+                        className="w-full text-start flex"
+          value={sorting}
+          onChange={handleChange}
+          // displayEmpty
+          defaultValue={sorting}
+          inputProps={{ 'aria-label': 'Without label' }}
+        >
+          
+          <MenuItem value={"Popular"}>Popular</MenuItem>
+          <MenuItem value={"Newest"}>Newest</MenuItem>
+          <MenuItem value={"Oldest"}>Oldest</MenuItem>
+        </Select>
+                          {/* <label
                             htmlFor="nk-sorting"
                             className="nk-dropdown-menu"
                           >
@@ -1116,7 +1133,7 @@ export default function ProductsDisplay() {
                                   {sorting}
                                 </span>
                               </li>
-                              <li>
+                              {showSortingDropdown && <li>
                                 <ul className="nk-dropdown-select">
                                   <li
                                     className="nk-dropdown-select-option py-2"
@@ -1158,9 +1175,9 @@ export default function ProductsDisplay() {
                                     </span>
                                   </li>
                                 </ul>
-                              </li>
+                              </li>}
                             </ul>
-                          </label>
+                          </label> */}
                         </div>
                       </div>
                     </div>
@@ -2795,8 +2812,8 @@ export default function ProductsDisplay() {
               data-space-between="30"
             >
               <SwiperSlide className="swiper-slide h-auto">
-                <div className="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
-                  <div className="nk-testimonial-content">
+                <div className="nk-testimonial-card-2 nk-testimonial-card-s3 ">
+                  <div className="nk-testimonial-content ">
                     <div>
                       <ul className="d-flex aling-items-center gap-1 mb-2">
                         <li className="text-green-2">

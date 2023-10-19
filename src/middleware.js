@@ -4,6 +4,7 @@ import {Navigate, } from "react-router-dom"
 
 // eslint-disable-next-line react/prop-types
 const ProtectedRoute = ({children}) => {
+    console.log("protected route")
 
     if(!localStorage.getItem("client_token")) {
         return <Navigate to="/?login"  replace />

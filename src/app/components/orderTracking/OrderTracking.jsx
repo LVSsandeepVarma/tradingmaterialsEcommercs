@@ -194,8 +194,9 @@ export default function OrderTacker() {
           },
         });
         if (response?.data?.status) {
-          setSubmitted(response?.data?.message);
+          setSubmitted(true);
           setOrderData(response?.data?.data?.order);
+          console.log(response?.data?.data?.order, response?.data?.message, "tttttt")
         }
       } catch (err) {
         console.log(err);
@@ -230,7 +231,7 @@ export default function OrderTacker() {
               <div className="row p-10">
                 <div className={`col-12 col-md-12 col-lg-6 `}>
                   <div className="w-full  ">
-                    {!submitted && orderData == null && (
+                    {(!submitted || (orderData == null && submitted)) && (
                       <p className="text-2xl text-center md: text-start">
                         Book and track orders anytime, anywhere
                       </p>
@@ -336,7 +337,7 @@ export default function OrderTacker() {
                         className="text-center cursor-pointer hover:!text-blue-600 !mt-8 sm:mt-[auto]"
                         onClick={() => {
                           if (orderData?.status != "0") {
-                            window.location.href = `https://client.tradingmaterials.com/login`;
+                            window.location.href = `https://tradingmaterials.com/?login`;
                           } else {
                             dispatch(
                               usersignupinModal({

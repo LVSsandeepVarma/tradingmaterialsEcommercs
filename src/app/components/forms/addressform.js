@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 // AddressForm.js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
@@ -8,55 +8,86 @@ import { useDispatch } from "react-redux";
 import { updateaddressStatus } from "../../../features/address/addressSlice";
 import { useNavigate } from "react-router-dom";
 import SessionExpired from "../modals/sessionExpired";
+import { Divider } from "@mui/material";
 
-const AddressSchema = Yup.object().shape({
-  city: Yup.string()
-    .matches(/^[A-Za-z& ]{3,50}$/, "City must be within 3-50 characters")
-    .required("City is required"),
-  state: Yup.string()
-    .matches(/^[A-Za-z& ]{3,50}$/, "State must be within 3-50 characters")
-    .required("State is required"),
-  country: Yup.string()
-    .matches(/^[A-Za-z ]{3,50}$/, "Country must be within 3-50 characters")
-    .required("Country is required"),
-  add_1: Yup.string()
-    .matches(/^.{10,200}$/, "Address must be within 10-200 characters")
-    .required("Street Address 1 is required"),
-  add_2: Yup.string().matches(
-    /^.{0,200}$/,
-    "Address must be within 10-200 characters"
-  ),
-  zip: Yup.string()
-    .matches(/^[0-9 ]{6,10}$/, "Postal code must be within 6-10 characters")
-    .required("Postal Code is required"),
-});
+
 
 // eslint-disable-next-line react/prop-types
 const AddressForm = ({ type, data, closeModal }) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
   const [apiErr, setApiErr] = useState("");
-  const [formSubmitted, setFormSubmitted] = useState(false)
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const [showSessionExppiry, setShowSessionExpiry] = useState(false);
-
+  // eslint-disable-next-line no-unused-vars
+  const [countries, setCountries] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [countryInput, setCountryInput] = useState("");
+  const [countryArray, setCountryArray] = useState([]);
+  const [countrySelected, setCountrySelected] = useState(false)
+
 
   function generateRandomTwoDigitNumber() {
     return Math.floor(Math.random() * 90) + 10; // Generates a random number between 10 and 99 (inclusive)
   }
 
-  const handleSubmit = async (values,{ setFieldError }) => {
+  const AddressSchema = Yup.object().shape({
+    city: Yup.string()
+      .matches(/^[A-Za-z& ]{3,50}$/, "City must be within 3-50 characters")
+      .required("City is required"),
+    state: Yup.string()
+      .matches(/^[A-Za-z& ]{3,50}$/, "State must be within 3-50 characters")
+      .required("State is required"),
+    country: Yup.string()
+      .matches(/^[A-Za-z ]{3,50}$/, "Country must be within 3-50 characters")
+      .oneOf(countries, "Invalid country, please choose from the list")
+      .required("Country is required"),
+    add_1: Yup.string()
+      .matches(/^.{10,200}$/, "Address must be within 10-200 characters")
+      .required("Street Address 1 is required"),
+    add_2: Yup.string().matches(
+      /^.{0,200}$/,
+      "Address must be within 10-200 characters"
+    ),
+    zip: Yup.string()
+      .matches(/^[0-9 ]{6,10}$/, "Postal code must be within 6-10 characters")
+      .required("Postal Code is required"),
+  });
+
+  useEffect(() => {
+    fetch("https://restcountries.com/v3.1/all")
+      .then((response) => response.json())
+      .then((data) => {
+        const countryNames = data.map((country) => country.name.common);
+        countryNames.sort();
+        setCountryArray(countryNames);
+      })
+      .catch((error) => {
+        console.error("Error fetching country data:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    
+      let countryFilteredArr = countryArray?.filter((country) =>
+        country?.toLowerCase()?.startsWith(countryInput?.toLowerCase())
+      );
+      setCountries(countryFilteredArr);
+    
+  }, [countryInput]);
+
+  const handleSubmit = async (values, { setFieldError }) => {
     // setIsSuccess(false);
     //   setIsFailure(false);
     try {
       setIsFailure(false);
       setIsSuccess(false);
       setApiErr("");
-      setFormSubmitted(true)
-      setTimeout(()=>{
-        setFormSubmitted(false)
-      },2000)
+      setFormSubmitted(true);
+      setTimeout(() => {
+        setFormSubmitted(false);
+      }, 2000);
       const token = localStorage.getItem("client_token");
       const formData =
         type === "add"
@@ -99,22 +130,22 @@ const AddressForm = ({ type, data, closeModal }) => {
         const responseErrors = err.response.data.errors;
 
         if (responseErrors.city) {
-          setFieldError('city', responseErrors.city);
+          setFieldError("city", responseErrors.city);
         }
         if (responseErrors.state) {
-          setFieldError('state', responseErrors.state);
+          setFieldError("state", responseErrors.state);
         }
         if (responseErrors.country) {
-          setFieldError('country', responseErrors.country);
+          setFieldError("country", responseErrors.country);
         }
         if (responseErrors.add_1) {
-          setFieldError('add_1', responseErrors.add_1);
+          setFieldError("add_1", responseErrors.add_1);
         }
         if (responseErrors.add_2) {
-          setFieldError('add_2', responseErrors.add_2);
+          setFieldError("add_2", responseErrors.add_2);
         }
         if (responseErrors.zip) {
-          setFieldError('zip', responseErrors.zip);
+          setFieldError("zip", responseErrors.zip);
         }
       } else {
         console.log(err?.response);
@@ -141,13 +172,13 @@ const AddressForm = ({ type, data, closeModal }) => {
 
   function cleanAndSetFieldValue(fieldName, value, setFieldValue) {
     // Use regex to replace non-letter characters with an empty string
-    const cleanedValue = value.replace(/[^A-Za-z ]/g, '');
+    const cleanedValue = value.replace(/[^A-Za-z ]/g, "");
     setFieldValue(fieldName, cleanedValue);
   }
 
   function cleanAndSetPostalcodeValue(fieldName, value, setFieldValue) {
     // Use regex to replace non-letter characters with an empty string
-    const cleanedValue = value.replace(/[^0-9]/g, '');
+    const cleanedValue = value.replace(/[^0-9]/g, "");
     setFieldValue(fieldName, cleanedValue);
   }
 
@@ -211,9 +242,9 @@ const AddressForm = ({ type, data, closeModal }) => {
         validationSchema={AddressSchema}
         onSubmit={handleSubmit}
       >
-        {({ handleSubmit,setFieldValue  }) => (
+        {({ handleSubmit, setFieldValue }) => (
           <Form onSubmit={handleSubmit}>
-            <div className="grid !px-5 pb-5">
+            <div className="grid !px-5 pb-5 overflow-auto">
               <div className="form-group mt-3 ">
                 <label className="font-semibold" htmlFor="add_1">
                   Street Address 1
@@ -286,7 +317,13 @@ const AddressForm = ({ type, data, closeModal }) => {
                       name="city"
                       className="form-control addressInput"
                       placeholder="City"
-                      onChange={(e) => cleanAndSetFieldValue("city", e.target.value, setFieldValue)}
+                      onChange={(e) =>
+                        cleanAndSetFieldValue(
+                          "city",
+                          e.target.value,
+                          setFieldValue
+                        )
+                      }
                     />
                   )}
                   <ErrorMessage
@@ -313,7 +350,13 @@ const AddressForm = ({ type, data, closeModal }) => {
                       name="state"
                       className="form-control addressInput"
                       placeholder="State"
-                      onChange={(e) => cleanAndSetFieldValue("state", e.target.value, setFieldValue)}
+                      onChange={(e) =>
+                        cleanAndSetFieldValue(
+                          "state",
+                          e.target.value,
+                          setFieldValue
+                        )
+                      }
                     />
                   )}
                   <ErrorMessage
@@ -338,14 +381,45 @@ const AddressForm = ({ type, data, closeModal }) => {
                     />
                   ) : (
                     <Field
-                      type="text"
-                      name="country"
-                      className="form-control addressInput"
-                      placeholder="Country"
-                      onChange={(e) => cleanAndSetFieldValue("country", e.target.value, setFieldValue)}
-
-                    />
-                  )}
+                    type="text"
+                    name="country"
+                    className="form-control addressInput"
+                    placeholder="Country"
+                    onChange={(e) => {
+                      cleanAndSetFieldValue(
+                        "country",
+                        e.target.value,
+                        setFieldValue
+                      );
+                      setCountryInput(e.target.value);
+                      setCountrySelected(true)
+                    }}
+                  ></Field>
+                )}
+                {countries?.length > 0 && countrySelected &&<div className="shadow-lg px-2 py-2 overflow-auto max-h-[20vh]">
+                  
+                    {countries?.map((country, ind) => (
+                      <div key={ind} className="cursor-pointer hover-bg-slate-100  hover:shadow-xl">
+                        <p
+                        className=" hover:!text-blue-600 py-1 text-xs"
+                        
+                        onClick={() => {
+                          cleanAndSetFieldValue(
+                            "country",
+                            country,
+                            setFieldValue
+                          );
+                          setCountryInput(country);
+                          setCountrySelected(false)
+                        }}
+                      >
+                        {country}{" "}
+                        
+                      </p>
+                      <Divider/>
+                      </div>
+                    ))}
+                </div>}
                   <ErrorMessage
                     name="country"
                     component="div"
@@ -354,7 +428,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                 </div>
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="zip">
-                    Postalcode<sup className="text-red-600 !font-bold">*</sup>
+                    Postal code<sup className="text-red-600 !font-bold">*</sup>
                   </label>
                   {type === "view" ? (
                     <Field
@@ -371,7 +445,13 @@ const AddressForm = ({ type, data, closeModal }) => {
                       // pattern = "/^[0-9]{5,10}$|^[0-9]{3}\s[0-9]{3}$/"
                       className="form-control addressInput"
                       placeholder="Postal code"
-                      onChange={(e) => cleanAndSetPostalcodeValue("zip", e.target.value, setFieldValue)}
+                      onChange={(e) =>
+                        cleanAndSetPostalcodeValue(
+                          "zip",
+                          e.target.value,
+                          setFieldValue
+                        )
+                      }
                     />
                   )}
                   <ErrorMessage
@@ -381,8 +461,12 @@ const AddressForm = ({ type, data, closeModal }) => {
                   />
                 </div>
               </div>
-              {type !== "view"  && (
-                <button disabled={formSubmitted} type="submit" className="btn btn-primary mt-3">
+              {type !== "view" && (
+                <button
+                  disabled={formSubmitted}
+                  type="submit"
+                  className="btn btn-primary mt-3"
+                >
                   Submit
                 </button>
               )}

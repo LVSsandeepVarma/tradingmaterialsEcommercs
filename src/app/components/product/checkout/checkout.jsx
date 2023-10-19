@@ -87,6 +87,7 @@ export default function Checkout() {
   const [subTotal, setSubTotal] = useState(0);
 
   const { id } = useParams();
+  const orderId = localStorage.getItem("order_id")
   const { encryptedrderId } = useParams();
   const decryptedId = CryptoJS.AES.decrypt(
     id.replace(/_/g, "/").replace(/-/g, "+"),
@@ -94,7 +95,7 @@ export default function Checkout() {
   ).toString(CryptoJS.enc.Utf8);
   console.log(decryptedId);
 
-  console.log(cartProducts, "gggggggg");
+  console.log(cartProducts,id, "gggggggg");
 
   useEffect(() => {
     if (userData?.client?.payment_types?.length > 0) {
@@ -307,12 +308,18 @@ export default function Checkout() {
     }else{
 
       const year = value.split("/")[1]
+      const month = value.split("/")[0]
       const currentYear = moment().year().toString()
-      console.log(parseInt(currentYear.slice(2, 4)) , parseInt(year), "yeeeer")
-      
-      if(parseInt(currentYear.slice(2, 4)) > parseInt(year)){
+      const currentMonth =new Date().getMonth()
+      console.log(parseInt(currentYear.slice(2, 4)) >= parseInt(year),parseInt(currentYear.slice(2, 4)) , parseInt(year), "yeeeer")
+      console.log(parseInt(currentMonth)+1 >= parseInt(month),parseInt(currentMonth)+1 , parseInt(month), "curMon",parseInt(currentYear.slice(2, 4))== parseInt(year))
+      if(parseInt(currentYear.slice(2, 4)) > parseInt(year) ){
         return false
       }
+      else if(parseInt(currentYear.slice(2, 4)) == parseInt(year) && parseInt(currentMonth)+1 > parseInt(month) ){
+        return false
+      }
+      
       if(value?.length <= 1){
         return false
       }
@@ -615,7 +622,7 @@ export default function Checkout() {
 
         if (response?.data?.status) {
           console.log(response, "response");
-
+          localStorage.setItem("orderID",decryptedId)
           // console.log(response?.data);
           localStorage.setItem("id", encryptedrderId);
           window.location.href = response?.data?.redirect_url;
@@ -828,7 +835,7 @@ export default function Checkout() {
                         <div>
                           <h4 className="mb-1 !font-bold">Comments</h4>
                           <ul className="d-flex flex-column gap-2 pb-2">
-                            <li className="d-flex align-items-center gap-5 text-gray-1200">
+                            <li className="d-flex align-items-center gap-5 fs-14 text-gray-1200">
                               {orderData?.order?.note}
                             </li>
                           </ul>
@@ -885,8 +892,8 @@ export default function Checkout() {
 
                       <ul className="d-flex flex-column gap-2 pb-0">
                         <div className="mb-1">
-                          <li className="d-flex align-items-center gap-5 text-gray-1200">
-                            <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                          <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
+                            <p className="m-0 fs-12 fw-semibold text-uppercase w-25 ">
                               Full Name:
                             </p>
                             <p className="m-0 fs-14 text-gray-1200 w-75">
@@ -895,7 +902,7 @@ export default function Checkout() {
                                 : orderData?.order?.name}
                             </p>
                           </li>
-                          <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
                             <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                               Address:
                             </p>
@@ -910,7 +917,7 @@ export default function Checkout() {
                               {orderData?.order?.shipping_zip}
                             </p>
                           </li>
-                          <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
                             <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                               Shipping Type:
                             </p>

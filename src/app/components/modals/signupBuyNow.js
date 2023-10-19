@@ -708,21 +708,22 @@ const SignupBuyNowModal = ({ show, onHide }) => {
               </Form>
             </div>
             <Divider />
-            <div className="form-logo mb-3">
+            <div className="form-logo mb-1 drop-shadow-lg">
               <a
-                href={`${userLang}/`}
-                className="flex justify-center w-full mt-2"
+                // href={`${userLang}/`}
+                className="flex justify-center w-full "
               >
                 <img
-                  className="logo-img"
+                  className="logo-img cursor-pointer"
+                  onClick={()=>window.location.href="/"}
                   src="/images/tm-logo-1.png"
                   alt="logo"
-                  style={{ width: "28%" }}
+                  style={{ width: "35%" }}
                 />
               </a>
             </div>
             <p className="text-start font-semibold mb-1">Our Payment Modes</p>
-            <div className="card m-1 !rounded-none hover:bg-gray-200">
+            <div className="card m-1 !rounded-none hover:bg-gray-200 hover:drop-shadow-lg">
               <div className="card-body !px-1 !py-1">
                 <div className=" flex justify-between items-center ">
                   <p className="font-semibold text-black">
@@ -736,7 +737,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                 </ul>
               </div>
             </div>
-            <div className="card m-1 !rounded-none hover:bg-gray-200">
+            <div className="card m-1 !rounded-none hover:bg-gray-200 hover:drop-shadow-lg">
               <div className="card-body !px-1 !py-1 ">
                 <div className=" flex justify-between items-center ">
                   <p className="font-semibold text-black">Cash on Delivery</p>

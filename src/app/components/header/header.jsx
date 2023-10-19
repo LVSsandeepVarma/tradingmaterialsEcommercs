@@ -6,7 +6,7 @@ import { fetchAllProducts } from "../../../features/products/productsSlice";
 import { loginUser, logoutUser } from "../../../features/login/loginSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Modal } from "react-bootstrap";
+// import { Modal } from "react-bootstrap";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
 import moment from "moment";
@@ -28,15 +28,17 @@ import { productsSubId } from "../../../features/subCategoriesIds/subCategoriesS
 import LoginModal from "../modals/login";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import ForgotPasswordModal from "../modals/forgotPassword";
-import Offer from "../forms/offer";
-import { hidePopup, showPopup } from "../../../features/popups/popusSlice";
-import { Divider } from "@mui/material";
+// import Offer from "../forms/offer";
+import { showPopup } from "../../../features/popups/popusSlice";
+import { Badge, Divider } from "@mui/material";
 import ChatForm from "../Chatbot/chatbot";
 import UpdateProfile from "../modals/updateProfile";
 import CookieBanner from "./cookiesBanner";
 import SignupCartModal from "../modals/signupcart";
 import SignupBuyNowModal from "../modals/signupBuyNow";
 import SessionExpired from "../modals/sessionExpired";
+import Offer from "../forms/offer";
+import Box from "../3d/testOne";
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -51,7 +53,7 @@ export default function Header() {
   const popup = useSelector((state) => state?.popup?.value);
   const modals = useSelector((state) => state?.signupInModal?.value);
   const clientType = localStorage.getItem("client_type");
-  const [mouseOverEvent, setMouseOverEvent] = useState(false);
+  // const [mouseOverEvent, setMouseOverEvent] = useState(false);
   const [activeDropDown, setActiveDropDown] = useState("");
   // const [showFloatingForm, setShowFloatingForm] = useState(false)
   // eslint-disable-next-line no-unused-vars
@@ -60,7 +62,7 @@ export default function Header() {
   const [bundleClicked, setBundleClicked] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [bottomOfferDisplay, setBottomOfferDisplay] = useState("block");
-  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false);
   const [showOffer, setShowOffer] = useState(false);
   const [cookieResponse, setCookieResponse] = useState(false);
 
@@ -80,6 +82,12 @@ export default function Header() {
       setShowNameModal(false);
     }
   }, [userData]);
+
+  useEffect(()=>{
+    // if(popup ){
+      document.body.style.setProperty("overflow", "auto", "important")
+    // }
+  },[popup])
 
   useEffect(() => {
     dispatch(showLoader());
@@ -187,13 +195,13 @@ export default function Header() {
     }
   }, [showModal]);
 
-  useEffect(() => {
-    if (popup) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-  }, [popup]);
+  // useEffect(() => {
+  //   if (popup) {
+  //     document.body.style.overflow = "hidden";
+  //   } else {
+  //     document.body.style.overflow = "auto";
+  //   }
+  // }, [popup]);
 
   const hideProfileModal = () => {
     setShowNameModal(false);
@@ -253,7 +261,7 @@ export default function Header() {
             sessionStorage.removeItem("expiry");
             dispatch(logoutUser());
           } else {
-            setShowSessionExpiry(true)
+            setShowSessionExpiry(true);
           }
           // navigate("/login")
         }
@@ -279,7 +287,7 @@ export default function Header() {
           //     message: "Oops!",
           //   })
           // );
-          setShowSessionExpiry(true)
+          setShowSessionExpiry(true);
         }
       } finally {
         dispatch(hideLoader());
@@ -355,26 +363,31 @@ export default function Header() {
       //   window.navigator.userAgent.includes("Windows") ||
       //   window.navigator.userAgent.includes("Macintosh")
       // ) {
-        const timeOut = setTimeout(() => {
-          if (modals?.showLoginModal === false ) {
-            if (!isLoggedIn) {
-              showSignupPopup();
-            }
+      const timeOut = setTimeout(() => {
+        if (modals?.showLoginModal === false) {
+          if (
+            !isLoggedIn &&
+            sessionStorage.getItem("offerCodeClaimed") != "true"
+          ) {
+            showSignupPopup();
           }
-        }, 5000);
-        if (
-          modals?.showLoginModal ||
-          modals?.showSignupModal ||
-          modals?.showforgotPasswordModal || 
-          modals?.showSignupCartModal ||
-          modals?.showSignupBuyModal
-        ) {
-          clearTimeout(timeOut);
         }
-        return () => {
-          clearTimeout(timeOut);
-        };
+      }, 3000);
+      if (
+        modals?.showLoginModal ||
+        modals?.showSignupModal ||
+        modals?.showforgotPasswordModal ||
+        modals?.showSignupCartModal ||
+        modals?.showSignupBuyModal ||
+        isLoggedIn ||
+        sessionStorage.getItem("offerCodeClaimed") == true
+      ) {
+        clearTimeout(timeOut);
       }
+      return () => {
+        clearTimeout(timeOut);
+      };
+    }
     // }
   }, [isLoggedIn, modals]);
 
@@ -494,18 +507,21 @@ export default function Header() {
     });
   };
 
-  function handleMouseOverEvent() {
-    setMouseOverEvent(true);
-  }
+  // function handleMouseOverEvent() {
+  //   setMouseOverEvent(true);
+  // }
 
-  function handleSessionExpiryClose (){
-      setShowSessionExpiry(false)
-      navigate("/?login")
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/?login");
   }
 
   return (
     <>
-    <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
+      <SessionExpired
+        open={showSessionExppiry}
+        handleClose={handleSessionExpiryClose}
+      />
       {/* {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
@@ -543,7 +559,7 @@ export default function Header() {
               zIndex: "9999999",
             }}
           >
-            {showOffer && (
+            {showOffer && !popup && (
               <div
                 className={`${
                   bottomOfferDisplay == "none" ? "hidden" : "block"
@@ -587,130 +603,35 @@ export default function Header() {
           onHide={() => handleCloseModals}
         />
       )}
-      {/* offer claim modal starts */}
-      <Modal
-        show={popup}
-        onHide={() => dispatch(hidePopup())}
-        centered
-        size="md"
-        style={{ borderRadius: "0rem" }}
-        className="offer"
-      >
-        {/* <Modal.Header className="!text-center w-full !text-white !font-bold text-2xl bg-[#8fd499] !fill-white-500 p-[8px]">
-          Sign Up for Special Offer
-          <div className="cursor-pointer" onClick={() => dispatch(hidePopup())}>
-            <CloseIcon className="!font-bold !text-4xl" />
-          </div>
-        </Modal.Header> */}
-        <Modal.Body
-          className="p-0  "
-          style={{
-            borderRadius: "0rem",
-            paddingLeft: "30px !important",
-            paddingTop: "9px !important",
-          }}
-        >
-          <div
-            id="popup"
-            className=""
-            style={{
-              borderRadius: "0rem",
-              paddingLeft: "30px !important",
-              paddingTop: "9px !important",
-            }}
-          >
-            <div className="row !ml-0 !mr-0 !shadow-xl">
-              {!mouseOverEvent  &&  (
-                <div
-                  className={`d-flex drop-shadow-lg shadow-lg flex-col col-12 col-md-6  items-center justify-center `}
-                  style={{
-                    background: "linear-gradient(45deg, #5582bf, transparent)",
-                  }}
-                >
-                  <div className="absolute"></div>
-                  <h3
-                    className="!font-bold text-black text-lg sm:text-2xl text-left pl-3 pt-3 "
-                    style={{  height: "100%" }}
-                  >
-                    Get 10% off Now
-                  </h3>
-                  <small className="text-black">On first Order</small>
-                  <div className="popup-img flex justify-center">
-                    <img src="/images/offer-nobg.png" className="w-[50%] sm:w-auto" alt="offer-img" />
-                  </div>
-                  <div
-                    className="offer-tex  p-0 pb-2 flex items-center justify-center  "
-                    style={{ textAlign: "left !important" }}
-                  >
-                    <div className=" !text-center">
-                      <h3 className="!font-bold text-slate-200 drop-shadow-xl shadow text-sm sm:text-md text-center hover:scale-105 ">
-                      Get your offer message&nbsp;Instantly
-                      </h3>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div
-                className={` d-flex flex-col col-12 col-md-6 drop-shadow-xl w-full md:w-[50%] ${
-                  !mouseOverEvent ? "w-[40%] " : "!w-full "
-                } ${
-                  mouseOverEvent ? "pt-3 pb-3" : ""
-                } items-center !justify-around `}
-              >
-                <div className="d-flex items-center justify-center ">
-                  <img
-                    className={` ${
-                      mouseOverEvent ? "max-w-[30%]" : "max-w-[50%]"
-                    } w-[30%] md:w-[50%]` }
-                    src="/images/oneDayLeft.png"
-                    alt="oneDayleft_png"
-                  ></img>
-                </div>
+      {/* offer popup */}
+      {popup && (
+        <div id="ac-wrapper">
+          <div id="popup-2">
+            <div className="row align-items-center">
+              <div className="col-lg-6 col-md-6 col-sm-12">
+                {/* <div className="text-left" data-aos="zoom-in"> */}
+                {/* <img src="images/login-img.jpg" alt="login-img" /> */}
+                <h2 className="drop-shoadow-lg text-xl absolute text-center w-[100%] top-8 !font-bold">
+                  <img src="/images/tm-logo-1.png" className="flex justify-center w-fit"></img>
+                  </h2>
+                  <Box/>
+                {/* </div> */}
+              </div>
 
-                <div
-                  className={`${
-                    mouseOverEvent
-                      ? "w-[90%]"
-                      : "tb-space d-flex justify-center  mt-[22px] w-full"
-                  } `}
-                >
-                  <div className={`${mouseOverEvent ? "" : "!inline w-full"} w-full`}>
-                    <div></div>
-                    <Offer
-                      mouseOverEvent={handleMouseOverEvent}
-                      isMouseEntered={mouseOverEvent}
-                    />
+              <div className="col-lg-6 col-md-6 col-sm-12 ">
+                <div className="grid-1 max-w-[85%]" data-aos="zoom-in-right" data-aos-delay="1000">
+                  <div className="grid-2 max-w-[100%]" >
+                    <div className="offer-title-2" >
+                      <h5>Login to shop</h5>
+                    </div>
+                    <Offer />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </Modal.Body>
-      </Modal>
-      {/* offer claim modal ends */}
-
-      {/* v0 popup */}
-
-      {/* {popup && (
-        <div className="absolute w-full !h-[1000%] z-[99999] !bg-[rgba(0,0,0,0.5)]">
-          <span className="  fixed  top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  z-[10000] ">
-            <AiFillCloseCircle
-              className="text-red-500 text-3xl cursor-pointer"
-              onClick={() => dispatch(hidePopup())}
-            />
-            <a>
-              <img
-                onClick={() => {
-                  setShowModal(true);
-                  dispatch(hidePopup());
-                }}
-                src="/assets/images/banner-cart.jpg"
-                alt=""
-              />
-            </a>
-          </span>
         </div>
-      )} */}
+      )}
 
       {modals?.showSignupModal === false &&
         modals?.showLoginModal === false && (
@@ -917,8 +838,7 @@ export default function Header() {
                             <div className="text-left nk-nav-item  !block has-sub ">
                               <p className="nk-nav-link pb-0 !w-full  pt-0 !text-xs">
                                 {greetUser}
-                              
-                                </p>
+                              </p>
                               <a
                                 className="nk-nav-link  nk-nav-toggle cursor-pointer pt-0 pb-0 !text-blue-900"
                                 // style={{ width: "1px" }}
@@ -928,14 +848,24 @@ export default function Header() {
                                     : setActiveDropDown("profile")
                                 }
                               >
-                                <p className="hidden sm:block capitalize !text-sm !text-start tr" >
-                                  {userData?.client?.first_name?.length > 10 ? userData?.client?.first_name?.slice(0,10)+"..." : userData?.client?.first_name}
+                                <p className="hidden sm:!block capitalize !text-sm !text-start tr">
+                                  {userData?.client?.first_name?.length > 10
+                                    ? userData?.client?.first_name?.slice(
+                                        0,
+                                        10
+                                      ) + "..."
+                                    : userData?.client?.first_name}
                                 </p>
-                                <p className="block sm:hidden capitalize !text-sm !text-start tr" >
-                                  {userData?.client?.first_name?.length > 35 ? userData?.client?.first_name?.slice(0,35)+"..." : userData?.client?.first_name}
+                                <p className="block sm:!hidden capitalize !text-sm !text-start tr">
+                                  {userData?.client?.first_name?.length > 35
+                                    ? userData?.client?.first_name?.slice(
+                                        0,
+                                        35
+                                      ) + "..."
+                                    : userData?.client?.first_name}
                                 </p>
                               </a>
-                              
+
                               <ul
                                 className={`nk-nav-sub  ${
                                   activeDropDown === "profile" ? "!block" : ""
@@ -964,8 +894,8 @@ export default function Header() {
                                           ?.toString()
                                           .replace(/\//g, "_")
                                           .replace(/\+/g, "-")}`}
-                                          target="_blank"
-                                          rel="noreferrer"
+                                        target="_blank"
+                                        rel="noreferrer"
                                         className="nk-nav-link"
                                       >
                                         Orders
@@ -1248,7 +1178,13 @@ export default function Header() {
               data-bs-title="Purchase Now"
               aria-label="Purchase Now"
             >
-              <em className="icon ni ni-cart-fill"></em>
+              <Badge
+                badgeContent={cartCounts?.cartCount}
+                color="warning"
+                className="fixedBadge"
+              >
+                <em className="icon ni ni-cart-fill"></em>
+              </Badge>
             </a>
           </li>
           <li>
@@ -1274,7 +1210,13 @@ export default function Header() {
               data-bs-custom-class="nk-tooltip"
               data-bs-title="View Demo"
             >
-              <em className="icon ni ni-heart"></em>
+              <Badge
+                badgeContent={cartCounts?.wishLishCount}
+                color="warning"
+                className="fixedBadge"
+              >
+                <em className="icon ni ni-heart"></em>
+              </Badge>
             </a>
           </li>
           <li>
