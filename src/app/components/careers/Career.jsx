@@ -258,7 +258,7 @@ export default function Career() {
     } else if (inputType == "lastName") {
       setLastName(value), validLastName(value);
     } else if (inputType == "phone") {
-      value = value?.replace(/[^0-9]/g, '');
+      value = value?.replace(/[^0-9]/g, "");
       setPhone(value), phoneValidation(value);
     } else if (inputType == "experience") {
       setExperience(value), handleExperienceValidation(value);
@@ -457,7 +457,7 @@ export default function Career() {
                   <SwiperSlide className="swiper-slide h-auto max-h-[50%]">
                     <div>
                       <img
-                        src="/images/career/banner-cover-1-a.jpg"
+                        src="/images/career/banner-cover-1-a.webp"
                         alt="banner-cover"
                         className="w-[auto] rounded-2"
                       />
@@ -466,7 +466,7 @@ export default function Career() {
                   <SwiperSlide className="swiper-slide h-auto max-h-[50%]">
                     <div>
                       <img
-                        src="/images/career/banner-cover-1-b.jpg"
+                        src="/images/career/banner-cover-1-b.webp"
                         alt="banner-cover"
                         className="w-w-[auto] rounded-2"
                       />
@@ -475,7 +475,7 @@ export default function Career() {
                   <SwiperSlide className="swiper-slide h-auto max-h-[50%]">
                     <div>
                       <img
-                        src="/images/career/banner-cover-1-c.jpg"
+                        src="/images/career/banner-cover-1-c.webp"
                         alt="banner-cover"
                         className="w-w-[auto] rounded-2"
                       />
@@ -557,14 +557,14 @@ export default function Career() {
                   <div className="col-lg-6">
                     <div className="nk-frame pb-md-7 pb-lg-0">
                       <img
-                        src="/images/career/section-cover-1.png"
+                        src="/images/career/section-cover-1.webp"
                         alt="section-cover"
                         data-aos="fade-up"
                         data-aos-delay="0"
                       />
                       <div className="nk-frame-children">
                         <img
-                          src="/images/career/section-cover-1-a.png"
+                          src="/images/career/section-cover-1-a.webp"
                           alt="section-cover"
                           data-aos="fade-up"
                           data-aos-delay="50"

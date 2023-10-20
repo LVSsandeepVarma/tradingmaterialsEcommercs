@@ -3,11 +3,12 @@ import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { hidePopup } from "../../../features/popups/popusSlice";
-import { CircularProgress } from "@mui/material";
+// import { Checkbox, CircularProgress, FormControlLabel } from "@mui/material";
 // import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateclientType } from "../../../features/clientType/clientType";
 import { loginUser } from "../../../features/login/loginSlice";
+import { CircularProgress } from "@mui/material";
 
 // eslint-disable-next-line react/prop-types
 export default function Offer() {
@@ -23,6 +24,8 @@ export default function Offer() {
   const [name, setName] = useState("");
   const [nameErr, setNameErr] = useState("");
   const [userType, setUserType] = useState("");
+  // eslint-disable-next-line no-unused-vars
+  const [checkboxChecked, setCheckboxChecked] = useState(true);
 
   const loaderState = useSelector((state) => state?.loader?.value);
   const dispatch = useDispatch();
@@ -33,10 +36,9 @@ export default function Offer() {
       .then((data) => setUserIp(data.ip));
   }, []);
 
-  useEffect(() =>{
-    setPhone("")
-  },[userType,emailVerificationStatus])
-
+  useEffect(() => {
+    setPhone("");
+  }, [userType, emailVerificationStatus]);
 
   async function handleEmailVerification(emailid) {
     if (emailid != "") {
@@ -54,8 +56,7 @@ export default function Offer() {
         );
         if (response?.data?.status) {
           console.log(response?.data);
-          setUserType("")
-          
+          setUserType("");
         }
       } catch (err) {
         console.log(err);
@@ -67,7 +68,7 @@ export default function Offer() {
           setEmailVerificationStatus(true);
           if (err?.response?.data?.type == "lead") {
             setUserType("lead");
-            
+
             // setTimeout(()=>{
             //   dispatch(hidePopup())
             // },1000)
@@ -77,9 +78,8 @@ export default function Offer() {
               window.location.href =
                 "https://client.tradingmaterials.com/login";
             }, 1000);
-          }else{
-            setUserType("")
-            
+          } else {
+            setUserType("");
           }
         }
       } finally {
@@ -89,7 +89,7 @@ export default function Offer() {
   }
 
   function handleNameChange(e) {
-    e.target.value = e.target.value.replace(/[^a-zA-Z ]/g, '');
+    e.target.value = e.target.value.replace(/[^a-zA-Z ]/g, "");
     setName(e?.target?.value);
   }
 
@@ -135,11 +135,11 @@ export default function Offer() {
   function userEmailValidaiton(email) {
     const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
-      return false
+      return false;
     } else if (!emailRegex.test(email)) {
-      return false
+      return false;
     } else {
-      return true
+      return true;
     }
   }
 
@@ -162,19 +162,18 @@ export default function Offer() {
   const handleEmailChange = (e) => {
     setEmail(e?.target?.value);
     // emailValidaiton(e?.target?.value);
-    if(userEmailValidaiton(e?.target?.value)){
-    handleEmailVerification(e?.target?.value)
-    }else if(e?.target?.value == ""){
-      setUserType("")
-      
+    if (userEmailValidaiton(e?.target?.value)) {
+      handleEmailVerification(e?.target?.value);
+    } else if (e?.target?.value == "") {
+      setUserType("");
     }
   };
 
   const handlePhonechange = (e) => {
-    if(userType == ""){
-    e.target.value = e.target.value.replace(/[^0-9]/g, "");
-    setPhone(e.target.value);
-    }else{
+    if (userType == "") {
+      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+      setPhone(e.target.value);
+    } else {
       setPhone(e.target.value);
     }
     // isValidMobile(e.target.value);
@@ -263,7 +262,7 @@ export default function Offer() {
       email !== "" &&
       phoneErr === "" &&
       phone !== "" &&
-      name != "" && 
+      name != "" &&
       nameErr == "" &&
       apiErr?.length === 0
     ) {
@@ -292,7 +291,7 @@ export default function Offer() {
             // dispatch(hidePopup());
             sessionStorage.setItem("offerCodeClaimed", true);
             setApiErr([]);
-        setSuccessMsg("");
+            setSuccessMsg("");
             //   dispatch(
             //     usersignupinModal({
             //       showSignupModal: false,
@@ -331,89 +330,116 @@ export default function Offer() {
           This email is already registered.
         </small>
       )}
-      <form action="#" method="#" className="login" >
-        {userType == "" && <>
-        <div className="form__field mb-0 mt-0">
-          <div className="flex items-center relative w-full">
-          {<img src="/images/user.png" alt="email" className="ml-2 absolute right-[95%] !w-[20px] !h-[20px]" />}
-          
-          <input
-            id="login__username"
-            type="text"
-            maxLength={100}
-            name="name"
-            onChange={handleNameChange}
-            onBlur={() => {
-              handleNaveValidation(name);
-            }}
-            className="input-fields-1 mb-0"
-            placeholder="Name"
-            required=""
-            aria-autocomplete="list"
-          />
-        </div>
-        </div>
-        {nameErr && (
-          <p className="nk-message-error pl-2 pt-0 mt-0 texxt-xs text-left">
-            {nameErr}
-          </p>
+      <form action="#" method="#" className="login">
+        {userType == "" && (
+          <>
+            <div className="form__field mb-0 mt-0">
+              <div className="flex items-center relative w-full">
+                {
+                  <img
+                    src="/images/user.webp"
+                    alt="email"
+                    className="ml-2 absolute right-[87%] !w-[20px] !h-[20px]"
+                  />
+                }
+
+                <input
+                  id="login__username"
+                  type="text"
+                  maxLength={100}
+                  name="name"
+                  onChange={handleNameChange}
+                  onBlur={() => {
+                    handleNaveValidation(name);
+                  }}
+                  className="input-fields-1 mb-0 !pl-14"
+                  placeholder="Name"
+                  required=""
+                  aria-autocomplete="list"
+                />
+              </div>
+            </div>
+            {nameErr && (
+              <p className="nk-message-error pl-8 pt-0 mt-0 texxt-xs text-left">
+                {nameErr}
+              </p>
+            )}
+          </>
         )}
-        </>}
-        
+
         <div className="form__field mb-0">
-        
-        <div className="flex items-center relative w-full">
-        {<img src="/images/email.png" alt="email" className="ml-2 absolute right-[95%] !w-[20px] !h-[20px]" />}
-      <input
-        id="login__username"
-        type="email"
-        name="email"
-        onChange={handleEmailChange}
-        onBlur={() => {
-          emailValidaiton(email), handleEmailVerification(email);
-        }}
-        className="input-fields-2 mb-0"
-        placeholder="Email address"
-        required=""
-      />
-      {emailVerifyLoader && <CircularProgress className="ml-2 absolute right-[10px] !w-[20px] !h-[20px]" />}
-    </div>
+          <div className="flex items-center relative w-full">
+            {
+              <img
+                src="/images/email.webp"
+                alt="email"
+                className="ml-2 absolute right-[87%] !w-[20px] !h-[20px]"
+              />
+            }
+            <input
+              id="login__username"
+              type="email"
+              name="email"
+              onChange={handleEmailChange}
+              onBlur={() => {
+                emailValidaiton(email), handleEmailVerification(email);
+              }}
+              className="input-fields-2 mb-0 !pl-14"
+              placeholder="Email address"
+              required=""
+            />
+            {emailVerifyLoader && (
+              <CircularProgress className="ml-2 absolute right-[10px] !w-[20px] !h-[20px]" />
+            )}
+          </div>
         </div>
         {emailErr && (
-          <p className="nk-message-error pl-2 texxt-xs text-left">{emailErr}</p>
+          <p className="nk-message-error pl-8 texxt-xs text-left">{emailErr}</p>
         )}
 
         <div className="form__field  mb-0">
           <div className="flex items-center w-full relative">
-          {<img src={userType== "lead" ? "/images/password.png" : "/images/call.png"} alt="email" className="ml-2 absolute right-[95%] !w-[20px] !h-[20px]" />}
-          
-          
-          <input
-            id="login__username"
-            maxLength={15}
-            type="text"
-            name="phone"
-            onChange={handlePhonechange}
-            onBlur={() => {
-              if(userType == ""){
-              isValidMobile(phone);
-              }else{
-                ispasswordValid(phone)
-              }
-            }}
-            value={phone}
-            className={` ${userType == "" ? "input-fields-3" : "input-fields-3-password" } mb-0`}
-            placeholder={userType == "" ? "Mobile" : "Password"}
-            required=""
-          />
+            {
+              <img
+                src={
+                  userType == "lead"
+                    ? "/images/password.webp"
+                    : "/images/call.webp"
+                }
+                alt="email"
+                className="ml-2 absolute right-[87%] !w-[20px] !h-[20px]"
+              />
+            }
+
+            <input
+              id="login__username"
+              maxLength={15}
+              type="text"
+              name="phone"
+              onChange={handlePhonechange}
+              onBlur={() => {
+                if (userType == "") {
+                  isValidMobile(phone);
+                } else {
+                  ispasswordValid(phone);
+                }
+              }}
+              value={phone}
+              className={` ${
+                userType == "" ? "input-fields-3" : "input-fields-3-password"
+              } mb-0 !pl-14`}
+              placeholder={userType == "" ? "Mobile" : "Password"}
+              required=""
+            />
           </div>
         </div>
         {phoneErr && (
-          <p className="nk-message-error pl-2 texxt-xs text-left">{phoneErr}</p>
+          <p className="nk-message-error pl-8 texxt-xs text-left">{phoneErr}</p>
         )}
 
         <div className="form__field">
           <button
+            // disabled={!checkboxChecked}
             onClick={(e) => {
               e.preventDefault();
               if (userType == "lead") {
@@ -422,11 +448,17 @@ export default function Offer() {
                 handleSubmit();
               }
             }}
-            className="btn btn-block btn-primary-2 hover:!bg-blue-600 !normal-case"
+            className="btn btn-block btn-primary-2 hover:!bg-blue-600 !normal-case !rounded-[50px] "
           >
             Click here to login
           </button>
         </div>
+        <p
+          className="text-sm text-center text-primary cursor-pointer antialiased "
+          onClick={() => dispatch(hidePopup())}
+        >
+          Back to Shop
+        </p>
         {successMsg?.length > 0 && (
           <p className="text-green-900 text-sm">{successMsg}</p>
         )}
@@ -442,9 +474,9 @@ export default function Offer() {
         <div className="form__field text-center">
           <div className="terms-tex-2 mt-2 text-lg">
             <p>
-              By signing up, you agree to our <br />{" "}
-              <a className="text-success">Terms and conditions</a> and{" "}
-              <a className="text-success">Privacy Policy</a>.{" "}
+              By signing up, you agree to our <br />
+              <a className="text-success">Terms and conditions</a> and
+              <a className="text-success"> Privacy Policy</a>.{" "}
             </p>
           </div>
         </div>

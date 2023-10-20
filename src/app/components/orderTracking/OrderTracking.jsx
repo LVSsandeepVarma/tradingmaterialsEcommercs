@@ -149,7 +149,6 @@ export default function OrderTacker() {
 
   function orderNoValidation(ordNo) {
     if (ordNo == "") {
-      
       setOrderNoErr("Order No is required");
       return false;
     } else if (ordNo?.length < 6 || ordNo?.length > 20) {
@@ -162,10 +161,10 @@ export default function OrderTacker() {
   }
 
   const handleOrderNoChange = (ordNo) => {
-    ordNo = ordNo.replace(/[^0-9]/g, '')
+    ordNo = ordNo.replace(/[^0-9]/g, "");
     setSubmitted(false);
     setOrderNo(ordNo);
-    console.log(ordNo)
+    console.log(ordNo);
     orderNoValidation(ordNo);
   };
 
@@ -196,7 +195,11 @@ export default function OrderTacker() {
         if (response?.data?.status) {
           setSubmitted(true);
           setOrderData(response?.data?.data?.order);
-          console.log(response?.data?.data?.order, response?.data?.message, "tttttt")
+          console.log(
+            response?.data?.data?.order,
+            response?.data?.message,
+            "tttttt"
+          );
         }
       } catch (err) {
         console.log(err);
@@ -238,8 +241,7 @@ export default function OrderTacker() {
                     )}
                     {submitted &&
                       // windowWidth == "vertical" &&
-                      orderData != null && 
-                      (
+                      orderData != null && (
                         <p className="text-2xl text-center md: text-start">
                           Your Order-<b>{orderData?.order_number} </b> is{" "}
                           <b className="">{steps[orderData?.status]}</b>
@@ -247,8 +249,8 @@ export default function OrderTacker() {
                       )}
                     <div className="flex justify-center">
                       {
-                      // ((
-                        // !submitted 
+                        // ((
+                        // !submitted
                         // orderData == nul)
                         // windowWidth == "horizontal"
                         // )) && (
@@ -257,7 +259,7 @@ export default function OrderTacker() {
                           alt="delvery"
                           className="w-[44%] "
                         />
-                      // )
+                        // )
                       }
                       {/* {windowWidth == "vertical" && icons[orderData?.status == "0"
                             ? "1"
@@ -274,54 +276,56 @@ export default function OrderTacker() {
                     >
                       <img
                         className="w-[100%]"
-                        src="/images/partner-logos.png"
+                        src="/images/partner-logos.webp"
                         alt="deli_partners"
                       />
                     </div>
                   </div>
                 </div>
-                {submitted &&
-                  orderData != null &&
-                  // windowWidth == "horizontal" && (
+                {
+                  submitted && orderData != null && (
+                    // windowWidth == "horizontal" && (
                     <div className="col-md-12 col-lg-6 mb-6 pt-5 sm:pt-0 grid place-items-center !pr-0 !pl-0">
                       <div className="flex justify-around items-center w-full mb-[16px]">
-                      <div className="ml-0 md:ml-4 lg:ml-8">
-                        <p className="mb-2 text-start md:text-left text-xs md:text-sm lg:text-xl !mb-3">
-                          Your Order:{" "}
-                          <b className="!text-blue-600 text-xs md:text-sm lg:text-xl">
-                            {orderData?.order_number}{" "}
-                          </b>{" "}
-                          <br />
-                          <p className="text-xs md:text-sm lg:text-xl ">
-                            Order Status:{" "}
-                            <b className="!text-blue-600 text-xs md:text-sm lg:text-xl !mb-2">
-                              {steps[orderData?.status]}
-                            </b>
-                          </p>{" "}
-                          <p className="text-xs md:text-sm lg:text-xl !mb-2">
-                            Updated on:{" "}
-                            <b className="!text-blue-600 text-xs md:text-sm lg:text-xl ">
-                              {new Date(
-                                orderData?.updated_at
-                              ).toLocaleDateString("en-GB", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </b>
+                        <div className="ml-0 md:ml-4 lg:ml-8">
+                          <p className="mb-2 text-start md:text-left text-xs md:text-sm lg:text-xl !mb-3">
+                            Your Order:{" "}
+                            <b className="!text-blue-600 text-xs md:text-sm lg:text-xl">
+                              {orderData?.order_number}{" "}
+                            </b>{" "}
+                            <br />
+                            <p className="text-xs md:text-sm lg:text-xl ">
+                              Order Status:{" "}
+                              <b className="!text-blue-600 text-xs md:text-sm lg:text-xl !mb-2">
+                                {steps[orderData?.status]}
+                              </b>
+                            </p>{" "}
+                            <p className="text-xs md:text-sm lg:text-xl !mb-2">
+                              Updated on:{" "}
+                              <b className="!text-blue-600 text-xs md:text-sm lg:text-xl ">
+                                {new Date(
+                                  orderData?.updated_at
+                                ).toLocaleDateString("en-GB", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                              </b>
+                            </p>
                           </p>
-                        </p>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          setSubmitted(false);
-                          setOrderData(null)
-                        }}
-                        variant="outlined"
-                        startIcon={<CompareArrowsIcon className="!w-[18px]" />}
-                      >
-                        Try Again
-                      </Button>
+                        </div>
+                        <Button
+                          onClick={() => {
+                            setSubmitted(false);
+                            setOrderData(null);
+                          }}
+                          variant="outlined"
+                          startIcon={
+                            <CompareArrowsIcon className="!w-[18px]" />
+                          }
+                        >
+                          Try Again
+                        </Button>
                       </div>
 
                       <CustomizedSteppers
@@ -333,31 +337,34 @@ export default function OrderTacker() {
                             : orderData?.status - 1
                         }
                       />
-                      {!isLoggedIn && <p
-                        className="text-center cursor-pointer hover:!text-blue-600 !mt-8 sm:mt-[auto]"
-                        onClick={() => {
-                          if (orderData?.status != "0") {
-                            window.location.href = `https://tradingmaterials.com/?login`;
-                          } else {
-                            dispatch(
-                              usersignupinModal({
-                                showSignupModal: false,
-                                showLoginModal: true,
-                                showforgotPasswordModal: false,
-                                showOtpModal: false,
-                                showNewPasswordModal: false,
-                                showSignupCartModal: false,
-                                showSignupBuyModal: false,
-                              })
-                            );
-                          }
-                        }}
-                      >
-                        Login to your account
-                      </p>}
+                      {!isLoggedIn && (
+                        <p
+                          className="text-center cursor-pointer hover:!text-blue-600 !mt-8 sm:mt-[auto]"
+                          onClick={() => {
+                            if (orderData?.status != "0") {
+                              window.location.href = `https://tradingmaterials.com/?login`;
+                            } else {
+                              dispatch(
+                                usersignupinModal({
+                                  showSignupModal: false,
+                                  showLoginModal: true,
+                                  showforgotPasswordModal: false,
+                                  showOtpModal: false,
+                                  showNewPasswordModal: false,
+                                  showSignupCartModal: false,
+                                  showSignupBuyModal: false,
+                                })
+                              );
+                            }
+                          }}
+                        >
+                          Login to your account
+                        </p>
+                      )}
                     </div>
+                  )
                   // )
-                  }
+                }
 
                 {!submitted && (
                   <div className="col-12 col-md-12 col-lg-6 card bg-white drop-shadow-lg shadow-lg  p-10">
@@ -366,7 +373,6 @@ export default function OrderTacker() {
                     </h1>
                     <div className="flex justify-center w-full">
                       <div className="form-control-wrap hover:drop-shadow-lg w-[100%]  mt-3">
-                      
                         <TextField
                           fullWidth
                           label="Email"
@@ -381,16 +387,16 @@ export default function OrderTacker() {
                       </div>
                     </div>
                     <div className="form-control-wrap hover:drop-shadow-lg w-[100%]  mt-3">
-                    <ThemeProvider theme={theme}>
-                      <TextField
-                        value={orderNo}
-                        onChange={(e) => handleOrderNoChange(e.target.value)}
-                        className=""
-                        required
-                        fullWidth
-                        label="Order No"
-                        variant="outlined"
-                      />
+                      <ThemeProvider theme={theme}>
+                        <TextField
+                          value={orderNo}
+                          onChange={(e) => handleOrderNoChange(e.target.value)}
+                          className=""
+                          required
+                          fullWidth
+                          label="Order No"
+                          variant="outlined"
+                        />
                       </ThemeProvider>
                       <p
                         className="nk-message-error text-xs font-semibold !inline"
@@ -421,7 +427,7 @@ export default function OrderTacker() {
                   <div className="p-10 col-12 col-md-6 ">
                     <div className="flex justify-center">
                       <img
-                        src="/images/orderNotFound.png"
+                        src="/images/orderNotFound.webp"
                         className="!w-[34%]"
                         alt="ord_not_found"
                       />
@@ -430,7 +436,7 @@ export default function OrderTacker() {
                       <Button
                         onClick={() => {
                           setSubmitted(false);
-                          setOrderData()
+                          setOrderData();
                         }}
                         variant="outlined"
                         startIcon={<CompareArrowsIcon className="!w-[18px]" />}

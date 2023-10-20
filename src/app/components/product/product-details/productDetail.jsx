@@ -2133,7 +2133,7 @@ export default function ProductDetails() {
 "
                                   >
                                     <img
-                                      src="/images/sale-2.png"
+                                      src="/images/sale-2.webp"
                                       alt="ffer_label"
                                       width={65}
                                       className="drop-shadow-lg"

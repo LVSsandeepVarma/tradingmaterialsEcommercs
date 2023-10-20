@@ -87,7 +87,7 @@ export default function Checkout() {
   const [subTotal, setSubTotal] = useState(0);
 
   const { id } = useParams();
-  const orderId = localStorage.getItem("order_id")
+  const orderId = localStorage.getItem("order_id");
   const { encryptedrderId } = useParams();
   const decryptedId = CryptoJS.AES.decrypt(
     id.replace(/_/g, "/").replace(/-/g, "+"),
@@ -95,7 +95,7 @@ export default function Checkout() {
   ).toString(CryptoJS.enc.Utf8);
   console.log(decryptedId);
 
-  console.log(cartProducts,id, "gggggggg");
+  console.log(cartProducts, id, "gggggggg");
 
   useEffect(() => {
     if (userData?.client?.payment_types?.length > 0) {
@@ -245,9 +245,8 @@ export default function Checkout() {
   // }, [allProducts, quantities]);
 
   const handleCvvChange = (e) => {
+    const addCvv = e.target.value.replace(/[^0-9]/g, "");
 
-    const addCvv = e.target.value.replace(/[^0-9]/g, '');
-    
     setCVV(addCvv);
     console.log(addCvv.match(/^[0-9]+$/), addCvv);
     if (addCvv == "") {
@@ -265,7 +264,7 @@ export default function Checkout() {
   };
 
   const handleNameChage = (e) => {
-    e.target.value = e.target.value.replace(/[^A-Za-z ]/g, '')
+    e.target.value = e.target.value.replace(/[^A-Za-z ]/g, "");
     const addName = e.target.value;
     setNameOnCard(addName);
     if (addName?.length == 0) {
@@ -302,28 +301,40 @@ export default function Checkout() {
     // Implement your expiry date validation logic here
     // For example, you can check if the expiry date is in the future and in the valid format
     // Return true if the expiry date is valid, otherwise false
-    
-    if(!value.match(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/)){
-      return false
-    }else{
 
-      const year = value.split("/")[1]
-      const month = value.split("/")[0]
-      const currentYear = moment().year().toString()
-      const currentMonth =new Date().getMonth()
-      console.log(parseInt(currentYear.slice(2, 4)) >= parseInt(year),parseInt(currentYear.slice(2, 4)) , parseInt(year), "yeeeer")
-      console.log(parseInt(currentMonth)+1 >= parseInt(month),parseInt(currentMonth)+1 , parseInt(month), "curMon",parseInt(currentYear.slice(2, 4))== parseInt(year))
-      if(parseInt(currentYear.slice(2, 4)) > parseInt(year) ){
-        return false
+    if (!value.match(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/)) {
+      return false;
+    } else {
+      const year = value.split("/")[1];
+      const month = value.split("/")[0];
+      const currentYear = moment().year().toString();
+      const currentMonth = new Date().getMonth();
+      console.log(
+        parseInt(currentYear.slice(2, 4)) >= parseInt(year),
+        parseInt(currentYear.slice(2, 4)),
+        parseInt(year),
+        "yeeeer"
+      );
+      console.log(
+        parseInt(currentMonth) + 1 >= parseInt(month),
+        parseInt(currentMonth) + 1,
+        parseInt(month),
+        "curMon",
+        parseInt(currentYear.slice(2, 4)) == parseInt(year)
+      );
+      if (parseInt(currentYear.slice(2, 4)) > parseInt(year)) {
+        return false;
+      } else if (
+        parseInt(currentYear.slice(2, 4)) == parseInt(year) &&
+        parseInt(currentMonth) + 1 > parseInt(month)
+      ) {
+        return false;
       }
-      else if(parseInt(currentYear.slice(2, 4)) == parseInt(year) && parseInt(currentMonth)+1 > parseInt(month) ){
-        return false
+
+      if (value?.length <= 1) {
+        return false;
       }
-      
-      if(value?.length <= 1){
-        return false
-      }
-      return true
+      return true;
     }
   };
 
@@ -362,7 +373,6 @@ export default function Checkout() {
   const handleExpiryChange = (event) => {
     const formattedValue = formatExpiry(event.target.value);
     if (validateExpiry(formattedValue)) {
-      
       setExpiryError("");
     } else {
       if (formattedValue == "/" || formattedValue == "") {
@@ -509,7 +519,7 @@ export default function Checkout() {
       currency: "INR",
       name: "Trading Materials",
       description: "Booking Request amount for Trading Materials",
-      image: `https://tradingmaterials.com/images/tm-logo-1.png`,
+      image: `https://tradingmaterials.com/images/tm-logo-1.webp`,
       order_id: res?.order_id,
       handler: handleBookingPaymentResponse,
       prefill: {
@@ -622,7 +632,7 @@ export default function Checkout() {
 
         if (response?.data?.status) {
           console.log(response, "response");
-          localStorage.setItem("orderID",decryptedId)
+          localStorage.setItem("orderID", decryptedId);
           // console.log(response?.data);
           localStorage.setItem("id", encryptedrderId);
           window.location.href = response?.data?.redirect_url;
@@ -631,17 +641,17 @@ export default function Checkout() {
       } catch (err) {
         console.log(err);
         if (err?.response?.data?.errors) {
-
           setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
-          if(err?.response?.data?.message?.includes("unknown")){
-            setApiError(["Payment unsuccessful. Kindly consider an alternative Indian card for your transaction."])
-          }else{
-          setApiError([err?.response?.data?.message]);
+          if (err?.response?.data?.message?.includes("unknown")) {
+            setApiError([
+              "Payment unsuccessful. Kindly consider an alternative Indian card for your transaction.",
+            ]);
+          } else {
+            setApiError([err?.response?.data?.message]);
           }
-         
         }
-      }finally{
+      } finally {
         dispatch(hideLoader());
       }
     }
@@ -840,7 +850,6 @@ export default function Checkout() {
                             </li>
                           </ul>
                         </div>
-
                       )}
                       <Divider className="mt-2 mb-2" />
                       <h4 className="mb-3 !font-bold">Billing Address</h4>
@@ -970,7 +979,7 @@ export default function Checkout() {
                                 label="Online Secure Payment [Cards]"
                               />
                               <img
-                                src="/images/vma.png"
+                                src="/images/vma.webp"
                                 style={{ objectFit: "contain", width: "25%" }}
                               />
                             </div>
@@ -1011,7 +1020,7 @@ export default function Checkout() {
                                 label="Cash On Delivery"
                               />
                               <img
-                                src="/images/cash-on-delivery-tm.png"
+                                src="/images/cash-on-delivery-tm.webp"
                                 width={"5%"}
                                 alt="cod"
                               />
@@ -1082,7 +1091,11 @@ export default function Checkout() {
                                 />
 
                                 <img
-                                  src={payment?.name=="Stripe" ? `/images/stripe.png` : payment?.image}
+                                  src={
+                                    payment?.name == "Stripe"
+                                      ? `/images/stripe.webp`
+                                      : payment?.image
+                                  }
                                   className="ml-2"
                                   width={"12%"}
                                   alt={`${paymentType?.name}`}
@@ -1094,144 +1107,154 @@ export default function Checkout() {
                             {activePaymentMethod == "Stripe" ? (
                               <>
                                 <Divider className="mt-2" />
-                                {payment?.name == "Stripe" &&  <Form onSubmit={handleSubmit}>
-                                  <Form.Group>
-                                    <label className="font-bold !text-sm mt-3 m-0">
-                                      Card Number
-                                      <sup className="text-red-600 !font-bold">
-                                        *
-                                      </sup>
-                                    </label>
-                                    <div className="relative m-0">
-                                      <input
-                                        maxLength={19}
-                                        type="text"
-                                        className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                        placeholder="Enter card number"
-                                        value={cardNumber}
-                                        onChange={handleCardNumberChange}
-                                        required
-                                        // onInvalid={
-                                        //   !validateCardNumber(cardNumber)
-                                        // }
-                                      />
-                                      <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                        <FaCreditCard size={15} color="gray" />
-                                      </div>
-                                    </div>
-                                    {cardNumberError ? (
-                                      <p className="nk-message-error !text-xs !m-0 !p-0 !text-left">
-                                        {cardNumberError}
-                                      </p>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </Form.Group>
-                                  <Form.Group>
-                                    <label className="font-bold !text-sm mt-3 m-0 ">
-                                      Expiry date
-                                      <sup className="text-red-600 !font-bold">
-                                        *
-                                      </sup>
-                                    </label>
-                                    <div className="relative">
-                                      <input
-                                        type="text"
-                                        className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                        placeholder="MM/YY"
-                                        value={expiry}
-                                        onChange={handleExpiryChange}
-                                        required
-                                        maxLength={5}
-                                        // onInvalid={!validateExpiry(expiry)}
-                                      />
-                                      <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                        <FaCalendarAlt size={15} color="gray" />
-                                      </div>
-                                    </div>
-                                    {expiryError ? (
-                                      <p className="nk-message-error !text-left !text-xs !m-0 !p-0">
-                                        {expiryError}
-                                      </p>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </Form.Group>
-                                  <Form.Group>
-                                    <label className="font-bold !text-sm mt-3 m-0">
-                                      CVV
-                                      <sup className="text-red-600 !font-bold">
-                                        *
-                                      </sup>
-                                    </label>
-                                    <div className="relative">
-                                      <input
-                                        type="password"
-                                        className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                        placeholder="Enter CVV"
-                                        value={cvv}
-                                        onChange={handleCvvChange}
-                                        required
-                                        maxLength={3}
-                                        // onInvalid={!validateCVV(cvv)}
-                                      />
-                                      <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                        <FaLock size={15} color="gray" />
-                                      </div>
-                                    </div>
-                                    {cvvError ? (
-                                      <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
-                                        {cvvError}
-                                      </p>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </Form.Group>
-                                  <Form.Group>
-                                    <label className="font-bold !text-sm mt-3 m-0">
-                                      Name on the card
-                                      <sup className="text-red-600 !font-bold">
-                                        *
-                                      </sup>
-                                    </label>
-                                    <div className="relative">
-                                      <input
-                                        className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                        type="text"
-                                        placeholder="Enter account holder name"
-                                        value={nameOnCard}
-                                        onChange={handleNameChage}
-                                        // isInvalid={nameOnCard && !validateName(name)}
-                                      />
-                                      <div
-                                        className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400"
-                                        style={{
-                                          background: "#f3f3f3",
-                                          right: "7px",
-                                          paddingTop: "2px",
-                                          paddingRight: "2px",
-                                          top: "15px",
-                                        }}
-                                      >
-                                        <MdOutlineAccountCircle
-                                          size={20}
-                                          color="gray"
+                                {payment?.name == "Stripe" && (
+                                  <Form onSubmit={handleSubmit}>
+                                    <Form.Group>
+                                      <label className="font-bold !text-sm mt-3 m-0">
+                                        Card Number
+                                        <sup className="text-red-600 !font-bold">
+                                          *
+                                        </sup>
+                                      </label>
+                                      <div className="relative m-0">
+                                        <input
+                                          maxLength={19}
+                                          type="text"
+                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                          placeholder="Enter card number"
+                                          value={cardNumber}
+                                          onChange={handleCardNumberChange}
+                                          required
+                                          // onInvalid={
+                                          //   !validateCardNumber(cardNumber)
+                                          // }
                                         />
+                                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                          <FaCreditCard
+                                            size={15}
+                                            color="gray"
+                                          />
+                                        </div>
                                       </div>
-                                    </div>
-                                    {nameErr ? (
-                                      <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
-                                        {nameErr}
-                                      </p>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </Form.Group>
-                                </Form>}
+                                      {cardNumberError ? (
+                                        <p className="nk-message-error !text-xs !m-0 !p-0 !text-left">
+                                          {cardNumberError}
+                                        </p>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </Form.Group>
+                                    <Form.Group>
+                                      <label className="font-bold !text-sm mt-3 m-0 ">
+                                        Expiry date
+                                        <sup className="text-red-600 !font-bold">
+                                          *
+                                        </sup>
+                                      </label>
+                                      <div className="relative">
+                                        <input
+                                          type="text"
+                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                          placeholder="MM/YY"
+                                          value={expiry}
+                                          onChange={handleExpiryChange}
+                                          required
+                                          maxLength={5}
+                                          // onInvalid={!validateExpiry(expiry)}
+                                        />
+                                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                          <FaCalendarAlt
+                                            size={15}
+                                            color="gray"
+                                          />
+                                        </div>
+                                      </div>
+                                      {expiryError ? (
+                                        <p className="nk-message-error !text-left !text-xs !m-0 !p-0">
+                                          {expiryError}
+                                        </p>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </Form.Group>
+                                    <Form.Group>
+                                      <label className="font-bold !text-sm mt-3 m-0">
+                                        CVV
+                                        <sup className="text-red-600 !font-bold">
+                                          *
+                                        </sup>
+                                      </label>
+                                      <div className="relative">
+                                        <input
+                                          type="password"
+                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                          placeholder="Enter CVV"
+                                          value={cvv}
+                                          onChange={handleCvvChange}
+                                          required
+                                          maxLength={3}
+                                          // onInvalid={!validateCVV(cvv)}
+                                        />
+                                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                          <FaLock size={15} color="gray" />
+                                        </div>
+                                      </div>
+                                      {cvvError ? (
+                                        <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
+                                          {cvvError}
+                                        </p>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </Form.Group>
+                                    <Form.Group>
+                                      <label className="font-bold !text-sm mt-3 m-0">
+                                        Name on the card
+                                        <sup className="text-red-600 !font-bold">
+                                          *
+                                        </sup>
+                                      </label>
+                                      <div className="relative">
+                                        <input
+                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                          type="text"
+                                          placeholder="Enter account holder name"
+                                          value={nameOnCard}
+                                          onChange={handleNameChage}
+                                          // isInvalid={nameOnCard && !validateName(name)}
+                                        />
+                                        <div
+                                          className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400"
+                                          style={{
+                                            background: "#f3f3f3",
+                                            right: "7px",
+                                            paddingTop: "2px",
+                                            paddingRight: "2px",
+                                            top: "15px",
+                                          }}
+                                        >
+                                          <MdOutlineAccountCircle
+                                            size={20}
+                                            color="gray"
+                                          />
+                                        </div>
+                                      </div>
+                                      {nameErr ? (
+                                        <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
+                                          {nameErr}
+                                        </p>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </Form.Group>
+                                  </Form>
+                                )}
                               </>
                             ) : (
                               <Typography className="!text-xs">
-                               After clicking “Pay now”, you will be redirected to Razorpay Secure (UPI, Cards, Wallets, NetBanking) to complete your purchase securely.
+                                After clicking “Pay now”, you will be redirected
+                                to Razorpay Secure (UPI, Cards, Wallets,
+                                NetBanking) to complete your purchase securely.
                               </Typography>
                             )}
                           </AccordionDetails>
@@ -1356,7 +1379,7 @@ export default function Checkout() {
                             )}
                             {paymentType?.name !== "Razor_Pay" && (
                               <img
-                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/stripe.png`}
+                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/stripe.webp`}
                                 className="ml-2"
                                 alt={`${paymentType?.name}`}
                               />
@@ -1657,14 +1680,14 @@ export default function Checkout() {
                       <div className="flex  w-full mt-3">
                         <img
                           className="flex justify-start"
-                          src="/images/paymentMethods.jpg"
+                          src="/images/paymentMethods.webp"
                           alt="payment methods"
                           style={{ width: "45%" }}
                         ></img>
                         <div className="w-full flex justify-end">
                           <img
                             className=" "
-                            src="/images/stripe.png"
+                            src="/images/stripe.webp"
                             width={"22%"}
                           ></img>
                         </div>

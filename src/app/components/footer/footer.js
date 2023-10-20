@@ -18,7 +18,7 @@ export default function Footer() {
                           <div className="logo-wrap ">
                             <img
                               className="logo-img"
-                              src="/images/footer-logo.png"
+                              src="/images/footer-logo.webp"
                               alt="footer-logo"
                             />
                           </div>
@@ -37,7 +37,11 @@ export default function Footer() {
                     <ul className="nk-footer-social">
                       <li>
                         {/* // eslint-disable-next-line react/jsx-no-target-blank */}
-                        <a rel="noreferrer" href="https://www.facebook.com/people/Trading-Material-Shipping-Service/61551868807687/" target="_blank">
+                        <a
+                          rel="noreferrer"
+                          href="https://www.facebook.com/people/Trading-Material-Shipping-Service/61551868807687/"
+                          target="_blank"
+                        >
                           <em className="icon ni ni-facebook-f"></em>
                         </a>
                       </li>
@@ -62,9 +66,10 @@ export default function Footer() {
 
                 <div className="col-md-12 col-lg-2 col-xxl-2 ">
                   <div className="nk-footer-info text-start">
-                    <h5 className="title !text-start !font-bold !mb-[2px]">Pages</h5>
+                    <h5 className="title !text-start !font-bold !mb-[2px]">
+                      Pages
+                    </h5>
                     <ul className="row gy-1 gy-sm-4">
-                      
                       {/* <li className="col-12"><a href="pricing.php">Pricing </a></li> */}
                       <li className="col-12 !mt-[2.25rem] cursor-pointer">
                         <a href="/">Trading Materials</a>
@@ -121,16 +126,15 @@ export default function Footer() {
                           className="!text-center nk-footer-text d-flex align-items-center gap-1"
                         >
                           <em className="icon ni ni-call-alt-fill text-primary"></em>
-                          <span className="text-lowercase">
-                            {" "}
-                            080-68493342{" "}
-                          </span>
+                          <span className="text-lowercase"> 080-68493342 </span>
                         </a>
                       </li>
                       <li className="col-12 !text-start">
                         <em className="icon ni ni-map-pin-fill text-primary"></em>
                         <span className="capitalize">
-                        35-48, 7th Main, Sanchar Nagar MCECHS Layout, Ashwath Nagar, HBR Layout, Bengaluru, Geddalahalli, Karnataka 560045
+                          35-48, 7th Main, Sanchar Nagar MCECHS Layout, Ashwath
+                          Nagar, HBR Layout, Bengaluru, Geddalahalli, Karnataka
+                          560045
                         </span>
                       </li>
                     </ul>
@@ -150,7 +154,7 @@ export default function Footer() {
                       <div className="nk-footer-logo md:flex md:justify-center lg:justify-start mb-5 mb-md-0">
                         <img
                           className="logo-img"
-                          src="/images/partner-logos.png"
+                          src="/images/partner-logos.webp"
                           alt="partner-logos"
                         />
                       </div>
@@ -167,7 +171,7 @@ export default function Footer() {
                       <div className="nk-footer-logo mb-5 mb-md-0">
                         <img
                           className="logo-img"
-                          src="/images/card-logo.png"
+                          src="/images/card-logo.webp"
                           alt="card-logo"
                         />
                       </div>
@@ -194,24 +198,36 @@ export default function Footer() {
                   </p>
                 </div>
                 <div className="col-lg-6 col-md-12 col-sm-12">
-                  <ul  className="  nk-footer-copyright justify-content-center items-start sm:items-center justify-content-lg-end !mt-2 sm:!mt-0">
+                  <ul className="  nk-footer-copyright justify-content-center items-start sm:items-center justify-content-lg-end !mt-2 sm:!mt-0">
                     <li>
-                      <a className=" !text-sm md:!text-[1rem] nk-footer-text w-50% sm:w-auto" href={`/terms-and-conditions`}>
+                      <a
+                        className=" !text-sm md:!text-[1rem] nk-footer-text w-50% sm:w-auto"
+                        href={`/terms-and-conditions`}
+                      >
                         Terms & conditions
                       </a>
                     </li>
                     <li>
-                      <a className="nk-footer-text !text-sm md:!text-[1rem]" href={`/privacy-policy`}>
+                      <a
+                        className="nk-footer-text !text-sm md:!text-[1rem]"
+                        href={`/privacy-policy`}
+                      >
                         Privacy Policy
                       </a>
                     </li>
                     <li>
-                      <a className="nk-footer-text !text-sm md:!text-[1rem]" href={`/refund-policy`}>
+                      <a
+                        className="nk-footer-text !text-sm md:!text-[1rem]"
+                        href={`/refund-policy`}
+                      >
                         Cancellation & Refund&nbsp;&nbsp;Policy
                       </a>
                     </li>
                     <li>
-                      <a className="nk-footer-text !text-sm md:!text-[1rem]" href={`/shipping-policy`}>
+                      <a
+                        className="nk-footer-text !text-sm md:!text-[1rem]"
+                        href={`/shipping-policy`}
+                      >
                         Shipping Policy
                       </a>
                     </li>

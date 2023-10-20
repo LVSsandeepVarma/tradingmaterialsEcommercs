@@ -29,11 +29,17 @@ export default function LinkExpired() {
                 <div className="flex w-full justify-content-center">
                   <div className="col-xl-7">
                     <div className="nk-section-head text-center pb-[20px] flex justify-center">
-                      <img src="/images/linkExpired.png" width={"50%"} alt="trading_materials"></img>
+                      <img
+                        src="/images/linkExpired.webp"
+                        width={"50%"}
+                        alt="trading_materials"
+                      ></img>
                     </div>
                   </div>
                 </div>
-                <h1 className="capitalize text-2xl !font-bold text-center !text-slate-400">Link Expired!</h1>
+                <h1 className="capitalize text-2xl !font-bold text-center !text-slate-400">
+                  Link Expired!
+                </h1>
               </div>
             </section>
             <section className="nk-section nk-cta-section nk-section-content-1">

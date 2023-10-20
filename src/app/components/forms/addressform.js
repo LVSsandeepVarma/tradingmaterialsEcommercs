@@ -62,20 +62,27 @@ const AddressForm = ({ type, data, closeModal }) => {
         const countryNames = data.map((country) => country.name.common);
         countryNames.sort();
         setCountryArray(countryNames);
+
       })
       .catch((error) => {
         console.error("Error fetching country data:", error);
       });
+    if (type != "add") {
+      console.log("country", data?.country)
+      setCountryInput(data?.country);
+    }
   }, []);
 
   useEffect(() => {
     
-      let countryFilteredArr = countryArray?.filter((country) =>
+    let countryFilteredArr = countryArray?.filter((country) =>
+        
         country?.toLowerCase()?.startsWith(countryInput?.toLowerCase())
       );
-      setCountries(countryFilteredArr);
+    setCountries(countryFilteredArr);
+    console.log("country", countryFilteredArr, countryInput, countryArray);
     
-  }, [countryInput]);
+  }, [countryInput, countryArray]);
 
   const handleSubmit = async (values, { setFieldError }) => {
     // setIsSuccess(false);

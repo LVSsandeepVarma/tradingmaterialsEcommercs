@@ -37,7 +37,7 @@ const SignupCartModal = ({ show, onHide }) => {
   const [emailVerificationStatus, setEmailVerificationStatus] = useState(false);
   const [emailVerifyLoader, setEmailVerifyLoader] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [submitted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false);
 
   const loginStatus = useSelector((state) => state?.login?.value);
   console.log(loginStatus, window.location.host, window.location.hostname);
@@ -168,9 +168,8 @@ const SignupCartModal = ({ show, onHide }) => {
   }
 
   function handlePhoneChange(e) {
-    
     if (!emailVerificationStatus) {
-      e.target.value = e.target.value.replace(/[^0-9]/g, '')
+      e.target.value = e.target.value.replace(/[^0-9]/g, "");
       setPhone(e?.target?.value);
       phoneValidation(e?.target?.value);
     } else {
@@ -204,8 +203,8 @@ const SignupCartModal = ({ show, onHide }) => {
       );
       if (response?.data?.status) {
         setEmailVerificationStatus(false);
-        if(phone != ""){
-          phoneValidation(phone)
+        if (phone != "") {
+          phoneValidation(phone);
         }
         console.log(response?.data);
       }
@@ -216,8 +215,8 @@ const SignupCartModal = ({ show, onHide }) => {
         "The email has already been taken."
       ) {
         setEmailVerificationStatus(true);
-        if(phone !=""){
-          passwordValidation(phone)
+        if (phone != "") {
+          passwordValidation(phone);
         }
       }
     } finally {
@@ -258,10 +257,10 @@ const SignupCartModal = ({ show, onHide }) => {
       ) {
         try {
           setLocalLoader(true);
-          setSubmitted(true)
-          setTimeout(()=>{
-            setSubmitted(false)
-          },1500)
+          setSubmitted(true);
+          setTimeout(() => {
+            setSubmitted(false);
+          }, 1500);
 
           const response = await axios.post(
             "https://admin.tradingmaterials.com/api/auth/login",
@@ -364,10 +363,10 @@ const SignupCartModal = ({ show, onHide }) => {
       ) {
         try {
           setLocalLoader(true);
-          setSubmitted(true)
-          setTimeout(()=>{
-            setSubmitted(false)
-          },1500)
+          setSubmitted(true);
+          setTimeout(() => {
+            setSubmitted(false);
+          }, 1500);
           const response = await axios.post(
             "https://admin.tradingmaterials.com/api/client/store",
             {
@@ -485,7 +484,10 @@ const SignupCartModal = ({ show, onHide }) => {
                 {/* <p className="!text-blue-600 drop-shadow-xl">TOTAL</p> */}
               </div>
               <Divider />
-              <div className="grid gap-3 p-2 !pr-0 drop-shadow-lg" style={{gridTemplateColumns: "1fr 2fr"}}>
+              <div
+                className="grid gap-3 p-2 !pr-0 drop-shadow-lg"
+                style={{ gridTemplateColumns: "1fr 2fr" }}
+              >
                 <div className="">
                   <img src={cartData?.img_1} alt="product" />
                 </div>
@@ -502,38 +504,40 @@ const SignupCartModal = ({ show, onHide }) => {
                     {cartData?.name}
                   </p>
                   <div className="flex justify-between">
-                  <p>
-                    <label className="pr-1">Rs. </label>
-                    {cartData?.prices[0]?.INR}
-                  </p>
-                  {/* <p className="!text-blue-600">Total</p> */}
+                    <p>
+                      <label className="pr-1">Rs. </label>
+                      {cartData?.prices[0]?.INR}
+                    </p>
+                    {/* <p className="!text-blue-600">Total</p> */}
                   </div>
-                 <div className="flex justify-between">
-                 <div id="counter" className="nk-counter">
-                    <button
-                      onClick={() => {
-                        if (productQty >= 2) {
-                          setProductQty(parseInt(productQty) - 1);
-                        }
-                      }}
-                    >
-                      -
-                    </button>
-                    <span id="count">{productQty}</span>
-                    <button
-                      onClick={() => {
-                        setProductQty(parseInt(productQty) + 1);
-                      }}
-                    >
-                      +
-                    </button>
+                  <div className="flex justify-between">
+                    <div id="counter" className="nk-counter">
+                      <button
+                        onClick={() => {
+                          if (productQty >= 2) {
+                            setProductQty(parseInt(productQty) - 1);
+                          }
+                        }}
+                      >
+                        -
+                      </button>
+                      <span id="count">{productQty}</span>
+                      <button
+                        onClick={() => {
+                          setProductQty(parseInt(productQty) + 1);
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <div>
+                      <p className="text-right !text-blue-600 font-semibold flex gap-1 flex-wrap justify-end ">
+                        <p className="!text-blue-600 ">Total:</p> Rs.{" "}
+                        {parseInt(cartData?.prices[0]?.INR) *
+                          parseInt(productQty)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                  <p className="text-right !text-blue-600 font-semibold flex gap-1 flex-wrap justify-end ">
-                  <p className="!text-blue-600 ">Total:</p> Rs. {parseInt(cartData?.prices[0]?.INR) * parseInt(productQty)}
-                  </p>
-                </div>
-                 </div>
                 </div>
                 {/* <div>
                   <p className="text-right !text-blue-600">
@@ -548,7 +552,7 @@ const SignupCartModal = ({ show, onHide }) => {
               <div className="step"></div>
             </div> */}
 
-            <div className="card-body !text-left p-5 pb-0 drop-shadow-lg" >
+            <div className="card-body !text-left p-5 pb-0 drop-shadow-lg">
               <p
                 className={`text-left ${
                   !emailVerificationStatus ? "mb-2 " : ""
@@ -737,8 +741,8 @@ const SignupCartModal = ({ show, onHide }) => {
               >
                 <img
                   className="logo-img cursor-pointer"
-                  onClick={()=>window.location.href="/"}
-                  src="/images/tm-logo-1.png"
+                  onClick={() => (window.location.href = "/")}
+                  src="/images/tm-logo-1.webp"
                   alt="logo"
                   style={{ width: "35%" }}
                 />
@@ -746,7 +750,7 @@ const SignupCartModal = ({ show, onHide }) => {
             </div>
             <div className="flex justify-center w-full items-center my-2 pl-[8px] drop-shadow-lg">
               <img
-                src="/images/paymentMethods.jpg"
+                src="/images/paymentMethods.webp"
                 alt="payment_methods"
                 style={{ width: "50%" }}
               />
@@ -770,7 +774,7 @@ const SignupCartModal = ({ show, onHide }) => {
                 </small>
                 <div
                   className={`ml-2 w-full buttonss-off cursor-pointer drop-shadow-lg`}
-                  aria-disabled = {submitted}
+                  aria-disabled={submitted}
                   onClick={() => {
                     if (emailVerificationStatus) {
                       handleLoginFormSubmission();

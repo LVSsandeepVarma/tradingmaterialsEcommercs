@@ -37,7 +37,7 @@ export default function Otp() {
       } catch (err) {
         console.log("err", err);
         dispatch(hideLoader());
-        navigate("/expired")
+        navigate("/expired");
         // setVerifiedHash(false)
       }
       dispatch(hideLoader());
@@ -50,10 +50,8 @@ export default function Otp() {
     console.log("lang", lang, userLang);
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-
     } else {
       dispatch(userLanguage(""));
-
     }
   }, []);
 
@@ -64,7 +62,6 @@ export default function Otp() {
       setotpError("");
     }
   }
-
 
   async function handleFormSubmission() {
     setApiError([]);
@@ -127,7 +124,7 @@ export default function Otp() {
                       <a href={`/`}>
                         <img
                           className="logo-img content-center"
-                          src="/images/tm-logo-1.png"
+                          src="/images/tm-logo-1.webp"
                           alt="logo"
                         />
                       </a>
@@ -194,7 +191,7 @@ export default function Otp() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
-                                key={ind}
+                                  key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"
@@ -249,7 +246,7 @@ export default function Otp() {
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
-                          <img src="/images/avatar/a.jpg" alt="avatar" />
+                          <img src="/images/avatar/a.webp" alt="avatar" />
                         </div>
                         <div className="media-text">
                           <div className="h5 mb-0 !font-bold">Founder</div>

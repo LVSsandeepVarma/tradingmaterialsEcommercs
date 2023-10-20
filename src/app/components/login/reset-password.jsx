@@ -41,13 +41,11 @@ export default function NewPassword() {
   useEffect(() => {
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
-    
+
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-      
     } else {
       dispatch(userLanguage(""));
-     
     }
   }, []);
 
@@ -56,8 +54,8 @@ export default function NewPassword() {
     //   /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (confirmPassword?.length === 0) {
       setconfirmPasswordError("Confirm Password is required");
-    }else if (confirmPassword?.length <8 || confirmPassword?.length> 15 ) {
-      setconfirmPasswordError("Password does not match")
+    } else if (confirmPassword?.length < 8 || confirmPassword?.length > 15) {
+      setconfirmPasswordError("Password does not match");
     } else if (confirmPassword !== password) {
       setconfirmPasswordError("Password does not match");
     } else {
@@ -66,70 +64,71 @@ export default function NewPassword() {
   }
 
   function passwordValidation(password) {
-    console.log(password?.length, passwordError)
+    console.log(password?.length, passwordError);
     // const passwordRegex = /^(?=.*[A-Za-z0-9])(?=.*[^A-Za-z0-9]).+$/
     const hasAlpha = /[A-Za-z]/;
     const hasNumaricals = /\d/;
-    const hasSpecialCharecters = /[^A-Za-z0-9]/
-    console.log(hasAlpha.test(password),hasNumaricals.test(password),hasSpecialCharecters.test(password),"tessst")
+    const hasSpecialCharecters = /[^A-Za-z0-9]/;
+    console.log(
+      hasAlpha.test(password),
+      hasNumaricals.test(password),
+      hasSpecialCharecters.test(password),
+      "tessst"
+    );
     if (password?.length === 0) {
       setPasswordError("Password is required");
-    } else if ((password?.length <= 7 ) || password?.length >15) {
-
+    } else if (password?.length <= 7 || password?.length > 15) {
       setPasswordError("Password should contain 8 - 15 characters only");
-      if(confirmPassword != "" && confirmPassword !== password){
+      if (confirmPassword != "" && confirmPassword !== password) {
         // console.log(password, confirmPassword, "confm")
         setconfirmPasswordError("Password does not match");
       }
-    }
-     else if (password?.length >=8 && password?.length<= 15 ) {
-
-      if(!hasAlpha.test(password)){
-        setPasswordError("Atleast one alphabet is required ")
-        console.log("tessst")
-        if(confirmPassword != "" && confirmPassword !== password){
+    } else if (password?.length >= 8 && password?.length <= 15) {
+      if (!hasAlpha.test(password)) {
+        setPasswordError("Atleast one alphabet is required ");
+        console.log("tessst");
+        if (confirmPassword != "" && confirmPassword !== password) {
           // console.log(password, confirmPassword, "confm")
           setconfirmPasswordError("Password does not match");
-          
-        }if (confirmPassword != "" && confirmPassword == password){
-          setconfirmPasswordError("")
         }
-        return
-      }else if(!hasNumaricals.test(password)){
-        setPasswordError("Atleast one number is required")
-        console.log("tessst")
-        if(confirmPassword != "" && confirmPassword !== password){
+        if (confirmPassword != "" && confirmPassword == password) {
+          setconfirmPasswordError("");
+        }
+        return;
+      } else if (!hasNumaricals.test(password)) {
+        setPasswordError("Atleast one number is required");
+        console.log("tessst");
+        if (confirmPassword != "" && confirmPassword !== password) {
           // console.log(password, confirmPassword, "confm")
           setconfirmPasswordError("Password does not match");
-          
-        }if (confirmPassword != "" && confirmPassword == password){
-          setconfirmPasswordError("")
         }
-        return
-      }else if(!hasSpecialCharecters.test(password)){
-        setPasswordError("Atleast one special character is required")
-        console.log("tessst")
-        if(confirmPassword != "" && confirmPassword !== password){
+        if (confirmPassword != "" && confirmPassword == password) {
+          setconfirmPasswordError("");
+        }
+        return;
+      } else if (!hasSpecialCharecters.test(password)) {
+        setPasswordError("Atleast one special character is required");
+        console.log("tessst");
+        if (confirmPassword != "" && confirmPassword !== password) {
           // console.log(password, confirmPassword, "confm")
           setconfirmPasswordError("Password does not match");
-          
-        }if (confirmPassword != "" && confirmPassword == password){
-          setconfirmPasswordError("")
         }
-        return
+        if (confirmPassword != "" && confirmPassword == password) {
+          setconfirmPasswordError("");
+        }
+        return;
       }
 
-      if(confirmPassword != "" && confirmPassword !== password){
+      if (confirmPassword != "" && confirmPassword !== password) {
         // console.log(password, confirmPassword, "confm")
         setconfirmPasswordError("Password does not match");
-        
-      }if (confirmPassword != "" && confirmPassword == password){
-        setconfirmPasswordError("")
       }
-      setPasswordError("")
-      
-    }else if (confirmPassword != "" && confirmPassword == password){
-      setconfirmPasswordError("")
+      if (confirmPassword != "" && confirmPassword == password) {
+        setconfirmPasswordError("");
+      }
+      setPasswordError("");
+    } else if (confirmPassword != "" && confirmPassword == password) {
+      setconfirmPasswordError("");
     } else {
       setPasswordError("");
     }
@@ -157,47 +156,47 @@ export default function NewPassword() {
       confirmPassword !== "" &&
       password !== ""
     ) {
-    try {
-      dispatch(showLoader());
-      const url = location.hash;
-      console.log(url);
-      const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/lead/reset/password",
-        {
-          confirm_password: confirmPassword,
-          password: password,
-          hash: localStorage.getItem("passHash"),
+      try {
+        dispatch(showLoader());
+        const url = location.hash;
+        console.log(url);
+        const response = await axios.post(
+          "https://admin.tradingmaterials.com/api/lead/reset/password",
+          {
+            confirm_password: confirmPassword,
+            password: password,
+            hash: localStorage.getItem("passHash"),
+          }
+        );
+        if (response?.data?.status) {
+          localStorage.removeItem("passHash");
+          setLoginsuccessMsg(response?.data?.message);
+
+          setTimeout(() => {
+            navigate(`/?login`);
+          }, 2000);
+
+          //   }, 3600000);
+        } else {
+          console.log(response?.data);
+          setApiError([...Object?.values(response?.data?.errors)]);
         }
-      );
-      if (response?.data?.status) {
-        localStorage.removeItem("passHash");
-        setLoginsuccessMsg(response?.data?.message);
-
-        setTimeout(() => {
-          navigate(`/?login`);
-        }, 2000);
-
-        //   }, 3600000);
-      } else {
-        console.log(response?.data);
-        setApiError([...Object?.values(response?.data?.errors)]);
+      } catch (err) {
+        console.log("err", err);
+        if (err?.response?.data?.errors) {
+          console.log(err?.response?.data?.errors);
+          setPasswordError([
+            ...Object?.values(err?.response?.data?.errors["password"]),
+          ]);
+          setconfirmPasswordError([
+            ...Object?.values(err?.response?.data?.errors["confirm_password"]),
+          ]);
+        } else {
+          setApiError([err?.response?.data?.message]);
+        }
+      } finally {
+        dispatch(hideLoader());
       }
-    } catch (err) {
-      console.log("err", err);
-      if (err?.response?.data?.errors) {
-        console.log(err?.response?.data?.errors);
-        setPasswordError([
-          ...Object?.values(err?.response?.data?.errors["password"]),
-        ]);
-        setconfirmPasswordError([
-          ...Object?.values(err?.response?.data?.errors["confirm_password"]),
-        ]);
-      } else {
-        setApiError([err?.response?.data?.message]);
-      }
-    } finally {
-      dispatch(hideLoader());
-    }
     }
   }
 
@@ -228,7 +227,7 @@ export default function NewPassword() {
                       >
                         <img
                           className="logo-img justify-center"
-                          src="/images/tm-logo-1.png"
+                          src="/images/tm-logo-1.webp"
                           alt="logo"
                         />
                       </a>
@@ -244,9 +243,10 @@ export default function NewPassword() {
                     <div className="row gy-4 !text-left">
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">New Password<sup className="text-red-600 !font-bold">
-                                    *
-                                  </sup></label>
+                          <label className="form-label">
+                            New Password
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <a
                               // href="show-hide-password.html"
@@ -282,9 +282,8 @@ export default function NewPassword() {
                       <div className="col-12">
                         <div className="form-group">
                           <label className="form-label ">
-                            Confirm Password<sup className="text-red-600 !font-bold">
-                                    *
-                                  </sup>
+                            Confirm Password
+                            <sup className="text-red-600 !font-bold">*</sup>
                           </label>
                           <div className="form-control-wrap">
                             <a
@@ -313,9 +312,9 @@ export default function NewPassword() {
                             />
                           </div>
                           {confirmPasswordError && (
-                              <p className="nk-message-error text-xs mt-1">
-                                {confirmPasswordError}
-                              </p>
+                            <p className="nk-message-error text-xs mt-1">
+                              {confirmPasswordError}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -369,7 +368,7 @@ export default function NewPassword() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
-                                key={ind}
+                                  key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"
@@ -417,7 +416,7 @@ export default function NewPassword() {
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
-                          <img src="/images/avatar/a.jpg" alt="avatar" />
+                          <img src="/images/avatar/a.webp" alt="avatar" />
                         </div>
                         <div className="media-text">
                           <div className="h5 mb-0 !font-bold">Founder</div>

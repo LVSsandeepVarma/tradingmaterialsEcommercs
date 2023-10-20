@@ -404,7 +404,7 @@ export default function SideBar() {
                 >
                   <Avatar
                     alt="user profile"
-                    src="/images/blueProfile.png"
+                    src="/images/blueProfile.webp"
                     sx={{ width: "40%", height: "40%" }}
                     className=""
                   ></Avatar>
@@ -712,7 +712,7 @@ export default function SideBar() {
                         <img
                           className="text-center"
                           style={{ filter: "blur(2px)" }}
-                          src="/images/favicon.png"
+                          src="/images/favicon.webp"
                         ></img>
                       </div>
                       <div className="text-center">
@@ -1003,7 +1003,7 @@ export default function SideBar() {
 "
                               >
                                 <img
-                                  src="/images/sale-2.png"
+                                  src="/images/sale-2.webp"
                                   alt="ffer_label"
                                   width={65}
                                   className="drop-shadow-lg"
@@ -1319,7 +1319,7 @@ export default function SideBar() {
 "
                                   >
                                     <img
-                                      src="/images/sale-2.png"
+                                      src="/images/sale-2.webp"
                                       alt="ffer_label"
                                       width={65}
                                       className="drop-shadow-lg"

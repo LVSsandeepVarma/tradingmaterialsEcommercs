@@ -34,7 +34,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
   const [emailVerificationStatus, setEmailVerificationStatus] = useState(false);
   const [emailVerifyLoader, setEmailVerifyLoader] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [submitted, setSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false);
 
   //   const [cartData, setCartData] = useState();
   // eslint-disable-next-line no-unused-vars
@@ -169,9 +169,8 @@ const SignupBuyNowModal = ({ show, onHide }) => {
   }
 
   function handlePhoneChange(e) {
-    
     if (!emailVerificationStatus) {
-      e.target.value = e.target.value.replace(/[^0-9]/g, '')
+      e.target.value = e.target.value.replace(/[^0-9]/g, "");
       setPhone(e?.target?.value);
       phoneValidation(e?.target?.value);
     } else {
@@ -205,8 +204,8 @@ const SignupBuyNowModal = ({ show, onHide }) => {
       );
       if (response?.data?.status) {
         setEmailVerificationStatus(false);
-        if(phone != ""){
-          phoneValidation(phone)
+        if (phone != "") {
+          phoneValidation(phone);
         }
         console.log(response?.data);
       }
@@ -217,8 +216,8 @@ const SignupBuyNowModal = ({ show, onHide }) => {
         "The email has already been taken."
       ) {
         setEmailVerificationStatus(true);
-        if(phone !=""){
-          passwordValidation(phone)
+        if (phone != "") {
+          passwordValidation(phone);
         }
       }
     } finally {
@@ -259,10 +258,10 @@ const SignupBuyNowModal = ({ show, onHide }) => {
       ) {
         try {
           setLocalLoader(true);
-          setSubmitted(true)
-          setTimeout(()=>{
-            setSubmitted(false)
-          },1500)
+          setSubmitted(true);
+          setTimeout(() => {
+            setSubmitted(false);
+          }, 1500);
           const response = await axios.post(
             "https://admin.tradingmaterials.com/api/auth/login",
             {
@@ -364,10 +363,10 @@ const SignupBuyNowModal = ({ show, onHide }) => {
       ) {
         try {
           setLocalLoader(true);
-          setSubmitted(true)
-          setTimeout(()=>{
-            setSubmitted(false)
-          },1500)
+          setSubmitted(true);
+          setTimeout(() => {
+            setSubmitted(false);
+          }, 1500);
           const response = await axios.post(
             "https://admin.tradingmaterials.com/api/client/store",
             {
@@ -715,8 +714,8 @@ const SignupBuyNowModal = ({ show, onHide }) => {
               >
                 <img
                   className="logo-img cursor-pointer"
-                  onClick={()=>window.location.href="/"}
-                  src="/images/tm-logo-1.png"
+                  onClick={() => (window.location.href = "/")}
+                  src="/images/tm-logo-1.webp"
                   alt="logo"
                   style={{ width: "35%" }}
                 />
@@ -729,7 +728,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                   <p className="font-semibold text-black">
                     Online Secure Payment [Cards]
                   </p>
-                  <img src="/images/vma.png" alt="cards" width={"35%"} />
+                  <img src="/images/vma.webp" alt="cards" width={"35%"} />
                 </div>
                 <ul className="text-sm pl-2">
                   <li>- No delivery charges applied</li>
@@ -742,7 +741,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                 <div className=" flex justify-between items-center ">
                   <p className="font-semibold text-black">Cash on Delivery</p>
                   <img
-                    src="/images/cash-on-delivery-tm.png"
+                    src="/images/cash-on-delivery-tm.webp"
                     alt="cards"
                     width={"10%"}
                   />
@@ -756,7 +755,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
             </div>
             {/* <p className="text-center mt-2">Our Payment Methods</p>
             <div className="flex justify-around py-2">
-              <img src="/images/stripe.png" width={"15%"} />
+              <img src="/images/stripe.webp" width={"15%"} />
               <img
                 src="https://admin.tradingmaterials.com/assets/images/payment-images/razorpay.png"
                 width={"25%"}
@@ -777,7 +776,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                 </small>
                 <div
                   className={`ml-2 w-full buttonss-off cursor-pointer `}
-                  aria-disabled = {submitted}
+                  aria-disabled={submitted}
                   onClick={() => {
                     if (emailVerificationStatus) {
                       handleLoginFormSubmission();
@@ -789,7 +788,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                   <a className="cart-btn w-full text-center">Buy Now</a>
                   <div className="flex justify-center w-full items-center mt-2 pl-[10px]">
                     <img
-                      src="/images/paymentMethods.jpg"
+                      src="/images/paymentMethods.webp"
                       alt="payment_methods"
                       style={{ width: "50%" }}
                     />

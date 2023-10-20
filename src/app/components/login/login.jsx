@@ -202,7 +202,7 @@ export default function Login() {
                       >
                         <img
                           className="logo-img justify-center"
-                          src="/images/tm-logo-1.png"
+                          src="/images/tm-logo-1.webp"
                           alt="logo"
                         />
                       </a>
@@ -386,7 +386,7 @@ export default function Login() {
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
-                          <img src="/images/avatar/a.jpg" alt="avatar" />
+                          <img src="/images/avatar/a.webp" alt="avatar" />
                         </div>
                         <div className="media-text">
                           <div className="h5 mb-0 !font-bold">Founder</div>

@@ -26,7 +26,7 @@ const SignupModal = ({ show, onHide }) => {
   const [phoneError, setPhoneError] = useState("");
   const [firstNameError, setFirstNameError] = useState("");
   const [lastNameError, setLastNameError] = useState("");
-  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false);
   const [apiError, setApiError] = useState([]);
   const [signupSuccessMsg, setSignupSuccessMsg] = useState("");
   const [localLoader, setLocalLoader] = useState(false);
@@ -119,7 +119,7 @@ const SignupModal = ({ show, onHide }) => {
   }
 
   function handlePhoneChange(e) {
-    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
     setPhone(e?.target?.value);
     phoneValidation(e?.target?.value);
   }
@@ -215,7 +215,7 @@ const SignupModal = ({ show, onHide }) => {
 
             setTimeout(() => {
               localStorage.removeItem("token");
-              setShowSessionExpiry(true)
+              setShowSessionExpiry(true);
               navigate(`${userLang}/login`);
             }, 3600000);
           }
@@ -265,155 +265,155 @@ const SignupModal = ({ show, onHide }) => {
 
   return (
     <>
-    <SessionExpired
+      <SessionExpired
         open={showSessionExppiry}
         handleClose={handleSessionExpiryClose}
       />
-    <Modal
-      show={show}
-      onHide={handleHide}
-      // size="lg"
-      className="!backdrop-blur-[1px]  !overflow-auto !h-[100%]"
-      dialogClassName="modal-25"
-      centered
-    >
-      <Modal.Header closeButton={true} className="noBorderBottom !pt-[16px]">
-        <Modal.Title
-          className="text-[#072d52] !font-semibold !text-center w-full "
-          style={{ borderBottom: 0 }}
-        >
-          Account
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body className="pt-0">
-        <div className="nk-split-col ">
-          {localLoader && (
-            <div className="preloader  !backdrop-blur-[1px]">
-              <div className="loader"></div>
-            </div>
-          )}
-          <div
-            className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[auto]  "
-            style={{
-              border: 0,
-            }}
-            data-aos="fade-up"
+      <Modal
+        show={show}
+        onHide={handleHide}
+        // size="lg"
+        className="!backdrop-blur-[1px]  !overflow-auto !h-[100%]"
+        dialogClassName="modal-25"
+        centered
+      >
+        <Modal.Header closeButton={true} className="noBorderBottom !pt-[16px]">
+          <Modal.Title
+            className="text-[#072d52] !font-semibold !text-center w-full "
+            style={{ borderBottom: 0 }}
           >
-            <div className="account-steps">
-              <div className="step"></div>
-              <div className="step"></div>
-            </div>
-            <div className="card-body !text-left p-5">
-              <div className="nk-form-card-head text-center pb-5">
-                <div className="form-logo mb-3">
-                  <a
-                    href={`${userLang}/`}
-                    className="flex justify-center w-full"
-                  >
-                    <img
-                      className="logo-img"
-                      src="/images/tm-logo-1.png"
-                      alt="logo"
-                    />
-                  </a>
-                </div>
-                <h3 className="title mb-2 text-2xl !font-bold">
-                  Sign up to your account
-                </h3>
-                <p className="text-sm">
-                  Already a member?{" "}
-                  <a
-                    onClick={() =>
-                      dispatch(
-                        usersignupinModal({
-                          showSignupModal: false,
-                          showLoginModal: true,
-                          showforgotPasswordModal: false,
-                          showOtpModal: false,
-                          showNewPasswordModal: false,
-                          showSignupCartModal: false,
-                          showSignupBuyModal: false,
-                        })
-                      )
-                    }
-                    className="btn-link text-primary cursor-pointer"
-                  >
-                    Login
-                  </a>
-                  .
-                </p>
+            Account
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="pt-0">
+          <div className="nk-split-col ">
+            {localLoader && (
+              <div className="preloader  !backdrop-blur-[1px]">
+                <div className="loader"></div>
               </div>
-              <Form>
-                <div className="row gy-4 !text-left">
-                  <div className="col-12">
-                    <div className="form-group">
-                      <label className="form-label">
-                        First Name
-                        <sup className="text-red-600 !font-bold">*</sup>
-                      </label>
-                      <div className="form-control-wrap">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter your first name"
-                          onChange={handleFirstNamechange}
-                        />
-                        {firstNameError && (
-                          <p className="nk-message-error text-xs">
-                            {firstNameError}
-                          </p>
-                        )}
+            )}
+            <div
+              className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-xl-auto !text-left !h-[auto]  "
+              style={{
+                border: 0,
+              }}
+              data-aos="fade-up"
+            >
+              <div className="account-steps">
+                <div className="step"></div>
+                <div className="step"></div>
+              </div>
+              <div className="card-body !text-left p-5">
+                <div className="nk-form-card-head text-center pb-5">
+                  <div className="form-logo mb-3">
+                    <a
+                      href={`${userLang}/`}
+                      className="flex justify-center w-full"
+                    >
+                      <img
+                        className="logo-img"
+                        src="/images/tm-logo-1.webp"
+                        alt="logo"
+                      />
+                    </a>
+                  </div>
+                  <h3 className="title mb-2 text-2xl !font-bold">
+                    Sign up to your account
+                  </h3>
+                  <p className="text-sm">
+                    Already a member?{" "}
+                    <a
+                      onClick={() =>
+                        dispatch(
+                          usersignupinModal({
+                            showSignupModal: false,
+                            showLoginModal: true,
+                            showforgotPasswordModal: false,
+                            showOtpModal: false,
+                            showNewPasswordModal: false,
+                            showSignupCartModal: false,
+                            showSignupBuyModal: false,
+                          })
+                        )
+                      }
+                      className="btn-link text-primary cursor-pointer"
+                    >
+                      Login
+                    </a>
+                    .
+                  </p>
+                </div>
+                <Form>
+                  <div className="row gy-4 !text-left">
+                    <div className="col-12">
+                      <div className="form-group">
+                        <label className="form-label">
+                          First Name
+                          <sup className="text-red-600 !font-bold">*</sup>
+                        </label>
+                        <div className="form-control-wrap">
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Enter your first name"
+                            onChange={handleFirstNamechange}
+                          />
+                          {firstNameError && (
+                            <p className="nk-message-error text-xs">
+                              {firstNameError}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="col-12">
-                    <div className="form-group">
-                      <label className="form-label">
-                        Last Name
-                        <sup className="text-red-600 !font-bold">*</sup>
-                      </label>
-                      <div className="form-control-wrap">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter your last name"
-                          onChange={handleLastNameChange}
-                        />
-                        {lastNameError && (
-                          <p className="nk-message-error text-xs">
-                            {lastNameError}
-                          </p>
-                        )}
+                    <div className="col-12">
+                      <div className="form-group">
+                        <label className="form-label">
+                          Last Name
+                          <sup className="text-red-600 !font-bold">*</sup>
+                        </label>
+                        <div className="form-control-wrap">
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Enter your last name"
+                            onChange={handleLastNameChange}
+                          />
+                          {lastNameError && (
+                            <p className="nk-message-error text-xs">
+                              {lastNameError}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="col-12">
-                    <div className="form-group">
-                      <label className="form-label">
-                        Email<sup className="text-red-600 !font-bold">*</sup>
-                      </label>
-                      <div className="form-control-wrap">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter your email"
-                          onChange={handleEmailChange}
-                        />
-                        {emailError && (
-                          <p className="nk-message-error text-xs">
-                            {emailError}
-                          </p>
-                        )}
+                    <div className="col-12">
+                      <div className="form-group">
+                        <label className="form-label">
+                          Email<sup className="text-red-600 !font-bold">*</sup>
+                        </label>
+                        <div className="form-control-wrap">
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Enter your email"
+                            onChange={handleEmailChange}
+                          />
+                          {emailError && (
+                            <p className="nk-message-error text-xs">
+                              {emailError}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="col-12">
-                    <div className="form-group">
-                      <label className="form-label">
-                        Phone<sup className="text-red-600 !font-bold">*</sup>
-                      </label>
-                      <div className="form-control-wrap">
-                        {/* <a
+                    <div className="col-12">
+                      <div className="form-group">
+                        <label className="form-label">
+                          Phone<sup className="text-red-600 !font-bold">*</sup>
+                        </label>
+                        <div className="form-control-wrap">
+                          {/* <a
                               href="show-hide-password.html"
                               className="form-control-icon end password-toggle"
                               title="Toggle show/hide password"
@@ -426,71 +426,74 @@ const SignupModal = ({ show, onHide }) => {
                                 onClick={() => setShowPassword(!showPassword)}></em>
                               <em className="off icon ni ni-eye-off-fill text-primary"></em>
                             </a> */}
-                        <input
-                          id="show-hide-password"
-                          type="text"
-                          className="form-control"
-                          placeholder="Enter your mobile"
-                          onChange={handlePhoneChange}
-                        />
-                        {phoneError && (
-                          <p className="nk-message-error text-xs">
-                            {phoneError}
-                          </p>
+                          <input
+                            id="show-hide-password"
+                            type="text"
+                            className="form-control"
+                            placeholder="Enter your mobile"
+                            onChange={handlePhoneChange}
+                          />
+                          {phoneError && (
+                            <p className="nk-message-error text-xs">
+                              {phoneError}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-12">
+                      <div className="form-group">
+                        <button
+                          className="btn btn-block btn-primary"
+                          type="button"
+                          onClick={handleFormSubmission}
+                        >
+                          Sign Up to Your Account
+                        </button>
+                        {signupSuccessMsg && (
+                          <Alert
+                            variant="outlined"
+                            severity="success"
+                            className="mt-2"
+                            // className="mt-2"
+                          >
+                            <p className="text-green-900 !text-center font-semibold">
+                              {signupSuccessMsg}
+                            </p>
+                          </Alert>
                         )}
+
+                        {apiError?.length > 0 &&
+                          apiError?.map((err, ind) => {
+                            return (
+                              <Alert
+                                key={ind}
+                                variant="outlined"
+                                severity="error"
+                                className="mt-2"
+                              >
+                                <p
+                                  key={ind}
+                                  className="nk-message-error text-xs"
+                                >
+                                  {err}
+                                </p>
+                              </Alert>
+                            );
+                          })}
                       </div>
                     </div>
                   </div>
-                  <div className="col-12">
-                    <div className="form-group">
-                      <button
-                        className="btn btn-block btn-primary"
-                        type="button"
-                        onClick={handleFormSubmission}
-                      >
-                        Sign Up to Your Account
-                      </button>
-                      {signupSuccessMsg && (
-                        <Alert
-                          variant="outlined"
-                          severity="success"
-                          className="mt-2"
-                          // className="mt-2"
-                        >
-                          <p className="text-green-900 !text-center font-semibold">
-                            {signupSuccessMsg}
-                          </p>
-                        </Alert>
-                      )}
-
-                      {apiError?.length > 0 &&
-                        apiError?.map((err, ind) => {
-                          return (
-                            <Alert
-                              key={ind}
-                              variant="outlined"
-                              severity="error"
-                              className="mt-2"
-                            >
-                              <p key={ind} className="nk-message-error text-xs">
-                                {err}
-                              </p>
-                            </Alert>
-                          );
-                        })}
-                    </div>
-                  </div>
-                </div>
-              </Form>
-              {/* <!--<div className="pt-4 text-center">
+                </Form>
+                {/* <!--<div className="pt-4 text-center">
                                 <div className="small overline-title-sep"><span className="bg-white px-2 text-base">or register with</span></div>
                             </div>
                             <div className="pt-4"><a href="#" className="btn btn-outline-gray-50 text-dark w-100"><img src="images/icon/a.png" alt="" className="icon"><span>Sign Up with Google</span></a></div>--> */}
+              </div>
             </div>
           </div>
-        </div>
-      </Modal.Body>
-    </Modal>
+        </Modal.Body>
+      </Modal>
     </>
   );
 };

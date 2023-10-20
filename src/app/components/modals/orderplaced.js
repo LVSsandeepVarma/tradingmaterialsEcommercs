@@ -32,7 +32,7 @@ export default function OrderPlacedRepresentativeModal({ show, hide }) {
         >
           <div className="p-2">
             <div className="img_component flex drop-shadow-xl justify-center">
-              <img src="/images/tm-logo-1.png" alt="log"></img>
+              <img src="/images/tm-logo-1.webp" alt="log"></img>
             </div>
             <div className="flex items-center justify-around">
               <ConnectWithoutContactIcon

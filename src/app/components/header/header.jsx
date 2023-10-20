@@ -38,6 +38,7 @@ import SignupCartModal from "../modals/signupcart";
 import SignupBuyNowModal from "../modals/signupBuyNow";
 import SessionExpired from "../modals/sessionExpired";
 import Offer from "../forms/offer";
+// eslint-disable-next-line no-unused-vars
 import Box from "../3d/testOne";
 
 export default function Header() {
@@ -83,11 +84,11 @@ export default function Header() {
     }
   }, [userData]);
 
-  useEffect(()=>{
+  useEffect(() => {
     // if(popup ){
-      document.body.style.setProperty("overflow", "auto", "important")
+    document.body.style.setProperty("overflow", "auto", "important");
     // }
-  },[popup])
+  }, [popup]);
 
   useEffect(() => {
     dispatch(showLoader());
@@ -537,7 +538,7 @@ export default function Header() {
             >
               <img
                 className="!w-full"
-                src="/images/oneDayLeft.png"
+                src="/images/oneDayLeft.webp"
                 alt="one-day-offer-icon"
               />
             </Fab>
@@ -608,21 +609,34 @@ export default function Header() {
         <div id="ac-wrapper">
           <div id="popup-2">
             <div className="row align-items-center">
-              <div className="col-lg-6 col-md-6 col-sm-12">
-                {/* <div className="text-left" data-aos="zoom-in"> */}
-                {/* <img src="images/login-img.jpg" alt="login-img" /> */}
-                <h2 className="drop-shoadow-lg text-xl absolute text-center w-[100%] top-8 !font-bold">
-                  <img src="/images/tm-logo-1.png" className="flex justify-center w-fit"></img>
+              <div className="col-lg-6 col-md-6 col-sm-12 ">
+                <div className="text-left" data-aos="zoom-in">
+                  <h2 className="drop-shoadow-lg text-xl w-full text-center  top-0 !font-bold">
+                    <div className="flex justify-center sm:justify-between">
+                      <img src="/images/tm-logo-1.webp" className=""></img>
+                    </div>
                   </h2>
-                  <Box/>
-                {/* </div> */}
+                  <img src="images/login-img.webp" alt="login-img" />
+
+                  {/* <Box /> */}
+                </div>
               </div>
 
               <div className="col-lg-6 col-md-6 col-sm-12 ">
-                <div className="grid-1 max-w-[85%]" data-aos="zoom-in-right" data-aos-delay="1000">
-                  <div className="grid-2 max-w-[100%]" >
-                    <div className="offer-title-2" >
-                      <h5>Login to shop</h5>
+                <div
+                  className="grid-1 "
+                  data-aos="zoom-in-right"
+                  data-aos-delay="1000"
+                >
+                  <div className="grid-2 max-w-[100%] flex flex-col justify-around">
+                    <div className="offer-title-2">
+                      <h5 className="">
+                        Login to Shop
+                        <br />
+                        <small className="mt-0 pt-0 text-sm !font-normal text-[#64728f]">
+                          We would love to keep in touch with you
+                        </small>
+                      </h5>
                     </div>
                     <Offer />
                   </div>
@@ -644,7 +658,7 @@ export default function Header() {
                       <div className="logo-wrap">
                         <img
                           className="logo-img logo-dark"
-                          src="/images/tm-logo-1.png"
+                          src="/images/tm-logo-1.webp"
                           alt="brand-logo"
                         />
                       </div>

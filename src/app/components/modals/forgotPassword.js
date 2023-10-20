@@ -160,7 +160,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                   >
                     <img
                       className="logo-img "
-                      src="/images/tm-logo-1.png"
+                      src="/images/tm-logo-1.webp"
                       alt="logo"
                     />
                   </a>

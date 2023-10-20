@@ -49,7 +49,7 @@ const Countdown = ({ targetDate, loaderStatus }) => {
 
   return (
     <ul className="nk-countdown" data-date="6-9-2023" data-time="12:00">
-      <li>
+      {/* <li>
         <div className="nk-countdown-content day">
           <span className={`num m-0 h3 d-inline-block ${(!loaderStatus || !showLoader) ? "!font-bold" : ""} text-primary`}>
             {loaderStatus || showLoader ? (
@@ -60,10 +60,14 @@ const Countdown = ({ targetDate, loaderStatus }) => {
           </span>
           <p className="word text-uppercase text-gray-800">{t("days")}</p>
         </div>
-      </li>
+      </li> */}
       <li>
         <div className="nk-countdown-content hour">
-        <span className={`num m-0 h3 d-inline-block ${(!loaderStatus || !showLoader) ? "!font-bold" : ""} text-primary`}>
+          <span
+            className={`num m-0 h3 d-inline-block ${
+              !loaderStatus || !showLoader ? "!font-bold" : ""
+            } text-primary`}
+          >
             {loaderStatus || showLoader ? (
               <Spinner animation="border" variant="primary" />
             ) : (
@@ -75,9 +79,17 @@ const Countdown = ({ targetDate, loaderStatus }) => {
       </li>
       <li>
         <div className="nk-countdown-content min">
-        <span className={`num m-0 h3 d-inline-block ${(!loaderStatus || !showLoader) ? "!font-bold" : ""} text-primary`}>
+          <span
+            className={`num m-0 h3 d-inline-block ${
+              !loaderStatus || !showLoader ? "!font-bold" : ""
+            } text-primary`}
+          >
             {loaderStatus || showLoader ? (
-              <Spinner className="!font-normal" animation="border" variant="primary" />
+              <Spinner
+                className="!font-normal"
+                animation="border"
+                variant="primary"
+              />
             ) : (
               timeLeft?.minutes
             )}
@@ -86,15 +98,19 @@ const Countdown = ({ targetDate, loaderStatus }) => {
         </div>
       </li>
       <li>
-        <div className="nk-countdown-content sec">
-        <span className={`num m-0 h3 d-inline-block ${(!loaderStatus || !showLoader) ? "!font-bold" : ""} text-primary`}>
+        <div className="nk-countdown-content  sec">
+          <span
+            className={`num m-0 h3 d-inline-block ${
+              !loaderStatus || !showLoader ? "!font-bold" : ""
+            } text-primary`}
+          >
             {loaderStatus || showLoader ? (
               <Spinner animation="border" variant="primary" />
             ) : (
               timeLeft?.seconds
             )}
           </span>
-          <p className="word text-uppercase text-gray-800">{t("seconds")}</p>
+          <p className="word text-uppercase  text-gray-800">{t("seconds")}</p>
         </div>
       </li>
     </ul>

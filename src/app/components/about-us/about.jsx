@@ -42,7 +42,10 @@ export default function About() {
                       </p>
                       <ul className="nk-btn-group justify-content-center pt-5">
                         <li>
-                          <a href={`/careers`} className="btn btn-lg btn-primary">
+                          <a
+                            href={`/careers`}
+                            className="btn btn-lg btn-primary"
+                          >
                             Join Our Team
                           </a>
                         </li>
@@ -69,7 +72,7 @@ export default function About() {
                             <div className="logo-wrap text-start">
                               <img
                                 className="logo-img"
-                                src="/images/tm-logo-1.png"
+                                src="/images/tm-logo-1.webp"
                                 alt="brand-logo"
                               />
                             </div>
@@ -196,7 +199,7 @@ export default function About() {
                   <div className="col-lg-6">
                     <div className="d-flex flex-column">
                       <div className="nk-frame mb-5">
-                        <img src="/images/team.jpg" alt="cover-bg" />
+                        <img src="/images/team.webp" alt="cover-bg" />
                       </div>
                       <div className="nk-section-head pb-0 !text-left">
                         <span className="nk-section-subtitle">The journey</span>
@@ -226,7 +229,10 @@ export default function About() {
                   <div className="col-lg-6 col-xl-5">
                     <div className="d-flex flex-column">
                       <div className="nk-frame mb-5 mb-lg-0 order-lg-2 mt-lg-3">
-                        <img src="/images/tm-man-cover-38.png" alt="cover-bg" />
+                        <img
+                          src="/images/tm-man-cover-38.webp"
+                          alt="cover-bg"
+                        />
                       </div>
                       <div className="nk-section-head pb-0 !text-left">
                         <span className="nk-section-subtitle !text-left">
@@ -393,9 +399,12 @@ export default function About() {
                         Materials, diligently striving to provide you with an
                         exceptional experience.
                       </p>
-                      <ul className="nk-btn-group justify-content-center pt-5" >
+                      <ul className="nk-btn-group justify-content-center pt-5">
                         <li>
-                          <a href={`/careers`} className="btn btn-primary btn-lg">
+                          <a
+                            href={`/careers`}
+                            className="btn btn-primary btn-lg"
+                          >
                             Join Our Team
                           </a>
                         </li>
@@ -418,7 +427,7 @@ export default function About() {
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
-                            Suraj Chetan
+                              Suraj Chetan
                             </h4>
                             <p className="fs-16">COO</p>
                           </div>
@@ -429,7 +438,10 @@ export default function About() {
                           </div>
                         </div>
                         <div className="card-image text-center">
-                          <img src="/images/team/tm-team-pic-01.png" alt="team" />
+                          <img
+                            src="/images/team/tm-team-pic-01.webp"
+                            alt="team"
+                          />
                         </div>
                       </div>
                     </div>
@@ -440,7 +452,7 @@ export default function About() {
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
-                            Dhanyashree L
+                              Dhanyashree L
                             </h4>
                             <p className="fs-16"> Operations Manager</p>
                           </div>
@@ -451,7 +463,10 @@ export default function About() {
                           </div>
                         </div>
                         <div className="card-image text-center">
-                          <img src="/images/team/tm-team-woman-pic.png" alt="team" />
+                          <img
+                            src="/images/team/tm-team-woman-pic.webp"
+                            alt="team"
+                          />
                         </div>
                       </div>
                     </div>
@@ -462,7 +477,7 @@ export default function About() {
                         <div className="card-title-group align-items-start mb-4">
                           <div className="card-title-group-item !text-left">
                             <h4 className="text-capitalize mb-1 !font-bold text-2xl">
-                            Rahul V
+                              Rahul V
                             </h4>
                             <p className="fs-16">CTO</p>
                           </div>
@@ -473,7 +488,10 @@ export default function About() {
                           </div>
                         </div>
                         <div className="card-image text-center">
-                          <img src="/images/team/tm-team-pic-03.png" alt="team" />
+                          <img
+                            src="/images/team/tm-team-pic-03.webp"
+                            alt="team"
+                          />
                         </div>
                       </div>
                     </div>
@@ -503,7 +521,7 @@ export default function About() {
                       className="nk-brand bg-gray border border-gray-50 py-3 py-md-4 px-5 px-md-6 rounded-2 text-center d-inline-block w-100 h-100"
                     >
                       <img
-                        src="/images/brands/a.png"
+                        src="/images/brands/a.webp"
                         alt="brand"
                         className="img-fluid"
                       />
@@ -515,7 +533,7 @@ export default function About() {
                       className="nk-brand bg-gray border border-gray-50 py-3 py-md-4 px-5 px-md-6 rounded-2 text-center d-inline-block w-100 h-100"
                     >
                       <img
-                        src="/images/brands/b.png"
+                        src="/images/brands/b.webp"
                         alt="brand"
                         className="img-fluid"
                       />
@@ -527,7 +545,7 @@ export default function About() {
                       className="nk-brand bg-gray border border-gray-50 py-3 py-md-4 px-5 px-md-6 rounded-2 text-center d-inline-block w-100 h-100"
                     >
                       <img
-                        src="/images/brands/c.png"
+                        src="/images/brands/c.webp"
                         alt="brand"
                         className="img-fluid"
                       />
@@ -539,7 +557,7 @@ export default function About() {
                       className="nk-brand bg-gray border border-gray-50 py-3 py-md-4 px-5 px-md-6 rounded-2 text-center d-inline-block w-100 h-100"
                     >
                       <img
-                        src="/images/brands/d.png"
+                        src="/images/brands/d.webp"
                         alt="brand"
                         className="img-fluid"
                       />
@@ -553,7 +571,7 @@ export default function About() {
                       data-aos-delay="250"
                     >
                       <img
-                        src="/images/brands/e.png"
+                        src="/images/brands/e.webp"
                         alt="brand"
                         className="img-fluid"
                       />
@@ -590,7 +608,7 @@ export default function About() {
                           <div className="card-image mb-3">
                             <a href="#">
                               <img
-                                src="/images/brands/a-light.png"
+                                src="/images/brands/a-light.webp"
                                 alt="brand"
                                 className="h-24px"
                               />
@@ -633,7 +651,7 @@ export default function About() {
                               <div className="card-image mb-3 mb-md-5 brand">
                                 <a href="#">
                                   <img
-                                    src="/images/brands/b.png"
+                                    src="/images/brands/b.webp"
                                     alt="brand"
                                     className="h-24px"
                                   />
@@ -641,7 +659,8 @@ export default function About() {
                               </div>
                               <h4 className="card-title text-capitalize mb-3 mb-md-5 !font-bold text-2xl !text-left !leading-relaxed">
                                 <a href="/about">
-                                Trading Materials Claims To Be The #1 Player In The Analytics Industry
+                                  Trading Materials Claims To Be The #1 Player
+                                  In The Analytics Industry
                                 </a>
                               </h4>
                               <div className="text-left">
@@ -661,7 +680,7 @@ export default function About() {
                               <div className="card-image mb-3 mb-md-5 brand">
                                 <a href="#">
                                   <img
-                                    src="/images/brands/c.png"
+                                    src="/images/brands/c.webp"
                                     alt="brand"
                                     className="h-24px"
                                   />
@@ -669,7 +688,8 @@ export default function About() {
                               </div>
                               <h4 className="card-title text-capitalize mb-3 mb-md-5 !font-bold text-2xl !text-left !leading-relaxed">
                                 <a href="/about">
-                                Trading Materials CEO Steps-Back, New CEO Comes In September After The Board Decisions
+                                  Trading Materials CEO Steps-Back, New CEO
+                                  Comes In September After The Board Decisions
                                 </a>
                               </h4>
                               <div className="text-left">

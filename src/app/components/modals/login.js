@@ -253,7 +253,7 @@ const LoginModal = ({ show, onHide }) => {
                     >
                       <img
                         className="logo-img "
-                        src="/images/tm-logo-1.png"
+                        src="/images/tm-logo-1.webp"
                         alt="logo"
                       />
                     </a>
@@ -401,7 +401,9 @@ const LoginModal = ({ show, onHide }) => {
                         <div className="terms-tex mt-2 text-lg">
                           <p>
                             By signing up, you agree to the <br></br>{" "}
-                            <a href="/terms-and-conditions">Terms and conditions</a>{" "}
+                            <a href="/terms-and-conditions">
+                              Terms and conditions
+                            </a>{" "}
                             and <a href="/privacy-policy">Privacy Policy</a>.{" "}
                           </p>
                         </div>{" "}

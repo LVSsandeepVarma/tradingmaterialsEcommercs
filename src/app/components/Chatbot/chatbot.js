@@ -87,7 +87,7 @@ export default function ChatForm({ hide }) {
 
   const handlePhonechange = (e) => {
     setApiErr([]);
-    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
     setPhone(e.target.value);
     isValidMobile(e.target.value);
   };
@@ -251,7 +251,7 @@ export default function ChatForm({ hide }) {
               </div>
             </div>
             <span className="imgs relative" style={{ zIndex: "9999" }}>
-              <img src="/images/offer-box.png" alt="product-image" />
+              <img src="/images/offer-box.webp" alt="product-image" />
             </span>
           </div>
         </div>
@@ -286,7 +286,7 @@ export default function ChatForm({ hide }) {
           <div className="absolute w-full cursor-pointer offer-bottom-right"  onClick={()=>hide("none")}>X</div>
 						<div className="ilustration">			
 							<lottie-player src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json" background="white" speed="1" loop autoplay></lottie-player>
-							<span className="imgs"><img src="/images/offer-box.png" alt="product-image"/></span>
+							<span className="imgs"><img src="/images/offer-box.webp" alt="product-image"/></span>
 						</div>			
 					</div>	 */}
       </div>
@@ -310,7 +310,7 @@ export default function ChatForm({ hide }) {
 					<div className="cardss">			
 						<div className="ilustration">				
 							<lottie-player src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json" background="white" speed="1" loop autoplay></lottie-player>
-							<span className="imgs"><img src="images/offer-box.png" alt="product-image"/></span>
+							<span className="imgs"><img src="images/offer-box.webp" alt="product-image"/></span>
 						</div>			
 					</div>	
 		</div> */}
@@ -354,7 +354,7 @@ export default function ChatForm({ hide }) {
  <div className="cardss">			
    <div className="ilustration">				
      <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_LrcfNr.json" background="white" speed="1" loop autoplay></lottie-player>
-     <span className="imgs"><img src="images/offer-box.png" alt="product-image"/></span>
+     <span className="imgs"><img src="images/offer-box.webp" alt="product-image"/></span>
    </div>			
  </div>	
 </div> */}

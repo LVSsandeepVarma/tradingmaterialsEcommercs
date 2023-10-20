@@ -28,9 +28,9 @@ import "swiper/css/navigation";
 import { useTranslation } from "react-i18next";
 import { Box, Skeleton } from "@mui/material";
 // import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
+import MenuItem from "@mui/material/MenuItem";
 // import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+import Select from "@mui/material/Select";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import moment from "moment";
 // import FloatingForm from "../forms/floatingForm";
@@ -74,9 +74,9 @@ export default function ProductsDisplay() {
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
-  const [showSessionExppiry, setShowSessionExpiry] = useState(false)
-  const [filteredResult, setFilteredResult] = useState(false)
-  const [filteredBundleResult, setFilteredBundleResults] = useState(false)
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false);
+  const [filteredResult, setFilteredResult] = useState(false);
+  const [filteredBundleResult, setFilteredBundleResults] = useState(false);
   const [animateProductId, setAnimateProductId] = useState("");
   // eslint-disable-next-line no-unused-vars
   // const [cartPosition, setCartPosition] = useState({ x: 0, y: 0 });
@@ -84,7 +84,7 @@ export default function ProductsDisplay() {
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
-  
+
   const location = useLocation();
   const navigate = useNavigate();
   const positions = useSelector((state) => state?.position?.value);
@@ -131,7 +131,6 @@ export default function ProductsDisplay() {
     }
   }, []);
 
-
   // function for handling add to cart directly {indirect login}
   async function handleAddToCartDirectly(productId, status, qty) {
     try {
@@ -161,16 +160,15 @@ export default function ProductsDisplay() {
       }
     } catch (err) {
       console.log(err);
-      if(err?.response?.data?.message?.includes("Token")){
-          setShowSessionExpiry(true)
-      }else{
-
-      dispatch(
-        updateNotifications({
-          type: "error",
-          message: err?.response?.data?.message,
-        })
-      );
+      if (err?.response?.data?.message?.includes("Token")) {
+        setShowSessionExpiry(true);
+      } else {
+        dispatch(
+          updateNotifications({
+            type: "error",
+            message: err?.response?.data?.message,
+          })
+        );
       }
     } finally {
       dispatch(hideLoader());
@@ -293,7 +291,7 @@ export default function ProductsDisplay() {
     console.log(productsFilter);
     setFilteredProducts({ ...productsFilter });
     setFilteredSubcatproducts({ ...productsFilter });
-    setFilteredResult(false)
+    setFilteredResult(false);
     setAllProducts(products?.products);
     if (localStorage?.getItem("client_token")) {
       dispatch(loginUser());
@@ -345,14 +343,14 @@ export default function ProductsDisplay() {
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
 
-    // function for filtering single products
+  // function for filtering single products
   function addFilterProducts(
     subCategoryName,
     subCategoryId,
     showSingleProduct
   ) {
     setStockCount("inStock");
-    setFilteredResult(true)
+    setFilteredResult(true);
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId, subCategoryIds, subId);
     let subIDs;
@@ -409,7 +407,7 @@ export default function ProductsDisplay() {
     if (Object.values(filterProducts).every((value) => value === false)) {
       filterProducts["all"] = true;
       setSubCategoryIds([]);
-      setFilteredResult(false)
+      setFilteredResult(false);
       setAllProducts(products?.products);
     } else if (filterProducts["all"]) {
       filterProducts["all"] = false;
@@ -429,7 +427,7 @@ export default function ProductsDisplay() {
         filterProducts[key] = key === "all" ? true : false;
       });
       setSubCategoryIds([]);
-      setFilteredResult(false)
+      setFilteredResult(false);
       setAllProducts(products?.products);
     }
     console.log(filterProducts);
@@ -446,7 +444,7 @@ export default function ProductsDisplay() {
     isStock
   ) {
     setStockCount("inStock");
-    setFilteredBundleResults(true)
+    setFilteredBundleResults(true);
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId);
     let subIDs;
@@ -498,7 +496,7 @@ export default function ProductsDisplay() {
     // checks if all the filter options are false
     if (Object.values(filterProducts).every((value) => value === false)) {
       filterProducts["all"] = true;
-      setFilteredBundleResults(false)
+      setFilteredBundleResults(false);
       setBundleSubCategoryIds([]);
       setSubCatProducts(products?.products);
     } else if (filterProducts["all"]) {
@@ -516,7 +514,7 @@ export default function ProductsDisplay() {
       keys.forEach((key) => {
         filterProducts[key] = key === "all" ? true : false;
       });
-      setFilteredBundleResults(false)
+      setFilteredBundleResults(false);
       setBundleSubCategoryIds([]);
       setSubCatProducts(products?.products);
 
@@ -562,8 +560,12 @@ export default function ProductsDisplay() {
     setAllProducts(res);
     const bundleRes =
       currentActiveCheckbox === "inStock"
-        ? outOfStockBundleProducts?.filter((product) => product?.stock?.stock != "0" && product?.combo == "1")
-        : outOfStockBundleProducts?.filter((product) => product?.stock?.stock == "0" && product?.combo == "1");
+        ? outOfStockBundleProducts?.filter(
+            (product) => product?.stock?.stock != "0" && product?.combo == "1"
+          )
+        : outOfStockBundleProducts?.filter(
+            (product) => product?.stock?.stock == "0" && product?.combo == "1"
+          );
     setSubCatProducts(bundleRes);
 
     console.log(res);
@@ -782,21 +784,21 @@ export default function ProductsDisplay() {
     );
   };
 
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/?login");
+  }
 
-  
-  function handleSessionExpiryClose (){
-    setShowSessionExpiry(false)
-    navigate("/?login")
-}
-
-
-const handleChange = (event) => {
-  handleSortingProducts(event.target.value);
-};
+  const handleChange = (event) => {
+    handleSortingProducts(event.target.value);
+  };
 
   return (
     <>
-            <SessionExpired open={showSessionExppiry} handleClose={handleSessionExpiryClose}/>
+      <SessionExpired
+        open={showSessionExppiry}
+        handleClose={handleSessionExpiryClose}
+      />
 
       {/* {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
@@ -810,7 +812,6 @@ const handleChange = (event) => {
           modalMessage={modalMessage}
           addedToFavImg={addedToFavImg}
           wishMsg={showWishlistRemoveMsg}
-          
         />
       )}
 
@@ -823,7 +824,7 @@ const handleChange = (event) => {
                   <div className="col-xl-5">
                     <div className="nk-frame text-center mb-7 mb-xl-0">
                       <img
-                        src="/images/shop/banner-cover.png"
+                        src="/images/shop/banner-cover.webp"
                         alt="banner-cover"
                         data-aos="zoom-in"
                         // loading="lazy"
@@ -886,7 +887,7 @@ const handleChange = (event) => {
                         </h6>
                         <ul className="d-flex gy-4 flex-column !text-left">
                           <li>
-                            <div className="form-check d-flex align-items-center cursor-pointer"  >
+                            <div className="form-check d-flex align-items-center cursor-pointer">
                               <input
                                 className="form-check-input"
                                 type="checkbox"
@@ -897,12 +898,17 @@ const handleChange = (event) => {
                                 }
                                 checked={filteredProducts["all"]}
                               />
-                              <div className="d-flex w-100 align-items-center justify-content-between cursor-pointer" onClick={() =>
-                                  addFilterProducts("all", 0, false)}>
+                              <div
+                                className="d-flex w-100 align-items-center justify-content-between cursor-pointer"
+                                onClick={() =>
+                                  addFilterProducts("all", 0, false)
+                                }
+                              >
                                 <label
                                   className="form-check-label fs-14 text-gray-1200 cursor-pointer"
                                   onClick={() =>
-                                    addFilterProducts("all", 0, false)}
+                                    addFilterProducts("all", 0, false)
+                                  }
                                   htmlFor="all-category"
                                 >
                                   All Trading Materials
@@ -963,7 +969,10 @@ const handleChange = (event) => {
                         </h6>
                         <ul className="d-flex gy-4 flex-column">
                           <li>
-                            <div className="form-check d-flex align-items-center cursor-pointer" onClick={() => filtersubcatProducts("all", 0)}>
+                            <div
+                              className="form-check d-flex align-items-center cursor-pointer"
+                              onClick={() => filtersubcatProducts("all", 0)}
+                            >
                               <input
                                 className="form-check-input"
                                 type="checkbox"
@@ -972,19 +981,22 @@ const handleChange = (event) => {
                                 onChange={() => filtersubcatProducts("all", 0)}
                                 checked={filteredSubcatProducts["all"]}
                               />
-                              <div className="d-flex w-100 align-items-center justify-content-between" onClick={() => filtersubcatProducts("all", 0)}>
-                              <label
-                                className="form-check-label fs-14 text-gray-1200 cursor-pointer"
-                                // for="themenio"
-                                onClick={() => filteredSubcatProducts["all"]}
+                              <div
+                                className="d-flex w-100 align-items-center justify-content-between"
+                                onClick={() => filtersubcatProducts("all", 0)}
                               >
-                                {" "}
-                                All Trading Materials Pack on Shop{" "}
-                              </label>
-                              <span className="fs-14 text-gray-1200">
+                                <label
+                                  className="form-check-label fs-14 text-gray-1200 cursor-pointer"
+                                  // for="themenio"
+                                  onClick={() => filteredSubcatProducts["all"]}
+                                >
+                                  {" "}
+                                  All Trading Materials Pack on Shop{" "}
+                                </label>
+                                <span className="fs-14 text-gray-1200">
                                   {bundleProductCount}
                                 </span>
-                                </div>
+                              </div>
                             </div>
                           </li>
                           {products?.sub_categories?.map((product, ind) => (
@@ -1007,12 +1019,15 @@ const handleChange = (event) => {
                                         filteredSubcatProducts[product?.name]
                                       }
                                     />
-                                    <div className="d-flex w-100 align-items-center justify-content-between " onClick={() => {
+                                    <div
+                                      className="d-flex w-100 align-items-center justify-content-between "
+                                      onClick={() => {
                                         filtersubcatProducts(
                                           product?.name,
                                           product?.id
                                         );
-                                      }}>
+                                      }}
+                                    >
                                       <label
                                         className="form-check-label fs-14 text-gray-1200 cursor-pointer"
                                         // for="tablet"
@@ -1042,7 +1057,7 @@ const handleChange = (event) => {
                                 type="checkbox"
                                 name="stock"
                                 id="in-stock"
-                                onChange={()=>filterstockProducts("inStock")}
+                                onChange={() => filterstockProducts("inStock")}
                                 checked={
                                   stockCount === "inStock" ? true : false
                                 }
@@ -1067,7 +1082,7 @@ const handleChange = (event) => {
                                 type="checkbox"
                                 name="stock"
                                 id="out-stock"
-                                onChange={()=>filterstockProducts("outStock")}
+                                onChange={() => filterstockProducts("outStock")}
                                 checked={
                                   stockCount === "outStock" ? true : false
                                 }
@@ -1094,7 +1109,11 @@ const handleChange = (event) => {
                   <div className="nk-section-content-products">
                     <div className="row justify-content-between align-items-center pb-5">
                       <div className="col-sm-6">
-                        {!isSearchResult && <p className="text-left text-xl font-semibold text-black">Our Products</p>}
+                        {!isSearchResult && (
+                          <p className="text-left text-xl font-semibold text-black">
+                            Our Products
+                          </p>
+                        )}
                         {isSearchResult && (
                           <h6 className="fs-16 fw-normal !text-left">
                             Showing {resultsCount} results
@@ -1102,20 +1121,19 @@ const handleChange = (event) => {
                         )}
                       </div>
                       <div className="col-sm-4 col-md-3 col-xl-2">
-                        <div className="nk-dropdown py-1 ps-2 pe-1" >
-                        <Select
-                        className="w-full text-start flex"
-          value={sorting}
-          onChange={handleChange}
-          // displayEmpty
-          defaultValue={sorting}
-          inputProps={{ 'aria-label': 'Without label' }}
-        >
-          
-          <MenuItem value={"Popular"}>Popular</MenuItem>
-          <MenuItem value={"Newest"}>Newest</MenuItem>
-          <MenuItem value={"Oldest"}>Oldest</MenuItem>
-        </Select>
+                        <div className="nk-dropdown py-1 ps-2 pe-1">
+                          <Select
+                            className="w-full text-start flex"
+                            value={sorting}
+                            onChange={handleChange}
+                            // displayEmpty
+                            defaultValue={sorting}
+                            inputProps={{ "aria-label": "Without label" }}
+                          >
+                            <MenuItem value={"Popular"}>Popular</MenuItem>
+                            <MenuItem value={"Newest"}>Newest</MenuItem>
+                            <MenuItem value={"Oldest"}>Oldest</MenuItem>
+                          </Select>
                           {/* <label
                             htmlFor="nk-sorting"
                             className="nk-dropdown-menu"
@@ -1478,7 +1496,10 @@ const handleChange = (event) => {
                       {!isNoProducts &&
                         allProducts?.map((product) => {
                           if (
-                            product?.combo == 0 && (product?.stock?.stock != "0" || filteredResult || stockCount == "outStock") ||
+                            (product?.combo == 0 &&
+                              (product?.stock?.stock != "0" ||
+                                filteredResult ||
+                                stockCount == "outStock")) ||
                             // product?.combo === 1 ||
                             isSearchResult
                           ) {
@@ -1684,15 +1705,15 @@ const handleChange = (event) => {
                                                                   "super",
                                                               }}
                                                             > */}
-                                                              .{
-                                                                (
-                                                                  Number.parseFloat(
-                                                                    price?.INR
-                                                                  )?.toFixed(
-                                                                    2
-                                                                  ) + ""
-                                                                )?.split(".")[1]
-                                                              }
+                                                            .
+                                                            {
+                                                              (
+                                                                Number.parseFloat(
+                                                                  price?.INR
+                                                                )?.toFixed(2) +
+                                                                ""
+                                                              )?.split(".")[1]
+                                                            }
                                                             {/* </sub> */}
                                                           </>
                                                         )
@@ -1750,22 +1771,21 @@ const handleChange = (event) => {
                                                                     "super",
                                                                 }}
                                                               > */}
-                                                                .{
-                                                                  (
-                                                                    parseFloat(
-                                                                      price?.INR *
-                                                                        (100 /
-                                                                          (100 -
-                                                                            product?.discount))
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )
-                                                                    .toString()
-                                                                    .split(
-                                                                      "."
-                                                                    )[1]
-                                                                }
+                                                              .
+                                                              {
+                                                                (
+                                                                  parseFloat(
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[1]
+                                                              }
                                                               {/* </sub> */}
                                                             </del>
                                                           </>
@@ -1817,22 +1837,21 @@ const handleChange = (event) => {
                                                                     "super",
                                                                 }}
                                                               > */}
-                                                                .{
-                                                                  (
-                                                                    parseFloat(
-                                                                      price?.INR *
-                                                                        (100 /
-                                                                          (100 -
-                                                                            product?.discount))
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )
-                                                                    .toString()
-                                                                    .split(
-                                                                      "."
-                                                                    )[1]
-                                                                }
+                                                              .
+                                                              {
+                                                                (
+                                                                  parseFloat(
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[1]
+                                                              }
                                                               {/* </sub> */}
                                                             </del>
                                                           </>
@@ -1885,17 +1904,17 @@ const handleChange = (event) => {
                                                                   "super",
                                                               }}
                                                             > */}
-                                                             .{
-                                                                (
-                                                                  parseFloat(
-                                                                    price?.INR
-                                                                  )?.toFixed(
-                                                                    2
-                                                                  ) + ""
-                                                                )
-                                                                  .toString()
-                                                                  .split(".")[1]
-                                                              }
+                                                            .
+                                                            {
+                                                              (
+                                                                parseFloat(
+                                                                  price?.INR
+                                                                )?.toFixed(2) +
+                                                                ""
+                                                              )
+                                                                .toString()
+                                                                .split(".")[1]
+                                                            }
                                                             {/* </sub> */}
                                                           </>
                                                         )
@@ -1917,17 +1936,17 @@ const handleChange = (event) => {
                                                                   "super",
                                                               }}
                                                             > */}
-                                                              .{
-                                                                (
-                                                                  parseFloat(
-                                                                    price?.USD
-                                                                  )?.toFixed(
-                                                                    2
-                                                                  ) + ""
-                                                                )
-                                                                  .toString()
-                                                                  .split(".")[1]
-                                                              }
+                                                            .
+                                                            {
+                                                              (
+                                                                parseFloat(
+                                                                  price?.USD
+                                                                )?.toFixed(2) +
+                                                                ""
+                                                              )
+                                                                .toString()
+                                                                .split(".")[1]
+                                                            }
                                                             {/* </sub> */}
                                                           </>
                                                         )}
@@ -1981,22 +2000,21 @@ const handleChange = (event) => {
                                                                     "super",
                                                                 }}
                                                               > */}
-                                                                .{
-                                                                  (
-                                                                    parseFloat(
-                                                                      price?.INR *
-                                                                        (100 /
-                                                                          (100 -
-                                                                            product?.discount))
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )
-                                                                    .toString()
-                                                                    .split(
-                                                                      "."
-                                                                    )[1]
-                                                                }
+                                                              .
+                                                              {
+                                                                (
+                                                                  parseFloat(
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[1]
+                                                              }
                                                               {/* </sub> */}
                                                             </del>
                                                           </>
@@ -2048,22 +2066,21 @@ const handleChange = (event) => {
                                                                     "super",
                                                                 }}
                                                               > */}
-                                                                .{
-                                                                  (
-                                                                    parseFloat(
-                                                                      price?.INR *
-                                                                        (100 /
-                                                                          (100 -
-                                                                            product?.discount))
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )
-                                                                    .toString()
-                                                                    .split(
-                                                                      "."
-                                                                    )[1]
-                                                                }
+                                                              .
+                                                              {
+                                                                (
+                                                                  parseFloat(
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[1]
+                                                              }
                                                               {/* </sub> */}
                                                             </del>
                                                           </>
@@ -2135,7 +2152,7 @@ const handleChange = (event) => {
 "
                                           >
                                             <img
-                                              src="/images/sale-2.png"
+                                              src="/images/sale-2.webp"
                                               alt="ffer_label"
                                               width={65}
                                               className="drop-shadow-lg"
@@ -2178,7 +2195,10 @@ const handleChange = (event) => {
               )}
               {subCatProducts?.length !== 0 &&
                 subCatProducts?.map((product) => {
-                  if (product?.combo && (product?.stock?.stock != "0" || filteredBundleResult)) {
+                  if (
+                    product?.combo &&
+                    (product?.stock?.stock != "0" || filteredBundleResult)
+                  ) {
                     return (
                       <>
                         {(showPlaceHolderLoader === true ||
@@ -2335,13 +2355,14 @@ const handleChange = (event) => {
                                                         verticalAlign: "super",
                                                       }}
                                                     > */}
-                                                      .{
-                                                        (
-                                                          Number.parseFloat(
-                                                            price?.INR
-                                                          )?.toFixed(2) + ""
-                                                        )?.split(".")[1]
-                                                      }
+                                                    .
+                                                    {
+                                                      (
+                                                        Number.parseFloat(
+                                                          price?.INR
+                                                        )?.toFixed(2) + ""
+                                                      )?.split(".")[1]
+                                                    }
                                                     {/* </sub> */}
                                                   </>
                                                 )
@@ -2395,18 +2416,19 @@ const handleChange = (event) => {
                                                             "super",
                                                         }}
                                                       > */}
-                                                        .{
-                                                          (
-                                                            parseFloat(
-                                                              price?.INR *
-                                                                (100 /
-                                                                  (100 -
-                                                                    product?.discount))
-                                                            )?.toFixed(2) + ""
-                                                          )
-                                                            .toString()
-                                                            .split(".")[1]
-                                                        }
+                                                      .
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR *
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
+                                                      }
                                                       {/* </sub> */}
                                                     </del>
                                                   </>
@@ -2454,18 +2476,19 @@ const handleChange = (event) => {
                                                             "super",
                                                         }}
                                                       > */}
-                                                        .{
-                                                          (
-                                                            parseFloat(
-                                                              price?.INR *
-                                                                (100 /
-                                                                  (100 -
-                                                                    product?.discount))
-                                                            )?.toFixed(2) + ""
-                                                          )
-                                                            .toString()
-                                                            .split(".")[1]
-                                                        }
+                                                      .
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR *
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
+                                                      }
                                                       {/* </sub> */}
                                                     </del>
                                                   </>
@@ -2514,15 +2537,16 @@ const handleChange = (event) => {
                                                         verticalAlign: "super",
                                                       }}
                                                     > */}
-                                                      .{
-                                                        (
-                                                          parseFloat(
-                                                            price?.INR
-                                                          )?.toFixed(2) + ""
-                                                        )
-                                                          .toString()
-                                                          .split(".")[1]
-                                                      }
+                                                    .
+                                                    {
+                                                      (
+                                                        parseFloat(
+                                                          price?.INR
+                                                        )?.toFixed(2) + ""
+                                                      )
+                                                        .toString()
+                                                        .split(".")[1]
+                                                    }
                                                     {/* </sub> */}
                                                   </>
                                                 )
@@ -2542,15 +2566,16 @@ const handleChange = (event) => {
                                                         verticalAlign: "super",
                                                       }}
                                                     > */}
-                                                      .{
-                                                        (
-                                                          parseFloat(
-                                                            price?.USD
-                                                          )?.toFixed(2) + ""
-                                                        )
-                                                          .toString()
-                                                          .split(".")[1]
-                                                      }
+                                                    .
+                                                    {
+                                                      (
+                                                        parseFloat(
+                                                          price?.USD
+                                                        )?.toFixed(2) + ""
+                                                      )
+                                                        .toString()
+                                                        .split(".")[1]
+                                                    }
                                                     {/* </sub> */}
                                                   </>
                                                 )}
@@ -2600,18 +2625,19 @@ const handleChange = (event) => {
                                                             "super",
                                                         }}
                                                       > */}
-                                                        .{
-                                                          (
-                                                            parseFloat(
-                                                              price?.INR *
-                                                                (100 /
-                                                                  (100 -
-                                                                    product?.discount))
-                                                            )?.toFixed(2) + ""
-                                                          )
-                                                            .toString()
-                                                            .split(".")[1]
-                                                        }
+                                                      .
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR *
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
+                                                      }
                                                       {/* </sub> */}
                                                     </del>
                                                   </>
@@ -2658,18 +2684,19 @@ const handleChange = (event) => {
                                                             "super",
                                                         }}
                                                       > */}
-                                                        .{
-                                                          (
-                                                            parseFloat(
-                                                              price?.INR *
-                                                                (100 /
-                                                                  (100 -
-                                                                    product?.discount))
-                                                            )?.toFixed(2) + ""
-                                                          )
-                                                            .toString()
-                                                            .split(".")[1]
-                                                        }
+                                                      .
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR *
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
+                                                      }
                                                       {/* </sub> */}
                                                     </del>
                                                   </>
@@ -2738,7 +2765,7 @@ const handleChange = (event) => {
 "
                                 >
                                   <img
-                                    src="/images/sale-2.png"
+                                    src="/images/sale-2.webp"
                                     alt="ffer_label"
                                     width={65}
                                     className="drop-shadow-lg"
@@ -2769,7 +2796,7 @@ const handleChange = (event) => {
                   <p className="nk-section-text">{t("stories_desc")}</p>
                   <div className="flex w-full justify-center">
                     <img
-                      src="/images/shop/trust-icon.png"
+                      src="/images/shop/trust-icon.webp"
                       alt="rating_starts"
                     ></img>
                   </div>
@@ -2980,7 +3007,7 @@ const handleChange = (event) => {
                     <a href="#" className="fancy-button bg-gradient1">
                       <span>
                         <img
-                          src="images/store-iconw.png"
+                          src="images/store-iconw.webp"
                           width="30"
                           alt="product-image"
                         />
@@ -2992,7 +3019,7 @@ const handleChange = (event) => {
               </div>
               <div className="col-lg-6 ab-foot">
                 <div className="stores flex justify-center">
-                  <img src="/images/store.png" alt="product-image" />
+                  <img src="/images/store.webp" alt="product-image" />
                 </div>
               </div>
             </div>
