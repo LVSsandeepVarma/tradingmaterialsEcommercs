@@ -37,6 +37,7 @@ export default function Home() {
           }
         );
         if (response?.data?.status) {
+          
           dispatch(fetchAllProducts(response?.data?.data));
           const data = response?.data?.data;
           localStorage.setItem("allProducts", JSON.stringify(data));
