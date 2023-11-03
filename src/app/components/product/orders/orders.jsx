@@ -360,7 +360,7 @@ export default function Orders() {
                 <div className="col-lg-7 pe-lg-0 mt-[17px]">
                   <div className="nk-entry pe-lg-5 py-lg-1">
                     {filteredOrders?.length === 0 && (
-                      <p className="flex !items-center !justify-center mt-5 text-xl  !w-full">
+                      <p className="flex !items-center justify-start md:!justify-center mt-5 text-xl  !w-full">
                         No Orders found on {" "}
                         <b> &#160;{new Date(dateValue).toLocaleDateString("en-us", {
                           day: "2-digit",
@@ -376,7 +376,7 @@ export default function Orders() {
                           <>
                             <div className=" border-1 shadow-lg ">
                               <table className="table ">
-                                <thead className="table-success !bg-white">
+                                <thead className="table-success !bg-white align-top">
                                   <tr>
                                     {/* <th>SHIP TO<br/><span className="th-tex">{order?.shipping_add1}</span></th> */}
                                     <th>
@@ -413,7 +413,7 @@ export default function Orders() {
                                   </tr>
                                 </thead>
                               </table>
-                              <table className="table ">
+                              <div className="">
                                 {/* <thead>
                                   <th colSpan="3" className="th-text-1">
                                     Delivered Saturday
@@ -421,28 +421,22 @@ export default function Orders() {
                                   </th>
                                 </thead> */}
 
-                                <tbody className="">
-                                  <tr className="flex justify-around text-left drop-shadow-lg">
-                                    <td className="product-img">
+                                <div className="grid grid-cols-3 text-left gap-3 drop-shadow-lg mx-2 mb-2 ">
+                                  {/* <tr className="flex justify-around text-left drop-shadow-lg"> */}
+                                    <div className="product-img">
                                       <img
                                         src={order?.product?.product?.img_1}
                                         width={200}
                                         alt="product image"
                                       />
-                                    </td>
-                                    <td>
+                                    </div>
+                                    <div>
                                       <table>
                                         <tr>
                                           <td className="td-text-1">
                                             {order?.product?.product?.name}
                                           </td>
                                         </tr>
-
-                                        {/* <tr>
-                                          <td className="td-text-2">
-                                            Return eligible through 15-Jun-2023
-                                          </td>
-                                        </tr> */}
 
                                         <tr>
                                           <td className="td-btn">
@@ -455,7 +449,7 @@ export default function Orders() {
                                                 .replace(/\//g, "_")
                                                 .replace(/\+/g, "-")}`}
                                               target="_blank"
-                                              className="btn btn-outline-dark border"
+                                              className="btn px-1 btn-outline-dark border"
                                               rel="noreferrer"
                                             >
                                               <span
@@ -467,8 +461,8 @@ export default function Orders() {
                                           </td>
                                         </tr>
                                       </table>
-                                    </td>
-                                    <td colSpan="3" className="td-btn-center">
+                                    </div>
+                                    <div colSpan="3" className="td-btn-center">
                                       <a
                                         onClick={() => {
                                           handleViewAddress([
@@ -508,17 +502,17 @@ export default function Orders() {
                                           Contact Support
                                         </span>
                                       </a>
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </table>
+                                    </div>
+                                  {/* </tr> */}
+                                </div>
+                              </div>
                             </div>
                           </>
                         ))}
                     </div>
                   </div>
 
-                  {filteredOrders?.length > 0 && (
+                  {/* {filteredOrders?.length > 0 && (
                     <div className="row mt-1">
                       <div className="col-lg-4 col-md-6 col-sm-12 ">
                         <div className="mb-3">
@@ -550,14 +544,11 @@ export default function Orders() {
                         </div>
                       </div>
 
-                      {/* <div className="col-lg-3 col-md-6 col-sm-12">
-									<div className="mb-3">
-										<a href="#" className="btn-link text-primary "><span>Bordering</span><em className="icon ni ni-arrow-right"></em></a>
-									</div>
-								</div> */}
+                      
                     </div>
-                  )}
+                  )} */}
                 </div>
+                <Divider className="my-2 col-lg-7 lg:hidden"/>
                 <div className="col-lg-5 ps-lg-0 ">
                   <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
                     <div className="nk-section-blog-details">

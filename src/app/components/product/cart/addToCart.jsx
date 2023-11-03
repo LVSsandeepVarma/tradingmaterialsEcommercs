@@ -85,6 +85,14 @@ export default function AddToCart() {
 
   console.log(cartProducts, "gggggggg");
 
+  useEffect(() => {
+    if (localStorage.getItem("shipAdd")) {
+      handleShippingAddressChange(parseInt(localStorage.getItem("shipAdd")));
+      setBillingSameAsShipping(false)
+    }
+    
+  },[])
+
   const getUserInfo = async () => {
     try {
       const url =
@@ -156,54 +164,59 @@ export default function AddToCart() {
 
   async function handleAddToCartDirectly(productId, status, qty) {
     // setAnimateProductId(productId)
-    try {
-      dispatch(showLoader());
-      const response = await axios?.post(
-        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
-        {
-          product_id: productId,
-          qty: qty,
-          status: status,
-        },
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
+    if (localStorage.getItem("client_token")) {
+      try {
+        dispatch(showLoader());
+        const response = await axios?.post(
+          "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+          {
+            product_id: productId,
+            qty: qty,
+            status: status,
           },
-        }
-      );
-      if (response?.data?.status) {
-        dispatch(updateCart(response?.data?.data?.cart_details));
-        dispatch(updateCartCount(response?.data?.data?.cart_count));
-        setAllProducts(response?.data?.data?.cart_details);
-        getUserInfo();
-        applyPromoCode();
-        // const productData = JSON.parse(localStorage.getItem("productData"))
-
-        localStorage.removeItem("productData");
-        localStorage.removeItem("prodcutQty");
-      }
-    } catch (err) {
-      console.log(err);
-      const errMsg = err?.response?.data?.message?.toLowerCase()
-      if (
-        errMsg?.includes("token") ||
-        errMsg?.includes("expired") ||
-        errMsg?.includes("expire")
-      ) {
-        setShowSessionExpiry(true);
-      } else {
-        dispatch(
-          updateNotifications({
-            type: "error",
-            message: err?.response?.data?.message,
-          })
+          {
+            headers: {
+              "access-token": localStorage.getItem("client_token"),
+            },
+          }
         );
+        if (response?.data?.status) {
+          dispatch(updateCart(response?.data?.data?.cart_details));
+          dispatch(updateCartCount(response?.data?.data?.cart_count));
+          setAllProducts(response?.data?.data?.cart_details);
+          getUserInfo();
+          applyPromoCode();
+          // const productData = JSON.parse(localStorage.getItem("productData"))
+
+          localStorage.removeItem("productData");
+          localStorage.removeItem("prodcutQty");
+        }
+      } catch (err) {
+        console.log(err);
+        const errMsg = err?.response?.data?.message?.toLowerCase();
+        if (
+          errMsg?.includes("token") ||
+          errMsg?.includes("expired") ||
+          errMsg?.includes("expire")
+        ) {
+          setShowSessionExpiry(true);
+        } else {
+          dispatch(
+            updateNotifications({
+              type: "error",
+              message: "please try again, required data is missing",
+            })
+          );
+        }
+      } finally {
+        dispatch(hideLoader());
       }
-    } finally {
-      dispatch(hideLoader());
+    } else {
+      navigate("/");
     }
   }
 
+    
   async function handleAddToCart(productId, status, qty) {
     // setAnimateProductId(productId)
     try {
@@ -259,7 +272,7 @@ export default function AddToCart() {
         dispatch(
           updateNotifications({
             type: "error",
-            message: err?.response?.data?.message,
+            message: "please try again, required data is missing",
           })
         );
       }
@@ -598,7 +611,7 @@ export default function AddToCart() {
         </div>
       )}
       <Header />
-      <div className="nk-pages text-left">
+      <main className="nk-pages text-left">
         <section className="nk-banner nk-banner-career-job-details bg-gray">
           <div className="nk-banner-wrap wrap-padding pt-120 pt-lg-80 pb-[30px] md:pb-[300px] lg:!pb-[300px]">
             <div className="container">
@@ -1003,7 +1016,7 @@ export default function AddToCart() {
                             </span>
                           )}
                         <div className="nk-section-blog-details mt-1">
-                          <div className="max-h-[220px] md:max-h-[225px] overflow-y-auto">
+                          <div className="max-h-[350px] md:max-h-[500px] overflow-y-auto">
                             <h4 className="mb-3 !font-bold">
                               Shipping Address{" "}
                               {userData?.client?.address?.length == 1 &&
@@ -1037,6 +1050,7 @@ export default function AddToCart() {
                                                 setActiveShippingaddressChecked(
                                                   ind
                                                 );
+                                                localStorage.setItem("shipAdd", ind)
                                               }}
                                               className="form-check-input"
                                             />
@@ -1342,8 +1356,8 @@ export default function AddToCart() {
             </div>
           </div>
         </section>
-        <Footer />
-      </div>
+      </main>
+      <Footer />
       <Dialog
         open={showDeleteAlert}
         // onClose={}

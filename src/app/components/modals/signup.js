@@ -114,22 +114,28 @@ const SignupModal = ({ show, onHide }) => {
   }
 
   function handleEmailChange(e) {
+    e.target.value = e.target.value.trim();
     setEmail(e?.target?.value);
     emailValidaiton(e?.target?.value);
   }
 
   function handlePhoneChange(e) {
+    e.target.value = e.target.value.trim();
     e.target.value = e.target.value.replace(/[^0-9]/g, "");
     setPhone(e?.target?.value);
     phoneValidation(e?.target?.value);
   }
 
   function handleFirstNamechange(e) {
+    e.target.value = e.target.value.trimStart();
+    e.target.value = e.target.value.replace(/[^a-zA-Z ]/g, "");
     setFirstName(e?.target?.value);
     firstNameVerification(e?.target?.value);
   }
 
   function handleLastNameChange(e) {
+    e.target.value = e.target.value.trimStart();
+    e.target.value = e.target.value.replace(/[^a-zA-Z ]/g, "");
     setLastName(e?.target?.value);
     lastNameVerification(e?.target?.value);
   }

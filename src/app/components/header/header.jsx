@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
@@ -49,6 +49,9 @@ export default function Header() {
   const userData = useSelector((state) => state?.user?.value);
   // const loaderState = useSelector((state) => state?.loader?.value);
   const notifications = useSelector((state) => state?.notification?.value);
+  const sugnupAddtoCartModal = useSelector(
+    (state) => state?.signupInModal?.value?.showSignupCartModal
+  );
   const cartCounts = useSelector((state) => state?.saved?.value);
   const userLang = useSelector((state) => state?.lang?.value);
   const popup = useSelector((state) => state?.popup?.value);
@@ -86,7 +89,7 @@ export default function Header() {
 
   useEffect(() => {
     // if(popup ){
-    document.body.style.setProperty("overflow", "auto", "important");
+    document.body.style.setProperty("overflow", "auto", "");
     // }
   }, [popup]);
 
@@ -307,47 +310,71 @@ export default function Header() {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const showSignupPopup = async () => {
     if (window.location.pathname === "/") {
       dispatch(showPopup());
     }
   };
-  const memoizedFetchProducts = useMemo(() => {
-    const fetchProducts = async () => {
-      // Fetch the data from the API.
-      try {
-        const response = await axios.get(
-          "https://admin.tradingmaterials.com/api/get/products",
-          {
-            headers: {
-              "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-              Accept: "application/json",
-              "access-token": localStorage.getItem("client_token"),
-            },
-          }
-        );
-        response.data.data.products.sort((a, b) => {
-          // Convert prices to numbers and compare them
-          const priceA = a.prices[0].INR;
-          const priceB = b.prices[0].INR;
-          return parseInt(priceA) - parseInt(priceB);
-        });
+  // const memoizedFetchProducts = useMemo(() => {
+  //   const fetchProducts = async () => {
+  //     // Fetch the data from the API.
+  //     try {
+  //       const response = await axios.get(
+  //         "https://admin.tradingmaterials.com/api/get/products",
+  //         {
+  //           headers: {
+  //             "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+  //             Accept: "application/json",
+  //             "access-token": localStorage.getItem("client_token"),
+  //           },
+  //         }
+  //       );
+  //       response.data.data.products.sort((a, b) => {
+  //         // Convert prices to numbers and compare them
+  //         const priceA = a.prices[0].INR;
+  //         const priceB = b.prices[0].INR;
+  //         return parseInt(priceA) - parseInt(priceB);
+  //       });
 
-        
-        dispatch(fetchAllProducts(response.data.data));
-        return response.data.data;
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    return fetchProducts;
-  }, []);
+  //       dispatch(fetchAllProducts(response.data.data));
+  //       return response.data.data;
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   };
+  //   return fetchProducts;
+  // }, []);
 
   useEffect(() => {
-    const fetchProducts = memoizedFetchProducts;
-    fetchProducts();
-  }, []);
+        const fetchProducts = async () => {
+          // Fetch the data from the API.
+          try {
+            const response = await axios.get(
+              "https://admin.tradingmaterials.com/api/get/products",
+              {
+                headers: {
+                  "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+                  Accept: "application/json",
+                  "access-token": localStorage.getItem("client_token"),
+                },
+              }
+            );
+            response.data.data.products.sort((a, b) => {
+              // Convert prices to numbers and compare them
+              const priceA = a.prices[0].INR;
+              const priceB = b.prices[0].INR;
+              return parseInt(priceA) - parseInt(priceB);
+            });
+
+            dispatch(fetchAllProducts(response.data.data));
+            return response.data.data;
+          } catch (err) {
+            console.log(err);
+          }
+        };
+        fetchProducts();
+  }, [sugnupAddtoCartModal]);
 
   useEffect(() => {
     // dispatch(showLoader());
@@ -372,30 +399,30 @@ export default function Header() {
       //   window.navigator.userAgent.includes("Windows") ||
       //   window.navigator.userAgent.includes("Macintosh")
       // ) {
-      const timeOut = setTimeout(() => {
-        if (modals?.showLoginModal === false) {
-          if (
-            !isLoggedIn &&
-            sessionStorage.getItem("offerCodeClaimed") != "true"
-          ) {
-            showSignupPopup();
-          }
-        }
-      }, 3000);
-      if (
-        modals?.showLoginModal ||
-        modals?.showSignupModal ||
-        modals?.showforgotPasswordModal ||
-        modals?.showSignupCartModal ||
-        modals?.showSignupBuyModal ||
-        isLoggedIn ||
-        sessionStorage.getItem("offerCodeClaimed") == true
-      ) {
-        clearTimeout(timeOut);
-      }
-      return () => {
-        clearTimeout(timeOut);
-      };
+      // const timeOut = setTimeout(() => {
+      //   if (modals?.showLoginModal === false) {
+      //     if (
+      //       !isLoggedIn &&
+      //       sessionStorage.getItem("offerCodeClaimed") != "true"
+      //     ) {
+      //       showSignupPopup();
+      //     }
+      //   }
+      // }, 3000);
+      // if (
+      //   modals?.showLoginModal ||
+      //   modals?.showSignupModal ||
+      //   modals?.showforgotPasswordModal ||
+      //   modals?.showSignupCartModal ||
+      //   modals?.showSignupBuyModal ||
+      //   isLoggedIn ||
+      //   sessionStorage.getItem("offerCodeClaimed") == true
+      // ) {
+      //   clearTimeout(timeOut);
+      // }
+      // return () => {
+      //   clearTimeout(timeOut);
+      // };
     }
     // }
   }, [isLoggedIn, modals]);
@@ -438,6 +465,7 @@ export default function Header() {
       }
     } catch (err) {
       console.log("err", err);
+      setShowSessionExpiry(true);
     } finally {
       dispatch(hideLoader());
     }
@@ -690,12 +718,24 @@ export default function Header() {
                     <div>
                       <ul className="nk-nav">
                         <li className="nk-nav-item">
-                          <a href={`${userLang}/`} className="nk-nav-link">
+                          <a
+                            href={`${userLang}/`}
+                            className={`nk-nav-link ${
+                              location.pathname === "/" ? "text-[#2b5cfd]" : ""
+                            }`}
+                          >
                             <span className="nk-nav-text">{t("Home")}</span>
                           </a>
                         </li>
                         <li className="nk-nav-item">
-                          <a href={`${userLang}/about`} className="nk-nav-link">
+                          <a
+                            href={`${userLang}/about`}
+                            className={`nk-nav-link ${
+                              location.pathname === "/about"
+                                ? "text-[#2b5cfd]"
+                                : ""
+                            }`}
+                          >
                             <span className="nk-nav-text">{t("About_Us")}</span>
                           </a>
                         </li>
@@ -731,7 +771,7 @@ export default function Header() {
                                   <>
                                     {product?.combo == 0 && (
                                       <>
-                                        <li className="col-lg-6 col-xl-4 p-0 cursor-pointer">
+                                        <li className="col-lg-6 col-xl-4 p-0 cursor-pointer !hover:text-blue-600">
                                           <a
                                             onClick={() => {
                                               dispatch(
@@ -746,7 +786,7 @@ export default function Header() {
                                               setToggleNavbar(false);
                                               setActiveDropDown("");
                                             }}
-                                            className="nk-nav-link "
+                                            className="nk-nav-link cursor-pointer"
                                           >
                                             <div className="media-group">
                                               <div className="text-primary me-3">
@@ -754,11 +794,11 @@ export default function Header() {
                                                   style={{ fontSize: "18px" }}
                                                 />
                                               </div>
-                                              <div className="media-text d-flex align-items-center sm">
-                                                <h2 className="lead-text fs-14 text-capitalize m-0 !font-bold">
+                                              {/* <div className="media-text d-flex align-items-center sm"> */}
+                                                {/* <h2 className=" fs-14 text-capitalize m-0 !font-bold "> */}
                                                   {product?.name}
-                                                </h2>
-                                              </div>
+                                                {/* </h2> */}
+                                              {/* </div> */}
                                             </div>
                                           </a>
                                         </li>
@@ -837,7 +877,14 @@ export default function Header() {
                         </li>
 
                         <li className="nk-nav-item">
-                          <a href={`/tracking`} className="nk-nav-link">
+                          <a
+                            href={`/tracking`}
+                            className={`nk-nav-link ${
+                              location.pathname === "/tracking"
+                                ? "text-[#2b5cfd]"
+                                : ""
+                            }`}
+                          >
                             <span className="nk-nav-text">
                               {t("Order_Tracking")}
                             </span>
@@ -846,7 +893,11 @@ export default function Header() {
                         <li className="nk-nav-item">
                           <a
                             href={`${userLang}/contact`}
-                            className="nk-nav-link"
+                            className={`nk-nav-link ${
+                              location.pathname === "/contact"
+                                ? "text-[#2b5cfd]"
+                                : ""
+                            }`}
                           >
                             <span className="nk-nav-text">
                               {t("Contact_Us")}
@@ -928,7 +979,7 @@ export default function Header() {
                                         className="nk-nav-link cursor-pointer"
                                         onClick={handleLogout}
                                       >
-                                        logout
+                                        Logout
                                       </a>
                                     </li>
                                   </ul>

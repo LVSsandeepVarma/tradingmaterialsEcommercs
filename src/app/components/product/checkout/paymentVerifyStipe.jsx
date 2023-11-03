@@ -31,13 +31,22 @@ export default function PaymentVerifyStripe() {
   const [paymentVerification, setPaymentVerification] = useState(false);
   const [clientToken, setClientToken] = useState("");
   const [time, setTime] = useState(5);
-  const [paymentVerifyError, setPaymentVerifyError] = useState(`There was some internal issue with the payment on ${new Date().toLocaleDateString( "en-GB" )}`)
+  const [paymentVerifyError, setPaymentVerifyError] = useState(
+    `There was some internal issue with the payment on ${new Date().toLocaleDateString(
+      "en-GB"
+    )}`
+  );
 
   // State variable to store prices for each product
-  const queryParams = new URLSearchParams(window.location.search)
-  console.log(params, "params", queryParams.get("payment_intent"), queryParams.get("payment_intent_client_secret"))
-  const id = localStorage.getItem("id")
-  const orderID = localStorage.getItem("orderID")
+  const queryParams = new URLSearchParams(window.location.search);
+  console.log(
+    params,
+    "params",
+    queryParams.get("payment_intent"),
+    queryParams.get("payment_intent_client_secret")
+  );
+  const id = localStorage.getItem("id");
+  const orderID = localStorage.getItem("orderID");
   // const decryptedId = CryptoJS.AES.decrypt(
   //   id.replace(/_/g, "/").replace(/-/g, "+"),
   //   "trading_materials_order"
@@ -96,7 +105,7 @@ export default function PaymentVerifyStripe() {
     // setActiveShippingAddress(userData?.client?.address[0]);
     // setActivebillingAddress(userData?.client?.primary_address[0]);
     // getUserInfo();
-    verifyPayment()
+    verifyPayment();
     fetchOrderdetails();
   }, []);
 
@@ -105,10 +114,10 @@ export default function PaymentVerifyStripe() {
     const token = localStorage.getItem("client_token");
     console.log(token);
     sessionStorage.setItem("order_id", id);
-  
+
     try {
       setPaymentVerification(true);
-  
+
       const response = await axios.post(
         "https://admin.tradingmaterials.com/api/lead/product/checkout/verify-payment",
         {
@@ -123,7 +132,7 @@ export default function PaymentVerifyStripe() {
           },
         }
       );
-  
+
       if (response.data.status) {
         console.log(response?.data?.token, "actoken");
         setClientToken(response?.data?.token);
@@ -138,12 +147,25 @@ export default function PaymentVerifyStripe() {
           setPaymentStatus("success");
           //   setShowLoader(false)
         }
-       
+
         localStorage.setItem("client_type", "client");
       } else {
         // Handle the case where response.data.status is false
         console.log("Payment verification failed:", response.data);
-        setPaymentVerifyError(response?.data?.message?.message)
+        if (
+          response?.data?.message?.code?.includes(
+            "payment_intent_authentication_failure"
+          )
+        ) {
+          setPaymentVerifyError("Payment cancelled, please try again later");
+        }else if (
+          response?.data?.message?.decline_code == "generic_decline" || response?.data?.message?.message?.includes("does not support")){
+          setPaymentVerifyError("The last payment was incomplete due to no response from the transferring bank.")
+          
+         
+        } else {
+          setPaymentVerifyError(response?.data?.message);
+        }
         if (response?.data?.code === "ACTION_REQ") {
           window.location.herf = response?.data?.url;
         } else if (response?.data?.code === "FAILED") {
@@ -156,16 +178,25 @@ export default function PaymentVerifyStripe() {
     } catch (error) {
       // Log the error for debugging
       console.error("An error occurred during payment verification:", error);
-      if(error?.response?.data?.message){
-        setPaymentVerifyError(error?.response?.data?.message)
+      if (error?.response?.data?.message?.includes("payment_method_data")) {
+        setPaymentStatus("failed");
+        setPaymentVerifyError("Payment cancelled, please try again later");
+      } else if (
+        error?.response?.data?.message?.decline_code == "generic_decline" ||
+        error?.response?.data?.message?.message?.includes("does not support")
+      ) {
+        setPaymentVerifyError(
+          "The last payment was incomplete due to no response from the transferring bank."
+        );
+      } else {
+        setPaymentStatus("failed");
+        setPaymentVerifyError(error?.response?.data?.message);
       }
-      
-      
     } finally {
       setPaymentVerification(false);
     }
   }
-  
+
   return (
     <>
       {loaderState && (
@@ -202,14 +233,14 @@ export default function PaymentVerifyStripe() {
         <section className="nk-section nk-section-job-details pt-lg-0">
           <div className="container">
             <div className="nk-section-content row px-lg-5">
-              <div className="col-lg-8 pe-lg-0">
+              <div className="col-lg-8 h-fit">
                 <div className="nk-entry pe-lg-5 py-lg-5 max-h-[50%] overflow-y-auto">
                   <div className="mb-5">
                     {allProducts?.length > 0 ? (
                       <table className="table">
                         <tbody>
                           {allProducts?.length &&
-                            allProducts?.map((product,ind) => {
+                            allProducts?.map((product, ind) => {
                               return (
                                 <tr key={ind}>
                                   <td className="w-50">
@@ -398,7 +429,15 @@ export default function PaymentVerifyStripe() {
                       <div className="printer-bottom"></div>
 
                       <div className={`paper drop-shadow-lg `}>
-                        <div className={`main-contents ${paymentStatus==="failed" ? "!bg-gradient-to-tr from-red-600 to-red-200": paymentStatus==="success"? "!bg-gradient-to-tr from-green-600 to-green-200" : ""}`}>
+                        <div
+                          className={`main-contents ${
+                            paymentStatus === "failed"
+                              ? "!bg-gradient-to-tr from-red-600 to-red-200"
+                              : paymentStatus === "success"
+                              ? "!bg-gradient-to-tr from-green-600 to-green-200"
+                              : ""
+                          }`}
+                        >
                           <div
                             className={`flex items-center justify-center ${
                               paymentStatus === "success"
@@ -416,29 +455,48 @@ export default function PaymentVerifyStripe() {
                               />
                             )}
                           </div>
-                          <div className={`success-title !text-xl ${paymentStatus === "loading" ? "" : "!text-white"}`}>
+                          <div
+                            className={`success-title !text-xl ${
+                              paymentStatus === "loading" ? "" : "!text-white"
+                            }`}
+                          >
                             {paymentStatus === "success"
                               ? "Payment Successful"
                               : "Payment Failure"}
                           </div>
 
-                          <div className={`success-description ${paymentStatus === "loading" ? "" : "!text-white"}`}>
+                          <div
+                            className={`success-description ${
+                              paymentStatus === "loading" ? "" : "!text-white"
+                            }`}
+                          >
                             {paymentStatus === "success"
                               ? `Thank you for your payment made on ${new Date().toLocaleDateString(
-                                "en-GB"
-                              )} `
-                              : paymentVerifyError
-                            }
+                                  "en-GB"
+                                )} `
+                              : paymentVerifyError}
                           </div>
                           <div className="order-details"></div>
                           {paymentStatus === "success" ? (
                             <>
-                              <div className={`order-footer text-gray-700  ${paymentStatus === "loading" ? "" : "!text-white"}` }>
+                              <div
+                                className={`order-footer text-gray-700  ${
+                                  paymentStatus === "loading"
+                                    ? ""
+                                    : "!text-white"
+                                }`}
+                              >
                                 Thankyou
                               </div>
                               <small
-                                className={`cursor-pointer hover:text-green-600  font-bold  ${paymentStatus === "loading" ? "" : "!text-white"}`}
-                                onClick={() => navigate(`/order-tracking/${orderID}`)}
+                                className={`cursor-pointer hover:text-green-600  font-bold  ${
+                                  paymentStatus === "loading"
+                                    ? ""
+                                    : "!text-white"
+                                }`}
+                                onClick={() =>
+                                  navigate(`/order-tracking/${orderID}`)
+                                }
                               >
                                 Do not Refresh the page, we will redirect to
                                 your orders in {time}
@@ -454,7 +512,8 @@ export default function PaymentVerifyStripe() {
                                 )
                                   ?.toString()
                                   .replace(/\//g, "_")
-                                  .replace(/\+/g, "-")}`} target="_blank"
+                                  .replace(/\+/g, "-")}`}
+                                target="_blank"
                                 type="button"
                                 className="!bg-red-600 !border-red-600 drop-shadow-lg text-white w-[50%] p-2 mr-1 !rounded-none"
                               >
@@ -463,7 +522,15 @@ export default function PaymentVerifyStripe() {
                             </div>
                           )}
                         </div>
-                        <div className={`jagged-edge ${paymentStatus === "success" ? "jagged-edge-success" : paymentStatus === "failed" ? "jagged-edge-failed" : "jagged-edge-loading"}`}></div>
+                        <div
+                          className={`jagged-edge ${
+                            paymentStatus === "success"
+                              ? "jagged-edge-success"
+                              : paymentStatus === "failed"
+                              ? "jagged-edge-failed"
+                              : "jagged-edge-loading"
+                          }`}
+                        ></div>
                       </div>
                     </div>
                   </div>
@@ -535,8 +602,8 @@ export default function PaymentVerifyStripe() {
             </div>
           </div>
         </section>
-        <Footer />
       </div>
+      <Footer />
     </>
   );
 }

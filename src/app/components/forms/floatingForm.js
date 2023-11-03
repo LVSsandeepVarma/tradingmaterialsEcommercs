@@ -21,6 +21,7 @@ export default function FloatingForm(handleClose) {
   }
 
   const handleEmailChange = (e) => {
+    e.target.value = e.target.value.trim();
     setEmail(e?.target?.value);
     emailValidaiton(email);
   };

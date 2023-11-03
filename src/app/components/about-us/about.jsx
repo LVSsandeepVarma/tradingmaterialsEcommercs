@@ -3,11 +3,14 @@ import Header from "../header/header";
 import { useDispatch, useSelector } from "react-redux";
 import { hideLoader } from "../../../features/loader/loaderSlice";
 import Footer from "../footer/footer";
+import { useTranslation } from "react-i18next";
+
 
 export default function About() {
   const dispatch = useDispatch();
   const loaderState = useSelector((state) => state?.loader?.value);
   const userLang = useSelector((state) => state?.lang?.value);
+const { t } = useTranslation();
 
   useEffect(() => {
     dispatch(hideLoader);
@@ -23,7 +26,7 @@ export default function About() {
           )}
 
           <Header />
-          <main className="nk-pages mt-40 sm:mt-60 md:mt-20">
+          <main className="nk-pages mt-20 sm:mt-28 md:mt-24  ">
             <section className="nk-section ">
               <div className="nk-mask blur-1 left center"></div>
               <div className="container">
@@ -100,10 +103,10 @@ export default function About() {
             </section>
             <section className="nk-section">
               <div className="container">
-                <div className="row gy-5">
+                <div className="row gy-5 flex">
                   <div className="col-md-6">
-                    <div className="card">
-                      <div className="card-body !p-[30px]">
+                    <div className="card h-full">
+                      <div className="card-body p-[30px]">
                         <div className="media-group gap-3 gap-md-4 flex-column flex-lg-row align-items-start align-items-lg-center">
                           <div className="media-text">
                             <div className="h1 text-primary !font-bold">
@@ -114,8 +117,7 @@ export default function About() {
                             <h4 className="text-capitalize !text-2xl !text-left !font-bold">
                               Company Growth
                             </h4>
-                            <p className="!text-left">
-                              {" "}
+                            <p className="text-left">
                               Fostering exponential advancement by embracing
                               innovation.
                             </p>
@@ -124,65 +126,19 @@ export default function About() {
                       </div>
                     </div>
                   </div>
+
                   <div className="col-md-6">
-                    <div className="card">
-                      <div className="card-body !p-[30px]">
+                    <div className="card h-full">
+                      <div className="card-body p-[30px]">
                         <div className="media-group gap-3 gap-md-4 flex-column flex-lg-row align-items-start align-items-lg-center">
                           <div className="media-text">
-                            <div className="h1 text-warning !font-bold">
-                              175+
-                            </div>
-                          </div>
-                          <div className="media-text m-0">
-                            <h4 className="text-capitalize !text-2xl !text-left !font-bold">
-                              Team Members
-                            </h4>
-                            <p className="!text-left">
-                              {" "}
-                              The dynamic prowess of our team fuels our journey.{" "}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="card">
-                      <div className="card-body !p-[30px]">
-                        <div className="media-group gap-3 gap-md-4 flex-column flex-lg-row align-items-start align-items-lg-center">
-                          <div className="media-text">
-                            <div className="h1 text-danger !font-bold">
-                              625+
-                            </div>
-                          </div>
-                          <div className="media-text m-0">
-                            <h4 className="text-capitalize !text-2xl !text-left !font-bold">
-                              Ongoing Projects
-                            </h4>
-                            <p className="!text-left">
-                              {" "}
-                              Diverse initiatives at play, propelling our
-                              mission forward.{" "}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="card">
-                      <div className="card-body !p-[30px]">
-                        <div className="media-group gap-3 gap-md-4 flex-column flex-lg-row align-items-start align-items-lg-center">
-                          <div className="media-text">
-                            <div className="h1 text-success !font-bold">
-                              99%
-                            </div>
+                            <div className="h1 text-success font-bold">99%</div>
                           </div>
                           <div className="media-text m-0">
                             <h4 className="text-capitalize !text-2xl !text-left !font-bold">
                               Customer Delight
                             </h4>
-                            <p className="!text-left">
+                            <p className="text-left">
                               Our prime concern is ensuring customer happiness.
                             </p>
                           </div>
@@ -257,7 +213,7 @@ export default function About() {
             </section>
             <section className="nk-section">
               <div className="container">
-                <div className="row justify-content-center">
+                <div className="row flex justify-content-center">
                   <div className="col-lg-8 col-xxl-6">
                     <div className="nk-section-head text-center ">
                       <span className="nk-section-subtitle !text-left">
@@ -270,7 +226,7 @@ export default function About() {
                         <p className="nk-section-text">
                           Innovation, Collaboration, and Excellence: Anchored in
                           these beliefs, we pave the way for outstanding
-                          solutions and empower businesses through unwavering
+                          solutions and empower customers through unwavering
                           commitment.
                         </p>
                       </div>
@@ -279,7 +235,7 @@ export default function About() {
                 </div>
                 <div className="row gy-5">
                   <div className="col-md-6 col-lg-4">
-                    <div className="card">
+                    <div className="card h-full">
                       <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-4 ">
                           <em className="icon ni ni-file-text-fill !text-left"></em>
@@ -296,7 +252,7 @@ export default function About() {
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
-                    <div className="card">
+                    <div className="card h-full">
                       <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-info-soft mb-4">
                           <em className="icon ni ni-gift"></em>
@@ -313,7 +269,7 @@ export default function About() {
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
-                    <div className="card">
+                    <div className="card h-full">
                       <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-warning-soft mb-4">
                           <em className="icon ni ni-growth-fill"></em>
@@ -330,7 +286,7 @@ export default function About() {
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
-                    <div className="card">
+                    <div className="card h-full">
                       <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-danger-soft mb-4">
                           <em className="icon ni ni-users-fill"></em>
@@ -347,7 +303,7 @@ export default function About() {
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
-                    <div className="card">
+                    <div className="card h-full">
                       <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-4">
                           <em className="icon ni ni-bulb-fill"></em>
@@ -364,7 +320,7 @@ export default function About() {
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-4">
-                    <div className="card">
+                    <div className="card h-full">
                       <div className="card-body !p-[30px] !text-left">
                         <div className="media media-lg media-middle media-circle text-bg-success-soft mb-4">
                           <em className="icon ni ni-flag-fill"></em>
@@ -499,88 +455,8 @@ export default function About() {
                 </div>
               </div>
             </section>
+
             {/* <section className="nk-section">
-              <div className="container">
-                <div className="row justify-content-center">
-                  <div className="col-lg-8 col-xxl-6">
-                    <div className="nk-section-head text-center">
-                      <span className="nk-section-subtitle">PRESS & MEDIA</span>
-                      <h2 className="nk-section-title !font-bold">
-                      Trading Materials In The News
-                      </h2>
-                      <p className="nk-section-text">
-                      Catch Up on the Recent Developments and News Surrounding Trading Materials, Showcased Across Leading Publications and Media Platforms.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="row gap g-3 justify-content-xl-center">
-                  <div className="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <a
-                      href="#"
-                      className="nk-brand bg-gray border border-gray-50 py-3 py-md-4 px-5 px-md-6 rounded-2 text-center d-inline-block w-100 h-100"
-                    >
-                      <img
-                        src="/images/brands/a.webp"
-                        alt="brand"
-                        className="img-fluid"
-                      />
-                    </a>
-                  </div>
-                  <div className="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <a
-                      href="#"
-                      className="nk-brand bg-gray border border-gray-50 py-3 py-md-4 px-5 px-md-6 rounded-2 text-center d-inline-block w-100 h-100"
-                    >
-                      <img
-                        src="/images/brands/b.webp"
-                        alt="brand"
-                        className="img-fluid"
-                      />
-                    </a>
-                  </div>
-                  <div className="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <a
-                      href="#"
-                      className="nk-brand bg-gray border border-gray-50 py-3 py-md-4 px-5 px-md-6 rounded-2 text-center d-inline-block w-100 h-100"
-                    >
-                      <img
-                        src="/images/brands/c.webp"
-                        alt="brand"
-                        className="img-fluid"
-                      />
-                    </a>
-                  </div>
-                  <div className="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <a
-                      href="#"
-                      className="nk-brand bg-gray border border-gray-50 py-3 py-md-4 px-5 px-md-6 rounded-2 text-center d-inline-block w-100 h-100"
-                    >
-                      <img
-                        src="/images/brands/d.webp"
-                        alt="brand"
-                        className="img-fluid"
-                      />
-                    </a>
-                  </div>
-                  <div className="col-6 col-sm-4 col-lg-3 col-xl-2">
-                    <a
-                      href="#"
-                      className="nk-brand bg-gray border border-gray-50 py-3 py-md-4 px-5 px-md-6 rounded-2 text-center d-inline-block w-100 h-100"
-                      data-aos="fade-up"
-                      data-aos-delay="250"
-                    >
-                      <img
-                        src="/images/brands/e.webp"
-                        alt="brand"
-                        className="img-fluid"
-                      />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </section> */}
-            <section className="nk-section">
               <div className="nk-mask blur-1 right center"></div>
               <div className="container">
                 <div className="row justify-content-center">
@@ -706,24 +582,31 @@ export default function About() {
                   </div>
                 </div>
               </div>
-            </section>
-
+            </section> */}
             <section className="nk-section nk-cta-section nk-section-content-1">
               <div className="container">
-                <div className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7">
-                  <div className="row g-gs align-items-center">
+               
+                <div
+                  className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+                  data-aos="fade-up"
+                  data-aos-delay="100"
+                >
+                  <div
+                    className="row g-gs align-items-center"
+                    data-aos="fade-up"
+                    data-aos-delay="100"
+                  >
                     <div className="col-lg-8">
                       <div className="media-group flex-column flex-lg-row align-items-center">
                         <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
                           <em className="icon ni ni-chat-fill"></em>
                         </div>
                         <div className="text-center text-lg-start">
-                          <h3 className="text-capitalize m-0 !text-3xl !font-bold !leading-loose">
-                            Chat with our support team!
+                          <h3 className="text-capitalize m-0 !text-3xl !font-bold">
+                            {t("Chat_With_Our_Support_Team")}
                           </h3>
-                          <p className="fs-16 opacity-75">
-                            Get in touch with our support team if you still
-                            can’t find your answer.
+                          <p className="fs-16 opacity-75 !text-lg mt-1">
+                            {t("chat_team_desc")}
                           </p>
                         </div>
                       </div>
@@ -733,7 +616,7 @@ export default function About() {
                         href={`${userLang}/contact`}
                         className="btn btn-white fw-semiBold"
                       >
-                        Contact Support
+                        {t("Contact_support")}
                       </a>
                     </div>
                   </div>

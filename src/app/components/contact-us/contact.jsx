@@ -39,7 +39,7 @@ export default function Contact() {
     } else if (name?.length < 3) {
       setNameErr("Min 3 characters are required");
     } else if (name?.length > 100) {
-      setNameErr("Max 100 characters are required");
+      setNameErr("Max 100 characters are allowed");
     } else {
       setNameErr("");
       return true;
@@ -93,19 +93,23 @@ export default function Contact() {
   }
 
   function handleNameChange(e) {
+    e.target.value = e.target.value.trimStart()
     setName(e.target.value);
     validName(e.target.value);
   }
   function handleEmailChange(e) {
+    e.target.value = e.target.value.trim();
     setEmail(e.target.value);
     validEmail(e.target.value);
   }
   function handlePhoneChange(e) {
+    e.target.value = e.target.value.trim();
     e.target.value =  e.target.value.replace(/[^0-9]/g, '');
     setPhone(e.target.value);
     phoneValidation(e.target.value);
   }
   function handleDescChange(e) {
+    e.target.value = e.target.value.trimStart();
     setDesc(e.target.value);
     descValidation(e.target.value);
   }
@@ -194,7 +198,7 @@ export default function Contact() {
           )}
 
           <Header />
-          <main className="nk-pages mt-40 sm:mt-60 md:mt-20">
+          <main className="nk-pages mt-20 sm:mt-28 md:mt-24">
             <section className="nk-section ">
               <div className="nk-mask blur-1 left center"></div>
               <div className="container">

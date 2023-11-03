@@ -47,7 +47,7 @@ export default function UpdateProfile({ open, handleClose }) {
     } else if (name?.length < 3) {
       setNameErr("Min 3 characters are required");
     } else if (name?.length > 100) {
-      setNameErr("Max 100 characters are required");
+      setNameErr("Max 100 characters are allowed");
     } else {
       setNameErr("");
       return true;

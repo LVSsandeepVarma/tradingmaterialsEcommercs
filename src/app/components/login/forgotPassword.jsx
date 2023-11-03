@@ -40,6 +40,7 @@ export default function ForgotPassword() {
   }
 
   const handleEmailChange = (e) => {
+    e.target.value = e.target.value.trim();
     setEmail(e?.target?.value);
     emailValidaiton(email);
   };

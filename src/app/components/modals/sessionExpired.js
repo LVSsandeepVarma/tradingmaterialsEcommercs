@@ -6,6 +6,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
+import LoginIcon from "@mui/icons-material/Login";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
@@ -19,34 +20,40 @@ export default function SessionExpired({ open, handleClose }) {
 
   return (
     <>
-      <Dialog open={open}>
-        <DialogTitle className="text-danger">Session Expired !</DialogTitle>
+      <Dialog open={open} maxWidth="xs" fullWidth>
+        <DialogTitle className="text-danger text-center">
+          Timed out !
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
             <div className="">
-                
-    <p>
-    <QueryBuilderIcon fontSize="medium"/>Your session has been expired. Click here to{" "}
-            <b
-              className="!text-blue-500 cursor-pointer"
-              onClick={() => {
-                handleClose();
-                window?.location?.reload();
-                dispatch(
-                  usersignupinModal({
-                    showSignupModal: false,
-                    showLoginModal: true,
-                    showforgotPasswordModal: false,
-                    showOtpModal: false,
-                    showNewPasswordModal: false,
-                    showSignupBuyModal: false,
-                  })
-                );
-              }}
-            >
-              Login{" "}
-            </b>
-            </p>
+              <p>
+                <QueryBuilderIcon fontSize="medium" className="mr-1" />
+                Your Request Timed out.
+              </p>
+              <p className="mt-2">
+                <LoginIcon fontSize="medium" className="mr-1" />
+                Click here to{" "}
+                <b
+                  className="!text-blue-500 cursor-pointer"
+                  onClick={() => {
+                    handleClose();
+                    window?.location?.reload();
+                    dispatch(
+                      usersignupinModal({
+                        showSignupModal: false,
+                        showLoginModal: true,
+                        showforgotPasswordModal: false,
+                        showOtpModal: false,
+                        showNewPasswordModal: false,
+                        showSignupBuyModal: false,
+                      })
+                    );
+                  }}
+                >
+                  Login{" "}
+                </b>
+              </p>
             </div>
           </DialogContentText>
         </DialogContent>

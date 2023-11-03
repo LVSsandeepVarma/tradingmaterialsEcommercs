@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-// ShippingAddressModal.js
 import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 // import Register from "../register/register";
@@ -77,6 +76,7 @@ const LoginModal = ({ show, onHide }) => {
   }
   onkeydown;
   function handleEmailChange(e) {
+    e.target.value = e.target.value.trim();
     setEmail(e?.target?.value);
     emailValidaiton(e?.target?.value);
   }
@@ -259,7 +259,7 @@ const LoginModal = ({ show, onHide }) => {
                     </a>
                   </div>
                   <h3
-                    className="title mb-2 font-semibold !font-bold"
+                    className="title mb-2  !font-bold"
                     style={{ fontSize: "1.5rem" }}
                   >
                     Login to your account

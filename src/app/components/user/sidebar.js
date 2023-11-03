@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
@@ -42,6 +41,8 @@ import AddToFav from "../modals/addToFav";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import SessionExpired from "../modals/sessionExpired";
 import EmailIcon from "@mui/icons-material/Email";
+import Footer from "../footer/footer";
+import { useTranslation } from "react-i18next";
 
 const drawerWidth = 240;
 
@@ -75,6 +76,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+// eslint-disable-next-line no-unused-vars
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -93,6 +95,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 export default function SideBar() {
+  const { t } = useTranslation();
   // eslint-disable-next-line no-unused-vars
   const [open, setOpen] = React.useState(true);
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -352,695 +355,316 @@ export default function SideBar() {
           wishMsg={showWishlistRemoveMsg}
         />
       )}
-
-      <div className="container">
-        <Header />
-        <Box sx={{ display: "flex" }}>
-          {/* <CssBaseline /> */}
-          {/* <AppBar open={open} style={{background: "linear-gradient(23.01deg, #2b5cfd 14.9%, #1d3faf 85.1%)"}}>
-        
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: 'none' }),
-            }}
-          >
-            <MenuIcon  />
-          </IconButton>
-          
-        </Toolbar>
-      </AppBar> */}
-          <Drawer
-            variant="permanent"
-            className="drop-shadow-xl !w-[100%] sm:!w-[100%]   lg:!w-[24%]"
-            open={open}
-          >
-            <Divider />
-            <DrawerHeader
-              className="drop-shadow-xl !w-full"
-              style={{ width: "100% !important" }}
-            >
+      <Header />
+      <div className="">
+        <main className="nk-pages mt-20 sm:mt-20 md:mt-24 ">
+          <section className="nk-section container">
+            <div className="flex flex-wrap md:flex-wrap-nowrap">
               <div
-                style={{
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  width: "100%",
-                }}
+                // variant="permanent"
+                className="shadow-xl text-black !w-[100%] sm:!w-[100%]   lg:!w-[24%]"
               >
-                <p
-                  className="font-bold !text-left w-full ml-3 p-3 flex justify-center w-full"
-                  style={{
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    width: "90%",
-                  }}
+                <Divider />
+                <div
+                  className="drop-shadow-xl !w-full"
+                  style={{ width: "100% !important" }}
                 >
-                  <Avatar
-                    alt="user profile"
-                    src="/images/blueProfile.webp"
-                    sx={{ width: "40%", height: "40%" }}
-                    className=""
-                  ></Avatar>
-                </p>
-                <p
-                  className="font-bold text-lg !text-left w-full ml-3 p-1"
-                  style={{
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    width: "90%",
-                  }}
-                >
-                  {userData?.client?.first_name?.charAt(0)?.toUpperCase() +
-                    userData?.client?.first_name?.slice(1)}{" "}
-                  {userData?.client?.last_name}
-                </p>
-                <p
-                  className=" flex items-center font-bold text-sm !text-left w-full ml-3  p-1 pb-0"
-                  style={{
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    width: "90%",
-                  }}
-                >
-                  <EmailIcon className="mr-1" fontSize="small" />
-                  {userData?.client?.email}
-                </p>
-                <p
-                  className="flex  items-center font-bold text-sm !text-left w-full ml-3 p-1 pt-0 "
-                  style={{
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    width: "90%",
-                  }}
-                >
-                  <BiSolidPhoneCall className="mr-1" size={16} />
-                  {userData?.client?.phone}
-                </p>
-              </div>
-              {/* <IconButton onClick={handleDrawerClose}>
+                  <div
+                    style={{
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      width: "100%",
+                    }}
+                  >
+                    <p
+                      className="font-bold !text-left w-full ml-3 p-3 flex justify-center"
+                      style={{
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        width: "90%",
+                      }}
+                    >
+                      <Avatar
+                        alt="user profile"
+                        src="/images/blueProfile.webp"
+                        sx={{ width: "40%", height: "40%" }}
+                        className=""
+                      ></Avatar>
+                    </p>
+                    <p
+                      className="font-bold text-lg !text-left w-full ml-3 p-1"
+                      style={{
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        width: "90%",
+                      }}
+                    >
+                      {userData?.client?.first_name?.charAt(0)?.toUpperCase() +
+                        userData?.client?.first_name?.slice(1)}{" "}
+                      {userData?.client?.last_name}
+                    </p>
+                    <p
+                      className=" flex items-center font-bold text-sm !text-left w-full ml-3  p-1 pb-0"
+                      style={{
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        width: "90%",
+                      }}
+                    >
+                      <EmailIcon className="mr-1" fontSize="small" />
+                      {userData?.client?.email}
+                    </p>
+                    <p
+                      className="flex  items-center font-bold text-sm !text-left w-full ml-3 p-1 pt-0 "
+                      style={{
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        width: "90%",
+                      }}
+                    >
+                      <BiSolidPhoneCall className="mr-1" size={16} />
+                      {userData?.client?.phone}
+                    </p>
+                  </div>
+                  {/* <IconButton onClick={handleDrawerClose}>
 
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton> */}
-            </DrawerHeader>
-            <Divider />
-            <List>
-              {["Address", "Cart", "Wishlist", "Orders", "Logout"].map(
-                (text, index) => (
-                  <ListItem key={text} disablePadding sx={{ display: "block" }}>
-                    <ListItemButton
-                      sx={{
-                        minHeight: 48,
-                        justifyContent: open ? "initial" : "center",
-                        px: 2.5,
-                        backgroundColor: activeIndex === index ? "skyblue" : "",
-                      }}
-                      color={`${activeIndex === index ? "blue" : ""} `}
-                      onClick={() => handleActiveTab(index)}
-                    >
-                      {text === "Logout" && (
-                        <LogoutIcon
-                          size={20}
-                          className="mr-7"
+                </div>
+                <Divider />
+                <List>
+                  {["Address", "Cart", "Wishlist", "Orders", "Logout"].map(
+                    (text, index) => (
+                      <ListItem
+                        key={text}
+                        disablePadding
+                        sx={{ display: "block" }}
+                      >
+                        <ListItemButton
                           sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
+                            minHeight: 48,
+                            justifyContent: open ? "initial" : "center",
+                            px: 2.5,
+                            backgroundColor:
+                              activeIndex === index ? "skyblue" : "",
                           }}
-                        ></LogoutIcon>
-                      )}
-                      {text === "Orders" && (
-                        <BsFillBoxSeamFill
-                          size={20}
-                          className="mr-7"
-                          sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                          }}
+                          color={`${activeIndex === index ? "blue" : ""} `}
+                          onClick={() => handleActiveTab(index)}
                         >
-                          <MailIcon />
-                        </BsFillBoxSeamFill>
-                      )}
-                      {text === "Cart" && (
-                        <ShoppingCartRoundedIcon
-                          sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <MailIcon />
-                        </ShoppingCartRoundedIcon>
-                      )}
-                      {text === "Address" && (
-                        <BusinessIcon
-                          sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <MailIcon />
-                        </BusinessIcon>
-                      )}
-                      {text === "Wishlist" && (
-                        <FavoriteBorderIcon
-                          sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <MailIcon />
-                        </FavoriteBorderIcon>
-                      )}
-                      <ListItemText
-                        primary={text}
-                        sx={{ opacity: open ? 1 : 0 }}
-                      />
-                    </ListItemButton>
-                    <Divider />
-                  </ListItem>
-                )
-              )}
-            </List>
-            {/* <Divider /> */}
-          </Drawer>
-          <Divider />
-          <Box
-            className="drop-shadow-lg "
-            component="main"
-            sx={{
-              flexGrow: 1,
-              p: 3,
-              borderTop: "1px solid #eeeeee",
-              borderRight: "1px solid #eeeeee",
-              borderLeft: "1px solid #eeeeee",
-            }}
-          >
-            <p
-              className="pt-2 ml-2 mt-2 md:!ml-0 md:!p-0 md:!m-0 text-left text-sm font-bold"
-              style={{ color: "darkgray" }}
-            >
-              {" "}
-              {activeIndex > 0
-                ? "Product details"
-                : "Profile Details"} &gt;{" "}
-              <b style={{ color: "black" }}>{tabs[activeIndex]}</b>
-            </p>
-            <DrawerHeader />
-            {/* {activeIndex === 0 && <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-          enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-          imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-          Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-          Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-          nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-          leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-          feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-          consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-          sapien faucibus et molestie ac.
-        </Typography>} */}
-            {activeIndex === 0 && (
-              <>
-                <div>
-                  {/* <h4 className="!font-bold !text-gray-900">Billing address</h4>
-                  <div>
-                    <small className="w-full !text-left">
-                      {userData?.client?.primary_address?.length > 0 ? "Showing All Billing address available" : "No Address Found"}
-                    </small>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4">
-                      {userData?.client?.primary_address?.map(
-                        (address, ind) => (
-                          <div
-                            key={ind * 3}
-                            className="w-fit border border-1 p-3  text-left !w-[95%] mt-5 ml-5 gap-5"
-                          >
-                            <CardActionArea
-                              onClick={() => {
-                                setAddressUpdateType("billing");
-                                setShowModal(true);
-                                setFormType("update");
-                                setAddressData(
-                                  userData?.client?.primary_address[ind]
-                                );
+                          {text === "Logout" && (
+                            <LogoutIcon
+                              size={20}
+                              className="mr-7"
+                              sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
+                              }}
+                            ></LogoutIcon>
+                          )}
+                          {text === "Orders" && (
+                            <BsFillBoxSeamFill
+                              size={20}
+                              className="mr-7"
+                              sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
                               }}
                             >
-                              <h3 className="!font-bold">
-                                Address - {ind + 1}
-                              </h3>
-                              <p className="truncate">{address?.add_1},</p>
-                              {address?.add_2 !== null
-                                  ? `${address?.add_2},`
-                                  : ""}
-                              <p>{address?.city},</p>
-                              <p>{address?.zip},</p>
-                              <p>{address?.state},</p>
-                              <p>{address?.country}.</p>
-                            </CardActionArea>
-                          </div>
-                        )
-                      )}
-                      {userData?.client?.primary_address?.length === 0 && (
-                        <Button
-                          className="!ml-2 !mr-2"
-                          onClick={() => {
-                            setAddressUpdateType("billing");
-                            setShowModal(true);
-                            setAddressData([]);
-                            setFormType("add");
-                          }}
-                        >
-                          + Add new Address
-                        </Button>
-                      )}
-                    </div>
-
-                    <Divider className="py-2" />
-                  </div> */}
-                  <h4 className="mt-5 !font-bold">Address</h4>
-                  <div className="!mb-3">
-                    <small className="w-full !text-left">
-                      {userData?.client?.primary_address?.length > 0
-                        ? "Showing all addresses"
-                        : "No Address Found"}
-                    </small>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4  mb-2">
-                      {userData?.client?.address?.map((address, ind) => (
-                        <div
-                          key={ind}
-                          className="col-sm-4  w-fit border border-1 p-3  text-left !w-[95%]  mt-5 ml-5 gap-5"
-                        >
-                          {/* !min-w-[75%]  sm:!min-w-[25%] sm:max-w-[40%] */}
-                          <CardActionArea
-                            onClick={() => {
-                              if (ind == 0) {
-                                setAddressUpdateType("primary");
-                                setShowModal(true);
-                                setFormType("update");
-                                setAddressData(userData?.client?.address[ind]);
-                              } else {
-                                setAddressUpdateType("");
-                                setShowModal(true);
-                                setFormType("update");
-                                setAddressData(userData?.client?.address[ind]);
-                              }
-                            }}
-                          >
-                            <h3
-                              className={`!font-bold ${
-                                ind == 0 ? "!text-blue-600" : ""
-                              }`}
-                            >
-                              {ind == 0
-                                ? "Primary Address"
-                                : `Address - ${ind + 1}`}
-                            </h3>
-                            <p className="truncate">{address?.add_1},</p>
-                            {address?.add_2 !== null
-                              ? `${address?.add_2},`
-                              : ""}
-                            <p className="truncate">{address?.city},</p>
-                            <p className="truncate">{address?.state},</p>
-                            <p className="truncate">{address?.country},</p>
-                            <p className="truncate">{address?.zip}.</p>
-                          </CardActionArea>
-                        </div>
-                      ))}
-                      <Button
-                        className="!ml-2 !mt-7"
-                        onClick={() => {
-                          setAddressUpdateType("");
-                          setShowModal(true);
-                          setAddressData([]);
-                          setFormType("add");
-                        }}
-                      >
-                        + Add new Address
-                      </Button>
-                    </div>
-                    <Divider />
-                  </div>
-                </div>
-              </>
-            )}
-            {activeIndex === 1 && (
-              <>
-                <div>
-                  <h4 className="!font-bold">Your cart</h4>
-                  <Divider />
-                  {userData?.client?.cart?.length === 0 && (
-                    <div>
-                      <FaMinusCircle
-                        className="text-center w-full mt-5 "
-                        size={45}
-                        color="red"
-                      />
-                      <div className="flex justify-center items-center ">
-                        <img
-                          className="text-center"
-                          style={{ filter: "blur(2px)" }}
-                          src="/images/favicon.webp"
-                        ></img>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-red-600 font-semibold">
-                          Your cart is Empty.
-                        </p>
-                        <p
-                          className="text-center font-semibold cursor-pointer"
-                          onClick={() => navigate(`${userLang}/`)}
-                          style={{ color: "#007aff" }}
-                        >
-                          Add Products to Cart
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {userData?.client?.cart?.length > 0 && (
-                    <div className="row gy-5">
-                      {userData?.client?.cart?.map((product, ind) => (
-                        <div
-                          key={ind * 2}
-                          className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
-                        >
-                          <Card className="mt-5 " sx={{ maxWidth: 345 }}>
-                            <CardActionArea>
-                              <CardMedia
-                                component="img"
-                                height="140"
-                                image={product?.product?.img_1}
-                                alt="green iguana"
-                                className="sm:!h-[300px]"
-                                onClick={() =>
-                                  navigate(
-                                    `${userLang}/product-detail/${
-                                      product?.product?.slug
-                                    }/${CryptoJS?.AES?.encrypt(
-                                      `${product?.product?.id}`,
-                                      "trading_materials"
-                                    )
-                                      ?.toString()
-                                      .replace(/\//g, "_")
-                                      .replace(/\+/g, "-")}`
-                                  )
-                                }
-                              />
-                              <CardContent>
-                                <Typography
-                                  gutterBottom
-                                  variant="h5"
-                                  component="div"
-                                >
-                                  {/* <div className="flex items-center">
-                                  <p
-                                    className="max-w-[100%] md:max-w-[75%]"
-                                    style={{
-                                      textOverflow: "ellipsis",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      width: "90%",
-                                    }}
-                                  >
-                                    {product?.product?.name}
-                                  </p>
-                                </div>
-                                <small className="font-bold block !w-full !text-left">
-                                  Qty : {product?.qty}{" "}
-                                </small> */}
-                                  <div className="nk-card-info bg-white p-4">
-                                    {/* <a
-                              href="/"
-                              className="d-inline-block mb-1 line-clamp-1 h5"
-                            >
-                               {product?.name}
-                            </a> */}
-                                    <a
-                                      href={`${userLang}/product-detail/${
-                                        product?.product?.slug
-                                      }/${CryptoJS?.AES?.encrypt(
-                                        `${product?.id}`,
-                                        "trading_materials"
-                                      )
-                                        ?.toString()
-                                        .replace(/\//g, "_")
-                                        .replace(/\+/g, "-")}`}
-                                      className="d-inline-block mb-1 line-clamp-1 h5 !font-bold text-left"
-                                      style={{
-                                        textOverflow: "ellipsis",
-                                        whiteSpace: "nowrap",
-                                        overflow: "hidden",
-                                        width: "90%",
-                                      }}
-                                    >
-                                      {product?.product?.name}
-                                      <br />
-                                      <span className="text-xs !mt-1">
-                                        <p
-                                          onClick={() => {
-                                            navigate(
-                                              `${userLang}/product-detail/${
-                                                product?.product?.slug
-                                              }/${CryptoJS?.AES?.encrypt(
-                                                `${product?.id}`,
-                                                "trading_materials"
-                                              )
-                                                ?.toString()
-                                                .replace(/\//g, "_")
-                                                .replace(/\+/g, "-")}`
-                                            );
-                                            dispatch(showLoader());
-                                          }}
-                                          className="!mt-5 text-gray-700  truncate"
-                                          dangerouslySetInnerHTML={{
-                                            __html:
-                                              product?.product?.description
-                                                ?.length > 55
-                                                ? `${product?.product?.description?.slice(
-                                                    0,
-                                                    55
-                                                  )}...`
-                                                : product?.product?.description,
-                                          }}
-                                        />
-                                      </span>
-                                    </a>
-                                    <div className="d-flex align-items-center text-lg mb-2 gap-1">
-                                      {ratingStars(
-                                        product?.product?.rating
-                                          ? product?.product?.rating
-                                          : 0
-                                      )}
-
-                                      <span className=" fs-12 text-gray-800">
-                                        {" "}
-                                        ({product?.product?.total_reviews}{" "}
-                                        Reviews){" "}
-                                      </span>
-                                    </div>
-                                    <div className="d-flex align-items-center justify-content-start">
-                                      <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                        <sub
-                                          style={{
-                                            verticalAlign: "super",
-                                          }}
-                                        >
-                                          ₹
-                                        </sub>
-                                        {product?.price}
-                                        {product?.product?.discount > 0 && (
-                                          <del className="text-gray-800 !ml-2">
-                                            {
-                                              (
-                                                parseFloat(
-                                                  product?.price *
-                                                    (100 /
-                                                      product?.product
-                                                        ?.discount)
-                                                )?.toFixed(2) + ""
-                                              )
-                                                .toString()
-                                                .split(".")[0]
-                                            }
-                                            {/* <sub
-                                              style={{
-                                                verticalAlign: "super",
-                                              }}
-                                            > */}
-                                            .
-                                            {
-                                              (
-                                                parseFloat(
-                                                  product?.price *
-                                                    (100 /
-                                                      product?.product
-                                                        ?.discount)
-                                                )?.toFixed(2) + ""
-                                              )
-                                                .toString()
-                                                .split(".")[1]
-                                            }
-                                            {/* </sub> */}
-                                          </del>
-                                        )}
-                                      </p>
-
-                                      {/* {product?.prices?.map(
-                                            (price, ind) => (
-                                              <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                                {currentUserlang === "en"
-                                                  ? price?.INR &&
-                                                    `₹${Number.parseFloat(
-                                                      price?.INR
-                                                    ).toFixed(2)}`
-                                                  : price?.USD &&
-                                                    `$${Number.parseFloat(
-                                                      price?.USD
-                                                    ).toFixed(2)}`}
-                                                {currentUserlang === "en"
-                                                  ? price?.INR && (
-                                                      <del className="text-gray-800 !ml-2">
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? "₹"
-                                                          : "$"}
-                                                        {getRandomNumberWithOffset(
-                                                          price?.INR
-                                                        )}
-                                                      </del>
-                                                    )
-                                                  : price?.USD && (
-                                                      <del className="text-gray-800 !ml-2">
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? "₹"
-                                                          : "$"}
-                                                        {getRandomNumberWithOffset(
-                                                          Number.parseFloat(
-                                                            price?.USD
-                                                          ).toFixed(2)
-                                                        )}
-                                                      </del>
-                                                    )}
-                                              </p>
-                                            )
-                                          )} */}
-
-                                      {/* <button
-                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
-                                            style={{
-                                              display: "flex",
-                                              justifyContent: "end",
-                                              marginRight: "5px",
-                                            }}
-                                            onClick={() => {
-                                              isLoggedIn
-                                                ? handleAddToWishList(
-                                                    product?.id
-                                                  )
-                                                : dispatch(showPopup());
-                                            }}
-                                          >
-                                            <FaRegHeart size={18} />
-                                          </button> */}
-
-                                      {/* <button
-                                            className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
-                                            onClick={(event) => {
-                                              return isLoggedIn
-                                                ? (handleAddToCart(product?.id),
-                                                  handleCartPosition(event))
-                                                : dispatch(showPopup());
-                                            }}
-                                          >
-                                            {animateProductId ===
-                                            product?.id ? (
-                                              <img src="/images/addedtocart.gif" />
-                                            ) : (
-                                              <em className="icon ni ni-cart text-2xl"></em>
-                                            )}
-                                          </button> */}
-                                      <p
-                                        className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
-                                        style={{
-                                          display: "flex",
-                                          justifyContent: "end",
-                                          marginRight: "5px",
-                                        }}
-                                      >
-                                        <span className="text-base text-black font-semibold flex !items-center">
-                                          Qty:
-                                        </span>
-                                        {product?.qty}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </Typography>
-                                {/* <Typography variant="body2" color="text.secondary">
-                       <p dangerouslySetInnerHTML={{__html: product?.product?.description}}/>
-                    </Typography> */}
-                              </CardContent>
-                            </CardActionArea>
-                          </Card>
-                          {product?.product?.discount > 0 && (
-                            <div className="flex justify-end items-end ">
-                              <div
-                                className="flex absolute items-center justify-center img-box !drop-shadow-lg
-
-"
-                              >
-                                <img
-                                  src="/images/sale-2.webp"
-                                  alt="ffer_label"
-                                  width={65}
-                                  className="drop-shadow-lg"
-                                ></img>
-                                <label className="absolute !font-bold text-white !text-xs right-1">
-                                  {product?.product?.discount}%
-                                </label>
-                              </div>
-                            </div>
+                              <MailIcon />
+                            </BsFillBoxSeamFill>
                           )}
-                        </div>
-                      ))}
-                    </div>
-                    // </div>
+                          {text === "Cart" && (
+                            <ShoppingCartRoundedIcon
+                              sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <MailIcon />
+                            </ShoppingCartRoundedIcon>
+                          )}
+                          {text === "Address" && (
+                            <BusinessIcon
+                              sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <MailIcon />
+                            </BusinessIcon>
+                          )}
+                          {text === "Wishlist" && (
+                            <FavoriteBorderIcon
+                              sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <MailIcon />
+                            </FavoriteBorderIcon>
+                          )}
+                          <ListItemText
+                            primary={text}
+                            sx={{ opacity: open ? 1 : 0 }}
+                          />
+                        </ListItemButton>
+                        <Divider />
+                      </ListItem>
+                    )
                   )}
-                </div>
-              </>
-            )}
-            {activeIndex === 2 && (
-              <>
-                <div>
-                  <h4 className="!font-bold">Your Wishlist</h4>
-                  <Divider />
-                  {userData?.client?.wishlist?.length === 0 && (
-                    <p>Your Wishlist is empty</p>
-                  )}
-                  <div className="nk-section-content-products">
-                    <div className=" ">
-                      {userData?.client?.wishlist?.length > 0 && (
-                        <div className="row">
-                          {userData?.client?.wishlist?.map((product, ind) => (
+                </List>
+                {/* <Divider /> */}
+              </div>
+              <Divider />
+              <div
+                className="drop-shadow-lg max-w-full lg:max-w-[75%] ml-2"
+                // component="main"
+                style={{
+                  flexGrow: 1,
+                  p: 3,
+                  borderTop: "1px solid #eeeeee",
+                  borderRight: "1px solid #eeeeee",
+                  borderLeft: "1px solid #eeeeee",
+                }}
+              >
+                <p
+                  className="pt-2 ml-2 !mt-2 md:!ml-2 md:!p-0 md:!m-2 text-left text-sm font-bold"
+                  style={{ color: "darkgray" }}
+                >
+                  {" "}
+                  {activeIndex > 0
+                    ? "Product details"
+                    : "Profile Details"} &gt;{" "}
+                  <b style={{ color: "black" }}>{tabs[activeIndex]}</b>
+                </p>
+                <DrawerHeader />
+
+                {activeIndex === 0 && (
+                  <>
+                    <div>
+                      <h4 className="mt-5 !font-bold">Address</h4>
+                      <div className="!mb-3">
+                        <small className="w-full !text-left">
+                          {userData?.client?.primary_address?.length > 0
+                            ? "Showing all addresses"
+                            : "No Address Found"}
+                        </small>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4  mb-2">
+                          {userData?.client?.address?.map((address, ind) => (
                             <div
                               key={ind}
+                              className="col-sm-4  w-fit border border-1 p-3  text-left !w-[95%]  mt-5 ml-2 mr-3  gap-5"
+                            >
+                              {/* !min-w-[75%]  sm:!min-w-[25%] sm:max-w-[40%] */}
+                              <CardActionArea
+                                onClick={() => {
+                                  if (ind == 0) {
+                                    setAddressUpdateType("primary");
+                                    setShowModal(true);
+                                    setFormType("update");
+                                    setAddressData(
+                                      userData?.client?.address[ind]
+                                    );
+                                  } else {
+                                    setAddressUpdateType("");
+                                    setShowModal(true);
+                                    setFormType("update");
+                                    setAddressData(
+                                      userData?.client?.address[ind]
+                                    );
+                                  }
+                                }}
+                              >
+                                <h3
+                                  className={`!font-bold ${
+                                    ind == 0 ? "!text-blue-600" : ""
+                                  }`}
+                                >
+                                  {ind == 0
+                                    ? "Primary Address"
+                                    : `Address - ${ind + 1}`}
+                                </h3>
+                                <p className="truncate">{address?.add_1},</p>
+                                {address?.add_2 !== null
+                                  ? `${address?.add_2},`
+                                  : ""}
+                                <p className="truncate">{address?.city},</p>
+                                <p className="truncate">{address?.state},</p>
+                                <p className="truncate">{address?.country},</p>
+                                <p className="truncate">{address?.zip}.</p>
+                              </CardActionArea>
+                            </div>
+                          ))}
+                          <Button
+                            className="!ml-2 !mt-7"
+                            onClick={() => {
+                              setAddressUpdateType("");
+                              setShowModal(true);
+                              setAddressData([]);
+                              setFormType("add");
+                            }}
+                          >
+                            + Add new Address
+                          </Button>
+                        </div>
+                        <Divider />
+                      </div>
+                    </div>
+                  </>
+                )}
+                {activeIndex === 1 && (
+                  <>
+                    <div className="mx-2">
+                      <h4 className="!font-bold">Your cart</h4>
+                      <Divider />
+                      {userData?.client?.cart?.length === 0 && (
+                        <div>
+                          <FaMinusCircle
+                            className="text-center w-full mt-5 "
+                            size={45}
+                            color="red"
+                          />
+                          <div className="flex justify-center items-center ">
+                            <img
+                              className="text-center"
+                              style={{ filter: "blur(2px)" }}
+                              src="/images/favicon.webp"
+                            ></img>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-red-600 font-semibold">
+                              Your cart is Empty.
+                            </p>
+                            <p
+                              className="text-center font-semibold cursor-pointer"
+                              onClick={() => navigate(`${userLang}/`)}
+                              style={{ color: "#007aff" }}
+                            >
+                              Add Products to Cart
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {userData?.client?.cart?.length > 0 && (
+                        <div className="row gy-5">
+                          {userData?.client?.cart?.map((product, ind) => (
+                            <div
+                              key={ind * 2}
                               className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
                             >
                               <Card className="mt-5 " sx={{ maxWidth: 345 }}>
-                                <div>
+                                <CardActionArea>
                                   <CardMedia
                                     component="img"
                                     height="140"
@@ -1067,12 +691,34 @@ export default function SideBar() {
                                       variant="h5"
                                       component="div"
                                     >
-                                      <div>
+                                      {/* <div className="flex items-center">
+                                  <p
+                                    className="max-w-[100%] md:max-w-[75%]"
+                                    style={{
+                                      textOverflow: "ellipsis",
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      width: "90%",
+                                    }}
+                                  >
+                                    {product?.product?.name}
+                                  </p>
+                                </div>
+                                <small className="font-bold block !w-full !text-left">
+                                  Qty : {product?.qty}{" "}
+                                </small> */}
+                                      <div className="nk-card-info bg-white p-4">
+                                        {/* <a
+                              href="/"
+                              className="d-inline-block mb-1 line-clamp-1 h5"
+                            >
+                               {product?.name}
+                            </a> */}
                                         <a
                                           href={`${userLang}/product-detail/${
                                             product?.product?.slug
                                           }/${CryptoJS?.AES?.encrypt(
-                                            `${product?.product?.id}`,
+                                            `${product?.id}`,
                                             "trading_materials"
                                           )
                                             ?.toString()
@@ -1083,7 +729,7 @@ export default function SideBar() {
                                             textOverflow: "ellipsis",
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
-                                            width: "97%",
+                                            width: "90%",
                                           }}
                                         >
                                           {product?.product?.name}
@@ -1095,7 +741,7 @@ export default function SideBar() {
                                                   `${userLang}/product-detail/${
                                                     product?.product?.slug
                                                   }/${CryptoJS?.AES?.encrypt(
-                                                    `${product?.product?.id}`,
+                                                    `${product?.id}`,
                                                     "trading_materials"
                                                   )
                                                     ?.toString()
@@ -1121,14 +767,17 @@ export default function SideBar() {
                                         </a>
                                         <div className="d-flex align-items-center text-lg mb-2 gap-1">
                                           {ratingStars(
-                                            product?.rating
-                                              ? product?.rating
+                                            product?.product?.rating
+                                              ? product?.product?.rating
                                               : 0
                                           )}
 
                                           <span className=" fs-12 text-gray-800">
                                             {" "}
-                                            ({product?.review} Reviews){" "}
+                                            ({
+                                              product?.product?.total_reviews
+                                            }{" "}
+                                            Reviews){" "}
                                           </span>
                                         </div>
                                         <div className="d-flex align-items-center justify-content-start">
@@ -1141,39 +790,33 @@ export default function SideBar() {
                                               ₹
                                             </sub>
                                             {product?.price}
-                                            {product?.discount > 0 && (
+                                            {product?.product?.discount > 0 && (
                                               <del className="text-gray-800 !ml-2">
-                                                <sub
-                                                  style={{
-                                                    verticalAlign: "super",
-                                                  }}
-                                                >
-                                                  ₹
-                                                </sub>
                                                 {
                                                   (
                                                     parseFloat(
                                                       product?.price *
                                                         (100 /
-                                                          (100 -
-                                                            product?.discount))
+                                                          product?.product
+                                                            ?.discount)
                                                     )?.toFixed(2) + ""
                                                   )
                                                     .toString()
                                                     .split(".")[0]
                                                 }
                                                 {/* <sub
-                                                  style={{
-                                                    verticalAlign: "super",
-                                                  }}
-                                                > */}
+                                              style={{
+                                                verticalAlign: "super",
+                                              }}
+                                            > */}
                                                 .
                                                 {
                                                   (
                                                     parseFloat(
                                                       product?.price *
                                                         (100 /
-                                                          product?.discount)
+                                                          product?.product
+                                                            ?.discount)
                                                     )?.toFixed(2) + ""
                                                   )
                                                     .toString()
@@ -1183,39 +826,6 @@ export default function SideBar() {
                                               </del>
                                             )}
                                           </p>
-
-                                          <div className="flex justify-end w-full items-center">
-                                            <button
-                                              className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
-                                              // eslint-disable-next-line no-unused-vars
-                                              onClick={(event) => {
-                                                return isLoggedIn
-                                                  ? handleAddToCart(
-                                                      product?.product?.id,
-                                                      product?.product?.img_1
-                                                    )
-                                                  : dispatch(
-                                                      usersignupinModal({
-                                                        showSignupModal: false,
-                                                        showLoginModal: true,
-                                                        showforgotPasswordModal: false,
-                                                        showOtpModal: false,
-                                                        showNewPasswordModal: false,
-                                                      })
-                                                    );
-                                              }}
-                                            >
-                                              {animateProductId ===
-                                              product?.product?.id ? (
-                                                <img
-                                                  src="/images/addedtocart.gif"
-                                                  className="max-w-[45px]"
-                                                />
-                                              ) : (
-                                                <em className="icon ni ni-cart text-2xl "></em>
-                                              )}
-                                            </button>
-                                          </div>
 
                                           {/* {product?.prices?.map(
                                             (price, ind) => (
@@ -1292,26 +902,29 @@ export default function SideBar() {
                                               <em className="icon ni ni-cart text-2xl"></em>
                                             )}
                                           </button> */}
-                                          {/* <p
-                                      className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
-                                      style={{
-                                        display: "flex",
-                                        justifyContent: "end",
-                                        marginRight: "5px",
-                                      }}
-                                    >
-                                      <span className="text-base text-black font-semibold flex !items-center">
-                                        Qty:
-                                      </span>
-                                      {product?.qty}
-                                    </p> */}
+                                          <p
+                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "end",
+                                              marginRight: "5px",
+                                            }}
+                                          >
+                                            <span className="text-base text-black font-semibold flex !items-center">
+                                              Qty:
+                                            </span>
+                                            {product?.qty}
+                                          </p>
                                         </div>
                                       </div>
                                     </Typography>
+                                    {/* <Typography variant="body2" color="text.secondary">
+                       <p dangerouslySetInnerHTML={{__html: product?.product?.description}}/>
+                    </Typography> */}
                                   </CardContent>
-                                </div>
+                                </CardActionArea>
                               </Card>
-                              {product?.discount > 0 && (
+                              {product?.product?.discount > 0 && (
                                 <div className="flex justify-end items-end ">
                                   <div
                                     className="flex absolute items-center justify-center img-box !drop-shadow-lg
@@ -1325,7 +938,7 @@ export default function SideBar() {
                                       className="drop-shadow-lg"
                                     ></img>
                                     <label className="absolute !font-bold text-white !text-xs right-1">
-                                      {product?.discount}%
+                                      {product?.product?.discount}%
                                     </label>
                                   </div>
                                 </div>
@@ -1333,26 +946,396 @@ export default function SideBar() {
                             </div>
                           ))}
                         </div>
+                        // </div>
                       )}
                     </div>
-                  </div>
-                </div>
-              </>
-            )}
-            {activeIndex === 3 && (
-              <>
-                <div className="!w-full">
-                  <h4 className="!font-bold">Your Orders</h4>
-                  <Divider />
-                  {/* {userData?.client?.orders?.length === 0 && (
+                  </>
+                )}
+                {activeIndex === 2 && (
+                  <>
+                    <div>
+                      <h4 className="!font-bold">Your Wishlist</h4>
+                      <Divider />
+                      {userData?.client?.wishlist?.length === 0 && (
+                        <p>Your Wishlist is empty</p>
+                      )}
+                      <div className="nk-section-content-products">
+                        <div className="mx-2 ">
+                          {userData?.client?.wishlist?.length > 0 && (
+                            <div className="row">
+                              {userData?.client?.wishlist?.map(
+                                (product, ind) => (
+                                  <div
+                                    key={ind}
+                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
+                                  >
+                                    <Card
+                                      className="mt-5 "
+                                      // sx={{ maxWidth: 345 }}
+                                    >
+                                      <div>
+                                        <CardMedia
+                                          component="img"
+                                          height="140"
+                                          image={product?.product?.img_1}
+                                          alt="green iguana"
+                                          className="sm:!h-[300px] cursor-pointer"
+                                          onClick={() =>
+                                            navigate(
+                                              `${userLang}/product-detail/${
+                                                product?.product?.slug
+                                              }/${CryptoJS?.AES?.encrypt(
+                                                `${product?.product?.id}`,
+                                                "trading_materials"
+                                              )
+                                                ?.toString()
+                                                .replace(/\//g, "_")
+                                                .replace(/\+/g, "-")}`
+                                            )
+                                          }
+                                        />
+                                        <CardContent>
+                                          <Typography
+                                            gutterBottom
+                                            variant="h5"
+                                            component="div"
+                                          >
+                                            <div>
+                                              <a
+                                                href={`${userLang}/product-detail/${
+                                                  product?.product?.slug
+                                                }/${CryptoJS?.AES?.encrypt(
+                                                  `${product?.product?.id}`,
+                                                  "trading_materials"
+                                                )
+                                                  ?.toString()
+                                                  .replace(/\//g, "_")
+                                                  .replace(/\+/g, "-")}`}
+                                                className="d-inline-block mb-1 line-clamp-1 h5 !font-bold text-left"
+                                                style={{
+                                                  textOverflow: "ellipsis",
+                                                  whiteSpace: "nowrap",
+                                                  overflow: "hidden",
+                                                  width: "97%",
+                                                }}
+                                              >
+                                                {product?.product?.name}
+                                                <br />
+                                                <span className="text-xs !mt-1">
+                                                  <p
+                                                    onClick={() => {
+                                                      navigate(
+                                                        `${userLang}/product-detail/${
+                                                          product?.product?.slug
+                                                        }/${CryptoJS?.AES?.encrypt(
+                                                          `${product?.product?.id}`,
+                                                          "trading_materials"
+                                                        )
+                                                          ?.toString()
+                                                          .replace(/\//g, "_")
+                                                          .replace(/\+/g, "-")}`
+                                                      );
+                                                      dispatch(showLoader());
+                                                    }}
+                                                    className="!mt-5 text-gray-700  truncate"
+                                                    dangerouslySetInnerHTML={{
+                                                      __html:
+                                                        product?.product
+                                                          ?.description
+                                                          ?.length > 55
+                                                          ? `${product?.product?.description?.slice(
+                                                              0,
+                                                              55
+                                                            )}...`
+                                                          : product?.product
+                                                              ?.description,
+                                                    }}
+                                                  />
+                                                </span>
+                                              </a>
+                                              <div className="d-flex align-items-center text-lg mb-2 gap-1">
+                                                {ratingStars(
+                                                  product?.rating
+                                                    ? product?.rating
+                                                    : 0
+                                                )}
+
+                                                <span className=" fs-12 text-gray-800">
+                                                  {" "}
+                                                  ({
+                                                    product?.review
+                                                  } Reviews){" "}
+                                                </span>
+                                              </div>
+                                              <div className="d-flex align-items-center justify-content-start">
+                                                <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                                  <sub
+                                                    style={{
+                                                      verticalAlign: "super",
+                                                    }}
+                                                  >
+                                                    ₹
+                                                  </sub>
+                                                  {product?.price}
+                                                  {product?.discount > 0 && (
+                                                    <del className="text-gray-800 !ml-2">
+                                                      <sub
+                                                        style={{
+                                                          verticalAlign:
+                                                            "super",
+                                                        }}
+                                                      >
+                                                        ₹
+                                                      </sub>
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            product?.price *
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[0]
+                                                      }
+                                                      {/* <sub
+                                                  style={{
+                                                    verticalAlign: "super",
+                                                  }}
+                                                > */}
+                                                      .
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            product?.price *
+                                                              (100 /
+                                                                product?.discount)
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
+                                                      }
+                                                      {/* </sub> */}
+                                                    </del>
+                                                  )}
+                                                </p>
+
+                                                <div className="flex justify-end w-full items-center">
+                                                  <button
+                                                    className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                                    // eslint-disable-next-line no-unused-vars
+                                                    onClick={(event) => {
+                                                      return isLoggedIn
+                                                        ? handleAddToCart(
+                                                            product?.product
+                                                              ?.id,
+                                                            product?.product
+                                                              ?.img_1
+                                                          )
+                                                        : dispatch(
+                                                            usersignupinModal({
+                                                              showSignupModal: false,
+                                                              showLoginModal: true,
+                                                              showforgotPasswordModal: false,
+                                                              showOtpModal: false,
+                                                              showNewPasswordModal: false,
+                                                            })
+                                                          );
+                                                    }}
+                                                  >
+                                                    {animateProductId ===
+                                                    product?.product?.id ? (
+                                                      <img
+                                                        src="/images/addedtocart.gif"
+                                                        className="max-w-[45px]"
+                                                      />
+                                                    ) : (
+                                                      <em className="icon ni ni-cart text-2xl "></em>
+                                                    )}
+                                                  </button>
+                                                </div>
+
+                                                {/* {product?.prices?.map(
+                                            (price, ind) => (
+                                              <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                                {currentUserlang === "en"
+                                                  ? price?.INR &&
+                                                    `₹${Number.parseFloat(
+                                                      price?.INR
+                                                    ).toFixed(2)}`
+                                                  : price?.USD &&
+                                                    `$${Number.parseFloat(
+                                                      price?.USD
+                                                    ).toFixed(2)}`}
+                                                {currentUserlang === "en"
+                                                  ? price?.INR && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {getRandomNumberWithOffset(
+                                                          price?.INR
+                                                        )}
+                                                      </del>
+                                                    )
+                                                  : price?.USD && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {getRandomNumberWithOffset(
+                                                          Number.parseFloat(
+                                                            price?.USD
+                                                          ).toFixed(2)
+                                                        )}
+                                                      </del>
+                                                    )}
+                                              </p>
+                                            )
+                                          )} */}
+
+                                                {/* <button
+                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "end",
+                                              marginRight: "5px",
+                                            }}
+                                            onClick={() => {
+                                              isLoggedIn
+                                                ? handleAddToWishList(
+                                                    product?.id
+                                                  )
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            <FaRegHeart size={18} />
+                                          </button> */}
+
+                                                {/* <button
+                                            className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                            onClick={(event) => {
+                                              return isLoggedIn
+                                                ? (handleAddToCart(product?.id),
+                                                  handleCartPosition(event))
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            {animateProductId ===
+                                            product?.id ? (
+                                              <img src="/images/addedtocart.gif" />
+                                            ) : (
+                                              <em className="icon ni ni-cart text-2xl"></em>
+                                            )}
+                                          </button> */}
+                                                {/* <p
+                                      className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "end",
+                                        marginRight: "5px",
+                                      }}
+                                    >
+                                      <span className="text-base text-black font-semibold flex !items-center">
+                                        Qty:
+                                      </span>
+                                      {product?.qty}
+                                    </p> */}
+                                              </div>
+                                            </div>
+                                          </Typography>
+                                        </CardContent>
+                                      </div>
+                                      {product?.discount > 0 && (
+                                        <div className="flex justify-end items-end ">
+                                          <div
+                                            className="flex absolute items-center justify-center img-box !drop-shadow-lg
+
+"
+                                          >
+                                            <img
+                                              src="/images/sale-2.webp"
+                                              alt="ffer_label"
+                                              width={65}
+                                              className="drop-shadow-lg"
+                                            ></img>
+                                            <label className="absolute !font-bold text-white !text-xs right-1">
+                                              {product?.discount}%
+                                            </label>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </Card>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+                {activeIndex === 3 && (
+                  <>
+                    <div className="!w-full">
+                      <h4 className="!font-bold">Your Orders</h4>
+                      <Divider />
+                      {/* {userData?.client?.orders?.length === 0 && (
                     <p>Your Orders are empty</p>
                   )} */}
-                  {/* <Invoices /> */}
+                      {/* <Invoices /> */}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+          <section className="nk-section nk-cta-section nk-section-content-1">
+            <div className="container">
+              
+              <div
+                className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+                data-aos="fade-up"
+                data-aos-delay="100"
+              >
+                <div
+                  className="row g-gs align-items-center"
+                  data-aos="fade-up"
+                  data-aos-delay="100"
+                >
+                  <div className="col-lg-8">
+                    <div className="media-group flex-column flex-lg-row align-items-center">
+                      <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                        <em className="icon ni ni-chat-fill"></em>
+                      </div>
+                      <div className="text-center text-lg-start">
+                        <h3 className="text-capitalize m-0 !text-3xl !font-bold">
+                          {t("Chat_With_Our_Support_Team")}
+                        </h3>
+                        <p className="fs-16 opacity-75 !text-lg mt-1">
+                          {t("chat_team_desc")}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-4 text-center text-lg-end">
+                    <a
+                      href={`${userLang}/contact`}
+                      className="btn btn-white fw-semiBold"
+                    >
+                      {t("Contact_support")}
+                    </a>
+                  </div>
                 </div>
-              </>
-            )}
-          </Box>
-        </Box>
+              </div>
+            </div>
+          </section>
+        </main>
+        <Footer />
       </div>
     </>
   );

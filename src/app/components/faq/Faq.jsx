@@ -29,7 +29,7 @@ export default function Faq() {
                 <div className="flex w-full justify-content-center">
                   <div className="col-xl-7">
                     <div className="nk-section-head text-center pb-[20px] flex justify-center">
-                      <img src="/images/working_on_it.png" width={"50%"} alt="trading_materials"></img>
+                      <img src="/images/working_on_it.webp" width={"50%"} alt="trading_materials"></img>
                     </div>
                   </div>
                 </div>

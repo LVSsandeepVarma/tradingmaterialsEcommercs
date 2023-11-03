@@ -79,7 +79,8 @@ export default function ReviewDialog({type, open, handleClose, reviewId}) {
     }
     }
 
-    function handleReportUpdate(e){
+  function handleReportUpdate(e) {
+      e.target.value = e.target.value.trimStart();
         console.log(e?.target?.value)
         if(e?.target?.value === ""){
           setReport(e?.target?.value)

@@ -75,7 +75,7 @@ export default function Career() {
       role: "Delivery Manager",
       location: "BANGALORE",
       type: "FULL TIME",
-      desc: "In our software industry, we re looking for a Senior Delivery Manager with experience to manage the efficient completion of customer projects. Coordinating project proposals, overseeing execution, fostering client relationships, and enforcing established procedures are all part of this function. Strong technical knowledge, outstanding leadership skills, and a track record of successfully completing projects within predetermined constraints are necessary.",
+      desc: "Assist logistics process for the development of new products, inventory maintenance, manufacturing, shipment and delivery, and returns on products. Keep detailed records, generate reports, and develop presentations to help management understand the logistics perspective. Build relationships within the company and with external parties, such as suppliers or distributors. Read and comprehend legal documents, such as contracts or import/export agreements. Understanding of principles of accounting and finance. Collaborate with others from diverse backgrounds in order to identify problems and find solutions.",
     },
     {
       category: "",
@@ -135,7 +135,7 @@ export default function Career() {
     } else if (name?.length < 3) {
       setFirstNameErr("Min 3 characters are required");
     } else if (name?.length > 100) {
-      setFirstNameErr("Max 100 characters are required");
+      setFirstNameErr("Max 100 characters are allowed");
     } else {
       setFirstNameErr("");
       return true;
@@ -152,7 +152,7 @@ export default function Career() {
     } else if (name?.length < 1) {
       setLastNameErr("Last name is required");
     } else if (name?.length > 100) {
-      setLastNameErr("Maximum limit exceeded");
+      setLastNameErr("Max 100 characters are allowed");
     } else {
       setLastNameErr("");
       return true;
@@ -233,7 +233,7 @@ export default function Career() {
     } else if (position?.length < 3) {
       setPositionErr("Min 3 characters are required");
     } else if (position?.length > 100) {
-      setPositionErr("Max 100 characters are required");
+      setPositionErr("Max 100 characters are allowed");
     } else {
       setPositionErr("");
       return true;
@@ -253,6 +253,7 @@ export default function Career() {
   }
 
   const handlechange = (inputType, value) => {
+    value = value.trimStart()
     if (inputType == "firstName") {
       setFirstName(value), validFirstName(value);
     } else if (inputType == "lastName") {

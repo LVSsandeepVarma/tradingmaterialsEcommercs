@@ -37,7 +37,12 @@ export default function Home() {
           }
         );
         if (response?.data?.status) {
-          
+          response.data.data.products.sort((a, b) => {
+            // Convert prices to numbers and compare them
+            const priceA = a.prices[0].INR;
+            const priceB = b.prices[0].INR;
+            return parseInt(priceA) - parseInt(priceB);
+          });
           dispatch(fetchAllProducts(response?.data?.data));
           const data = response?.data?.data;
           localStorage.setItem("allProducts", JSON.stringify(data));

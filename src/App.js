@@ -45,6 +45,8 @@ const Otp = lazy(() => import("./app/components/login/otp"));
 const Sidebar = lazy(() => import("./app/components/user/sidebar"));
 // import Sidebar from "./app/components/user/sidebar";
 
+const CheckoutLead = lazy(() => import("./app/components/product/checkoutLead/checkout"))
+
 function App() {
   useEffect(() => {
     AOS.init();
@@ -132,7 +134,8 @@ function App() {
             <Route path="/refund-policy" element={<Refund/>}></Route>
             <Route path="/shipping-policy" element={<ShippingPolicy/>}></Route>
             <Route path="*" element={<Pagenotfound />}></Route>
-            <Route path="/careers" element={<Career/>}></Route>
+            <Route path="/careers" element={<Career />}></Route>
+            <Route path="/checkout/wl" element={<CheckoutLead/>}></Route>
 
             {/* malay */}
 

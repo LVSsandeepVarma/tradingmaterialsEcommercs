@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="container">
             <div className="nk-footer-content">
               <div className="row gy-5 gy-xl-0 justify-content-start justify-content-xl-between">
-                <div className="col-md-12 col-lg-4 col-xxl-4 !mt-[100px] md:!mt-[106px] lg:!mt-[0px]">
+                <div className="col-md-12 col-lg-6 col-xxl-6 !mt-[100px] md:!mt-[106px] lg:!mt-[0px]">
                   <div className="nk-footer-brand pb-5 pb-lg-0">
                     <div className="nk-footer-brand-info mb-4">
                       <div className="nk-footer-logo flex !justify-start !text-left">
@@ -25,13 +25,20 @@ export default function Footer() {
                         </a>
                       </div>
                       <p className="!text-left">
-                        At Trading Materials, we are dedicated to empowering
-                        traders of all levels with curated resources and
-                        insights to excel in the world of trading. Our mission
-                        is to provide you with top-notch materials that
-                        contribute to your trading success. Join us on this
-                        journey as we redefine trading education and support for
-                        a brighter trading future.
+                        At Trading Materials, we&apos;re your dedicated source
+                        for top-notch trading essentials. We prioritize quality,
+                        offering a range of products, from Trading Desk Mats to
+                        Candlestick Chart Patterns Posters, designed to elevate
+                        your trading experience.
+                        <br />
+                        At Trading Materials, customer satisfaction is
+                        paramount. We aim to make your shopping experience
+                        seamless, and our responsive customer support is here to
+                        assist you.
+                        <br />
+                        Thank you for choosing Trading Materials as your source
+                        for trading materials. Explore our catalog and embark on
+                        your journey to trading success.
                       </p>
                     </div>
                     <ul className="nk-footer-social">
@@ -102,7 +109,7 @@ export default function Footer() {
                         </div>
                     </div> */}
 
-                <div className="col-md-12 col-lg-4 col-xxl-4">
+                <div className="col-md-12 col-lg-3 col-xxl-3">
                   <div className="nk-footer-info ">
                     <h5 className="title !text-start !font-bold !mb-[24px]">
                       Get In Touch

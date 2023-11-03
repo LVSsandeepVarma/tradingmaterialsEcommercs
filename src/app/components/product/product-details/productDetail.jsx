@@ -79,7 +79,7 @@ export default function ProductDetails() {
   const [reviewId, setReviewId] = useState("");
   // eslint-disable-next-line no-unused-vars
   const [previewImage, setPreviewImage] = useState("/images/logo");
-  console.log(cartProducts, params);
+  console.log(cartProducts, params, params?.slug?.replaceAll("_", " "));
 
   useEffect(() => {
     const timoeOut = setTimeout(() => {
@@ -231,6 +231,12 @@ export default function ProductDetails() {
           }
         );
         if (response?.data?.status) {
+          response.data.data.products.sort((a, b) => {
+            // Convert prices to numbers and compare them
+            const priceA = a.prices[0].INR;
+            const priceB = b.prices[0].INR;
+            return parseInt(priceA) - parseInt(priceB);
+          });
           dispatch(fetchAllProducts(response?.data?.data));
           setSubCatProducts(response?.data?.data?.products);
         }
@@ -533,7 +539,10 @@ export default function ProductDetails() {
     <>
       <head>
         <Helmet data-react-helmet="true">
-          <title>{`Trading Materials - ${product?.product?.name}`}</title>
+          <title>{`Trading Materials - ${params?.slug?.replaceAll(
+            "_",
+            " "
+          )}`}</title>
 
           <meta
             name="og:image"

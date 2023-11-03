@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Countdown from "./countdown";
 import { useDispatch, useSelector } from "react-redux";
-import { filteredProductsByIds } from "../../../features/products/productsSlice";
+import { fetchAllProducts, filteredProductsByIds } from "../../../features/products/productsSlice";
 // import { keyframes } from "styled-components";
 import { useLocation, useNavigate } from "react-router-dom";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
@@ -26,19 +26,21 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { useTranslation } from "react-i18next";
-import { Box, Skeleton } from "@mui/material";
+import { Box, Divider, Skeleton } from "@mui/material";
 // import InputLabel from '@mui/material/InputLabel';
-import MenuItem from "@mui/material/MenuItem";
+// import MenuItem from "@mui/material/MenuItem";
 // import FormControl from '@mui/material/FormControl';
-import Select from "@mui/material/Select";
+// import Select from "@mui/material/Select";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import moment from "moment";
 // import FloatingForm from "../forms/floatingForm";
 // import ChatForm from "../Chatbot/chatbot";
 import AddToFav from "../modals/addToFav";
+
 import { FaRegHeart } from "react-icons/fa";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import SessionExpired from "../modals/sessionExpired";
+import { Dropdown } from "react-bootstrap";
 export default function ProductsDisplay() {
   const { t } = useTranslation();
 
@@ -48,7 +50,12 @@ export default function ProductsDisplay() {
   const userLang = useSelector((state) => state?.lang?.value);
   const clientType = useSelector((state) => state?.clientType?.value);
   const subId = useSelector((state) => state?.subId?.value);
-
+const sugnupAddtoCartModal = useSelector(
+  (state) => state?.signupInModal?.value?.showSignupCartModal
+  );
+  const sugnupBuyNowtModal = useSelector(
+    (state) => state?.signupInModal?.value?.showSignupBuyModal
+  );
   // eslint-disable-next-line no-unused-vars
   const [megaDealTime, setMegaDealTime] = useState("");
   const [singleProductsCount, setSingleProductsCount] = useState(0);
@@ -85,6 +92,7 @@ export default function ProductsDisplay() {
     localStorage.getItem("i18nextLng")
   );
 
+  console.log(sugnupAddtoCartModal, "sugnupAddtoCartModal");
   const location = useLocation();
   const navigate = useNavigate();
   const positions = useSelector((state) => state?.position?.value);
@@ -118,6 +126,7 @@ export default function ProductsDisplay() {
     incrementDate();
   }, []);
 
+
   // showing filtered products when choosed from other pages
   useEffect(() => {
     const productData = JSON.parse(localStorage.getItem("productData"));
@@ -129,47 +138,79 @@ export default function ProductsDisplay() {
       // setQuantities(initialQuantities);
       handleAddToCartDirectly(productData?.id, "add", qty);
     }
-  }, []);
+  }, [sugnupAddtoCartModal, sugnupBuyNowtModal]);
+
+          const fetchProducts = async () => {
+            // Fetch the data from the API.
+            try {
+              const response = await axios.get(
+                "https://admin.tradingmaterials.com/api/get/products",
+                {
+                  headers: {
+                    "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+                    Accept: "application/json",
+                    "access-token": localStorage.getItem("client_token"),
+                  },
+                }
+              );
+              response.data.data.products.sort((a, b) => {
+                // Convert prices to numbers and compare them
+                const priceA = a.prices[0].INR;
+                const priceB = b.prices[0].INR;
+                return parseInt(priceA) - parseInt(priceB);
+              });
+
+              dispatch(fetchAllProducts(response.data.data));
+              return response.data.data;
+            } catch (err) {
+              console.log(err);
+            }
+          };
+          
 
   // function for handling add to cart directly {indirect login}
   async function handleAddToCartDirectly(productId, status, qty) {
     try {
       dispatch(showLoader());
-      const response = await axios?.post(
-        "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
-        {
-          product_id: productId,
-          qty: qty,
-          status: status,
-        },
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
+      if (localStorage.getItem("client_token")) {
+        const response = await axios?.post(
+          "https://admin.tradingmaterials.com/api/lead/product/add-to-cart",
+          {
+            product_id: productId,
+            qty: qty,
+            status: status,
           },
-        }
-      );
-      if (response?.data?.status) {
-        dispatch(updateCart(response?.data?.data?.cart_details));
-        dispatch(updateCartCount(response?.data?.data?.cart_count));
-        setAllProducts(response?.data?.data?.cart_details);
-        getUserInfo();
-        // const productData = JSON.parse(localStorage.getItem("productData"))
+          {
+            headers: {
+              "access-token": localStorage.getItem("client_token"),
+            },
+          }
+        );
+        if (response?.data?.status) {
+          dispatch(updateCart(response?.data?.data?.cart_details));
+          dispatch(updateCartCount(response?.data?.data?.cart_count));
+          setAllProducts(response?.data?.data?.cart_details);
+          getUserInfo();
+          fetchProducts();
+          // const productData = JSON.parse(localStorage.getItem("productData"))
 
-        localStorage.removeItem("productData");
-        localStorage.removeItem("prodcutQty");
+          localStorage.removeItem("productData");
+          localStorage.removeItem("prodcutQty");
+        }
       }
     } catch (err) {
       console.log(err);
-      if (err?.response?.data?.message?.includes("Token")) {
-        setShowSessionExpiry(true);
-      } else {
+      // if (err?.response?.data?.message?.includes("Token")) {
+      //   setShowSessionExpiry(true);
+      // }
+      
         dispatch(
           updateNotifications({
             type: "error",
-            message: err?.response?.data?.message,
+            message: "please try again, required data is missing",
           })
         );
-      }
+      
     } finally {
       dispatch(hideLoader());
     }
@@ -771,17 +812,18 @@ export default function ProductsDisplay() {
   const handleSignupCart = (product) => {
     localStorage.removeItem("productData");
     localStorage.setItem("productData", JSON.stringify(product));
-    dispatch(
-      usersignupinModal({
-        showSignupModal: false,
-        showLoginModal: false,
-        showforgotPasswordModal: false,
-        showOtpModal: false,
-        showNewPasswordModal: false,
-        showSignupCartModal: true,
-        showSignupBuyModal: false,
-      })
-    );
+    window.location.href = "/checkout/wl"
+    // dispatch(
+    //   usersignupinModal({
+    //     showSignupModal: false,
+    //     showLoginModal: false,
+    //     showforgotPasswordModal: false,
+    //     showOtpModal: false,
+    //     showNewPasswordModal: false,
+    //     showSignupCartModal: true,
+    //     showSignupBuyModal: false,
+    //   })
+    // );
   };
 
   function handleSessionExpiryClose() {
@@ -789,9 +831,9 @@ export default function ProductsDisplay() {
     navigate("/?login");
   }
 
-  const handleChange = (event) => {
-    handleSortingProducts(event.target.value);
-  };
+  // const handleChange = (event) => {
+  //   handleSortingProducts(event.target.value);
+  // };
 
   return (
     <>
@@ -854,7 +896,7 @@ export default function ProductsDisplay() {
             </div>
           </div>
         </section>
-        <section className="nk-section nk-section-products" id="products">
+        <section className="nk-section nk-section-products">
           <div className="container">
             <div className="nk-section-content">
               <div className="row">
@@ -1105,12 +1147,13 @@ export default function ProductsDisplay() {
                     </div>
                   </div>
                 </div>
+                <Divider className="my-2 md:hidden" />
                 <div className="col-lg-9" id="search_results">
-                  <div className="nk-section-content-products">
+                  <div className="nk-section-content-products" id="products">
                     <div className="row justify-content-between align-items-center pb-5">
                       <div className="col-sm-6">
                         {!isSearchResult && (
-                          <p className="text-left text-xl font-semibold text-black">
+                          <p className="text-left text-xl font-semibold text-black !my-2 md:!my-0">
                             Our Products
                           </p>
                         )}
@@ -1121,19 +1164,37 @@ export default function ProductsDisplay() {
                         )}
                       </div>
                       <div className="col-sm-4 col-md-3 col-xl-2">
-                        <div className="nk-dropdown py-1 ps-2 pe-1">
-                          <Select
-                            className="w-full text-start flex"
-                            value={sorting}
-                            onChange={handleChange}
-                            // displayEmpty
-                            defaultValue={sorting}
-                            inputProps={{ "aria-label": "Without label" }}
-                          >
-                            <MenuItem value={"Popular"}>Popular</MenuItem>
-                            <MenuItem value={"Newest"}>Newest</MenuItem>
-                            <MenuItem value={"Oldest"}>Oldest</MenuItem>
-                          </Select>
+                        <div className="py-1 ps-2 ">
+                          <Dropdown className="border rounded-sm">
+                            <Dropdown.Toggle
+                              variant="outline"
+                              className="w-full text-start flex"
+                              // displayEmpty
+                              defaultValue={sorting}
+                            >
+                              {sorting}
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu>
+                              <Dropdown.Item
+                                value={"Popular"}
+                                onClick={() => handleSortingProducts("Popular")}
+                              >
+                                Popular
+                              </Dropdown.Item>
+                              <Dropdown.Item
+                                value={"Newest"}
+                                onClick={() => handleSortingProducts("Newest")}
+                              >
+                                Newest
+                              </Dropdown.Item>
+                              <Dropdown.Item
+                                value={"Oldest"}
+                                onClick={() => handleSortingProducts("Oldest")}
+                              >
+                                Oldest
+                              </Dropdown.Item>
+                            </Dropdown.Menu>
+                          </Dropdown>
                           {/* <label
                             htmlFor="nk-sorting"
                             className="nk-dropdown-menu"
@@ -1566,8 +1627,12 @@ export default function ProductsDisplay() {
                                     className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px] group hover:drop-shadow-lg"
                                     id={`img-${product?.id}`}
                                   >
-                                    <div className="nk-card overflow-hidden rounded-3  border text-left ">
-                                      <div className="nk-card-img  relative">
+                                    <div
+                                      className={`nk-card overflow-hidden rounded-3 border text-left `}
+                                    >
+                                      <div
+                                        className={`nk-card-img border rounded-md p-3   relative`}
+                                      >
                                         <a
                                           href={`${userLang}/product-detail/${
                                             product?.slug
@@ -1582,7 +1647,7 @@ export default function ProductsDisplay() {
                                           <img
                                             src={product?.img_1}
                                             alt="product-image"
-                                            className="sm:!h-[300px] !w-full group-hover:scale-105 transition duration-500"
+                                            className=" !w-full group-hover:scale-105 transition duration-500 rounded-md backdrop-blur-xl bg-white/10"
                                           />
                                           {/* {product?.stock?.stock < 10 && (
                                             <GitHubForkRibbon
@@ -1597,7 +1662,7 @@ export default function ProductsDisplay() {
                                           {/* <Badge */}
                                         </a>
                                       </div>
-                                      <div className="nk-card-info bg-white p-4">
+                                      <div className="nk-card-info  bg-white p-4 pt-1">
                                         <a
                                           href={`${userLang}/product-detail/${
                                             product?.slug
@@ -1608,47 +1673,17 @@ export default function ProductsDisplay() {
                                             ?.toString()
                                             .replace(/\//g, "_")
                                             .replace(/\+/g, "-")}`}
-                                          className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                          className="d-inline-block text-black !text-sm antialiased"
                                           style={{
                                             textOverflow: "ellipsis",
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
-                                            width: "90%",
+                                            width: "95%",
                                           }}
                                         >
                                           {product?.name}
-                                          <br />
-                                          <span className="text-xs !mt-1">
-                                            <p
-                                              onClick={() => {
-                                                navigate(
-                                                  `${userLang}/product-detail/${
-                                                    product?.slug
-                                                  }/${CryptoJS?.AES?.encrypt(
-                                                    `${product?.id}`,
-                                                    "trading_materials"
-                                                  )
-                                                    ?.toString()
-                                                    .replace(/\//g, "_")
-                                                    .replace(/\+/g, "-")}`
-                                                );
-                                                dispatch(showLoader());
-                                              }}
-                                              className="!mt-5 text-gray-700  truncate"
-                                              dangerouslySetInnerHTML={{
-                                                __html:
-                                                  product?.description?.length >
-                                                  55
-                                                    ? `${product?.description?.slice(
-                                                        0,
-                                                        55
-                                                      )}...`
-                                                    : product?.description,
-                                              }}
-                                            />
-                                          </span>
                                         </a>
-                                        <div className="d-flex align-items-center mb-2 gap-1">
+                                        <div className="d-flex align-items-center gap-1">
                                           {ratingStars(product?.rating)}
 
                                           <span className="fs-14 text-gray-800">
@@ -2120,7 +2155,7 @@ export default function ProductsDisplay() {
                                             </button>
 
                                             <button
-                                              className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                              className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right  group-hover:animate-shake"
                                               onClick={(event) => {
                                                 return isLoggedIn
                                                   ? (handleAddToCart(
@@ -2138,7 +2173,7 @@ export default function ProductsDisplay() {
                                                   className="max-w-[45px]"
                                                 />
                                               ) : (
-                                                <em className="icon ni ni-cart text-2xl "></em>
+                                                <em className="icon ni ni-cart text-2xl"></em>
                                               )}
                                             </button>
                                           </div>
@@ -2241,7 +2276,7 @@ export default function ProductsDisplay() {
                                   <img
                                     src={product?.img_1}
                                     alt="product-image"
-                                    className="w-100 group-hover:scale-105 transition duration-500"
+                                    className="w-100 group-hover:scale-105 p-3 rounded-md transition duration-500"
                                     // loading="lazy"
                                   />
                                   {/* {product?.stock?.stock < 10 && (
@@ -2255,7 +2290,7 @@ export default function ProductsDisplay() {
                                   )} */}
                                 </a>
                               </div>
-                              <div className="nk-card-info bg-white p-4">
+                              <div className="nk-card-info bg-white p-4 pt-1">
                                 <a
                                   href={`${userLang}/product-detail/${
                                     product?.slug
@@ -2266,53 +2301,25 @@ export default function ProductsDisplay() {
                                     ?.toString()
                                     .replace(/\//g, "_")
                                     .replace(/\+/g, "-")}`}
-                                  className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                  className="d-inline-block text-black text-sm subpixel-antialiased"
                                   style={{
                                     textOverflow: "ellipsis",
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
-                                    width: "90%",
+                                    width: "95%",
                                   }}
                                 >
                                   {product?.name}
-                                  <br />
-                                  <span className="text-xs">
-                                    <p
-                                      className="!mt-5 text-gray-700"
-                                      onClick={() => {
-                                        navigate(
-                                          `${userLang}/product-detail/${
-                                            product?.slug
-                                          }/${CryptoJS?.AES?.encrypt(
-                                            `${product?.id}`,
-                                            "trading_materials"
-                                          )
-                                            ?.toString()
-                                            .replace(/\//g, "_")
-                                            .replace(/\+/g, "-")}`
-                                        );
-                                        dispatch(showLoader());
-                                      }}
-                                      dangerouslySetInnerHTML={{
-                                        __html:
-                                          product?.description?.length > 55
-                                            ? `${product?.description?.slice(
-                                                0,
-                                                55
-                                              )}...`
-                                            : product?.description,
-                                      }}
-                                    />
-                                  </span>
                                 </a>
-                                <div className="d-flex align-items-center mb-2 gap-1">
+                                <div className="d-flex align-items-center gap-1">
                                   {ratingStars(product?.rating)}
+
                                   <span className="fs-14 text-gray-800">
                                     {" "}
-                                    {product?.total_reviews} Reviews{" "}
+                                    ({product?.total_reviews} Reviews){" "}
                                   </span>
                                 </div>
-                                <div className="d-flex align-items-center justify-content-between mb-2">
+                                <div className="d-flex align-items-center justify-content-start mb-2 ">
                                   {product?.prices?.map((price) => (
                                     <>
                                       {currentUserlang === "en" &&
@@ -2351,10 +2358,11 @@ export default function ProductsDisplay() {
                                                       )?.split(".")[0]
                                                     }
                                                     {/* <sub
-                                                      style={{
-                                                        verticalAlign: "super",
-                                                      }}
-                                                    > */}
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            > */}
                                                     .
                                                     {
                                                       (
@@ -2411,11 +2419,11 @@ export default function ProductsDisplay() {
                                                           .split(".")[0]
                                                       }
                                                       {/* <sub
-                                                        style={{
-                                                          verticalAlign:
-                                                            "super",
-                                                        }}
-                                                      > */}
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              > */}
                                                       .
                                                       {
                                                         (
@@ -2471,11 +2479,11 @@ export default function ProductsDisplay() {
                                                           .split(".")[0]
                                                       }
                                                       {/* <sub
-                                                        style={{
-                                                          verticalAlign:
-                                                            "super",
-                                                        }}
-                                                      > */}
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              > */}
                                                       .
                                                       {
                                                         (
@@ -2533,10 +2541,11 @@ export default function ProductsDisplay() {
                                                         .split(".")[0]
                                                     }
                                                     {/* <sub
-                                                      style={{
-                                                        verticalAlign: "super",
-                                                      }}
-                                                    > */}
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            > */}
                                                     .
                                                     {
                                                       (
@@ -2562,10 +2571,11 @@ export default function ProductsDisplay() {
                                                         .split(".")[0]
                                                     }
                                                     {/* <sub
-                                                      style={{
-                                                        verticalAlign: "super",
-                                                      }}
-                                                    > */}
+                                                              style={{
+                                                                verticalAlign:
+                                                                  "super",
+                                                              }}
+                                                            > */}
                                                     .
                                                     {
                                                       (
@@ -2620,11 +2630,11 @@ export default function ProductsDisplay() {
                                                           .split(".")[0]
                                                       }
                                                       {/* <sub
-                                                        style={{
-                                                          verticalAlign:
-                                                            "super",
-                                                        }}
-                                                      > */}
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              > */}
                                                       .
                                                       {
                                                         (
@@ -2672,18 +2682,19 @@ export default function ProductsDisplay() {
                                                           parseFloat(
                                                             price?.USD *
                                                               (100 /
-                                                                product?.discount)
+                                                                (100 -
+                                                                  product?.discount))
                                                           )?.toFixed(2) + ""
                                                         )
                                                           .toString()
                                                           .split(".")[0]
                                                       }
                                                       {/* <sub
-                                                        style={{
-                                                          verticalAlign:
-                                                            "super",
-                                                        }}
-                                                      > */}
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              > */}
                                                       .
                                                       {
                                                         (
@@ -2705,55 +2716,58 @@ export default function ProductsDisplay() {
                                         )}
                                     </>
                                   ))}
-                                  <button
-                                    className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "end",
-                                      marginRight: "5px",
-                                    }}
-                                    onClick={() => {
-                                      isLoggedIn
-                                        ? handleAddToWishList(
-                                            product?.id,
-                                            product?.img_1
-                                          )
-                                        : dispatch(
-                                            usersignupinModal({
-                                              showSignupModal: false,
-                                              showLoginModal: true,
-                                              showforgotPasswordModal: false,
-                                              showOtpModal: false,
-                                              showNewPasswordModal: false,
-                                              showSignupCartModal: false,
-                                              showSignupBuyModal: false,
-                                            })
-                                          );
-                                    }}
-                                  >
-                                    <FaRegHeart size={18} />
-                                  </button>
-                                  <button
-                                    className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
-                                    onClick={(event) => {
-                                      return isLoggedIn
-                                        ? (handleAddToCart(
-                                            product?.id,
-                                            product?.img_1
-                                          ),
-                                          handleCartPosition(event))
-                                        : handleSignupCart(product);
-                                    }}
-                                  >
-                                    {animateProductId === product?.id ? (
-                                      <img
-                                        src="/images/addedtocart.gif"
-                                        className="max-w-[45px]"
-                                      />
-                                    ) : (
-                                      <em className="icon ni ni-cart text-2xl"></em>
-                                    )}
-                                  </button>
+                                  <div className="flex justify-start items-center">
+                                    <button
+                                      className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center  !text-right"
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "end",
+                                        marginRight: "5px",
+                                      }}
+                                      onClick={() => {
+                                        isLoggedIn
+                                          ? handleAddToWishList(
+                                              product?.id,
+                                              product?.img_1
+                                            )
+                                          : dispatch(
+                                              usersignupinModal({
+                                                showSignupModal: false,
+                                                showLoginModal: true,
+                                                showforgotPasswordModal: false,
+                                                showOtpModal: false,
+                                                showNewPasswordModal: false,
+                                                showSignupCartModal: false,
+                                                showSignupBuyModal: false,
+                                              })
+                                            );
+                                      }}
+                                    >
+                                      <FaRegHeart size={18} />
+                                    </button>
+
+                                    <button
+                                      className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:animate-shake"
+                                      onClick={(event) => {
+                                        return isLoggedIn
+                                          ? (handleAddToCart(
+                                              product?.id,
+                                              product?.img_1
+                                            ),
+                                            handleCartPosition(event))
+                                          : handleSignupCart(product);
+                                      }}
+                                    >
+                                      {animateProductId === product?.id ? (
+                                        <img
+                                          src="/images/addedtocart.gif"
+                                          className="max-w-[45px]"
+                                        />
+                                      ) : (
+                                        <em className="icon ni ni-cart text-2xl "></em>
+                                      )}
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             </div>

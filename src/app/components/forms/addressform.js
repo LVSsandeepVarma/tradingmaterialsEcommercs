@@ -4,16 +4,16 @@ import React, { useEffect, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateaddressStatus } from "../../../features/address/addressSlice";
 import { useNavigate } from "react-router-dom";
 import SessionExpired from "../modals/sessionExpired";
 import { Divider } from "@mui/material";
-
-
+import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 
 // eslint-disable-next-line react/prop-types
 const AddressForm = ({ type, data, closeModal }) => {
+  const loaderState = useSelector((state) => state?.loader?.value);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
   const [apiErr, setApiErr] = useState("");
@@ -25,8 +25,7 @@ const AddressForm = ({ type, data, closeModal }) => {
   const navigate = useNavigate();
   const [countryInput, setCountryInput] = useState("");
   const [countryArray, setCountryArray] = useState([]);
-  const [countrySelected, setCountrySelected] = useState(false)
-
+  const [countrySelected, setCountrySelected] = useState(false);
 
   function generateRandomTwoDigitNumber() {
     return Math.floor(Math.random() * 90) + 10; // Generates a random number between 10 and 99 (inclusive)
@@ -34,24 +33,41 @@ const AddressForm = ({ type, data, closeModal }) => {
 
   const AddressSchema = Yup.object().shape({
     city: Yup.string()
-      .matches(/^[A-Za-z& ]{3,50}$/, "City must be within 3-50 characters")
+      .matches(
+        /^\s*[A-Za-z& ]{3,50}\s*$/,
+        "City must be within 3-50 characters"
+      )
+
       .required("City is required"),
     state: Yup.string()
-      .matches(/^[A-Za-z& ]{3,50}$/, "State must be within 3-50 characters")
+      .matches(
+        /^\s*[A-Za-z& ]{3,50}\s*$/,
+        "State must be within 3-50 characters"
+      )
+
       .required("State is required"),
     country: Yup.string()
-      .matches(/^[A-Za-z ]{3,50}$/, "Country must be within 3-50 characters")
+      .matches(
+        /^\s*[A-Za-z ]{3,50}\s*$/,
+        "Country must be within 3-50 characters"
+      )
+
       .oneOf(countries, "Invalid country, please choose from the list")
       .required("Country is required"),
     add_1: Yup.string()
-      .matches(/^.{10,200}$/, "Address must be within 10-200 characters")
+      .matches(/^\s*.{10,200}\s*$/, "Address must be within 10-200 characters")
+
       .required("Street Address 1 is required"),
     add_2: Yup.string().matches(
-      /^.{0,200}$/,
+      /^\s*.{0,200}\s*$/,
       "Address must be within 10-200 characters"
     ),
     zip: Yup.string()
-      .matches(/^[0-9 ]{6,10}$/, "Postal code must be within 6-10 characters")
+      .matches(
+        /^\s*[0-9 ]{6,10}\s*$/,
+        "Postal code must be within 6-10 characters"
+      )
+
       .required("Postal Code is required"),
   });
 
@@ -62,32 +78,29 @@ const AddressForm = ({ type, data, closeModal }) => {
         const countryNames = data.map((country) => country.name.common);
         countryNames.sort();
         setCountryArray(countryNames);
-
       })
       .catch((error) => {
         console.error("Error fetching country data:", error);
       });
     if (type != "add") {
-      console.log("country", data?.country)
+      console.log("country", data?.country);
       setCountryInput(data?.country);
     }
   }, []);
 
   useEffect(() => {
-    
     let countryFilteredArr = countryArray?.filter((country) =>
-        
-        country?.toLowerCase()?.startsWith(countryInput?.toLowerCase())
-      );
+      country?.toLowerCase()?.startsWith(countryInput?.toLowerCase())
+    );
     setCountries(countryFilteredArr);
     console.log("country", countryFilteredArr, countryInput, countryArray);
-    
   }, [countryInput, countryArray]);
 
   const handleSubmit = async (values, { setFieldError }) => {
     // setIsSuccess(false);
     //   setIsFailure(false);
     try {
+      dispatch(showLoader())
       setIsFailure(false);
       setIsSuccess(false);
       setApiErr("");
@@ -164,6 +177,8 @@ const AddressForm = ({ type, data, closeModal }) => {
           setApiErr([err?.response?.data?.message]);
         }
       }
+    } finally {
+      dispatch(hideLoader())
     }
 
     setTimeout(() => {
@@ -179,8 +194,9 @@ const AddressForm = ({ type, data, closeModal }) => {
 
   function cleanAndSetFieldValue(fieldName, value, setFieldValue) {
     // Use regex to replace non-letter characters with an empty string
+
     const cleanedValue = value.replace(/[^A-Za-z ]/g, "");
-    setFieldValue(fieldName, cleanedValue);
+    setFieldValue(fieldName, cleanedValue.trimStart());
   }
 
   function cleanAndSetPostalcodeValue(fieldName, value, setFieldValue) {
@@ -191,6 +207,11 @@ const AddressForm = ({ type, data, closeModal }) => {
 
   return (
     <>
+      {loaderState && (
+        <div className="preloader !backdrop-blur-[1px] ">
+          <div className="loader"></div>
+        </div>
+      )}
       <SessionExpired
         open={showSessionExppiry}
         handleClose={handleSessionExpiryClose}
@@ -388,45 +409,47 @@ const AddressForm = ({ type, data, closeModal }) => {
                     />
                   ) : (
                     <Field
-                    type="text"
-                    name="country"
-                    className="form-control addressInput"
-                    placeholder="Country"
-                    onChange={(e) => {
-                      cleanAndSetFieldValue(
-                        "country",
-                        e.target.value,
-                        setFieldValue
-                      );
-                      setCountryInput(e.target.value);
-                      setCountrySelected(true)
-                    }}
-                  ></Field>
-                )}
-                {countries?.length > 0 && countrySelected &&<div className="shadow-lg px-2 py-2 overflow-auto max-h-[20vh]">
-                  
-                    {countries?.map((country, ind) => (
-                      <div key={ind} className="cursor-pointer hover-bg-slate-100  hover:shadow-xl">
-                        <p
-                        className=" hover:!text-blue-600 py-1 text-xs"
-                        
-                        onClick={() => {
-                          cleanAndSetFieldValue(
-                            "country",
-                            country,
-                            setFieldValue
-                          );
-                          setCountryInput(country);
-                          setCountrySelected(false)
-                        }}
-                      >
-                        {country}{" "}
-                        
-                      </p>
-                      <Divider/>
-                      </div>
-                    ))}
-                </div>}
+                      type="text"
+                      name="country"
+                      className="form-control addressInput"
+                      placeholder="Country"
+                      onChange={(e) => {
+                        cleanAndSetFieldValue(
+                          "country",
+                          e.target.value,
+                          setFieldValue
+                        );
+                        setCountryInput(e.target.value);
+                        setCountrySelected(true);
+                      }}
+                    ></Field>
+                  )}
+                  {countries?.length > 0 && countrySelected && (
+                    <div className="shadow-lg px-2 py-2 overflow-auto max-h-[20vh]">
+                      {countries?.map((country, ind) => (
+                        <div
+                          key={ind}
+                          className="cursor-pointer hover-bg-slate-100  hover:shadow-xl"
+                        >
+                          <p
+                            className=" hover:!text-blue-600 py-1 text-xs"
+                            onClick={() => {
+                              cleanAndSetFieldValue(
+                                "country",
+                                country,
+                                setFieldValue
+                              );
+                              setCountryInput(country);
+                              setCountrySelected(false);
+                            }}
+                          >
+                            {country}{" "}
+                          </p>
+                          <Divider />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <ErrorMessage
                     name="country"
                     component="div"

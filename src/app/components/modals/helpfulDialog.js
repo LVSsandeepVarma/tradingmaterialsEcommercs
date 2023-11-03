@@ -72,6 +72,7 @@ export default function HelpfullDialog({ type, open, handleClose, ReviewId }) {
 
 
   function handleReportUpdate(e) {
+    e.target.value = e.target.value.trimStart();
     console.log(e?.target?.value);
     if (e?.target?.value === "") {
       setReportErr("report is required");

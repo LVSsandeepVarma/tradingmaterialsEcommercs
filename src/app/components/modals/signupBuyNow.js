@@ -15,6 +15,7 @@ import { Alert, Divider } from "@mui/material";
 import { updateclientType } from "../../../features/clientType/clientType";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CircularProgress from "@mui/material/CircularProgress";
+import { hidePopup } from "../../../features/popups/popusSlice";
 
 // eslint-disable-next-line react/prop-types, no-unused-vars
 const SignupBuyNowModal = ({ show, onHide }) => {
@@ -161,6 +162,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
   }
 
   function handleEmailChange(e) {
+    e.target.value = e.target.value.trim();
     setEmail(e?.target?.value);
     emailValidaiton(e?.target?.value);
     if (handleEmailvalidation(e?.target?.value)) {
@@ -169,6 +171,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
   }
 
   function handlePhoneChange(e) {
+    e.target.value = e.target.value.trim();
     if (!emailVerificationStatus) {
       e.target.value = e.target.value.replace(/[^0-9]/g, "");
       setPhone(e?.target?.value);
@@ -180,11 +183,13 @@ const SignupBuyNowModal = ({ show, onHide }) => {
   }
 
   function handleFirstNamechange(e) {
+    e.target.value = e.target.value.trimStart();
     setFirstName(e?.target?.value);
     firstNameVerification(e?.target?.value);
   }
 
   function handleLastNameChange(e) {
+    e.target.value = e.target.value.trimStart();
     setLastName(e?.target?.value);
     lastNameVerification(e?.target?.value);
   }
@@ -204,7 +209,13 @@ const SignupBuyNowModal = ({ show, onHide }) => {
       );
       if (response?.data?.status) {
         setEmailVerificationStatus(false);
-        if (phone != "") {
+        if (emailVerificationStatus) {
+          setPhone("");
+          if (phoneError != "") {
+            setPhoneError("");
+          }
+        }
+        if (phone != "" && !emailVerificationStatus) {
           phoneValidation(phone);
         }
         console.log(response?.data);
@@ -216,9 +227,18 @@ const SignupBuyNowModal = ({ show, onHide }) => {
         "The email has already been taken."
       ) {
         setEmailVerificationStatus(true);
-        if (phone != "") {
-          passwordValidation(phone);
+        if (phoneError != "") {
+          setPhoneError("");
         }
+        if (firstNameError != "") {
+          setFirstNameError("");
+        }
+        if (lastNameError != "") {
+          setLastNameError("");
+        }
+        setPhone("");
+        setFirstName("");
+        setLastName("");
       }
     } finally {
       setEmailVerifyLoader(false);
@@ -298,7 +318,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
             // function for adding to cart
             // navigate("/cart");
 
-            window.location.href = "/";
+            window.location.href = "/cart";
           }
         } catch (err) {
           console.log("err", err);
@@ -312,7 +332,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
           setTimeout(() => {
             setApiError([]);
             setSignupSuccessMsg("");
-          }, 8000);
+          }, 2000);
         } finally {
           setLocalLoader(false);
         }
@@ -419,7 +439,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
           setTimeout(() => {
             setApiError([]);
             setSignupSuccessMsg("");
-          }, 8000);
+          }, 2000);
         } finally {
           setLocalLoader(false);
         }
@@ -560,6 +580,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                             type="text"
                             className="form-control !text-[11px] "
                             style={{ borderRadius: 0 }}
+                            value={firstName}
                             placeholder="Enter here"
                             onChange={handleFirstNamechange}
                           />
@@ -584,6 +605,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                             type="text"
                             className="form-control !text-[11px]"
                             style={{ borderRadius: 0 }}
+                            value={lastName}
                             placeholder="Enter here"
                             onChange={handleLastNameChange}
                           />
@@ -609,6 +631,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                           type="text"
                           className="form-control !text-[11px]"
                           style={{ borderRadius: 0 }}
+                          value={email}
                           placeholder="Enter here"
                           onChange={handleEmailChange}
                         />
@@ -630,7 +653,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                         {emailVerificationStatus && (
                           <a
                             // href="show-hide-password.html"
-                            className="form-control-icon end bg-white border-y password-toggle"
+                            className="form-control-icon end bg-transparent border-y password-toggle"
                             title="Toggle show/hide password"
                             style={{
                               height: "100%",
@@ -655,6 +678,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                           className="form-control !text-[11px]"
                           style={{ borderRadius: 0 }}
                           maxLength={15}
+                          value={phone}
                           placeholder="Enter here"
                           onChange={handlePhoneChange}
                         />
@@ -663,6 +687,27 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                         <p className="nk-message-error text-xs">{phoneError}</p>
                       )}
                     </div>
+                    {emailVerificationStatus && (
+                      <p
+                        className="text-sm w-fit float-right text-right hover:text-blue-600 cursor-pointer antialiased "
+                        onClick={() => {
+                          dispatch(hidePopup());
+                          dispatch(
+                            usersignupinModal({
+                              showSignupModal: false,
+                              showLoginModal: false,
+                              showforgotPasswordModal: true,
+                              showOtpModal: false,
+                              showNewPasswordModal: false,
+                              showSignupCartModal: false,
+                              showSignupBuyModal: false,
+                            })
+                          );
+                        }}
+                      >
+                        Forgot password
+                      </p>
+                    )}
                   </div>
                   <div className="col-12">
                     <div className="form-group">
@@ -749,7 +794,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                 <ul className="text-sm pl-2">
                   <li>- Order With Comfort</li>
                   <li>- Pay when you receive the the order</li>
-                  <li className="">- Delivery charges applicable [150 INR]</li>
+                  <li className="">- Delivery charges applicable </li>
                 </ul>
               </div>
             </div>

@@ -8,7 +8,9 @@ import { hidePopup } from "../../../features/popups/popusSlice";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateclientType } from "../../../features/clientType/clientType";
 import { loginUser } from "../../../features/login/loginSlice";
-import { CircularProgress } from "@mui/material";
+import { Alert, CircularProgress } from "@mui/material";
+// eslint-disable-next-line no-unused-vars
+import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 
 // eslint-disable-next-line react/prop-types
 export default function Offer() {
@@ -23,6 +25,8 @@ export default function Offer() {
   const [emailVerifyLoader, setEmailVerifyLoader] = useState(false);
   const [name, setName] = useState("");
   const [nameErr, setNameErr] = useState("");
+  const [showPassword, setShowPassword] = useState(false)
+  const [forgotPassword, setForgotPassword] = useState(false);
   const [userType, setUserType] = useState("");
   // eslint-disable-next-line no-unused-vars
   const [checkboxChecked, setCheckboxChecked] = useState(true);
@@ -57,6 +61,10 @@ export default function Offer() {
         if (response?.data?.status) {
           console.log(response?.data);
           setUserType("");
+          if (phoneErr != "") {
+            isValidMobile(phone)
+          }
+          setShowPassword(false)
         }
       } catch (err) {
         console.log(err);
@@ -68,18 +76,24 @@ export default function Offer() {
           setEmailVerificationStatus(true);
           if (err?.response?.data?.type == "lead") {
             setUserType("lead");
+            if (phoneErr != "") {
+              ispasswordValid(phone);
+            }
+            setShowPassword(false);
 
             // setTimeout(()=>{
             //   dispatch(hidePopup())
             // },1000)
           } else if (err?.response?.data?.type == "client") {
             setUserType("client");
+            setShowPassword(false);
             setTimeout(() => {
               window.location.href =
                 "https://client.tradingmaterials.com/login";
             }, 1000);
           } else {
             setUserType("");
+            setShowPassword(false);
           }
         }
       } finally {
@@ -89,6 +103,7 @@ export default function Offer() {
   }
 
   function handleNameChange(e) {
+    e.target.value = e.target.value.trimStart();
     e.target.value = e.target.value.replace(/[^a-zA-Z ]/g, "");
     setName(e?.target?.value);
   }
@@ -114,7 +129,7 @@ export default function Offer() {
     } else if (name?.length < 3) {
       setNameErr("Min 3 characters are required");
     } else if (name?.length > 100) {
-      setNameErr("Max 100 characters are required");
+      setNameErr("Max 100 characters are allowed");
     } else {
       setNameErr("");
       return true;
@@ -160,12 +175,15 @@ export default function Offer() {
   };
 
   const handleEmailChange = (e) => {
-    setEmail(e?.target?.value);
+    e.target.value = e.target.value.trim();
+    setEmail(e.target.value);
+    setForgotPassword(false);
     // emailValidaiton(e?.target?.value);
     if (userEmailValidaiton(e?.target?.value)) {
       handleEmailVerification(e?.target?.value);
     } else if (e?.target?.value == "") {
       setUserType("");
+      setShowPassword(false);
     }
   };
 
@@ -318,6 +336,46 @@ export default function Offer() {
     }
   };
 
+  // forgot password submission
+  async function handleForgotPasswordSubmission() {
+    setApiErr([]);
+    setSuccessMsg("");
+    console.log(email);
+    emailValidaiton(email);
+    if (emailErr === "" && email !== "") {
+      try {
+        dispatch(showLoader());
+        const response = await axios.post(
+          "https://admin.tradingmaterials.com/api/lead/reset-password-link",
+          {
+            email: email,
+          }
+        );
+        if (response?.data?.status) {
+          setSuccessMsg(response?.data?.message);
+          console.log(response?.data);
+          setTimeout(() => {
+            dispatch(hidePopup());
+          }, 3000);
+          // navigate(`${userLang}/login`);
+        }
+      } catch (err) {
+        console.log("err", err);
+        if (err?.response?.data?.errors) {
+          setApiErr([Object?.values(err?.response?.data?.errors)]);
+        } else {
+          setApiErr([err?.response?.data?.message]);
+        }
+        setTimeout(() => {
+          setApiErr([]);
+          setSuccessMsg("");
+        }, 8000);
+      } finally {
+        dispatch(hideLoader());
+      }
+    }
+  }
+
   return (
     <>
       {loaderState && (
@@ -348,6 +406,7 @@ export default function Offer() {
                   type="text"
                   maxLength={100}
                   name="name"
+                  value={name}
                   onChange={handleNameChange}
                   onBlur={() => {
                     handleNaveValidation(name);
@@ -380,9 +439,11 @@ export default function Offer() {
               id="login__username"
               type="email"
               name="email"
+              value={email}
               onChange={handleEmailChange}
               onBlur={() => {
-                emailValidaiton(email), handleEmailVerification(email);
+                emailValidaiton(email);
+                handleEmailVerification(email);
               }}
               className="input-fields-2 mb-0 !pl-14"
               placeholder="Email address"
@@ -397,44 +458,68 @@ export default function Offer() {
           <p className="nk-message-error pl-8 texxt-xs text-left">{emailErr}</p>
         )}
 
-        <div className="form__field  mb-0">
-          <div className="flex items-center w-full relative">
-            {
-              <img
-                src={
-                  userType == "lead"
-                    ? "/images/password.webp"
-                    : "/images/call.webp"
+        {!forgotPassword && (
+          <div>
+            <div className="form__field  mb-0">
+              <div className="flex items-center w-full relative">
+                {
+                  <img
+                    src={
+                      userType == "lead"
+                        ? "/images/password.webp"
+                        : "/images/call.webp"
+                    }
+                    alt="email"
+                    className="ml-2 absolute right-[87%] !w-[20px] !h-[20px]"
+                  />
                 }
-                alt="email"
-                className="ml-2 absolute right-[87%] !w-[20px] !h-[20px]"
-              />
-            }
-
-            <input
-              id="login__username"
-              maxLength={15}
-              type="text"
-              name="phone"
-              onChange={handlePhonechange}
-              onBlur={() => {
-                if (userType == "") {
-                  isValidMobile(phone);
-                } else {
-                  ispasswordValid(phone);
-                }
-              }}
-              value={phone}
-              className={` ${
-                userType == "" ? "input-fields-3" : "input-fields-3-password"
-              } mb-0 !pl-14`}
-              placeholder={userType == "" ? "Mobile" : "Password"}
-              required=""
-            />
+                {userType != "" && (
+                  <a
+                    // href="show-hide-password.html"
+                    className="form-control-icon end bg-transparent password-toggle"
+                    title="Toggle show/hide password"
+                  >
+                    <em
+                      className={`on icon ni cursor-pointer ${
+                        showPassword ? "ni-eye-off-fill" : "ni-eye-fill"
+                      } text-primary`}
+                      onClick={() => setShowPassword(!showPassword)}
+                    ></em>
+                    <em className="off icon ni ni-eye-off-fill text-primary"></em>
+                  </a>
+                )}
+                <input
+                  id="login__username"
+                  maxLength={15}
+                  type={
+                    userType == "" ? "text" : showPassword ? "text" : "password"
+                  }
+                  name="phone"
+                  onChange={handlePhonechange}
+                  onBlur={() => {
+                    if (userType == "") {
+                      isValidMobile(phone);
+                    } else {
+                      ispasswordValid(phone);
+                    }
+                  }}
+                  value={phone}
+                  className={` ${
+                    userType == ""
+                      ? "input-fields-3"
+                      : "input-fields-3-password"
+                  } mb-0 !pl-14`}
+                  placeholder={userType == "" ? "Mobile" : "Password"}
+                  required=""
+                />
+              </div>
+            </div>
+            {phoneErr && (
+              <p className="nk-message-error pl-8 texxt-xs text-left">
+                {phoneErr}
+              </p>
+            )}
           </div>
-        </div>
-        {phoneErr && (
-          <p className="nk-message-error pl-8 texxt-xs text-left">{phoneErr}</p>
         )}
 
         <div className="form__field">
@@ -443,33 +528,79 @@ export default function Offer() {
             onClick={(e) => {
               e.preventDefault();
               if (userType == "lead") {
-                handleUserLogin();
+                if (!forgotPassword) {
+                  handleUserLogin();
+                } else {
+                  handleForgotPasswordSubmission();
+                }
               } else {
                 handleSubmit();
               }
             }}
             className="btn btn-block btn-primary-2 hover:!bg-blue-600 !normal-case !rounded-[50px] "
           >
-            Click here to login
+            {forgotPassword ? "Request reset link" : "Click here to login"}
           </button>
         </div>
-        <p
-          className="text-sm text-center text-primary cursor-pointer antialiased "
-          onClick={() => dispatch(hidePopup())}
+        <div
+          className={`flex ${
+            userType == "" ? "justify-center" : "justify-around"
+          }`}
         >
-          Back to Shop
-        </p>
-        {successMsg?.length > 0 && (
-          <p className="text-green-900 text-sm">{successMsg}</p>
-        )}
-        {apiErr?.length > 0 &&
-          apiErr?.map((err, ind) => {
-            return (
-              <p key={ind} className="text-red-600 text-sm ">
-                {err}
+          <p
+            className="text-sm text-center flex items-center gap-1 text-primary cursor-pointer antialiased "
+            onClick={() => dispatch(hidePopup())}
+          >
+            <img src="/images/retunToShop.webp" className="w-4" />
+            Back to Shop
+          </p>
+          {userType != "" && (
+            <p
+              className="text-sm text-center text-primary cursor-pointer antialiased "
+              onClick={() => {
+                setForgotPassword(!forgotPassword);
+                // dispatch(hidePopup());
+                // dispatch(
+                //   usersignupinModal({
+                //     showSignupModal: false,
+                //     showLoginModal: false,
+                //     showforgotPasswordModal: true,
+                //     showOtpModal: false,
+                //     showNewPasswordModal: false,
+                //     showSignupCartModal: false,
+                //     showSignupBuyModal: false,
+                //   })
+                // );
+              }}
+            >
+              {forgotPassword ? "Login now" : "Forgot password"}
+            </p>
+          )}
+        </div>
+        <div className="mt-2">
+          {successMsg?.length > 0 && (
+            <Alert variant="outlined" severity="success" className="mt-2">
+              <p className="text-green-900 font-semibold !text-sm">
+                {successMsg}
               </p>
-            );
-          })}
+            </Alert>
+          )}
+          {apiErr?.length > 0 &&
+            apiErr?.map((err, ind) => {
+              return (
+                <Alert
+                  key={ind}
+                  variant="outlined"
+                  severity="error"
+                  className="mt-2"
+                >
+                  <p key={ind} className="nk-message-error !text-sm ">
+                    {err}
+                  </p>
+                </Alert>
+              );
+            })}
+        </div>
 
         <div className="form__field text-center">
           <div className="terms-tex-2 mt-2 text-lg">

@@ -78,6 +78,7 @@ export default function Login() {
   }
 
   function handleEmailChange(e) {
+    e.target.value = e.target.value.trim();
     setEmail(e?.target?.value);
     emailValidaiton(e?.target?.value);
   }

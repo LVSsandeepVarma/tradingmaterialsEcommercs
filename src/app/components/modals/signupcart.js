@@ -16,6 +16,7 @@ import { Alert, Divider } from "@mui/material";
 import { updateclientType } from "../../../features/clientType/clientType";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CircularProgress from "@mui/material/CircularProgress";
+import { hidePopup } from "../../../features/popups/popusSlice";
 
 // eslint-disable-next-line react/prop-types, no-unused-vars
 const SignupCartModal = ({ show, onHide }) => {
@@ -160,6 +161,7 @@ const SignupCartModal = ({ show, onHide }) => {
   }
 
   function handleEmailChange(e) {
+    e.target.value = e.target.value.trim();
     setEmail(e?.target?.value);
     emailValidaiton(e?.target?.value);
     if (handleEmailvalidation(e?.target?.value)) {
@@ -168,6 +170,7 @@ const SignupCartModal = ({ show, onHide }) => {
   }
 
   function handlePhoneChange(e) {
+    e.target.value = e.target.value.trim();
     if (!emailVerificationStatus) {
       e.target.value = e.target.value.replace(/[^0-9]/g, "");
       setPhone(e?.target?.value);
@@ -179,11 +182,13 @@ const SignupCartModal = ({ show, onHide }) => {
   }
 
   function handleFirstNamechange(e) {
+    e.target.value = e.target.value.trimStart();
     setFirstName(e?.target?.value);
     firstNameVerification(e?.target?.value);
   }
 
   function handleLastNameChange(e) {
+    e.target.value = e.target.value.trimStart();
     setLastName(e?.target?.value);
     lastNameVerification(e?.target?.value);
   }
@@ -203,7 +208,13 @@ const SignupCartModal = ({ show, onHide }) => {
       );
       if (response?.data?.status) {
         setEmailVerificationStatus(false);
-        if (phone != "") {
+        if (emailVerificationStatus) {
+          setPhone("")
+          if (phoneError != "") {
+            setPhoneError("")
+          }
+        }
+        if (phone != "" && !emailVerificationStatus) {
           phoneValidation(phone);
         }
         console.log(response?.data);
@@ -215,16 +226,25 @@ const SignupCartModal = ({ show, onHide }) => {
         "The email has already been taken."
       ) {
         setEmailVerificationStatus(true);
-        if (phone != "") {
-          passwordValidation(phone);
+        if (phoneError != "") {
+          setPhoneError("")
+        } if (firstNameError != "") {
+          setFirstNameError("")
+        } if (lastNameError != "") {
+          setLastNameError("")
+        }
+          setPhone("")
+          setFirstName("");
+          setLastName("")
         }
       }
-    } finally {
+     finally {
       setEmailVerifyLoader(false);
     }
   }
 
   async function handleLoginFormSubmission() {
+    console.log(emailVerificationStatus, "signup");
     setApiError([]);
     setSignupSuccessMsg("");
     emailValidaiton(email);
@@ -312,7 +332,7 @@ const SignupCartModal = ({ show, onHide }) => {
           setTimeout(() => {
             setApiError([]);
             setSignupSuccessMsg("");
-          }, 8000);
+          }, 2000);
         } finally {
           setLocalLoader(false);
         }
@@ -321,6 +341,7 @@ const SignupCartModal = ({ show, onHide }) => {
   }
 
   async function handleFormSubmission() {
+    console.log(emailVerificationStatus, "signup")
     setApiError([]);
     setSignupSuccessMsg("");
     firstNameVerification(firstName);
@@ -384,30 +405,28 @@ const SignupCartModal = ({ show, onHide }) => {
               },
             }
           );
-          if (response?.data?.status) {
-            setSignupSuccessMsg(response?.data?.message);
-            localStorage.setItem("client_token", response?.data?.token);
-            localStorage.setItem("client_type", "lead");
-            console.log(response?.data?.first_name);
-            handleHide();
-            dispatch(
-              updateUsers({
-                first_name: response?.data?.first_name,
-                last_name: response?.data?.last_name,
-                cart_count: response?.data?.cart_count,
-                wish_count: response?.data?.wish_count,
-              })
-            );
-            dispatch(loginUser());
-            dispatch(updateclientType("lead"));
-            localStorage.removeItem("prodcutQty");
-            localStorage.setItem("prodcutQty", productQty);
-            // function for adding to cart
-            // navigate("/cart");
+         if (response?.data?.status) {
+           setSignupSuccessMsg(response?.data?.message);
+           localStorage.setItem("client_token", response?.data?.token);
+           localStorage.setItem("client_type", response?.data?.type);
+           handleHide();
+           dispatch(
+             updateUsers({
+               first_name: response?.data?.first_name,
+               last_name: response?.data?.last_name,
+               cart_count: response?.data?.cart_count,
+               wish_count: response?.data?.wish_count,
+             })
+           );
+           dispatch(loginUser());
+           dispatch(updateclientType(response?.data?.type));
+           localStorage.removeItem("prodcutQty");
+           localStorage.setItem("prodcutQty", productQty);
+           // function for adding to cart
+           // navigate("/cart");
 
-            navigate("/");
-            window.location.reload();
-          }
+           window.location.href = "/";
+         }
         } catch (err) {
           console.log("err", err);
           if (err?.response?.data?.errors) {
@@ -422,7 +441,7 @@ const SignupCartModal = ({ show, onHide }) => {
           setTimeout(() => {
             setApiError([]);
             setSignupSuccessMsg("");
-          }, 8000);
+          }, 2000);
         } finally {
           setLocalLoader(false);
         }
@@ -581,6 +600,7 @@ const SignupCartModal = ({ show, onHide }) => {
                             type="text"
                             className="form-control !text-[11px] "
                             style={{ borderRadius: 0 }}
+                            value={firstName}
                             placeholder="Enter here"
                             onChange={handleFirstNamechange}
                           />
@@ -605,6 +625,7 @@ const SignupCartModal = ({ show, onHide }) => {
                             type="text"
                             className="form-control !text-[11px]"
                             style={{ borderRadius: 0 }}
+                            value={lastName}
                             placeholder="Enter here"
                             onChange={handleLastNameChange}
                           />
@@ -628,12 +649,12 @@ const SignupCartModal = ({ show, onHide }) => {
                       <div className="form-control-wrap">
                         <div>
                           <input
-                            type="text"
+                            type="email"
                             className="form-control !text-[11px]"
                             style={{ borderRadius: 0 }}
+                            value={email}
                             placeholder="Enter here"
                             onChange={handleEmailChange}
-                            // onKeyUp={(e)=>handleEmailVerification(e?.target?.value)}
                           />
                         </div>
                         {emailError && (
@@ -654,7 +675,7 @@ const SignupCartModal = ({ show, onHide }) => {
                         {emailVerificationStatus && (
                           <a
                             // href="show-hide-password.html"
-                            className="form-control-icon end bg-white border-y password-toggle"
+                            className="form-control-icon end bg-transparent border-y password-toggle"
                             title="Toggle show/hide password"
                             style={{
                               height: "100%",
@@ -680,6 +701,7 @@ const SignupCartModal = ({ show, onHide }) => {
                           maxLength={15}
                           style={{ borderRadius: 0 }}
                           placeholder="Enter here"
+                          value={phone}
                           onChange={handlePhoneChange}
                         />
                       </div>
@@ -687,6 +709,27 @@ const SignupCartModal = ({ show, onHide }) => {
                         <p className="nk-message-error text-xs">{phoneError}</p>
                       )}
                     </div>
+                    {emailVerificationStatus  && (
+                      <p
+                        className="text-sm w-fit float-right text-right hover:text-blue-600 cursor-pointer antialiased "
+                        onClick={() => {
+                          dispatch(hidePopup());
+                          dispatch(
+                            usersignupinModal({
+                              showSignupModal: false,
+                              showLoginModal: false,
+                              showforgotPasswordModal: true,
+                              showOtpModal: false,
+                              showNewPasswordModal: false,
+                              showSignupCartModal: false,
+                              showSignupBuyModal: false,
+                            })
+                          );
+                        }}
+                      >
+                        Forgot password
+                      </p>
+                    )}
                   </div>
                   <div className="col-12">
                     <div className="form-group">

@@ -1164,6 +1164,14 @@ td span {
   border-radius: 50%;
 }
 
+.css-x8e2nk {
+  font-size: xx-small;
+  padding: 0px;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
 @keyframes shake {
   10%,
   90% {

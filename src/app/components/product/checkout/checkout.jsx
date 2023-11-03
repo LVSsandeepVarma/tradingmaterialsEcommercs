@@ -17,6 +17,7 @@ import { FaCreditCard, FaCalendarAlt, FaLock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
+import {VscWorkspaceTrusted} from "react-icons/vsc"
 import {
   Accordion,
   AccordionDetails,
@@ -96,6 +97,10 @@ export default function Checkout() {
   console.log(decryptedId);
 
   console.log(cartProducts, id, "gggggggg");
+
+  useEffect(() => {
+    localStorage.removeItem("shipAdd");
+  },[])
 
   useEffect(() => {
     if (userData?.client?.payment_types?.length > 0) {
@@ -245,6 +250,7 @@ export default function Checkout() {
   // }, [allProducts, quantities]);
 
   const handleCvvChange = (e) => {
+    e.target.value = e.target.value.trim();
     const addCvv = e.target.value.replace(/[^0-9]/g, "");
 
     setCVV(addCvv);
@@ -252,7 +258,15 @@ export default function Checkout() {
     if (addCvv == "") {
       setCVVError("CVV is required");
     } else if (addCvv?.length > 3 || addCvv?.length < 3) {
-      setCVVError("Invalid CVV");
+      if (cardNumber?.length == 18) {
+        if (addCvv?.length == 4) {
+          setCVVError("");
+        } else {
+          setCVVError("Invalid CVV");
+        }
+      } else {
+        setCVVError("Invalid CVV");
+      }
     } else if (addCvv.match(/^[0-9]+$/) === null) {
       setCVVError("Invalid CVV");
     } else {
@@ -264,6 +278,7 @@ export default function Checkout() {
   };
 
   const handleNameChage = (e) => {
+    e.target.value = e.target.value.trimStart();
     e.target.value = e.target.value.replace(/[^A-Za-z ]/g, "");
     const addName = e.target.value;
     setNameOnCard(addName);
@@ -349,10 +364,13 @@ export default function Checkout() {
     // Implement your CVV validation logic here
     // For example, you can check if the CVV is a 3 or 4 digit number
     // Return true if the CVV is valid, otherwise false
-    return value?.length === 3 || value?.length === 4;
+    if (cardNumber?.length == 18) { return value?.length === 4 } else {
+      return value?.length === 3
+    }
   };
 
   const handleCardNumberChange = (event) => {
+    event.target.value = event.target.value.trimStart();
     const formattedValue = formatCardNumber(event.target.value);
     setCardNumber(formattedValue);
     if (validateCardNumber(formattedValue)) {
@@ -371,6 +389,7 @@ export default function Checkout() {
   };
 
   const handleExpiryChange = (event) => {
+    event.target.value = event.target.value.trim();
     const formattedValue = formatExpiry(event.target.value);
     if (validateExpiry(formattedValue)) {
       setExpiryError("");
@@ -388,6 +407,7 @@ export default function Checkout() {
   };
 
   const validateName = (value) => {
+    value = value.trimStart();
     console.log(value.match(/^[a-zA-Z ]+$/), value);
 
     return value.match(/^[a-zA-Z ]+$/);
@@ -548,6 +568,7 @@ export default function Checkout() {
         "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
         {
           payment_type: "Razor_Pay",
+          payment_mode: paymentType,
           client_id: client_id,
           order_id: id,
           total: total,
@@ -725,10 +746,10 @@ export default function Checkout() {
       <Header />
       <div className="nk-pages text-left">
         <section className="nk-banner nk-banner-career-job-details bg-gray">
-          <div className="nk-banner-wrap pt-120 pt-lg-180 pb-[100px] lg:!pb-[300px]">
+          <div className="nk-banner-wrap pt-120 pt-lg-180 pb-[10px] lg:!pb-[300px]">
             <div className="container">
               <div className="row">
-                <div className="col-lg-8 col-xxl-5 text-left">
+                <div className=" text-left">
                   <div>
                     <a
                       onClick={() => {
@@ -741,7 +762,22 @@ export default function Checkout() {
                       <em className="icon ni ni-arrow-left  !inline-flex !items-center !text-large !font-semibold"></em>
                       <span>Back to Home</span>
                     </a>
-                    <h1 className="mb-3 font-bold !text-4xl">Order Summary</h1>
+                    <h1 className="mb-3 font-bold w-full !text-4xl">
+                      Order Summary
+                    </h1>
+                    <div className="flex items-center text-sm px-2 gap-1 text-black border rounded shadow-sm hover:drop-shadow-lg animate-gradientChange">
+                      <VscWorkspaceTrusted
+                        fontSize="25"
+                        className="text-black"
+                        fill="orange"
+                      />
+                      <p className="container shodow-sm">
+                        Feel secure when you purchase from TradingMaterials, as
+                        their Purchase Protection programme ensures that you
+                        will be fully refunded if your item does not arrive,
+                        arrives damaged, or isn&apos;t as described.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -751,11 +787,11 @@ export default function Checkout() {
         <section className="nk-section nk-section-job-details pt-lg-0">
           <div className="container">
             <div className="nk-section-content row px-lg-5">
-              <div className="col-lg-6 pe-lg-0">
+              <div className="col-lg-6 h-fit">
                 <div className="nk-entry  pe-lg-5 py-lg-5 !pb-0 max-h-[50%] overflow-y-auto">
                   <div className="mb-5">
                     {allProducts?.length > 0 ? (
-                      <table className="table">
+                      <table className="table max-h-[50%] overflow-y-auto">
                         <tbody>
                           {allProducts?.length &&
                             allProducts?.map((product, ind) => {
@@ -896,7 +932,7 @@ export default function Checkout() {
                     <div className="nk-section-blog-details mt-3"></div>
                   )}
                   <div className="nk-section-blog-details mt-3">
-                    <div className="max-h-[100px] md:max-h-[225px] overflow-y-auto">
+                    <div className="max-h-[225px] md:max-h-[225px] overflow-y-auto">
                       <h4 className="mb-3 !font-bold">Shipping Address</h4>
 
                       <ul className="d-flex flex-column gap-2 pb-0">
@@ -935,15 +971,17 @@ export default function Checkout() {
                             </p>
                           </li>
                         </div>
+
                         {/* // ))} */}
                       </ul>
                     </div>
                   </div>
                 </div>
               </div>
+              <Divider className="my-2 block md:hidden" />
               <div className="col-lg-6 ps-lg-0 mt-5 md:mt-0">
                 {paymentStatus === "" && paymentVerification === false && (
-                  <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
+                  <div className="nk-section-blog-sidebar ps-lg-5 py-lg-4">
                     {/* Payment Mode */}
                     <h4 className="!font-bold">Payment Mode</h4>
                     <RadioGroup
@@ -1033,7 +1071,7 @@ export default function Checkout() {
                               <li>- Order With Comfort</li>
                               <li>- Pay when you receive the the order</li>
                               <li className="text-xs">
-                                - Delivery charges applicable [150 INR]
+                                - Delivery charges applicable
                               </li>
                             </ol>
                           </Typography>
@@ -1057,8 +1095,10 @@ export default function Checkout() {
                           onChange={() => {
                             // if payment type is online only
                             // if(paymentType == "online"){
+                            console.log(payment?.name, "payName");
                             setActivePaymentMethodAccordion(payment?.name),
                               setActivePAymentType(payment?.name);
+                            setActivePaymentMethod(payment?.name);
                             // }
                           }}
                         >
@@ -1192,7 +1232,7 @@ export default function Checkout() {
                                           value={cvv}
                                           onChange={handleCvvChange}
                                           required
-                                          maxLength={3}
+                                          maxLength={cardNumber?.length == 18 ? 4 : 3}
                                           // onInvalid={!validateCVV(cvv)}
                                         />
                                         <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
@@ -1260,276 +1300,12 @@ export default function Checkout() {
                           </AccordionDetails>
                         </Accordion>
                       ))}
-                      {/* <Accordion
-                        expanded={activePaymentMethodAccordion == "Razorpay" && paymentType == "online"}
-                        onChange={() => {
-                          setActivePaymentMethodAccordion("Razorpay"),
-                            setActivePAymentType("Razorpay");
-                        }}
-                      >
-                        <AccordionSummary
-                          // expandIcon={<ExpandMoreIcon />}
-                          aria-controls="panel4bh-content"
-                          id="panel4bh-header"
-                          className={`${
-                            activePaymentMethodAccordion == "Razorpay"
-                              ? "bg-gray-600 drop-shadow-lg"
-                              : ""
-                          }`}
-                        >
-                          <Typography sx={{ width: "100%", flexShrink: 0 }}>
-                            <div className={`flex ${
-                                paymentType == "cod" &&
-                                activePaymentMethodAccordion == "Razorpay"
-                                  ? "justify-between"
-                                  : "justify-around"
-                              }`}>
-                              {paymentType == "cod" &&
-                              activePaymentMethodAccordion == "Razorpay" ? (
-                                <p className="text-red-600 !text-start">
-                                  <ErrorOutlineIcon />
-                                  Please select online Payment{" "}
-                                </p>
-                              ) : (
-                                <FormControlLabel
-                                  className="!w-full text-sm"
-                                  value="razorpay"
-                                  checked={
-                                    activePaymentMethodAccordion == "Razorpay"
-                                      ? true
-                                      : false
-                                  }
-                                  control={<Radio size="sm" />}
-                                  label="Razorpay"
-                                />
-                              )}
-                              <img
-                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/razorpay.png`}
-                                className="ml-2 mr-2 "
-                                alt={`${paymentType?.name}`}
-                              />
-                            </div>
-                          </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          <Typography>
-                            Nunc vitae orci ultricies, auctor nunc in, volutpat
-                            nisl. Integer sit amet egestas eros, vitae egestas
-                            augue. Duis vel est augue.
-                          </Typography>
-                        </AccordionDetails>
-                      </Accordion> */}
                     </RadioGroup>
-
-                    {/* <h4 className="!font-bold">Payment Type</h4>
-                    <div className="flex flex-wrap items-center">
-                    <div className="flex  w-full items-around">
-                            <div className="mr-2">
-                            <input
-                              type="checkbox"
-                              checked={
-                                activePaymentMethod === "Online Payment"
-                              }
-                              // onChange={() =>
-                              //   handlePaymentMethod(`${paymentType?.name}`)
-                              // }
-                            />
-
-                            <label className="ml-2"> Cash On Delivery</label>
-                            </div>
-                            <div>
-                            <input
-                              type="checkbox"
-                              checked={
-                                activePaymentMethod === "Online Payment"
-                              }
-                              // onChange={() =>
-                              //   handlePaymentMethod(`${paymentType?.name}`)
-                              // }
-                            />
-
-                            <label className="ml-2"> Online Payment</label>
-                            </div>
-                            
-                            
-                          </div>
-                    </div>
-                    <h4 className="!font-bold">Payment Method</h4>
-
-                    <div className="flex flex-wrap items-center">
-                      {userData?.client?.payment_types?.map(
-                        (paymentType, ind) => (
-                          <div key={ind} className="flex">
-                            <input
-                              type="checkbox"
-                              checked={
-                                activePaymentMethod === paymentType?.name
-                              }
-                              onChange={() =>
-                                handlePaymentMethod(`${paymentType?.name}`)
-                              }
-                            />
-
-                            {paymentType?.name === "Razor_Pay" && (
-                              <img
-                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/razorpay.png`}
-                                className="ml-2 mr-2 "
-                                alt={`${paymentType?.name}`}
-                              />
-                            )}
-                            {paymentType?.name !== "Razor_Pay" && (
-                              <img
-                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/stripe.webp`}
-                                className="ml-2"
-                                alt={`${paymentType?.name}`}
-                              />
-                            )}
-                          </div>
-                        )
-                      )}
-                    </div> */}
-
-                    {/* {activePaymentMethod === "Stripe" && (
-                      <>
-                        <Divider className="mt-2" />
-                        <Form onSubmit={handleSubmit}>
-                          <Form.Group>
-                            <label className="font-bold !text-sm mt-3 m-0">
-                              Card Number
-                            </label>
-                            <div className="relative m-0">
-                              <input
-                                maxLength={19}
-                                type="text"
-                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                placeholder="Enter card number"
-                                value={cardNumber}
-                                onChange={handleCardNumberChange}
-                                required
-                                // onInvalid={
-                                //   !validateCardNumber(cardNumber)
-                                // }
-                              />
-                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                <FaCreditCard size={15} color="gray" />
-                              </div>
-                            </div>
-                            {cardNumberError ? (
-                              <p className="nk-message-error !text-sm !m-0 !p-0 !text-left">
-                                {cardNumberError}
-                              </p>
-                            ) : (
-                              ""
-                            )}
-                          </Form.Group>
-                          <Form.Group>
-                            <label className="font-bold !text-sm mt-3 m-0 ">
-                              Expiry date
-                            </label>
-                            <div className="relative">
-                              <input
-                                type="text"
-                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                placeholder="MM/YY"
-                                value={expiry}
-                                onChange={handleExpiryChange}
-                                required
-                                maxLength={5}
-                                // onInvalid={!validateExpiry(expiry)}
-                              />
-                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                <FaCalendarAlt size={15} color="gray" />
-                              </div>
-                            </div>
-                            {expiryError ? (
-                              <p className="nk-message-error !text-left !text-sm !m-0 !p-0">
-                                {expiryError}
-                              </p>
-                            ) : (
-                              ""
-                            )}
-                          </Form.Group>
-                          <Form.Group>
-                            <label className="font-bold !text-sm mt-3 m-0">
-                              CVV
-                            </label>
-                            <div className="relative">
-                              <input
-                                type="password"
-                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                placeholder="Enter CVV"
-                                value={cvv}
-                                onChange={handleCvvChange}
-                                required
-                                maxLength={3}
-                                // onInvalid={!validateCVV(cvv)}
-                              />
-                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                <FaLock size={15} color="gray" />
-                              </div>
-                            </div>
-                            {cvvError ? (
-                              <p className="nk-message-error !text-sm !text-left !m-0 !p-0">
-                                {cvvError}
-                              </p>
-                            ) : (
-                              ""
-                            )}
-                          </Form.Group>
-                          <Form.Group>
-                            <label className="font-bold !text-sm mt-3 m-0">
-                              Name on the card
-                            </label>
-                            <div className="relative">
-                              <input
-                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                type="text"
-                                placeholder="Enter account holder name"
-                                value={nameOnCard}
-                                onChange={handleNameChage}
-                                // isInvalid={nameOnCard && !validateName(name)}
-                              />
-                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                <MdOutlineAccountCircle
-                                  size={20}
-                                  color="gray"
-                                />
-                              </div>
-                            </div>
-                            {nameErr ? (
-                              <p className="nk-message-error !text-sm !text-left !m-0 !p-0">
-                                {nameErr}
-                              </p>
-                            ) : (
-                              ""
-                            )}
-                          </Form.Group>
-                        </Form>
-                      </>
-                    )} */}
                     <hr className="mt-3" />
                     <div className="nk-section-blog-details">
                       <h4 className="mb-3 !font-bold">Order Summary</h4>
-                      <div className="pt-0 mb-3">
-                        {/* <div className="d-flex w-75">
-                        {clientType === "client" && <input
-                          type="text"
-                          className="form-control rounded-0 py-0 px-2"
-                          placeholder="Promocode"
-                          name=""
-                          value={promocode}
-                          onChange={handlePromoCodeChange}
-                        /> }
-                        <button
-                          type="button"
-                          className="btn btn-success rounded-0 px-3 py-1 fs-14 bg-[rgba(34,197,94,1)]"
-                          name="button"
-                          onClick={()=>applyPromoCode}
-                        >
-                          Apply
-                        </button>
-                      </div> */}
-                      </div>
+
+                      <div className="pt-0 mb-3"></div>
                       <ul className="d-flex flex-column gap-2 pb-5">
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
                           <p className="m-0 fs-12 fw-semibold text-uppercase w-[30%]">
@@ -1542,14 +1318,6 @@ export default function Checkout() {
                             )}
                           </p>
                         </li>
-                        {/* <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                          Shipping:
-                        </p>
-                        <p className="m-0 fs-14 text-gray-1200 w-75">
-                          {allProducts?.length > 0 ? "₹ 10.00" : "₹ 0.00"}
-                        </p>
-                      </li> */}
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
                           <p className="m-0 fs-12 fw-semibold text-uppercase w-[30%]">
                             Tax:
@@ -1590,10 +1358,14 @@ export default function Checkout() {
                           <p className="m-0 fs-12 fw-semibold text-uppercase w-[30%]">
                             {paymentType == "online"
                               ? "Delivery Charges:"
-                              : "Delivery Charges:"}
+                              : "Advance:"}
                           </p>
                           <p className="m-0 fs-16 fw-semibold text-dark w-[70%]">
-                            {paymentType == "online" ? "₹ 0.00" : "₹ 150.00"}
+                            {paymentType == "online"
+                              ? "₹ 0.00"
+                              : parseFloat(orderData?.order?.total) < 500
+                              ? " 150.00 INR"
+                              : " 450.00 INR"}
                           </p>
                         </li>
                       </ul>
@@ -1614,6 +1386,7 @@ export default function Checkout() {
                           type="submit"
                           onClick={() => {
                             if (activePaymentMethod === "Razor_Pay") {
+                              console.log("in razorpay payName");
                               createOrder(
                                 orderData?.order_id,
                                 orderData?.order?.total,
@@ -1631,7 +1404,9 @@ export default function Checkout() {
                                 createOrderWithStripe(
                                   orderData?.order_id,
                                   paymentType == "cod"
-                                    ? "150"
+                                    ? parseFloat(orderData?.order?.total) < 500
+                                      ? "150"
+                                      : "450"
                                     : orderData?.order?.total,
                                   orderData?.client_id,
                                   orderData?.city,
@@ -1649,7 +1424,9 @@ export default function Checkout() {
                             ? " " +
                               parseFloat(orderData?.order?.total)?.toFixed(2) +
                               " INR"
-                            : " 150.00 INR"}
+                            : parseFloat(orderData?.order?.total) < 500
+                            ? "150.00 INR"
+                            : "450.00 INR"}
                         </button>
                       )}
                       {userData?.client?.payment_types?.length == 0 && (
@@ -1831,8 +1608,8 @@ export default function Checkout() {
             </div>
           </div>
         </section>
-        <Footer />
       </div>
+      <Footer />
     </>
   );
 }
