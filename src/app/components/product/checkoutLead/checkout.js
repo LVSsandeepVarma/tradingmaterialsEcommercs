@@ -1805,9 +1805,9 @@ export default function CheckoutLead() {
           </div>
           <div className="col-lg-5 float-left bg-gray-300">
             <div className="mt-4 mb-4 container">
-              <div className="flex justify-between items-center flex-wrap gap-2">
+              <div className="flex justify-between items-center flex-wrap gap-2 hover:shadow-lg drop-shadow-lg">
                 <div className=" max-w-[30%]">
-                  <img src={cartData?.img_1} />
+                  <img src={cartData?.img_1} width={"75%"} />
                 </div>
                 <p className="max-w-[40%] text-sm text-start text-black font-semibold">
                   {cartData?.name}
