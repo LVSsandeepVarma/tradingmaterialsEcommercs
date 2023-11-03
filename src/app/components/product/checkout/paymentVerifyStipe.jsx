@@ -164,7 +164,7 @@ export default function PaymentVerifyStripe() {
           
          
         } else {
-          setPaymentVerifyError(response?.data?.message);
+          setPaymentVerifyError(response?.data?.message?.message);
         }
         if (response?.data?.code === "ACTION_REQ") {
           window.location.herf = response?.data?.url;

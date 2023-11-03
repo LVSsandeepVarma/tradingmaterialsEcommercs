@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import CryptoJS from "crypto-js";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Form } from "react-bootstrap";
 import { MdOutlineAccountCircle } from "react-icons/md";
@@ -22,6 +23,13 @@ import {
   hideLoader,
   showLoader,
 } from "../../../../features/loader/loaderSlice";
+import { updateUsers } from "../../../../features/users/userSlice";
+import { updateCart } from "../../../../features/cartItems/cartSlice";
+// import { updateNotifications } from "../../../features/notifications/notificationSlice";
+import {
+  updateCartCount,
+  updateWishListCount,
+} from "../../../../features/cartWish/focusedCount";
 import axios from "axios";
 
 export default function CheckoutLead() {
@@ -30,6 +38,9 @@ export default function CheckoutLead() {
   const [countryInput, setcountryInput] = useState(); //19
   const [countries, setCountries] = useState([]);
   const [countrySelected, setCountrySelected] = useState(false);
+  const [sCountries, setScountries] = useState([]);
+  const [sCountrySelected, setScountrySelected] = useState(false);
+
   const [activeAccordion, setActiveAccordion] = useState("online");
   const [paymentType, setPaymentType] = useState("online");
   const [billingType, setBillingType] = useState("sameAsShippingAddress");
@@ -57,10 +68,12 @@ export default function CheckoutLead() {
   const [sFirstName, setSFirstName] = useState(""); //16
   const [sLastName, setSLastName] = useState(""); //17
   const [note, setNote] = useState(""); //18
+  const [countryErr, setCountryErr] = useState("")
+  const [sCountryErr, setScountryErr] = useState("")
   const [activePaymentType, setActivePAymentType] = useState("");
   const [activePaymentMethodAccordion, setActivePaymentMethodAccordion] =
     useState("");
-  const [errors, setErrors] = useState(new Array(20).fill(""));
+  const [errors, setErrors] = useState(new Array(25).fill(""));
   const [apiErr, setApiErr] = useState();
   const [successMsg, setSuccessMsg] = useState();
   const [cardNumber, setCardNumber] = useState("");
@@ -94,12 +107,29 @@ export default function CheckoutLead() {
   }, []);
 
   useEffect(() => {
+
     let countryFilteredArr = countryArray?.filter((country) =>
       country?.toLowerCase()?.startsWith(countryInput?.toLowerCase())
     );
+    // if(countryFilteredArr.length == 0 && countryInput != ""){
+    //   err[19] = "Invalid country, please choose from the list";
+    // }else{
+    //   err[19] = "";
+    // }
+    let sCountryFilteredArr = countryArray?.filter((country) =>
+      country?.toLowerCase()?.startsWith(sCountry?.toLowerCase())
+    );
+
+    // if(sCountryFilteredArr.length == 0 && sCountry != ""){
+    //   err[11] = "Invalid country, please choose from the list";
+    // }else{
+    //   err[11] = "";
+      
+    // }
     setCountries(countryFilteredArr);
+    setScountries(sCountryFilteredArr);
     console.log("country", countryFilteredArr, countryInput, countryArray);
-  }, [countryInput, countryArray]);
+  }, [countryInput, countryArray, sCountry]);
 
   function validateFields() {
     const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
@@ -138,13 +168,13 @@ export default function CheckoutLead() {
       err[2] = "";
     }
 
-    const isThere = countries?.findIndex((element) => element === countryInput);
-    if (isThere != -1) {
-      err[19] = "";
+    const countriesRegex = new RegExp(`^(?:${countryArray.join("|")})$`);
+    if (countriesRegex.test(countryInput)) {
+       setCountryErr("");
     } else if (countryInput == "") {
-      err[19] = "Country is required";
+      setCountryErr("Country is required");
     } else {
-      err[19] = "Invalid country, please choose from the list";
+      setCountryErr("Invalid country, please choose from the list  1");
     }
 
     const phoneRegex = /^[0-9]+$/;
@@ -182,7 +212,7 @@ export default function CheckoutLead() {
     if (zip == "") {
       err[6] = "Zipcode is required";
     } else if (!zipRegex.test(zip)) {
-      err[6] = "Invalid State";
+      err[6] = "Invalid zipcode";
     } else {
       err[6] = "";
     }
@@ -214,19 +244,19 @@ export default function CheckoutLead() {
       } else {
         err[10] = "";
       }
-
-      if (isThere != -1) {
-        err[11] = "";
+      const sCountryIsThere = sCountries?.findIndex((element) => element === sCountry);
+      if (sCountryIsThere != -1) {
+        setScountryErr("");
       } else if (sCountry == "") {
-        err[11] = "Country is required";
+        setScountryErr("Country is required");
       } else {
-        err[11] = "Invalid country, please choose from the list";
+        setScountryErr("Invalid country, please choose from the list");
       }
 
-      if (zip == "") {
+      if (sZip == "") {
         err[12] = "Zipcode is required";
-      } else if (!zipRegex.test(zip)) {
-        err[12] = "Invalid State";
+      } else if (!zipRegex.test(sZip)) {
+        err[12] = "Invalid zipcode";
       } else {
         err[12] = "";
       }
@@ -348,18 +378,21 @@ export default function CheckoutLead() {
   }
 
   function countryValidation(country) {
-    const err = [...errors];
-    const isThere = countries?.findIndex((element) => element === country);
-    if (isThere != -1) {
-      err[19] = "";
-      setErrors([...err]);
-    } else if (country == "") {
-      err[19] = "Country is required";
-      setErrors(...err);
+    if(country != ""){
+      const countriesRegex = new RegExp(`^(?:${countryArray.join("|")})$`);
+      console.log(countriesRegex.test())
+      if (!countriesRegex.test(country)) {
+
+      setCountryErr("Invalid country, please choose from the list");
     } else {
-      err[19] = "Invalid country, please choose from the list";
-      setErrors([...err]);
+
+      setCountryErr("");
     }
+  }else{
+    if (country == "") {
+      setCountryErr("Country is required");
+    } 
+  }
   }
 
   function phoneValidation(phone) {
@@ -420,7 +453,7 @@ export default function CheckoutLead() {
       err[6] = "Zipcode is required";
       setErrors([...err]);
     } else if (!zipRegex.test(zip)) {
-      err[6] = "Invalid State";
+      err[6] = "Invalid zipcode";
       setErrors([...err]);
     } else {
       err[6] = "";
@@ -478,28 +511,31 @@ export default function CheckoutLead() {
   }
 
   function sCountryValidation(country) {
-    const err = [...errors];
-    const isThere = countries?.findIndex((element) => element === country);
-    if (isThere != -1) {
-      err[11] = "";
-      setErrors([...err]);
-    } else if (country == "") {
-      err[11] = "Country is required";
-      setErrors(...err);
+    if(country != ""){
+      const countriesRegex = new RegExp(`^(?:${countryArray.join("|")})$`);
+      console.log(countriesRegex.test())
+      if (!countriesRegex.test(country)) {
+
+      setScountryErr("Invalid country, please choose from the list");
     } else {
-      err[11] = "Invalid country, please choose from the list";
-      setErrors([...err]);
+
+      setScountryErr("");
     }
+  }else{
+    if (country == "") {
+      setScountryErr("Country is required");
+    } 
+  }
   }
 
-  function sZipValidation(state) {
+  function sZipValidation(zip) {
     const zipRegex = /^\s*[0-9 ]{6,10}\s*$/;
     const err = [...errors];
     if (zip == "") {
       err[12] = "Zipcode is required";
       setErrors([...err]);
     } else if (!zipRegex.test(zip)) {
-      err[12] = "Invalid State";
+      err[12] = "Invalid zipcode";
       setErrors([...err]);
     } else {
       err[12] = "";
@@ -613,12 +649,12 @@ export default function CheckoutLead() {
       value = value?.replace(/[^a-zA-Z ]/g, "");
       setLastName(value);
       lastNameVerification(value);
-    } else if (field == "country") {
-      value = value?.trimStart();
+    } else if (field == "countryInput") {
+      // value = value?.trimStart();
       setcountryInput(value);
       countryValidation(value);
     } else if (field == "mobile") {
-      value = value.trim();
+      value = value.trimStart();
       value = value.replace(/[^0-9]/g, "");
       setMobile(value);
       phoneValidation(value);
@@ -628,17 +664,17 @@ export default function CheckoutLead() {
       setCity(value);
       cityValidation(value);
     } else if (field == "state") {
-      value = value.trim();
+      value = value.trimStart();
       value = value.replace(/[^a-zA-z ]/g, "");
       setState(value);
       stateValidation(value);
     } else if (field == "zip") {
-      value = value.trim();
+      value = value.trimStart();
       value = value.replace(/[^0-9]/g, "");
       zipValidation(value);
       setZip(value);
     } else if (field == "addOne") {
-      value = value.trim();
+      value = value.trimStart();
       setAddOne(value);
       addOneValidation(value);
     } else if (field == "addTwo") {
@@ -648,11 +684,13 @@ export default function CheckoutLead() {
     } else if (field == "qty") {
       setQty(value);
     } else if (field == "sCity") {
-      value = value.trim();
+      value = value.trimStart();
+      value = value?.replace(/[^a-zA-Z ]/g, "");
       setSCity(value);
       sCityValidation(value);
     } else if (field == "sState") {
-      value = value.trim();
+      value = value.trimStart();
+      value = value?.replace(/[^a-zA-Z ]/g, "");
       setSState(value);
       sStateValidation(value);
     } else if (field == "sCountry") {
@@ -664,7 +702,7 @@ export default function CheckoutLead() {
       sZipValidation(value);
       setSZip(value);
     } else if (field == "sAddOne") {
-      value = value.trim();
+      value = value.trimStart();
       setSAddOne(value);
       addSOneValidation(value);
     } else if (field == "sAddTwo") {
@@ -706,7 +744,7 @@ export default function CheckoutLead() {
       zip != ""
     ) {
       if (
-        billingType == "differentBillingAddress" &&
+        (billingType == "differentBillingAddress" &&
         sFirstName != "" &&
         sLastName != "" &&
         sMobile != "" &&
@@ -715,7 +753,7 @@ export default function CheckoutLead() {
         sState != "" &&
         sCountry != "" &&
         sZip != "" &&
-        exceptions.every((element) => errors[element] == "") || exceptions.every((element) => errors[element] == "" )
+        exceptions.every((element) => errors[element] == "")) || (exceptions.every((element) => errors[element] == "" ) && billingType != "differentBillingAddress")
       ) {
         try {
           dispatch(showLoader());
@@ -758,8 +796,24 @@ export default function CheckoutLead() {
             setSuccessMsg(response?.data?.message);
             localStorage.setItem("client_token", response?.data?.token);
             localStorage.setItem("tempOrdID", response?.data?.data?.order_id);
+            localStorage.setItem("orderID", response?.data?.data?.order_id);
               setOrderId(response?.data?.data?.order_id);
-              createOrderWithStripe(response?.data?.order_id)
+              CryptoJS?.AES?.encrypt(
+                `${response?.data?.data?.order_id}`,
+                "trading_materials_order"
+              )
+                ?.toString()
+                .replace(/\//g, "_")
+                .replace(/\+/g, "-")
+                localStorage.setItem("id", CryptoJS?.AES?.encrypt(
+                  `${response?.data?.data?.order_id}`,
+                  "trading_materials_order"
+                )
+                  ?.toString()
+                  .replace(/\//g, "_")
+                  .replace(/\+/g, "-"))
+              getUserInfo()
+              
           }
         } catch (err) {
           const errs = [...errors];
@@ -776,8 +830,9 @@ export default function CheckoutLead() {
             setErrors([...errs]);
           }
           setApiErr(err?.response?.data?.message);
-        } finally {
-          dispatch(hideLoader());
+          dispatch(hideLoader())
+        }finally{
+          localStorage.removeItem("productData")
         }
       } else {
           validateFields();
@@ -844,7 +899,7 @@ export default function CheckoutLead() {
           cvc: cvv,
           name_on_card: nameOnCard,
           currency: "INR",
-          call_back_url: `https://tradingmaterials.com/payment-status/`,
+          call_back_url: `http://localhost:3000/payment-status/`,
         };
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
@@ -858,7 +913,8 @@ export default function CheckoutLead() {
 
         if (response?.data?.status) {
           console.log(response, "response");
-          localStorage.setItem("orderID", orderId);
+          // localStorage.setItem("orderID", orderId);
+          // localStorage.setItem("orderID",)
           // console.log(response?.data);
         //   localStorage.setItem("id", encryptedrderId);
           window.location.href = response?.data?.redirect_url;
@@ -883,6 +939,46 @@ export default function CheckoutLead() {
       }
     }
   }
+
+  // get user info
+  const getUserInfo = async (productId) => {
+    try {
+      // setShowWishlistRemoveMsg(false)
+      dispatch(showLoader());
+      const url =
+        "https://admin.tradingmaterials.com/api/lead/get-user-info";
+      const headerData =
+         {
+              headers: {
+                "access-token": localStorage.getItem("client_token"),
+                Accept: "application/json",
+              },
+            };
+
+      const response = await axios.get(url, headerData);
+      if (response?.data?.status) {
+        console.log(response?.data, "prest");
+        dispatch(updateUsers(response?.data?.data));
+        dispatch(updateCart(response?.data?.data?.client?.cart));
+        dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
+        dispatch(
+          updateWishListCount(response?.data?.data?.client?.wishlist_count)
+        );
+        createOrderWithStripe()
+      } else {
+        console.log(response?.data);
+
+        // dispatch(logoutUser());
+        localStorage.removeItem("client_token");
+        sessionStorage.removeItem("offerPhone");
+        sessionStorage.removeItem("expiry");
+        dispatch(hideLoader())
+      }
+    } catch (err) {
+      console.log(err);
+      dispatch(hideLoader())
+    }
+  };
 
   // *********** card related functions ***********
   const handleCvvChange = (e) => {
@@ -1160,7 +1256,7 @@ export default function CheckoutLead() {
             </AccordionDetails>
           </Accordion>
         </div> */}
-        <div className="row container md:ms-20">
+        <div className="row container">
           <div className="col-lg-6 float-right">
             <div className="container">
               {/* contact */}
@@ -1200,7 +1296,8 @@ export default function CheckoutLead() {
                     placeholder="Country"
                     value={countryInput}
                     onChange={(e) => {
-                      setcountryInput(e.target.value);
+                      // setcountryInput(e.target.value);
+                      handleFormChange("countryInput", e?.target?.value)
                       if (e?.target?.value != "") {
                         setCountrySelected(true);
                       } else {
@@ -1208,9 +1305,9 @@ export default function CheckoutLead() {
                       }
                     }}
                   ></input>
-                  {errors[19] != "" && (
+                  {countryErr != "" && (
                     <p className="text-red-600 text-start text-xs pt-0">
-                      {errors[19]}
+                      {countryErr}
                     </p>
                   )}
 
@@ -1225,6 +1322,8 @@ export default function CheckoutLead() {
                             className=" hover:!text-blue-600 py-1 text-xs text-start"
                             onClick={() => {
                               setcountryInput(country);
+                              handleFormChange("countryInput", country)
+                              // countryValidation(country)
                               setCountrySelected(false);
                             }}
                           >
@@ -1550,26 +1649,28 @@ export default function CheckoutLead() {
                             placeholder="Country"
                             value={sCountry}
                             onChange={(e) => {
-                              handleFormChange(
-                                "countryInput",
-                                e?.target?.value
-                              );
+                              // handleFormChange(
+                              //   "countryInput",
+                              //   e?.target?.value
+                              // );
+                              setSCountry(e?.target?.value)
+                              handleFormChange("sCountry", e?.target?.value)
                               if (e?.target?.value != "") {
-                                setCountrySelected(true);
+                                setScountrySelected(true);
                               } else {
-                                setCountrySelected(false);
+                                setScountrySelected(false);
                               }
                             }}
                           ></input>
-                          {errors[11] != "" && (
+                          {sCountryErr != "" && (
                             <p className="text-red-600 text-start text-xs pt-0">
-                              {errors[11]}
+                              {sCountryErr}
                             </p>
                           )}
 
-                          {countries?.length > 0 && countrySelected && (
+                          {sCountries?.length > 0 && sCountrySelected && (
                             <div className="shadow-lg px-2 py-2 overflow-auto max-h-[20vh]">
-                              {countries?.map((country, ind) => (
+                              {sCountries?.map((country, ind) => (
                                 <div
                                   key={ind}
                                   className="cursor-pointer hover-bg-slate-100  hover:shadow-xl"
@@ -1578,8 +1679,8 @@ export default function CheckoutLead() {
                                     className=" hover:!text-blue-600 py-1 text-xs text-start"
                                     onClick={() => {
                                       setSCountry(country);
-                                      handleFormChange("countryInput", country);
-                                      setCountrySelected(false);
+                                      handleFormChange("sCountry", country);
+                                      setScountrySelected(false);
                                     }}
                                   >
                                     {country}{" "}
