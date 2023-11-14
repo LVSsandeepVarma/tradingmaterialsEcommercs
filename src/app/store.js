@@ -12,7 +12,8 @@ import langReducer  from '../features/userLang/userLang';
 import clientTypeReducer from '../features/clientType/clientType';
 import addressReducer from '../features/address/addressSlice';
 import subIdReducer from '../features/subCategoriesIds/subCategoriesSlice';
-import signupinModalReducer  from '../features/signupinModals/signupinSlice';
+import signupinModalReducer from '../features/signupinModals/signupinSlice';
+import paymentSliceReduces from "../features/paymentStatus/paymentStatus"
 
 export const store = configureStore({
   reducer: {
@@ -29,6 +30,7 @@ export const store = configureStore({
     clientType : clientTypeReducer,
     addressStatus: addressReducer,
     subId: subIdReducer,
-    signupInModal : signupinModalReducer
+    signupInModal: signupinModalReducer,
+    paymentStatus: paymentSliceReduces
   },
 });

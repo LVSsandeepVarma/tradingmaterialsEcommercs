@@ -15,8 +15,13 @@ import { Divider } from "@mui/material";
 import CryptoJS from "crypto-js";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
+import { TbMoodSad2 } from "react-icons/tb";
+import { BsFillPlayFill } from "react-icons/bs";
+import {IoMdRemoveCircle} from "react-icons/io"
+import { useTranslation } from "react-i18next";
 
 export default function PaymentVerifyStripe() {
+  const { t } = useTranslation();
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -233,27 +238,38 @@ export default function PaymentVerifyStripe() {
         <section className="nk-section nk-section-job-details pt-lg-0">
           <div className="container">
             <div className="nk-section-content row px-lg-5">
+              <div className="col-12 text-center flex justify-center h-fit  sm:py-2 container">
+                {paymentStatus == "failed" && (
+                  <p
+                    className="flex items-center capitalize text-xl"
+                    data-aos="fade-left"
+                  >
+                    <IoMdRemoveCircle className="text-red-600 mr-1  text-xl" />{" "}
+                    payment failed
+                  </p>
+                )}
+              </div>
               <div className="col-lg-8 h-fit">
-                <div className="nk-entry pe-lg-5 py-lg-5 max-h-[50%] overflow-y-auto">
-                  <div className="mb-5">
+                <div className="nk-entry pe-lg-5 !pt-1 max-h-[50%] overflow-y-auto">
+                  <div className="mb-">
                     {allProducts?.length > 0 ? (
-                      <table className="table">
+                      <table className="table max-h-[50%] overflow-y-auto">
                         <tbody>
                           {allProducts?.length &&
                             allProducts?.map((product, ind) => {
                               return (
                                 <tr key={ind}>
-                                  <td className="w-50">
-                                    <div className="d-flex align-items-start">
+                                  <td className="">
+                                    <div className="d-flex justify-between hover:!shadow-lg align-items-center">
                                       <img
                                         src={product?.product?.img_1}
                                         alt="product-image"
-                                        className="mb-0 mr-2"
-                                        width="150px"
+                                        className="mb-0 mr-2 cursor-pointer w-[25%] lg:w-[20%]"
+                                        // width="150px"
                                       />
-                                      <div className="w-75">
+                                      <div className="min-w-[70%] max-w-[70%] md:min-w-[59%] md:max-w-[59%]">
                                         <p
-                                          className="prod-title mb-0"
+                                          className="prod-title mb-0 text-xs lg:!text-md md:!text-sm  cursor-pointer"
                                           style={{
                                             textOverflow: "ellipsis",
                                             whiteSpace: "nowrap",
@@ -264,13 +280,13 @@ export default function PaymentVerifyStripe() {
                                           {product?.product?.name}
                                         </p>
 
-                                        <p className="prod-desc mb-1 text-success">
+                                        <p className="prod-desc  mb-1 text-success  text-xs lg:!text-md md:!text-sm">
                                           In Stock
                                         </p>
                                         <div className=" ">
                                           <div id="counter" className="">
                                             Qty:
-                                            <span className="fs-18 m-0 text-gray-1200 !text-xs !font-bold !ml-1 !mr-2r">
+                                            <span className="fs-18 m-0 text-gray-1200 text-xs lg:!text-md md:!text-sm !font-bold !ml-1 !mr-2r">
                                               {product?.qty || 1}
                                             </span>
                                           </div>
@@ -278,13 +294,13 @@ export default function PaymentVerifyStripe() {
                                             className="!mt-3"
                                             // style={{ marginLeft: "1rem" }}
                                           >
-                                            <span className="total text-white font-semibold">
+                                            <span className="total text-white font-semibold text-xs lg:!text-md md:!text-sm">
                                               ₹ {product?.price}
                                             </span>{" "}
                                           </div>
                                         </div>
                                       </div>
-                                      <div className="d-flex align-items-center w-25">
+                                      <div className="hidden md:flex flex-wrap align-items-center">
                                         <img
                                           src="https://cdn-icons-png.flaticon.com/512/2203/2203145.png"
                                           className="mb-0 mr-1"
@@ -293,7 +309,7 @@ export default function PaymentVerifyStripe() {
                                         />
                                         <p
                                           className="prod-desc mb-0 text-success"
-                                          style={{ marginLeft: "5px" }}
+                                          style={{ marginRight: "5px" }}
                                         >
                                           Quick Delivery
                                         </p>
@@ -319,7 +335,7 @@ export default function PaymentVerifyStripe() {
                     )}
                   </div>
                 </div>
-                <hr className="mt-2" />
+                {/* <hr className="mt-2" /> */}
                 <div className="mt-5">
                   {orderData ? (
                     <div className="nk-section-blog-details mt-3 mb-3">
@@ -340,10 +356,9 @@ export default function PaymentVerifyStripe() {
                           <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                             Full Name:
                           </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {orderData?.order?.name === null
-                              ? userData?.client?.first_name
-                              : orderData?.order?.name}
+                          <p className="m-0 fs-14 text-gray-1200 w-75 capitalize">
+                            {userData?.client?.first_name}&nbsp;
+                            {userData?.client?.last_name}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -378,52 +393,104 @@ export default function PaymentVerifyStripe() {
                     <div className="nk-section-blog-details mt-3"></div>
                   )}
                   <div className="nk-section-blog-details mt-3">
-                    <div className="max-h-[100px] md:max-h-[225px] overflow-y-auto">
+                    <div className="max-h-[200px] md:max-h-[225px] overflow-y-auto">
                       <h4 className="mb-3 !font-bold">Shipping Address</h4>
 
                       <ul className="d-flex flex-column gap-2 pb-0">
-                        <div className="mb-1">
-                          <li className="d-flex align-items-center gap-5 text-gray-1200">
-                            <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                              Full Name:
-                            </p>
-                            <p className="m-0 fs-14 text-gray-1200 w-75">
-                              {orderData?.order?.name === null
-                                ? userData?.client?.first_name
-                                : orderData?.order?.name}
-                            </p>
-                          </li>
-                          <li className="d-flex align-items-center gap-5 text-gray-1200">
-                            <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                              Address:
-                            </p>
-                            <p className="m-0 fs-14 text-gray-1200 w-75">
-                              {orderData?.order?.shipping_add1},{" "}
-                              {orderData?.order?.shipping_add2 !== null
-                                ? `${orderData?.order?.shipping_add2},  `
-                                : ""}
-                              {orderData?.order?.shipping_city},{" "}
-                              {orderData?.order?.shipping_state},{" "}
-                              {orderData?.order?.shipping_country},{" "}
-                              {orderData?.order?.shipping_zip}
-                            </p>
-                          </li>
-                          <li className="d-flex align-items-center gap-5 text-gray-1200">
-                            <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                              Shipping Type:
-                            </p>
-                            <p className="m-0 fs-14 text-gray-1200 w-75">
-                              Standard (2-5 business days)
-                            </p>
-                          </li>
-                        </div>
+                        {/* <div className="mb-1"> */}
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Full Name:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75 capitalize">
+                            {orderData?.order?.name === null
+                              ? userData?.client?.first_name
+                              : orderData?.order?.name}
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Address:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            {orderData?.order?.shipping_add1},{" "}
+                            {orderData?.order?.shipping_add2 !== null
+                              ? `${orderData?.order?.shipping_add2},  `
+                              : ""}
+                            {orderData?.order?.shipping_city},{" "}
+                            {orderData?.order?.shipping_state},{" "}
+                            {orderData?.order?.shipping_country},{" "}
+                            {orderData?.order?.shipping_zip}
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Shipping Type:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            Standard (2-5 business days)
+                          </p>
+                        </li>
+                        {/* </div> */}
                       </ul>
                     </div>
+                    <Divider className="my-2 lg:hidden" />
                   </div>
                 </div>
               </div>
               <div className="col-lg-4 ps-lg-0 mt-5 md:mt-0">
-                {paymentStatus !== "loading" && (
+                {paymentStatus !== "loading" && paymentStatus == "failed" && (
+                  <div data-aos="fade-down">
+                    <div className="flex justify-center">
+                      <TbMoodSad2 className="text-red-600 text-4xl" />
+                    </div>
+                    <h2 className="!font-bold text-lg text-center">
+                      Sorry, payment failed!
+                    </h2>
+                    <p className="text-center">
+                      Payment failed from gateway: The payment attempted for the
+                      purchase did not go through due to an issue with the
+                      payment gateway. Please contact your payment provider for
+                      more information.
+                    </p>
+                    <div className="flex justify-center items-center my-2">
+                      <Button
+                        variant="contained"
+                        href={`/checkout/order_id/${CryptoJS?.AES?.encrypt(
+                          `${orderID}`,
+                          "trading_materials_order"
+                        )
+                          ?.toString()
+                          .replace(/\//g, "_")
+                          .replace(/\+/g, "-")}`}
+                        target="_blank"
+                        type="button"
+                        className="!bg-red-600 !border-red-600 drop-shadow-lg text-white w-[50%] md:w-[35%]  text-center p-2 mr-1 !rounded-none"
+                      >
+                        Retry
+                      </Button>
+                    </div>
+                    <p
+                      className="text-[#00a3d9] cursor-pointer font-bold flex items-center justify-center"
+                      onClick={() =>
+                        window.open(
+                          `/orders/${CryptoJS?.AES?.encrypt(
+                            `${userData?.client?.id}`,
+                            "order_details"
+                          )
+                            ?.toString()
+                            .replace(/\//g, "_")
+                            .replace(/\+/g, "-")}`,
+                          "_blank"
+                        )
+                      }
+                    >
+                      {" "}
+                      <BsFillPlayFill /> Back to &ldquo;My Orders&ldquo;
+                    </p>
+                  </div>
+                )}
+                {paymentStatus !== "loading" && paymentStatus != "failed" && (
                   <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
                     <div className="paper-container !text-center ">
                       <div className="printer-bottom"></div>
@@ -566,26 +633,29 @@ export default function PaymentVerifyStripe() {
             </div>
           </div>
         </section>
-        <section className="nk-section nk-cta-section">
+        <section className="nk-section nk-cta-section nk-section-content-1">
           <div className="container">
             <div
               className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
               data-aos="fade-up"
               data-aos-delay="100"
             >
-              <div className="row g-gs align-items-center">
+              <div
+                className="row g-gs align-items-center"
+                data-aos="fade-up"
+                data-aos-delay="100"
+              >
                 <div className="col-lg-8">
                   <div className="media-group flex-column flex-lg-row align-items-center">
                     <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
                       <em className="icon ni ni-chat-fill"></em>
                     </div>
                     <div className="text-center text-lg-start">
-                      <h3 className="text-capitalize m-0">
-                        Chat with our support team!
+                      <h3 className="text-capitalize m-0 !text-3xl !font-bold">
+                        {t("Chat_With_Our_Support_Team")}
                       </h3>
-                      <p className="fs-16 opacity-75">
-                        Get in touch with our support team if you still can’t
-                        find your answer.
+                      <p className="fs-16 opacity-75 !text-lg mt-1">
+                        {t("chat_team_desc")}
                       </p>
                     </div>
                   </div>
@@ -595,7 +665,7 @@ export default function PaymentVerifyStripe() {
                     href={`${userLang}/contact`}
                     className="btn btn-white fw-semiBold"
                   >
-                    Contact Support
+                    {t("Contact_support")}
                   </a>
                 </div>
               </div>

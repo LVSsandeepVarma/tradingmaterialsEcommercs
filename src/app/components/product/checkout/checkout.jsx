@@ -639,7 +639,7 @@ export default function Checkout() {
           cvc: cvv,
           name_on_card: nameOnCard,
           currency: "INR",
-          call_back_url: `http://localhost:3000/payment-status/`,
+          call_back_url: `https://tradingmaterials.com/payment-status/`,
         };
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
@@ -894,10 +894,9 @@ export default function Checkout() {
                           <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
                             Full Name:
                           </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {orderData?.order?.name === null
-                              ? userData?.client?.first_name
-                              : orderData?.order?.name}
+                          <p className="m-0 fs-14 text-gray-1200 w-75 capitalize">
+                            {userData?.client?.first_name}&nbsp;
+                            {userData?.client?.last_name}
                           </p>
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
@@ -941,7 +940,7 @@ export default function Checkout() {
                             <p className="m-0 fs-12 fw-semibold text-uppercase w-25 ">
                               Full Name:
                             </p>
-                            <p className="m-0 fs-14 text-gray-1200 w-75">
+                            <p className="m-0 fs-14 text-gray-1200 w-75 capitalize">
                               {orderData?.order?.name === null
                                 ? userData?.client?.first_name
                                 : orderData?.order?.name}
@@ -1232,7 +1231,9 @@ export default function Checkout() {
                                           value={cvv}
                                           onChange={handleCvvChange}
                                           required
-                                          maxLength={cardNumber?.length == 18 ? 4 : 3}
+                                          maxLength={
+                                            cardNumber?.length == 18 ? 4 : 3
+                                          }
                                           // onInvalid={!validateCVV(cvv)}
                                         />
                                         <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
@@ -1403,11 +1404,7 @@ export default function Checkout() {
                               } else {
                                 createOrderWithStripe(
                                   orderData?.order_id,
-                                  paymentType == "cod"
-                                    ? parseFloat(orderData?.order?.total) < 500
-                                      ? "150"
-                                      : "450"
-                                    : orderData?.order?.total,
+                                  orderData?.order?.total,
                                   orderData?.client_id,
                                   orderData?.city,
                                   orderData?.state,

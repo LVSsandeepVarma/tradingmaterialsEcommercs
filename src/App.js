@@ -18,6 +18,8 @@ import ShippingPolicy from "./app/components/policies/Shipping";
 import OrderTacker from "./app/components/orderTracking/OrderTracking";
 import Faq from "./app/components/faq/Faq";
 import LinkExpired from "./app/components/expired/LinkExpired";
+import CodVerify from "./app/components/product/checkoutLead/codVerify";
+import CheckoutLeadWordline from "./app/components/product/checkoutLead/wordlineCheckout";
 const About = lazy(() => import("./app/components/about-us/about"));
 // import About from "./app/components/about-us/about";
 const Contact = lazy(() => import("./app/components/contact-us/contact"));
@@ -58,8 +60,8 @@ function App() {
         <Suspense
           fallback={
             <div className="preloader !backdrop-blur-[1px] ">
-          <div className="loader"></div>
-        </div>
+              <div className="loader"></div>
+            </div>
           }
         >
           <Routes>
@@ -80,12 +82,11 @@ function App() {
             <Route
               path="/reset-password/new-password"
               element={<NewPassword />}
-
             ></Route>
 
-            <Route path="/tracking" element={<OrderTacker/>}></Route>
-          <Route path="/faq" element={<Faq/>}></Route>
-          <Route path="/expired" element={<LinkExpired/>}></Route>
+            <Route path="/tracking" element={<OrderTacker />}></Route>
+            <Route path="/faq" element={<Faq />}></Route>
+            <Route path="/expired" element={<LinkExpired />}></Route>
             {/* protected routes  */}
 
             <Route
@@ -129,14 +130,15 @@ function App() {
               }
               middleware
             ></Route>
-            <Route path="/terms-and-conditions" element={<Terms/>}></Route>
-            <Route path="/privacy-policy" element={<Privacy/>}></Route>
-            <Route path="/refund-policy" element={<Refund/>}></Route>
-            <Route path="/shipping-policy" element={<ShippingPolicy/>}></Route>
+            <Route path="/terms-and-conditions" element={<Terms />}></Route>
+            <Route path="/privacy-policy" element={<Privacy />}></Route>
+            <Route path="/refund-policy" element={<Refund />}></Route>
+            <Route path="/shipping-policy" element={<ShippingPolicy />}></Route>
             <Route path="*" element={<Pagenotfound />}></Route>
             <Route path="/careers" element={<Career />}></Route>
-            <Route path="/checkout/wl" element={<CheckoutLead/>}></Route>
-
+            <Route path="/checkout/wl/:id" element={<CheckoutLead />}></Route>
+            <Route path="/checkout/wl-worldline/:id" element={<CheckoutLeadWordline />}></Route>
+            <Route path="/place-order/:id" element={<CodVerify />}></Route>
             {/* malay */}
 
             <Route path="/ms/" element={<Home />}></Route>
