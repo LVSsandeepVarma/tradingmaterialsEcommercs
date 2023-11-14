@@ -458,6 +458,14 @@ export default function ProductDetails() {
     localStorage.removeItem("productData");
     localStorage.setItem("productTempQty", qty);
     localStorage.setItem("productData", JSON.stringify(product));
+    // localStorage.setItem("productQty", qty);
+    // window.location.href = `/checkout/wl/${CryptoJS?.AES?.encrypt(
+    //   `${userData?.client?.id}`,
+    //   "order_details"
+    // )
+    //   ?.toString()
+    //   .replace(/\//g, "_")
+    //   .replace(/\+/g, "-")}`;
     dispatch(
       usersignupinModal({
         showSignupModal: false,
@@ -476,17 +484,14 @@ export default function ProductDetails() {
     localStorage.removeItem("productData");
     localStorage.setItem("productTempQty", qunatity);
     localStorage.setItem("productData", JSON.stringify(product));
-    dispatch(
-      usersignupinModal({
-        showSignupModal: false,
-        showLoginModal: false,
-        showforgotPasswordModal: false,
-        showOtpModal: false,
-        showNewPasswordModal: false,
-        showSignupCartModal: false,
-        showSignupBuyModal: true,
-      })
-    );
+   localStorage.setItem("productQty", qunatity);
+   window.location.href = `/checkout/wl/${CryptoJS?.AES?.encrypt(
+     `${userData?.client?.id}`,
+     "order_details"
+   )
+     ?.toString()
+     .replace(/\//g, "_")
+     .replace(/\+/g, "-")}`;
   };
 
   // social share

@@ -17,4 +17,9 @@ code {
     monospace;
 }
 
-
+.video {
+    width: 100%;
+    height: 225px;
+    border-radius: 0px;
+    border: 0px solid #fff;
+}

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -584,7 +585,7 @@ export default function Header() {
       {showNameModal && (
         <UpdateProfile open={showNameModal} handleClose={hideProfileModal} />
       )}
-      {!modals?.showSignupModal &&
+      {/* {!modals?.showSignupModal &&
         !modals?.showLoginModal &&
         !modals?.showforgotPasswordModal && (
           <div
@@ -609,7 +610,7 @@ export default function Header() {
               </div>
             )}
           </div>
-        )}
+        )} */}
       {modals?.showSignupModal === true && (
         <SignupModal
           show={modals?.showSignupModal}

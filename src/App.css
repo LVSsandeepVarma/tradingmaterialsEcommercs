@@ -1986,3 +1986,32 @@ td span {
 /* input:-internal-autofill-selected{
 
 } */
+
+.customise-checkout-input {
+  font-size: small;
+  padding-left: 13px !important;
+}
+
+.box123 {
+  animation: flash 1s linear infinite;
+  background: #fff;
+  padding: 5px;
+  border-radius: 5px;
+  margin: 0px 0px 0px 3px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.youtube-container {
+  overflow: hidden;
+  width: 100%;
+
+
+}
+iframe {
+  /* Extend it beyond the viewport... */
+  width: 300%;
+  height: 100%;
+  /* ...and bring it back again */
+  margin-left: -100%;
+}

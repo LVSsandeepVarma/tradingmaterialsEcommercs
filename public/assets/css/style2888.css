@@ -1,10 +1,4 @@
-﻿/*!
- * Template Name: NioLand
- * Author: Softnio
- * Author URI: http://themeforest.net/user/softnio
- * Version: 1.2.0
- * Updated: 05.20.2023
-**/
+﻿
 
 @font-face {
   font-family: "Plus Jakarta Sans";
@@ -50362,4 +50356,18 @@ g rect {
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
   perspective: 1000px;
+}
+
+.chk_accordion_expanded .css-o4b71y-MuiAccordionSummary-content.Mui-expanded{
+  margin: 10px 0;
+}
+
+.chk_accordion_expanded .css-o4b71y-MuiAccordionSummary-content {
+  margin:4px 0;
+}
+
+
+.customise-checkout-input{
+font-size: small;
+    padding-left: 13px !important;
 }

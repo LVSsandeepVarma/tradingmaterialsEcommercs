@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Countdown from "./countdown";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllProducts, filteredProductsByIds } from "../../../features/products/productsSlice";
+import {
+  fetchAllProducts,
+  filteredProductsByIds,
+} from "../../../features/products/productsSlice";
 // import { keyframes } from "styled-components";
 import { useLocation, useNavigate } from "react-router-dom";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
@@ -41,17 +44,19 @@ import { FaRegHeart } from "react-icons/fa";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import SessionExpired from "../modals/sessionExpired";
 import { Dropdown } from "react-bootstrap";
+import PaymentFailed from "../modals/paymentFailed";
 export default function ProductsDisplay() {
   const { t } = useTranslation();
 
   const products = useSelector((state) => state?.products?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const isLoggedIn = useSelector((state) => state?.login?.value);
+  const paymentFailedStatus = useSelector((state) => state?.payment?.value);
   const userLang = useSelector((state) => state?.lang?.value);
   const clientType = useSelector((state) => state?.clientType?.value);
   const subId = useSelector((state) => state?.subId?.value);
-const sugnupAddtoCartModal = useSelector(
-  (state) => state?.signupInModal?.value?.showSignupCartModal
+  const sugnupAddtoCartModal = useSelector(
+    (state) => state?.signupInModal?.value?.showSignupCartModal
   );
   const sugnupBuyNowtModal = useSelector(
     (state) => state?.signupInModal?.value?.showSignupBuyModal
@@ -126,7 +131,6 @@ const sugnupAddtoCartModal = useSelector(
     incrementDate();
   }, []);
 
-
   // showing filtered products when choosed from other pages
   useEffect(() => {
     const productData = JSON.parse(localStorage.getItem("productData"));
@@ -140,33 +144,32 @@ const sugnupAddtoCartModal = useSelector(
     }
   }, [sugnupAddtoCartModal, sugnupBuyNowtModal]);
 
-          const fetchProducts = async () => {
-            // Fetch the data from the API.
-            try {
-              const response = await axios.get(
-                "https://admin.tradingmaterials.com/api/get/products",
-                {
-                  headers: {
-                    "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-                    Accept: "application/json",
-                    "access-token": localStorage.getItem("client_token"),
-                  },
-                }
-              );
-              response.data.data.products.sort((a, b) => {
-                // Convert prices to numbers and compare them
-                const priceA = a.prices[0].INR;
-                const priceB = b.prices[0].INR;
-                return parseInt(priceA) - parseInt(priceB);
-              });
+  const fetchProducts = async () => {
+    // Fetch the data from the API.
+    try {
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/get/products",
+        {
+          headers: {
+            "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+            Accept: "application/json",
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+      response.data.data.products.sort((a, b) => {
+        // Convert prices to numbers and compare them
+        const priceA = a.prices[0].INR;
+        const priceB = b.prices[0].INR;
+        return parseInt(priceA) - parseInt(priceB);
+      });
 
-              dispatch(fetchAllProducts(response.data.data));
-              return response.data.data;
-            } catch (err) {
-              console.log(err);
-            }
-          };
-          
+      dispatch(fetchAllProducts(response.data.data));
+      return response.data.data;
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   // function for handling add to cart directly {indirect login}
   async function handleAddToCartDirectly(productId, status, qty) {
@@ -203,14 +206,13 @@ const sugnupAddtoCartModal = useSelector(
       // if (err?.response?.data?.message?.includes("Token")) {
       //   setShowSessionExpiry(true);
       // }
-      
-        dispatch(
-          updateNotifications({
-            type: "error",
-            message: "please try again, required data is missing",
-          })
-        );
-      
+
+      dispatch(
+        updateNotifications({
+          type: "error",
+          message: "please try again, required data is missing",
+        })
+      );
     } finally {
       dispatch(hideLoader());
     }
@@ -784,24 +786,6 @@ const sugnupAddtoCartModal = useSelector(
     // setCartPosition({ top: `${top}px`, right: `${right}px` });
   };
 
-  // useEffect(()=>{
-  //   const isLoginStatus = async ()=>{
-  //     const islogin =  useSelector((state) => state?.login?.value);
-  //   setTimeout(()=>{
-
-  //     if(islogin === false){
-  //       dispatch(showPopup())
-  //   }
-  //   },3000)
-  // }
-  // isLoginStatus()
-
-  // },[isLoggedIn])
-
-  // const handleCloseFloatingForm = ()=>{
-  //   setShowFloatingForm(false)
-  // }
-
   const closeModal = () => {
     setShowModal(false);
     setModalMessage("");
@@ -812,7 +796,15 @@ const sugnupAddtoCartModal = useSelector(
   const handleSignupCart = (product) => {
     localStorage.removeItem("productData");
     localStorage.setItem("productData", JSON.stringify(product));
-    window.location.href = "/checkout/wl"
+    localStorage.setItem("productQty", 1);
+
+    window.location.href = `/checkout/wl/${CryptoJS?.AES?.encrypt(
+      `${userData?.client?.id}`,
+      "order_details"
+    )
+      ?.toString()
+      .replace(/\//g, "_")
+      .replace(/\+/g, "-")}`;
     // dispatch(
     //   usersignupinModal({
     //     showSignupModal: false,
@@ -837,6 +829,7 @@ const sugnupAddtoCartModal = useSelector(
 
   return (
     <>
+      {paymentFailedStatus && <PaymentFailed />}
       <SessionExpired
         open={showSessionExppiry}
         handleClose={handleSessionExpiryClose}
@@ -860,9 +853,9 @@ const sugnupAddtoCartModal = useSelector(
       <div className="nk-pages">
         <section className="nk-banner nk-banner-shop">
           <div className="container">
-            <div className="nk-banner-wrap">
+            <div className="nk-banner-wrap !p-0 h-[75vh] md:h-[90vh] lg:h-[490px] mt-6">
               <div className="nk-banner-content position-relative">
-                <div className="row align-items-center justify-content-around">
+                {/* <div className="row align-items-center justify-content-around">
                   <div className="col-xl-5">
                     <div className="nk-frame text-center mb-7 mb-xl-0">
                       <img
@@ -886,6 +879,45 @@ const sugnupAddtoCartModal = useSelector(
                         </p>
                       </div>
                       <Countdown
+                        targetDate={megaDealTime}
+                        loaderStatus={showMiniLoader}
+                      />
+                    </div>
+                  </div>
+                </div> */}
+
+                <div className="row align-items-center justify-content-around">
+                  <div className="col-xl-8">
+                    <div className=" text-center mb-2 mb-xl-0 youtube-container">
+                      <iframe
+                        className="w-full h-[28vh] md:h-[50vh] lg:h-[490px] rounded-l border-0 p-0 m-0"
+                        // className="video"
+                        // src="https://www.youtube.com/embed/ORzWQPSvoKI?si=U5VZjS7P_QrdX2yB"
+                        src="https://www.youtube.com/embed/ORzWQPSvoKI?autoplay=1&loop=1&color=white&controls=0&modestbranding=1&playsinline=1&rel=0&enablejsapi=1&playlist?si=U5VZjS7P_QrdX2yB"
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                      ></iframe>
+                    </div>
+                  </div>
+                  <div className="col-xl-4 p-0 ">
+                    <div className="text-center text-xl-start">
+                      <div className="mb-5">
+                        <img
+                          src="/images/discount-img.png"
+                          alt="discount-img"
+                          className="mx-auto"
+                        />
+                        <p className="m-0 text-gray-1000  text-wrap">
+                          {" "}
+                          Use this coupon code on your purchase:{" "}
+                          <span className="box123">DIWALI2023</span>
+                        </p>
+                      </div>
+
+                      <Countdown
+                        className="mx-auto"
                         targetDate={megaDealTime}
                         loaderStatus={showMiniLoader}
                       />
@@ -1028,7 +1060,7 @@ const sugnupAddtoCartModal = useSelector(
                                 onClick={() => filtersubcatProducts("all", 0)}
                               >
                                 <label
-                                  className="form-check-label fs-14 text-gray-1200 cursor-pointer"
+                                  className="form-check-label fs-14 text-gray-1200 cursor-pointer text-left"
                                   // for="themenio"
                                   onClick={() => filteredSubcatProducts["all"]}
                                 >
