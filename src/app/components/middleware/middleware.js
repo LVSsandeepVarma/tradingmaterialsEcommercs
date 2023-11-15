@@ -5,7 +5,6 @@ const withAuth = (WrappedComponent) => {
 
     // eslint-disable-next-line no-unused-vars
     const WithProtection = (props)=>{
-
         const navigate = useNavigate();
         const checkAuthentication = async()=>{
             const token = sessionStorage.getItem("client_token")?.length ? sessionStorage.getItem("client_token") : localStorage.getItem("client_token")
@@ -13,7 +12,7 @@ const withAuth = (WrappedComponent) => {
             if(token == null){
                 const lsToken = localStorage.getItem("client_token")
                 if(lsToken == null){
-                    navigate("/login")
+                    window.location.href="/login"
                 }
                 else{
                     navigate("/")

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -5,6 +6,7 @@ import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { fetchAllProducts } from "../../../features/products/productsSlice";
 import { loginUser, logoutUser } from "../../../features/login/loginSlice";
 import { updateUsers } from "../../../features/users/userSlice";
+import moment from "moment";
 import { useLocation, useNavigate } from "react-router-dom";
 // import { Modal } from "react-bootstrap";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
@@ -12,18 +14,25 @@ import { updateCart } from "../../../features/cartItems/cartSlice";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import "animate.css";
-import { updateCartCount } from "../../../features/cartWish/focusedCount";
+import {
+  updateCartCount,
+  updateWishListCount,
+} from "../../../features/cartWish/focusedCount";
 import { showPopup } from "../../../features/popups/popusSlice";
 // import { useTranslation } from "react-i18next";
 import { userLanguage } from "../../../features/userLang/userLang";
 import SignupModal from "../modals/signup";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+// import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 // import { productsSubId } from "../../../features/subCategoriesIds/subCategoriesSlice";
 // import CloseIcon from "@mui/icons-material/Close";
+import CryptoJS from "crypto-js";
 import LoginModal from "../modals/login";
 // import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import ForgotPasswordModal from "../modals/forgotPassword";
-import { Divider } from "@mui/material";
+import { Badge, Divider } from "@mui/material";
+import CookieBanner from "./cookiesBanner";
+import SessionExpired from "../modals/sessionExpired";
+import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -41,6 +50,9 @@ export default function Header() {
   // eslint-disable-next-line no-unused-vars
   const [showModal, setShowModal] = useState(false);
   const [greetUser, setGreetUser] = useState("Good Morning");
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false);
+  const [showOffer, setShowOffer] = useState(false);
+  const [cookieResponse, setCookieResponse] = useState(false);
   useEffect(() => {
     function updateGreeting() {
       var currentTime = new Date();
@@ -69,7 +81,7 @@ export default function Header() {
   const [toggleNavbar, setToggleNavbar] = useState(false);
 
   console.log(notifications);
-  console.log
+  console.log;
 
   const navigate = useNavigate();
 
@@ -125,21 +137,19 @@ export default function Header() {
           dispatch(updateUsers(response?.data?.data));
           dispatch(updateCart(response?.data?.data?.client?.cart));
           dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
+          dispatch(
+            updateWishListCount(response?.data?.data?.client?.wishlist_count)
+          );
         } else {
           console.log(response?.data);
           if (
-            location.pathname === "/" ||
+            location.pathname === "/products" ||
             location.pathname.includes("/product-detail")
           ) {
             localStorage.removeItem("client_token");
             dispatch(logoutUser());
           } else {
-            dispatch(
-              updateNotifications({
-                type: "warning",
-                message: "Oops!",
-              })
-            );
+            setShowSessionExpiry(true);
           }
           // navigate("/login")
         }
@@ -147,7 +157,7 @@ export default function Header() {
         console.log(err);
 
         if (
-          location.pathname === "/" ||
+          location.pathname === "/products" ||
           location.pathname.includes("/product-detail") ||
           location.pathname.includes("/terms") ||
           location.pathname.includes("/privacy") ||
@@ -157,12 +167,13 @@ export default function Header() {
           localStorage.removeItem("client_token");
           dispatch(logoutUser());
         } else {
-          dispatch(
-            updateNotifications({
-              type: "warning",
-              message: "Oops!",
-            })
-          );
+          // dispatch(
+          //   updateNotifications({
+          //     type: "warning",
+          //     message: "Oops!",
+          //   })
+          // );
+          setShowSessionExpiry(true);
         }
       } finally {
         dispatch(hideLoader());
@@ -184,7 +195,14 @@ export default function Header() {
             },
           }
         );
-        dispatch(fetchAllProducts(response?.data?.data));
+        response.data.data.products.sort((a, b) => {
+          // Convert prices to numbers and compare them
+          const priceA = a.prices[0].INR;
+          const priceB = b.prices[0].INR;
+          return parseInt(priceA) - parseInt(priceB);
+        });
+
+        dispatch(fetchAllProducts(response.data.data));
         return response?.data?.data;
       } catch (err) {
         console.log(err);
@@ -301,8 +319,23 @@ export default function Header() {
     });
   };
 
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/login");
+  }
+
+  const handleUserResponse = () => {
+    setCookieResponse(true);
+    setShowOffer(true);
+  };
+
   return (
     <>
+      <SessionExpired
+        open={showSessionExppiry}
+        handleClose={handleSessionExpiryClose}
+      />
+
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
@@ -339,7 +372,7 @@ export default function Header() {
                         <div className="logo-wrap">
                           <img
                             className="logo-img logo-dark"
-                            src="/images/tm-logo-1.png"
+                            src="/images/tm-logo-1.webp"
                             alt="brand-logo"
                           />
                         </div>
@@ -408,27 +441,25 @@ export default function Header() {
                               <li className="nk-nav-item col-lg-8">
                                 <ul className="row px-3 px-lg-0 mx-auto">
                                   <>
-                                  <li
-                                            className="col-lg-12 col-xl-12 p-0"
-                                          >
-                                            <a
-                                              // href = {`${userLang}/#bundles`}
-                                              onClick={() => {
-                                                
-                                                navigate(
-                                                  `${userLang}/view-order/unpaid`
-                                                );
-                                              }}
-                                              className="nk-nav-link "
-                                            >
-                                              <div className="text-primary me-3">
-                                                <ArrowForwardIcon
-                                                  style={{ fontSize: "18px" }}
-                                                />
-                                              </div>
-                                             Pending Orders
-                                            </a>
-                                          </li>
+                                    <li className="col-lg-12 col-xl-12 p-0">
+                                      <a
+                                        // href = {`${userLang}/#bundles`}
+                                        onClick={() => {
+                                          navigate(
+                                            `${userLang}/view-order/unpaid`
+                                          );
+                                        }}
+                                        className="nk-nav-link "
+                                      >
+                                        <div className="text-primary me-3">
+                                          <img
+                                            className="flex !rounded-none !w-[20px] !h-auto"
+                                            src="/images/orders/unpaid.png"
+                                          />
+                                        </div>
+                                        Pending Orders
+                                      </a>
+                                    </li>
                                     <li className="col-lg-12 col-xl-12 p-0">
                                       <a
                                         // href = {`${userLang}/#bundles`}
@@ -440,8 +471,10 @@ export default function Header() {
                                         className="nk-nav-link "
                                       >
                                         <div className="text-primary me-3">
-                                          <ArrowForwardIcon
-                                            style={{ fontSize: "18px" }}
+                                          <img
+                                            className="flex !rounded-none !w-[20px] !h-auto"
+                                            src="/images/orders/placed.png"
+                                            alt="placed"
                                           />
                                         </div>
                                         Orders Placed
@@ -458,8 +491,10 @@ export default function Header() {
                                         className="nk-nav-link "
                                       >
                                         <div className="text-primary me-3">
-                                          <ArrowForwardIcon
-                                            style={{ fontSize: "18px" }}
+                                          <img
+                                            className="flex !rounded-none !w-[20px] !h-auto"
+                                            src="/images/orders/confirmed.png"
+                                            alt="order_confirmed"
                                           />
                                         </div>
                                         Orders Confirmed
@@ -476,8 +511,10 @@ export default function Header() {
                                         className="nk-nav-link "
                                       >
                                         <div className="text-primary me-3">
-                                          <ArrowForwardIcon
-                                            style={{ fontSize: "18px" }}
+                                          <img
+                                            src="/images/orders/dispatched.png"
+                                            alt="order-dispatched"
+                                            className="flex !rounded-none !w-[20px] !h-auto"
                                           />
                                         </div>
                                         Orders Dispatched
@@ -494,8 +531,10 @@ export default function Header() {
                                         className="nk-nav-link "
                                       >
                                         <div className="text-primary me-3">
-                                          <ArrowForwardIcon
-                                            style={{ fontSize: "18px" }}
+                                          <img
+                                            className="flex !rounded-none !w-[20px] !h-auto"
+                                            src="/images/orders/delivered.png"
+                                            alt="order_delivered"
                                           />
                                         </div>
                                         Orders Completed
@@ -512,8 +551,10 @@ export default function Header() {
                                         className="nk-nav-link "
                                       >
                                         <div className="text-primary me-3">
-                                          <ArrowForwardIcon
-                                            style={{ fontSize: "18px" }}
+                                          <img
+                                            className="flex !rounded-none !w-[20px] !h-auto"
+                                            src="/images/orders/cancelled.png"
+                                            alt="order_cancelled"
                                           />
                                         </div>
                                         Orders Cancelled
@@ -530,8 +571,10 @@ export default function Header() {
                                         className="nk-nav-link "
                                       >
                                         <div className="text-primary me-3">
-                                          <ArrowForwardIcon
-                                            style={{ fontSize: "18px" }}
+                                          <img
+                                            className="flex !rounded-none !w-[20px] !h-auto"
+                                            src="/images/orders/returned.png"
+                                            alt="orders_returned"
                                           />
                                         </div>
                                         Orders Returned
@@ -545,12 +588,14 @@ export default function Header() {
 
                           <li className="nk-nav-item">
                             <a
-                              href={`${userLang}/products`}
+                              href={`https://tradingmaterials.com/tracking`}
                               className={`nk-nav-link ${
                                 location.pathname === "/track-order"
                                   ? "active"
                                   : ""
                               }`}
+                              target="_blank"
+                              rel="noreferrer"
                             >
                               <span className="nk-nav-text">
                                 Order Tracking
@@ -566,9 +611,7 @@ export default function Header() {
                                   : ""
                               }`}
                             >
-                              <span className="nk-nav-text">
-                                Payments
-                              </span>
+                              <span className="nk-nav-text">Payments</span>
                             </a>
                           </li>
 
@@ -576,23 +619,36 @@ export default function Header() {
                             <li className="nk-nav-item has-sub">
                               <Divider orientation="vertical" />
                               <div className="text-left nk-nav-item  !block has-sub ">
-                                <p className="nk-nav-link pb-0  pt-0 !text-xs">
+                                <p className="nk-nav-link pb-0 !w-full  pt-0 !text-xs">
                                   {greetUser}
                                 </p>
-
                                 <a
-                                  className="nk-nav-link nk-nav-toggle cursor-pointer pt-0 pb-0 !text-blue-900"
-                                  style={{ width: "1px" }}
+                                  className="nk-nav-link  nk-nav-toggle cursor-pointer pt-0 pb-0 !text-blue-900"
+                                  // style={{ width: "1px" }}
                                   onClick={() =>
                                     activeDropDown === "profile"
                                       ? setActiveDropDown("")
                                       : setActiveDropDown("profile")
                                   }
                                 >
-                                  <span className="nk-nav-text capitalize  !text-sm">
-                                    {userData?.client?.first_name}
-                                  </span>
+                                  <p className="hidden sm:!block capitalize !text-sm !text-start tr">
+                                    {userData?.client?.first_name?.length > 10
+                                      ? userData?.client?.first_name?.slice(
+                                          0,
+                                          10
+                                        ) + "..."
+                                      : userData?.client?.first_name}
+                                  </p>
+                                  <p className="block sm:!hidden capitalize !text-sm !text-start tr">
+                                    {userData?.client?.first_name?.length > 35
+                                      ? userData?.client?.first_name?.slice(
+                                          0,
+                                          35
+                                        ) + "..."
+                                      : userData?.client?.first_name}
+                                  </p>
                                 </a>
+
                                 <ul
                                   className={`nk-nav-sub  ${
                                     activeDropDown === "profile" ? "!block" : ""
@@ -602,8 +658,7 @@ export default function Header() {
                                     <ul className="row px-3 px-lg-0 mx-auto">
                                       <li className="col-lg-12 p-0">
                                         <a
-                                          href={`${`/profile
-                                          `}`}
+                                          href="/profile?"
                                           className="nk-nav-link"
                                         >
                                           Profile
@@ -611,10 +666,18 @@ export default function Header() {
                                       </li>
                                       <li className="col-lg-12 p-0">
                                         <a
-                                          href={`${userLang}/`}
+                                          href={`/orders/${CryptoJS?.AES?.encrypt(
+                                            `${userData?.client?.id}`,
+                                            "order_details"
+                                          )
+                                            ?.toString()
+                                            .replace(/\//g, "_")
+                                            .replace(/\+/g, "-")}`}
+                                          target="_blank"
+                                          rel="noreferrer"
                                           className="nk-nav-link"
                                         >
-                                          inbox
+                                          Orders
                                         </a>
                                       </li>
                                       <li className="col-lg-12 p-0">
@@ -622,7 +685,7 @@ export default function Header() {
                                           className="nk-nav-link cursor-pointer"
                                           onClick={handleLogout}
                                         >
-                                          logout
+                                          Logout
                                         </a>
                                       </li>
                                     </ul>
@@ -634,13 +697,37 @@ export default function Header() {
 
                           {!isLoggedIn && (
                             <li className="flex items-center cursor-pointer">
-                              <a onClick={() => navigate(`/login`)}>
+                              <a
+                                onClick={() => {
+                                  dispatch(
+                                    usersignupinModal({
+                                      showSignupModal: false,
+                                      showLoginModal: true,
+                                      showforgotPasswordModal: false,
+                                      showOtpModal: false,
+                                      showNewPasswordModal: false,
+                                      showSignupCartModal: false,
+                                      showSignupBuyModal: false,
+                                    })
+                                  );
+                                }}
+                              >
                                 <span className="nk-nav-text nk-nav-link">
                                   Login
                                 </span>
                               </a>
                             </li>
                           )}
+                          {/* 
+                          {!isLoggedIn && (
+                            <li className="flex items-center cursor-pointer">
+                              <a onClick={() => navigate(`/login`)}>
+                                <span className="nk-nav-text nk-nav-link">
+                                  Login
+                                </span>
+                              </a>
+                            </li>
+                          )} */}
                         </ul>
                         {/* <div className="nk-navbar-btn d-lg-none">
   <ul className="nk-btn-group sm justify-content-center">
@@ -817,7 +904,7 @@ export default function Header() {
                         <div className="block md:flex  items-center avatar avatar-xl position-relative">
                           <Avatar
                             alt="user profile"
-                            src="/images/blueProfile.png"
+                            src="/images/blueProfile.webp"
                             sx={{ width: "20%", height: "20%" }}
                             variant="rounded"
                             className=""
@@ -882,6 +969,113 @@ export default function Header() {
             </header>
           </>
         )}
+
+      <div className="container">
+        {localStorage.getItem("cookieStatus") == "true" ? (
+          <></>
+        ) : (localStorage.getItem("cookieStatus") == "false" &&
+            moment(localStorage.getItem("cookieDeclienedTime"))?._i <
+              moment(new Date().toLocaleDateString())?._i) ||
+          localStorage.getItem("cookieStatus") == undefined ? (
+          <CookieBanner storeResponse={handleUserResponse} />
+        ) : (
+          <></>
+        )}
+      </div>
+      <div className="nk-sticky-badge cursor-pointer">
+        <ul>
+          <li>
+            <a
+              href="/"
+              className="nk-sticky-badge-icon nk-sticky-badge-home"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="View Demo"
+            >
+              <em className="icon ni ni-home-fill"></em>
+            </a>
+          </li>
+          <li>
+            <a
+              onClick={() =>
+                isLoggedIn
+                  ? navigate(`/cart`)
+                  : dispatch(
+                      usersignupinModal({
+                        showSignupModal: false,
+                        showLoginModal: true,
+                        showforgotPasswordModal: false,
+                        showOtpModal: false,
+                        showNewPasswordModal: false,
+                        showSignupCartModal: false,
+                        showSignupBuyModal: false,
+                      })
+                    )
+              }
+              className="nk-sticky-badge-icon nk-sticky-badge-purchase"
+              data-bs-toggle="tooltip"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="Purchase Now"
+              aria-label="Purchase Now"
+            >
+              <Badge
+                badgeContent={cartCounts?.cartCount}
+                color="warning"
+                className="fixedBadge"
+              >
+                <em className="icon ni ni-cart-fill"></em>
+              </Badge>
+            </a>
+          </li>
+          <li>
+            <a
+              onClick={() =>
+                isLoggedIn
+                  ? navigate(`/profile?wishlist`)
+                  : dispatch(
+                      usersignupinModal({
+                        showSignupModal: false,
+                        showLoginModal: true,
+                        showforgotPasswordModal: false,
+                        showOtpModal: false,
+                        showNewPasswordModal: false,
+                        showSignupCartModal: false,
+                        showSignupBuyModal: false,
+                      })
+                    )
+              }
+              className="nk-sticky-badge-icon nk-sticky-badge-home"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="View Demo"
+            >
+              <Badge
+                badgeContent={cartCounts?.wishLishCount}
+                color="warning"
+                className="fixedBadge"
+              >
+                <em className="icon ni ni-heart"></em>
+              </Badge>
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://wa.me/+919087080999"
+              target="_blank"
+              rel="noreferrer"
+              className="nk-sticky-badge-icon nk-sticky-badge-whatsapp cursor-pointer"
+              data-bs-toggle="tooltip"
+              data-bs-custom-class="nk-tooltip"
+              data-bs-title="whatsapp"
+              aria-label="whatsapp"
+            >
+              <em className="icon ni ni-whatsapp"></em>
+            </a>
+          </li>
+        </ul>
+      </div>
     </>
   );
 }

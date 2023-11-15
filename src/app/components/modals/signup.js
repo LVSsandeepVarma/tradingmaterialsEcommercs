@@ -47,7 +47,7 @@ const SignupModal = ({ show }) => {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -59,6 +59,7 @@ const SignupModal = ({ show }) => {
 
   function phoneValidation(phone) {
     const phoneRegex = /^[0-9]+$/;
+
     if (phone?.length === 0) {
       setPhoneError("Phone number is required");
     } else if (!phoneRegex.test(phone)) {
@@ -76,8 +77,12 @@ const SignupModal = ({ show }) => {
     const nameRegex = /^[a-zA-Z. ]+$/;
     if (name === "") {
       setFirstNameError("First name is required");
+    } else if (name?.length < 3) {
+      setFirstNameError("Min 3 characters are required");
+    } else if (name?.length > 25) {
+      setFirstNameError("Max 25 characters are allowed");
     } else if (!nameRegex.test(name)) {
-      setFirstNameError("Invalid first name, only charecters are allowed");
+      setFirstNameError("Invalid first name, only characters are allowed");
     } else {
       setFirstNameError("");
     }
@@ -87,8 +92,12 @@ const SignupModal = ({ show }) => {
     const nameRegex = /^[a-zA-Z. ]+$/;
     if (name === "") {
       setLastNameError("Last name is required");
+    } else if (name?.length < 3) {
+      setLastNameError("Min 3 characters are required");
+    } else if (name?.length > 25) {
+      setLastNameError("Max 25 characters are allowed");
     } else if (!nameRegex.test(name)) {
-      setLastNameError("Invalid last name, only charecters are allowed");
+      setLastNameError("Invalid last name");
     } else {
       setLastNameError("");
     }
@@ -100,16 +109,22 @@ const SignupModal = ({ show }) => {
   }
 
   function handlePhoneChange(e) {
+    e.target.value = e?.target?.value.trim();
+    e.target.value = e.target.value?.replace(/[^0-9]/g, "");
     setPhone(e?.target?.value);
     phoneValidation(e?.target?.value);
   }
 
   function handleFirstNamechange(e) {
+    e.target.value = e?.target?.value.trimStart();
+    e.target.value = e.target.value.replace(/[^a-zA-Z ]/g, "");
     setFirstName(e?.target?.value);
     firstNameVerification(e?.target?.value);
   }
 
   function handleLastNameChange(e) {
+    e.target.value = e?.target?.value.trimStart();
+    e.target.value = e.target.value.replace(/[^a-zA-Z ]/g, "");
     setLastName(e?.target?.value);
     lastNameVerification(e?.target?.value);
   }
@@ -260,7 +275,7 @@ const SignupModal = ({ show }) => {
                   >
                     <img
                       className="logo-img"
-                      src="/images/tm-logo-1.png"
+                      src="/images/tm-logo-1.webp"
                       alt="logo"
                     />
                   </a>
@@ -290,7 +305,10 @@ const SignupModal = ({ show }) => {
                 <div className="row gy-4 !text-left">
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label">First Name</label>
+                      <label className="form-label">
+                        First Name
+                        <sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <input
                           type="text"
@@ -308,7 +326,10 @@ const SignupModal = ({ show }) => {
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label">Last Name</label>
+                      <label className="form-label">
+                        Last Name
+                        <sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <input
                           type="text"
@@ -326,7 +347,9 @@ const SignupModal = ({ show }) => {
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label">Email</label>
+                      <label className="form-label">
+                        Email<sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <input
                           type="text"
@@ -344,7 +367,9 @@ const SignupModal = ({ show }) => {
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label">Phone</label>
+                      <label className="form-label">
+                        Phone<sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         {/* <a
                               href="show-hide-password.html"

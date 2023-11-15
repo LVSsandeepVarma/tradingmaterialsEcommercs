@@ -90,6 +90,7 @@ export default function ReviewDialog({ type, open, handleClose, reviewId }) {
   }
 
   function handleReportUpdate(e) {
+    e.target.value = e?.target?.value.trimStart();
     console.log(e?.target?.value);
     if (e?.target?.value === "") {
       setReportErr("report is required");
@@ -119,6 +120,7 @@ export default function ReviewDialog({ type, open, handleClose, reviewId }) {
                 id="name"
                 label="Reason for report"
                 type="textarea"
+                required
                 fullWidth
                 variant="standard"
                 onChange={handleReportUpdate}

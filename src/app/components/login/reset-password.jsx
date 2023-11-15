@@ -43,24 +43,85 @@ export default function NewPassword() {
   }, []);
 
   function confirmPasswordValidaiton(confirmPassword) {
+    // const confirmPasswordRegex =
+    //   /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
     if (confirmPassword?.length === 0) {
-      setconfirmPasswordError("confirm Password is required");
+      setconfirmPasswordError("Confirm Password is required");
+    } else if (confirmPassword?.length < 8 || confirmPassword?.length > 15) {
+      setconfirmPasswordError("Password does not match");
     } else if (confirmPassword !== password) {
-      setconfirmPasswordError("password and confirm password does not match");
+      setconfirmPasswordError("Password does not match");
     } else {
       setconfirmPasswordError("");
     }
   }
 
   function passwordValidation(password) {
+    console.log(password?.length, passwordError);
+    // const passwordRegex = /^(?=.*[A-Za-z0-9])(?=.*[^A-Za-z0-9]).+$/
+    const hasAlpha = /[A-Za-z]/;
+    const hasNumaricals = /\d/;
+    const hasSpecialCharecters = /[^A-Za-z0-9]/;
+    console.log(
+      hasAlpha.test(password),
+      hasNumaricals.test(password),
+      hasSpecialCharecters.test(password),
+      "tessst"
+    );
     if (password?.length === 0) {
       setPasswordError("Password is required");
-    } else if (password?.length <= 5) {
-      setPasswordError("password is Too short");
-    } else if (password?.length <= 7 && password?.length > 5) {
-      setPasswordError("min 8 digits required");
-    } else if (confirmPassword != "" && confirmPassword !== password) {
-      setconfirmPasswordError("password and confirm password does not match");
+    } else if (password?.length <= 7 || password?.length > 15) {
+      setPasswordError("Password should contain 8 - 15 characters only");
+      if (confirmPassword != "" && confirmPassword !== password) {
+        // console.log(password, confirmPassword, "confm")
+        setconfirmPasswordError("Password does not match");
+      }
+    } else if (password?.length >= 8 && password?.length <= 15) {
+      if (!hasAlpha.test(password)) {
+        setPasswordError("Atleast one alphabet is required ");
+        console.log("tessst");
+        if (confirmPassword != "" && confirmPassword !== password) {
+          // console.log(password, confirmPassword, "confm")
+          setconfirmPasswordError("Password does not match");
+        }
+        if (confirmPassword != "" && confirmPassword == password) {
+          setconfirmPasswordError("");
+        }
+        return;
+      } else if (!hasNumaricals.test(password)) {
+        setPasswordError("Atleast one number is required");
+        console.log("tessst");
+        if (confirmPassword != "" && confirmPassword !== password) {
+          // console.log(password, confirmPassword, "confm")
+          setconfirmPasswordError("Password does not match");
+        }
+        if (confirmPassword != "" && confirmPassword == password) {
+          setconfirmPasswordError("");
+        }
+        return;
+      } else if (!hasSpecialCharecters.test(password)) {
+        setPasswordError("Atleast one special character is required");
+        console.log("tessst");
+        if (confirmPassword != "" && confirmPassword !== password) {
+          // console.log(password, confirmPassword, "confm")
+          setconfirmPasswordError("Password does not match");
+        }
+        if (confirmPassword != "" && confirmPassword == password) {
+          setconfirmPasswordError("");
+        }
+        return;
+      }
+
+      if (confirmPassword != "" && confirmPassword !== password) {
+        // console.log(password, confirmPassword, "confm")
+        setconfirmPasswordError("Password does not match");
+      }
+      if (confirmPassword != "" && confirmPassword == password) {
+        setconfirmPasswordError("");
+      }
+      setPasswordError("");
+    } else if (confirmPassword != "" && confirmPassword == password) {
+      setconfirmPasswordError("");
     } else {
       setPasswordError("");
     }
@@ -153,7 +214,7 @@ export default function NewPassword() {
                       >
                         <img
                           className="logo-img justify-center"
-                          src="/images/tm-logo-1.png"
+                          src="/images/tm-logo-1.webp"
                           alt="logo"
                         />
                       </a>
@@ -169,7 +230,10 @@ export default function NewPassword() {
                     <div className="row gy-4 !text-left">
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">Password</label>
+                          <label className="form-label">
+                            Password
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <a
                               // href="show-hide-password.html"
@@ -190,6 +254,7 @@ export default function NewPassword() {
                               id="show-hide-password"
                               type={showPassword ? "text" : "password"}
                               className="form-control"
+                              maxLength={15}
                               placeholder="Enter your password"
                               onChange={handlePasswordChange}
                             />
@@ -205,6 +270,7 @@ export default function NewPassword() {
                         <div className="form-group">
                           <label className="form-label ">
                             Confirm Password
+                            <sup className="text-red-600 !font-bold">*</sup>
                           </label>
                           <div className="form-control-wrap">
                             <a
@@ -227,6 +293,7 @@ export default function NewPassword() {
                             <input
                               type={showConfirmPassword ? "text" : "password"}
                               className="form-control"
+                              maxLength={15}
                               placeholder="Enter confirm Password"
                               onChange={handleconfirmPasswordChange}
                             />
@@ -272,7 +339,7 @@ export default function NewPassword() {
                             type="button"
                             onClick={handleFormSubmission}
                           >
-                            Login to Your Account
+                            Reset Password
                           </button>
                           {loginSuccessMsg && (
                             <Alert
@@ -327,22 +394,21 @@ export default function NewPassword() {
                     <em className="icon ni ni-quote-left text-white"></em>
                   </div>
                   <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
-                    We’re building a better application now
+                    Join to all traders community
                   </h1>
                   <div className="nk-auth-quote ms-sm-5">
                     <div className="nk-auth-quote-inner">
                       <p className="small">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Venenatis magna massa semper tristique. Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit. Venenatis
-                        magna massa semper tristique dotset.
+                        The trading materials is about to have a twist on forum
+                        and community space for all who love to trade and make
+                        their own living.
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
-                          <img src="/images/avatar/a.jpg" alt="avatar" />
+                          <img src="/images/avatar/a.webp" alt="avatar" />
                         </div>
                         <div className="media-text">
-                          <div className="h5 mb-0 !font-bold">Wade Warren</div>
+                          <div className="h5 mb-0 !font-bold">Founder</div>
                           <span className="small">3 months ago</span>
                         </div>
                       </div>

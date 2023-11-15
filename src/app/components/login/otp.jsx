@@ -40,6 +40,7 @@ export default function Otp() {
       } catch (err) {
         console.log("err", err);
         dispatch(hideLoader());
+        navigate("/expired");
         // setVerifiedHash(false)
       }
       dispatch(hideLoader());
@@ -52,10 +53,8 @@ export default function Otp() {
     console.log("lang", lang, userLang);
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
-
     } else {
       dispatch(userLanguage(""));
-
     }
   }, []);
 
@@ -127,7 +126,7 @@ export default function Otp() {
                       <a href={`/`}>
                         <img
                           className="logo-img content-center"
-                          src="/images/tm-logo-1.png"
+                          src="/images/tm-logo-1.webp"
                           alt="logo"
                         />
                       </a>
@@ -153,6 +152,7 @@ export default function Otp() {
                               value={otp}
                               onChange={setOtp}
                               numInputs={4}
+                              inputType="tel"
                               shouldAutoFocus={true}
                               containerStyle={{ width: "100%" }}
                               inputStyle={{
@@ -193,7 +193,7 @@ export default function Otp() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
-                                key={ind}
+                                  key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"
@@ -215,29 +215,32 @@ export default function Otp() {
               </div>
             </div>
             <div className="nk-split-col nk-auth-col nk-auth-col-content  bg-primary-gradient is-theme">
-              <div className="nk-mask shape-33" data-aos="fade-in"></div>
+              <div
+                className="nk-mask shape-33"
+                data-aos="fade-in"
+                data-aos-delay="0"
+              ></div>
               <div className="nk-auth-content mx-md-9 mx-xl-auto">
                 <div className="nk-auth-content-inner">
                   <div className="media media-lg media-circle media-middle text-bg-cyan-200 mb-5">
                     <em className="icon ni ni-quote-left text-white"></em>
                   </div>
                   <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
-                    We’re building a better application now
+                    Join to all traders community
                   </h1>
                   <div className="nk-auth-quote ms-sm-5">
                     <div className="nk-auth-quote-inner">
                       <p className="small">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Venenatis magna massa semper tristique. Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit. Venenatis
-                        magna massa semper tristique dotset.
+                        The trading materials is about to have a twist on forum
+                        and community space for all who love to trade and make
+                        their own living.
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
-                          <img src="/images/avatar/a.jpg" alt="avatar" />
+                          <img src="/images/avatar/a.webp" alt="avatar" />
                         </div>
                         <div className="media-text">
-                          <div className="h5 mb-0 !font-bold">Wade Warren</div>
+                          <div className="h5 mb-0 !font-bold">Founder</div>
                           <span className="small">3 months ago</span>
                         </div>
                       </div>

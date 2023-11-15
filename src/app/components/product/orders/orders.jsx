@@ -41,6 +41,18 @@ export default function Orders() {
   const [showFavModal, setShowFavModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
+  const orderStatus = {"0": "Pending", "1": "Placed", 2: "Confirmed", "3" : "Dispatched" , "4" : "Delivered", "5": "Cancelled", "6" : "Returned"}
+  const orderStatusColorCode = {"0": "primary", "1": "secondary", 2: "info", "3" : "success" , "4" : "warning", "5": "danger", "6" : "success"}
+  const [dateValue, setDateValue] = useState("");
+    const steps = [
+      "Placed ",
+      "Placed",
+      "Confirmed",
+      "Dispatched",
+      "Delivered",
+      "Delivered",
+      "Delivered",
+    ];
 
   const userData = useSelector((state) => state?.user?.value);
 
@@ -56,6 +68,10 @@ export default function Orders() {
   useEffect(() => {
     setCurrentUserLang(localStorage.getItem("i18nextLng"));
   }, [userLang]);
+
+    useEffect(() => {
+      handleOrderSearchByDate(new Date().toISOString().slice(0, 10));
+    }, [orders]);
 
   //function for review stars
   function ratingStars(number) {
@@ -84,7 +100,7 @@ export default function Orders() {
 
   const getUserInfo = async () => {
     try {
-      setShowWishlistRemoveMsg(false)
+      setShowWishlistRemoveMsg(false);
       const response = await axios.get(
         "https://admin.tradingmaterials.com/api/client/get-user-info",
         {
@@ -139,7 +155,7 @@ export default function Orders() {
 
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
-        getUserInfo()
+        getUserInfo();
         if (userData?.client?.wishlist?.length > 0) {
           const ids = userData?.client?.wishlist?.map(
             (item) => item?.product_id
@@ -184,7 +200,7 @@ export default function Orders() {
           data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
           setOrders(data);
-          setFilteredOrders(data)
+          setFilteredOrders(data);
         }
       } catch (err) {
         console.log(err);
@@ -224,13 +240,15 @@ export default function Orders() {
   const handleOrderSearchByDate = async (order_date) => {
     try {
       dispatch(showLoader());
-      if (order_date?.target?.value !== "") {
+      setDateValue(order_date);
+      if (order_date !== "") {
+        console.log(order_date, "datettt");
         setIsSearching(true);
       } else {
         setIsSearching(false);
       }
-      console.log(order_date?.target?.value?.replaceAll("-", `/`), "ttttt");
-      const date = new Date(order_date?.target?.value);
+      console.log(order_date?.replaceAll("-", `/`), orders, "ttttt");
+      const date = new Date(order_date);
       const formattedDate = `${(date.getMonth() + 1)
         .toString()
         .padStart(2, "0")}/${date
@@ -252,7 +270,7 @@ export default function Orders() {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
-          }) === formattedDate
+          }) == formattedDate
         );
       });
       setFilteredOrders(filterOrders);
@@ -304,7 +322,7 @@ export default function Orders() {
                   <div className="">
                     <div className="!text-left">
                       <a
-                        href="/"
+                        href="/products"
                         className="btn-link mb-2 !inline-flex !items-center !text-large !font-semibold !text-left"
                       >
                         <em className="icon ni ni-arrow-left  !inline-flex !items-center !text-large !font-semibold"></em>
@@ -345,8 +363,11 @@ export default function Orders() {
                           name="search"
                           className="w-[100%]  form-control  !py-2 !ps-10 border"
                           placeholder="Search your orders with order date"
+                          value={dateValue}
                           required
-                          onChange={handleOrderSearchByDate}
+                          onChange={(e) => {
+                            handleOrderSearchByDate(e.target.value);
+                          }}
                         />
                       </div>
                     </div>
@@ -373,9 +394,18 @@ export default function Orders() {
               <div className={`nk-section-content row px-lg-3 drop-shadow-lg `}>
                 <div className="col-lg-7 pe-lg-0 mt-[17px]">
                   <div className="nk-entry pe-lg-5 py-lg-1">
-                    {orders?.length === 0 && (
-                      <p className="flex !items-center !justify-center mt-5 text-xl  !w-full">
-                        Your Orders are empty
+                    {filteredOrders?.length === 0 && (
+                      <p className="flex !items-center justify-start md:!justify-center mt-5 text-xl  !w-full">
+                        No Orders found on{" "}
+                        <b>
+                          {" "}
+                          &#160;
+                          {new Date(dateValue).toLocaleDateString("en-us", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </b>
                       </p>
                     )}
                     <div className="table-responsive">
@@ -384,7 +414,7 @@ export default function Orders() {
                           <>
                             <div className=" border-1 shadow-lg ">
                               <table className="table ">
-                                <thead className="table-success !bg-white">
+                                <thead className="table-success !bg-white align-top">
                                   <tr>
                                     {/* <th>SHIP TO<br/><span className="th-tex">{order?.shipping_add1}</span></th> */}
                                     <th>
@@ -412,43 +442,32 @@ export default function Orders() {
                                       </span>
                                     </th>
                                     <th>
-                                      DELIVERY STATUS
+                                      ORDER STATUS
                                       <br />
                                       <span className="th-tex !font-light !text-[#77839c]">
-                                        Ready To Pack
+                                        {steps[order?.status]}
                                       </span>
                                     </th>
                                   </tr>
                                 </thead>
                               </table>
-                              <table className="table ">
-                                <thead>
-                                  <th colSpan="3" className="th-text-1">
-                                    Delivered Saturday
-                                    <Divider className="!w-full" />
-                                  </th>
-                                </thead>
+                              <div className="">
+                                
 
-                                <tbody className="">
-                                  <tr className="flex justify-around text-left drop-shadow-lg">
-                                    <td className="product-img">
+                                <div className="grid grid-cols-3 text-left gap-3 drop-shadow-lg mx-2 mb-2">
+                                  {/* <tr className="flex justify-around text-left drop-shadow-lg"> */}
+                                    <div className="product-img">
                                       <img
                                         src={order?.product?.product?.img_1}
                                         width={200}
                                         alt="product image"
                                       />
-                                    </td>
+                                    </div>
                                     <td>
                                       <table>
                                         <tr>
                                           <td className="td-text-1">
                                             {order?.product?.product?.name}
-                                          </td>
-                                        </tr>
-
-                                        <tr>
-                                          <td className="td-text-2">
-                                            Return: Eligible
                                           </td>
                                         </tr>
 
@@ -472,21 +491,31 @@ export default function Orders() {
                                                 View complete order
                                               </span>
                                             </a>
-                                            <div>
+                                            {/* <div>
                                               <a
-                                                className={`btn btn-outline-success border mt-2 `}
+                                                className={`btn btn-outline-${
+                                                  orderStatusColorCode[
+                                                    order?.status
+                                                  ]
+                                                } border border-${
+                                                  orderStatusColorCode[
+                                                    order?.status
+                                                  ]
+                                                } mt-2 `}
                                                 rel="noreferrer"
                                               >
                                                 <span
                                                   style={{ fontSize: "12px" }}
                                                 >
-                                                  Dispatched on <br />
+                                                  Order{" "}
+                                                  {orderStatus[order?.status]}{" "}
+                                                  on <br />
                                                   {new Date(
                                                     order?.updated_at
                                                   ).toLocaleDateString()}
                                                 </span>
                                               </a>
-                                            </div>
+                                            </div> */}
                                           </td>
                                         </tr>
                                       </table>
@@ -515,17 +544,8 @@ export default function Orders() {
                                         </span>
                                       </a>
                                       <br />
-                                      <a
-                                        href={`/track-order/${order?.id}`}
-                                        rel="noreferrer"
-                                        target="_blank"
-                                        className="btn btn-outline-dark border w-100 mt-2 margin-space"
-                                      >
-                                        <span style={{ fontSize: "12px" }}>
-                                          Track Order
-                                        </span>
-                                      </a>
-                                      <br />
+                                      
+                                      
                                       <a
                                         href="#"
                                         className="btn btn-outline-dark border w-100 mt-2 margin-space"
@@ -536,25 +556,25 @@ export default function Orders() {
                                       </a>
                                       <br />
                                       <a
-                                        href="/contact"
+                                        href="https://tradingmaterials.com/contact"
                                         target="_blank"
                                         className="btn btn-outline-dark border mt-2 w-100"
+                                        rel="noreferrer"
                                       >
                                         <span style={{ fontSize: "12px" }}>
                                           Contact Support
                                         </span>
                                       </a>
                                     </td>
-                                  </tr>
-                                </tbody>
-                              </table>
+                                </div>
+                              </div>
                             </div>
                           </>
                         ))}
                     </div>
                   </div>
 
-                  {filteredOrders?.length > 0 && (
+                  {/* {filteredOrders?.length > 0 && (
                     <div className="row mt-1">
                       <div className="col-lg-4 col-md-6 col-sm-12 ">
                         <div className="mb-3">
@@ -586,13 +606,9 @@ export default function Orders() {
                         </div>
                       </div>
 
-                      {/* <div className="col-lg-3 col-md-6 col-sm-12">
-									<div className="mb-3">
-										<a href="#" className="btn-link text-primary "><span>Bordering</span><em className="icon ni ni-arrow-right"></em></a>
-									</div>
-								</div> */}
+                     
                     </div>
-                  )}
+                  )} */}
                 </div>
                 <div className="col-lg-5 ps-lg-0 ">
                   <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
@@ -1116,7 +1132,10 @@ export default function Orders() {
                     </div>
                   </div>
                   <div className="col-lg-4 text-center text-lg-end">
-                    <a href="/contact" className="btn btn-white fw-semiBold">
+                    <a
+                      href="https://tradingmaterials.com/contact"
+                      className="btn btn-white fw-semiBold"
+                    >
                       Contact Support
                     </a>
                   </div>

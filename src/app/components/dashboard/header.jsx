@@ -23,10 +23,11 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LoginModal from "../modals/login";
 // import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import ForgotPasswordModal from "../modals/forgotPassword";
+import SessionExpired from "../modals/sessionExpired";
 
 export default function Header() {
   const dispatch = useDispatch();
-//   const products = useSelector((state) => state?.products?.value);
+  //   const products = useSelector((state) => state?.products?.value);
   const positions = useSelector((state) => state?.position?.value);
   const isLoggedIn = useSelector((state) => state.login?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
@@ -37,12 +38,14 @@ export default function Header() {
   const popup = useSelector((state) => state?.popup?.value);
   const modals = useSelector((state) => state?.signupInModal?.value);
   const [activeDropDown, setActiveDropDown] = useState("orders");
+
   // eslint-disable-next-line no-unused-vars
   const [showModal, setShowModal] = useState(false);
+  const [showSessionExpiry, setShowSessionExpiry] = useState(false);
 
-//   const { t } = useTranslation();
+  //   const { t } = useTranslation();
   const location = useLocation();
-  console.log(location.pathname)
+  console.log(location.pathname);
 
   const [toggleNavbar, setToggleNavbar] = useState(false);
 
@@ -111,18 +114,15 @@ export default function Header() {
             localStorage.removeItem("client_token");
             dispatch(logoutUser());
           } else {
-            dispatch(
-              updateNotifications({
-                type: "warning",
-                message: "Oops!",
-              })
-            );
+            localStorage.removeItem("client_token");
+            dispatch(logoutUser());
+            setShowSessionExpiry(true);
           }
           // navigate("/login")
         }
       } catch (err) {
         console.log(err);
-        
+
         if (
           location.pathname === "/" ||
           location.pathname.includes("/product-detail") ||
@@ -134,12 +134,9 @@ export default function Header() {
           localStorage.removeItem("client_token");
           dispatch(logoutUser());
         } else {
-          dispatch(
-            updateNotifications({
-              type: "warning",
-              message: "Oops!",
-            })
-          );
+          localStorage.removeItem("client_token");
+          dispatch(logoutUser());
+          setShowSessionExpiry(true);
         }
       } finally {
         dispatch(hideLoader());
@@ -278,8 +275,17 @@ export default function Header() {
     });
   };
 
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/login");
+  }
+
   return (
     <>
+      <SessionExpired
+        open={showSessionExpiry}
+        handleClose={handleSessionExpiryClose}
+      />
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
@@ -303,7 +309,7 @@ export default function Header() {
           onHide={() => handleCloseModals}
         />
       )}
-      
+
       {modals?.showSignupModal === false &&
         modals?.showLoginModal === false && (
           <header className="nk-header">
@@ -315,7 +321,7 @@ export default function Header() {
                       <div className="logo-wrap">
                         <img
                           className="logo-img logo-dark"
-                          src="/images/tm-logo-1.png"
+                          src="/images/tm-logo-1.webp"
                           alt="brand-logo"
                         />
                       </div>
@@ -339,19 +345,33 @@ export default function Header() {
                     <div>
                       <ul className="nk-nav">
                         <li className="nk-nav-item">
-                          <a href={`${userLang}/`} className={`nk-nav-link ${location.pathname === "/" ? "active" : ""}`}>
+                          <a
+                            href={`${userLang}/`}
+                            className={`nk-nav-link ${
+                              location.pathname === "/" ? "active" : ""
+                            }`}
+                          >
                             <span className="nk-nav-text">Dashboard</span>
                           </a>
                         </li>
                         <li className="nk-nav-item">
-                          <a href={`${userLang}/products`} className={`nk-nav-link ${location.pathname === "/products" ? "active" : ""}`}>
+                          <a
+                            href={`${userLang}/products`}
+                            className={`nk-nav-link ${
+                              location.pathname === "/products" ? "active" : ""
+                            }`}
+                          >
                             <span className="nk-nav-text">Products</span>
                           </a>
                         </li>
 
                         <li className="nk-nav-item has-sub">
                           <a
-                            className={`nk-nav-link nk-nav-toggle cursor-pointer ${location.pathname.includes("/view-order") ? "active" : ""}`}
+                            className={`nk-nav-link nk-nav-toggle cursor-pointer ${
+                              location.pathname.includes("/view-order")
+                                ? "active"
+                                : ""
+                            }`}
                             onClick={() =>
                               activeDropDown === "orders"
                                 ? setActiveDropDown("")
@@ -367,168 +387,152 @@ export default function Header() {
                           >
                             <li className="nk-nav-item col-lg-8">
                               <ul className="row px-3 px-lg-0 mx-auto">
-                                
-                                        <>
-                                        <li
-                                            className="col-lg-12 col-xl-12 p-0"
-                                          >
-                                            <a
-                                              // href = {`${userLang}/#bundles`}
-                                              onClick={() => {
-                                                
-                                                navigate(
-                                                  `${userLang}/view-order/unpaid`
-                                                );
-                                              }}
-                                              className="nk-nav-link "
-                                            >
-                                              <div className="text-primary me-3">
-                                                <ArrowForwardIcon
-                                                  style={{ fontSize: "18px" }}
-                                                />
-                                              </div>
-                                             Pending Orders
-                                            </a>
-                                          </li>
-                                          <li
-                                            className="col-lg-12 col-xl-12 p-0"
-                                          >
-                                            <a
-                                              // href = {`${userLang}/#bundles`}
-                                              onClick={() => {
-                                                
-                                                navigate(
-                                                  `${userLang}/view-order/placed`
-                                                );
-                                              }}
-                                              className="nk-nav-link "
-                                            >
-                                              <div className="text-primary me-3">
-                                                <ArrowForwardIcon
-                                                  style={{ fontSize: "18px" }}
-                                                />
-                                              </div>
-                                             Orders Placed
-                                            </a>
-                                          </li>
-                                          <li
-                                            className="col-lg-12 col-xl-12 p-0"
-                                          >
-                                            <a
-                                              // href = {`${userLang}/#bundles`}
-                                              onClick={() => {
-                                                
-                                                navigate(
-                                                  `${userLang}/view-order/confirmed`
-                                                );
-                                              }}
-                                              className="nk-nav-link "
-                                            >
-                                              <div className="text-primary me-3">
-                                                <ArrowForwardIcon
-                                                  style={{ fontSize: "18px" }}
-                                                />
-                                              </div>
-                                             Orders Confirmed
-                                            </a>
-                                          </li>
-                                          <li
-                                            className="col-lg-12 col-xl-12 p-0"
-                                          >
-                                            <a
-                                              // href = {`${userLang}/#bundles`}
-                                              onClick={() => {
-                                                
-                                                navigate(
-                                                  `${userLang}/view-order/dispatched`
-                                                );
-                                              }}
-                                              className="nk-nav-link "
-                                            >
-                                              <div className="text-primary me-3">
-                                                <ArrowForwardIcon
-                                                  style={{ fontSize: "18px" }}
-                                                />
-                                              </div>
-                                             Orders Dispatched
-                                            </a>
-                                          </li>
-                                          <li
-                                            className="col-lg-12 col-xl-12 p-0"
-                                          >
-                                            <a
-                                              // href = {`${userLang}/#bundles`}
-                                              onClick={() => {
-                                                
-                                                navigate(
-                                                  `${userLang}/view-order/delivered`
-                                                );
-                                              }}
-                                              className="nk-nav-link "
-                                            >
-                                              <div className="text-primary me-3">
-                                                <ArrowForwardIcon
-                                                  style={{ fontSize: "18px" }}
-                                                />
-                                              </div>
-                                             Orders Delivered
-                                            </a>
-                                          </li>
-                                          <li
-                                            className="col-lg-12 col-xl-12 p-0"
-                                          >
-                                            <a
-                                              // href = {`${userLang}/#bundles`}
-                                              onClick={() => {
-                                                
-                                                navigate(
-                                                  `${userLang}/view-order/cancelled`
-                                                );
-                                              }}
-                                              className="nk-nav-link "
-                                            >
-                                              <div className="text-primary me-3">
-                                                <ArrowForwardIcon
-                                                  style={{ fontSize: "18px" }}
-                                                />
-                                              </div>
-                                             Orders Cancelled
-                                            </a>
-                                          </li>
-                                          <li
-                                            className="col-lg-12 col-xl-12 p-0"
-                                          >
-                                            <a
-                                              // href = {`${userLang}/#bundles`}
-                                              onClick={() => {
-                                                
-                                                navigate(
-                                                  `${userLang}/view-order/returned`
-                                                );
-                                              }}
-                                              className="nk-nav-link "
-                                            >
-                                              <div className="text-primary me-3">
-                                                <ArrowForwardIcon
-                                                  style={{ fontSize: "18px" }}
-                                                />
-                                              </div>
-                                             Orders Returned
-                                            </a>
-                                          </li>
-                                        </>
+                                <>
+                                  <li className="col-lg-12 col-xl-12 p-0">
+                                    <a
+                                      // href = {`${userLang}/#bundles`}
+                                      onClick={() => {
+                                        navigate(
+                                          `${userLang}/view-order/unpaid`
+                                        );
+                                      }}
+                                      className="nk-nav-link "
+                                    >
+                                      <div className="text-primary me-3">
+                                        <ArrowForwardIcon
+                                          style={{ fontSize: "18px" }}
+                                        />
+                                      </div>
+                                      Pending Orders
+                                    </a>
+                                  </li>
+                                  <li className="col-lg-12 col-xl-12 p-0">
+                                    <a
+                                      // href = {`${userLang}/#bundles`}
+                                      onClick={() => {
+                                        navigate(
+                                          `${userLang}/view-order/placed`
+                                        );
+                                      }}
+                                      className="nk-nav-link "
+                                    >
+                                      <div className="text-primary me-3">
+                                        <ArrowForwardIcon
+                                          style={{ fontSize: "18px" }}
+                                        />
+                                      </div>
+                                      Orders Placed
+                                    </a>
+                                  </li>
+                                  <li className="col-lg-12 col-xl-12 p-0">
+                                    <a
+                                      // href = {`${userLang}/#bundles`}
+                                      onClick={() => {
+                                        navigate(
+                                          `${userLang}/view-order/confirmed`
+                                        );
+                                      }}
+                                      className="nk-nav-link "
+                                    >
+                                      <div className="text-primary me-3">
+                                        <ArrowForwardIcon
+                                          style={{ fontSize: "18px" }}
+                                        />
+                                      </div>
+                                      Orders Confirmed
+                                    </a>
+                                  </li>
+                                  <li className="col-lg-12 col-xl-12 p-0">
+                                    <a
+                                      // href = {`${userLang}/#bundles`}
+                                      onClick={() => {
+                                        navigate(
+                                          `${userLang}/view-order/dispatched`
+                                        );
+                                      }}
+                                      className="nk-nav-link "
+                                    >
+                                      <div className="text-primary me-3">
+                                        <ArrowForwardIcon
+                                          style={{ fontSize: "18px" }}
+                                        />
+                                      </div>
+                                      Orders Dispatched
+                                    </a>
+                                  </li>
+                                  <li className="col-lg-12 col-xl-12 p-0">
+                                    <a
+                                      // href = {`${userLang}/#bundles`}
+                                      onClick={() => {
+                                        navigate(
+                                          `${userLang}/view-order/delivered`
+                                        );
+                                      }}
+                                      className="nk-nav-link "
+                                    >
+                                      <div className="text-primary me-3">
+                                        <ArrowForwardIcon
+                                          style={{ fontSize: "18px" }}
+                                        />
+                                      </div>
+                                      Orders Delivered
+                                    </a>
+                                  </li>
+                                  <li className="col-lg-12 col-xl-12 p-0">
+                                    <a
+                                      // href = {`${userLang}/#bundles`}
+                                      onClick={() => {
+                                        navigate(
+                                          `${userLang}/view-order/cancelled`
+                                        );
+                                      }}
+                                      className="nk-nav-link "
+                                    >
+                                      <div className="text-primary me-3">
+                                        <ArrowForwardIcon
+                                          style={{ fontSize: "18px" }}
+                                        />
+                                      </div>
+                                      Orders Cancelled
+                                    </a>
+                                  </li>
+                                  <li className="col-lg-12 col-xl-12 p-0">
+                                    <a
+                                      // href = {`${userLang}/#bundles`}
+                                      onClick={() => {
+                                        navigate(
+                                          `${userLang}/view-order/returned`
+                                        );
+                                      }}
+                                      className="nk-nav-link "
+                                    >
+                                      <div className="text-primary me-3">
+                                        <ArrowForwardIcon
+                                          style={{ fontSize: "18px" }}
+                                        />
+                                      </div>
+                                      Orders Returned
+                                    </a>
+                                  </li>
+                                </>
                               </ul>
                             </li>
                           </ul>
                         </li>
 
                         <li className="nk-nav-item">
-                          <a href={`${userLang}/products`} className={`nk-nav-link ${location.pathname === "/track-order" ? "active" : ""}`}>
+                          <a
+                            href={`${userLang}/products`}
+                            className={`nk-nav-link ${
+                              location.pathname === "/track-order"
+                                ? "active"
+                                : ""
+                            }`}
+                          >
                             <span className="nk-nav-text">Order Tracking</span>
                           </a>
                         </li>
 
-                        
                         {isLoggedIn && (
                           <li className="nk-nav-item has-sub">
                             <a

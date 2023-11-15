@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import { hideLoader } from "../../../features/loader/loaderSlice";
@@ -11,6 +11,7 @@ import { updateCartCount } from "../../../features/cartWish/focusedCount";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import "animate.css";
+import SessionExpired from "../modals/sessionExpired";
 // import CryptoJS from "crypto-js";
 
 export default function AutoLogin() {
@@ -20,6 +21,8 @@ export default function AutoLogin() {
   const { access_token } = useParams();
   const notifications = useSelector((state) => state?.notification?.value);
   const isLoading = useSelector((state)=> state?.loader?.value)
+
+  const [showSessionExpiry, setShowSessionExpiry] = useState(false)
 
   console.log(access_token, "actoken");
   const getUserInfo = async () => {
@@ -41,7 +44,7 @@ export default function AutoLogin() {
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
         dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
-        navigate("/")
+        navigate("/products")
         // navigate(
         //   `/orders/${CryptoJS?.AES?.encrypt(
         //     `${localStorage.getItem("client_token")}`,
@@ -71,12 +74,7 @@ export default function AutoLogin() {
       }
     } catch (err) {
       console.log(err);
-      dispatch(
-        updateNotifications({
-          type: "warning",
-          message: "Oops!",
-        })
-      );
+      setShowSessionExpiry(true)
     } finally {
       dispatch(hideLoader());
     }
@@ -108,7 +106,7 @@ export default function AutoLogin() {
         align-items: center;
         justify-content: center;" href=/ ><svg style="width:25px; height:25px; scale:0.7; fill:#545454 !important; font-weight:bold !important" xmlns="http://www.w3.org/2000/svg" viewBox="0,0,5" > <g> <path fill="none" d="M0 0h24v24H0z"/> <path d="M8 7v4L2 6l6-5v4h5a8 8 0 1 1 0 16H4v-2h9a6 6 0 1 0 0-12H8z"/> </g> </svg>Back to home</a>`,
         footer: `<a className="swalLink font-bold focus:outline-none" style="font-weight:bold;cursor: pointer;box-shadow: none !important;
-        outline: none !important; font-size:small;color: #54a8c7 !important;" autofocus=false href=/?login>Login here</a>`,
+        outline: none !important; font-size:small;color: #54a8c7 !important;" autofocus=false href=/login>Login here</a>`,
         showConfirmButton: false,
         allowOutsideClick: false,
         showClass: {
@@ -142,8 +140,17 @@ export default function AutoLogin() {
       });
     }
   };
+
+  function handleSessionExpiryClose (){
+    setShowSessionExpiry(false)
+    navigate("/login")
+}
+
+
   return (
     <>
+            <SessionExpired open={showSessionExpiry} handleClose={handleSessionExpiryClose}/>
+
       {isLoading && <div className="preloader !backdrop-blur-[1px] ">
       <div className="loader"></div>
     </div>}

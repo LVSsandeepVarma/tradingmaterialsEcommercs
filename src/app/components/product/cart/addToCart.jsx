@@ -16,6 +16,7 @@ import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
 import CryptoJS from "crypto-js";
+import SessionExpired from "../../modals/sessionExpired";
 
 export default function AddToCart() {
   const dispatch = useDispatch();
@@ -59,12 +60,12 @@ export default function AddToCart() {
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [optionalNotes, setOptionalNotes] = useState("");
+  const [showSessionExpiry, setShowSessionExpiry] = useState(false);
 
   console.log(cartProducts, "gggggggg");
 
   const getUserInfo = async () => {
     try {
-
       const response = await axios.get(
         "https://admin.tradingmaterials.com/api/client/get-user-info",
         {
@@ -94,22 +95,12 @@ export default function AddToCart() {
         }
       } else {
         console.log(response?.data);
-        dispatch(
-          updateNotifications({
-            type: "warning",
-            message: "Oops!",
-          })
-        );
+        setShowSessionExpiry(true);
         // navigate("/login")
       }
     } catch (err) {
       console.log(err, "err");
-      dispatch(
-        updateNotifications({
-          type: "warning",
-          message: "Oops!",
-        })
-      );
+      setShowSessionExpiry(true);
     } finally {
       dispatch(hideLoader());
     }
@@ -130,11 +121,11 @@ export default function AddToCart() {
           product_id: productId,
           qty: quantities[productId],
           status: status,
-          client_id: userData?.client?.id
+          client_id: userData?.client?.id,
         },
         {
           headers: {
-           Authorization : `Bearer ` + localStorage.getItem("client_token"),
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
           },
         }
       );
@@ -147,12 +138,16 @@ export default function AddToCart() {
       }
     } catch (err) {
       console.log(err);
-      dispatch(
-        updateNotifications({
-          type: "error",
-          message: err?.response?.data?.message,
-        })
-      );
+      if (err?.response?.data?.message?.includes("Token")) {
+        setShowSessionExpiry(true);
+      } else {
+        dispatch(
+          updateNotifications({
+            type: "error",
+            message: err?.response?.data?.message,
+          })
+        );
+      }
     } finally {
       dispatch(hideLoader());
     }
@@ -190,6 +185,9 @@ export default function AddToCart() {
       }
     } catch (err) {
       console.log(err, "err");
+      if (err?.response?.data?.message?.includes("Token")) {
+        setShowSessionExpiry(true);
+      }
     }
   };
 
@@ -197,7 +195,6 @@ export default function AddToCart() {
     setActiveShippingAddress(id);
     setActiveShippingaddressChecked(id);
   };
-
 
   // useEffect(() => {
   //   getUserInfo();
@@ -262,7 +259,7 @@ export default function AddToCart() {
       dispatch(showLoader());
       const response = await axios.post(
         "https://admin.tradingmaterials.com/api/client/product/remove-cart-item",
-        { item_id: id, client_id:clientId },
+        { item_id: id, client_id: clientId },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("client_token")}`,
@@ -277,16 +274,14 @@ export default function AddToCart() {
         // applyPromoCode();
       } else {
         console.log(response?.data);
-        dispatch(
-          updateNotifications({
-            type: "warning",
-            message: "Oops!",
-          })
-        );
+        setShowSessionExpiry(true);
         // navigate("/login")
       }
     } catch (err) {
       console.log(err);
+      if (err?.response?.data?.message?.includes("Token")) {
+        setShowSessionExpiry(true);
+      }
     } finally {
       dispatch(hideLoader());
     }
@@ -323,7 +318,7 @@ export default function AddToCart() {
     } else {
       if (userData?.client?.address?.length > 1)
         setActiveShippingAddress(userData?.client?.address[1]?.id);
-        setActiveShippingaddressChecked(1)
+      setActiveShippingaddressChecked(1);
     }
   };
 
@@ -342,7 +337,7 @@ export default function AddToCart() {
             shipping_address: billingSameAsShipping ? 1 : 0,
             s_address_id: activeBillingAddress,
             note: optionalNotes,
-            client_id: userData?.client?.id
+            client_id: userData?.client?.id,
           }
         : {
             total: (subTotal - discount).toFixed(2),
@@ -353,7 +348,7 @@ export default function AddToCart() {
             shipping_address: billingSameAsShipping ? 0 : 1,
             s_address_id: activeShippingAddress,
             note: optionalNotes,
-            client_id: userData?.client?.id
+            client_id: userData?.client?.id,
           };
 
       console.log(data);
@@ -362,7 +357,7 @@ export default function AddToCart() {
         data,
         {
           headers: {
-            Authorization: `Bearer `+localStorage.getItem("client_token"),
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
           },
         }
       );
@@ -380,6 +375,9 @@ export default function AddToCart() {
       }
     } catch (err) {
       console.log("err", err);
+      if (err?.response?.data?.message?.includes("Token")) {
+        setShowSessionExpiry(true);
+      }
       if (err?.response?.data?.errors) {
         setApiErr([Object.values(err?.response?.data?.errors)]);
       } else {
@@ -394,8 +392,18 @@ export default function AddToCart() {
     setOptionalNotes(event?.target?.value);
   };
 
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/login");
+  }
+
   return (
     <>
+      <SessionExpired
+        open={showSessionExpiry}
+        handleClose={handleSessionExpiryClose}
+      />
+
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px]">
           <div className="loader"></div>
@@ -406,7 +414,11 @@ export default function AddToCart() {
         onHide={() => setShowModal(false)}
         type={fomrType}
         addressType={addressUpdateType}
-        data={fomrType === "add" ? [] : userData?.client?.address[activeShippingAddressChecked]}
+        data={
+          fomrType === "add"
+            ? []
+            : userData?.client?.address[activeShippingAddressChecked]
+        }
         // handleFormSubmit={handleFormSubmit}
       />
 
@@ -620,7 +632,7 @@ export default function AddToCart() {
                                           </div>
                                         </div>
                                       </div>
-                                      <div className="d-flex align-items-center w-25">
+                                      <div className="flex align-items-center w-25">
                                         <img
                                           src="https://cdn-icons-png.flaticon.com/512/2203/2203145.png"
                                           className="mb-0 mr-1"
@@ -629,7 +641,7 @@ export default function AddToCart() {
                                         />
                                         <p
                                           className="prod-desc mb-0 text-success"
-                                          style={{ marginLeft: "5px" }}
+                                          style={{ marginRight: "5px" }}
                                         >
                                           Quick Delivery
                                         </p>
@@ -646,7 +658,7 @@ export default function AddToCart() {
                         <p>no products found in cart</p>
                         <p
                           className="nav-link text-green-900 cursor-pointer"
-                          onClick={() => navigate("/")}
+                          onClick={() => navigate("/products")}
                         >
                           {" "}
                           Click here to add items
@@ -706,7 +718,7 @@ export default function AddToCart() {
                               variant="warning"
                               color="warning"
                               onClick={() => {
-                                setActiveShippingaddressChecked(0)
+                                setActiveShippingaddressChecked(0);
                                 setShowModal(true);
                                 setFormType("update");
                                 setAddressUpdateType("Billing");
@@ -795,13 +807,14 @@ export default function AddToCart() {
                                             checked={
                                               add?.id === activeShippingAddress
                                             }
-                                            onChange={() =>{
+                                            onChange={() => {
                                               handleShippingAddressChange(
                                                 add?.id
                                               );
-                                              setActiveShippingaddressChecked(ind)
-                                            }
-                                            }
+                                              setActiveShippingaddressChecked(
+                                                ind
+                                              );
+                                            }}
                                             className="form-check-input"
                                           />
                                           <span
@@ -1062,7 +1075,10 @@ export default function AddToCart() {
                       )}
                       {apiErr?.length > 0 &&
                         apiErr?.map((err, ind) => (
-                          <span key={ind} className="text-red-800 font-semibold">
+                          <span
+                            key={ind}
+                            className="text-red-800 font-semibold"
+                          >
                             {err}
                           </span>
                         ))}
@@ -1099,7 +1115,7 @@ export default function AddToCart() {
                 </div>
                 <div class="col-lg-4 text-center text-lg-end">
                   <a
-                    href={`${userLang}/contact`}
+                    href={`https://tradingmaterials.com/contact`}
                     class="btn btn-white fw-semiBold"
                   >
                     Contact Support
@@ -1109,8 +1125,8 @@ export default function AddToCart() {
             </div>
           </div>
         </section>
-        <Footer />
       </div>
+      <Footer />
     </>
   );
 }

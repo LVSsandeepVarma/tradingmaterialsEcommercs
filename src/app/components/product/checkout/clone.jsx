@@ -18,6 +18,7 @@ import { Divider } from "@mui/material";
 import CryptoJS from "crypto-js";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
+import Dashboard from "../../commonDashboard/Dashboard";
 
 export default function Checkout() {
   const dispatch = useDispatch();
@@ -32,7 +33,7 @@ export default function Checkout() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isFailure, setIsFailure] = useState(false);
   const [clientToken, setClientToken] = useState("");
-  const [apiError, setApiError] = useState([])
+  const [apiError, setApiError] = useState([]);
 
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
@@ -70,7 +71,7 @@ export default function Checkout() {
   const [subTotal, setSubTotal] = useState(0);
 
   const { id } = useParams();
-  const {encryptedrderId} = useParams();
+  const { encryptedrderId } = useParams();
   const decryptedId = CryptoJS.AES.decrypt(
     id.replace(/_/g, "/").replace(/-/g, "+"),
     "trading_materials_order"
@@ -81,12 +82,11 @@ export default function Checkout() {
 
   console.log(userData, "ttttttttt");
 
-  useEffect(()=>{
-    if(userData?.client?.payment_types?.length >0){
-      setActivePaymentMethod(userData?.client?.payment_types[0]?.name)
+  useEffect(() => {
+    if (userData?.client?.payment_types?.length > 0) {
+      setActivePaymentMethod(userData?.client?.payment_types[0]?.name);
     }
-  },[])
-
+  }, []);
 
   // useEffect(() => {
   //   if (paymentStatus === "success") {
@@ -115,7 +115,7 @@ export default function Checkout() {
     try {
       console.log(userData?.client?.id, "ttttttttt");
       dispatch(showLoader());
-      if(userData?.client?.id !== undefined){
+      if (userData?.client?.id !== undefined) {
         const response = await axios.get(
           `https://admin.tradingmaterials.com/api/client/product/checkout/view-order?order_id=${decryptedId}&client_id=${userData?.client?.id}`,
           {
@@ -128,18 +128,26 @@ export default function Checkout() {
           setAllProducts(response?.data?.data?.items);
           setSubTotal(response?.data?.data?.sub_total);
           setOrderData(response?.data?.data);
-          console.log(response?.data?.data?.payments,response?.data?.data?.payments[0]?.status === 1)
-          if(response?.data?.data?.payments?.length > 0){
-            const latestPaymentIndex = response?.data?.data?.payments?.length
-            if(response?.data?.data?.payments[latestPaymentIndex-1]?.status === 1){
-              setPaymentStatus("success")
+          console.log(
+            response?.data?.data?.payments,
+            response?.data?.data?.payments[0]?.status === 1
+          );
+          if (response?.data?.data?.payments?.length > 0) {
+            const latestPaymentIndex = response?.data?.data?.payments?.length;
+            if (
+              response?.data?.data?.payments[latestPaymentIndex - 1]?.status ===
+              1
+            ) {
+              setPaymentStatus("success");
               // setPaymentVerification(true)
             }
           }
         }
-      }else{
+      } else {
         const response = await axios.get(
-          `https://admin.tradingmaterials.com/api/client/product/checkout/view-order?order_id=${decryptedId}&client_id=${localStorage.getItem("id")}`,
+          `https://admin.tradingmaterials.com/api/client/product/checkout/view-order?order_id=${decryptedId}&client_id=${localStorage.getItem(
+            "id"
+          )}`,
           {
             headers: {
               Authorization: `Bearer ` + localStorage.getItem("client_token"),
@@ -150,17 +158,22 @@ export default function Checkout() {
           setAllProducts(response?.data?.data?.items);
           setSubTotal(response?.data?.data?.sub_total);
           setOrderData(response?.data?.data);
-          console.log(response?.data?.data?.payments,response?.data?.data?.payments?.length)
-          if(response?.data?.data?.payments?.length > 0){
-            const latestPaymentIndex = response?.data?.data?.payments?.length
-            if(response?.data?.data?.payments[latestPaymentIndex-1]?.status === 1){
-              setPaymentStatus("success")
+          console.log(
+            response?.data?.data?.payments,
+            response?.data?.data?.payments?.length
+          );
+          if (response?.data?.data?.payments?.length > 0) {
+            const latestPaymentIndex = response?.data?.data?.payments?.length;
+            if (
+              response?.data?.data?.payments[latestPaymentIndex - 1]?.status ===
+              1
+            ) {
+              setPaymentStatus("success");
               // setPaymentVerification(true)
             }
           }
         }
       }
-      
     } catch (err) {
       console.log(err);
     } finally {
@@ -216,6 +229,7 @@ export default function Checkout() {
   // }, [allProducts, quantities]);
 
   const handleCvvChange = (e) => {
+    e.target.value = e.target.value.trim()
     const addCvv = e.target.value;
     setCVV(addCvv);
     console.log(addCvv.match(/^[0-9]+$/), addCvv);
@@ -226,12 +240,13 @@ export default function Checkout() {
     } else {
       setCVVError("");
     }
-    if(apiError?.length >0){
-      setApiError([])
+    if (apiError?.length > 0) {
+      setApiError([]);
     }
   };
 
   const handleNameChage = (e) => {
+    e.target.value = e.target.value.trimStart();
     const addName = e.target.value;
     setNameOnCard(addName);
     if (addName?.length == 0) {
@@ -286,6 +301,7 @@ export default function Checkout() {
   };
 
   const handleCardNumberChange = (event) => {
+    event.target.value = event.target.value.trimStart();
     const formattedValue = formatCardNumber(event.target.value);
 
     if (validateCardNumber(formattedValue)) {
@@ -294,8 +310,8 @@ export default function Checkout() {
       setCardNumberError("Please enter a valid card number.");
     }
     setCardNumber(formattedValue);
-    if(apiError?.length >0){
-      setApiError([])
+    if (apiError?.length > 0) {
+      setApiError([]);
     }
   };
 
@@ -307,8 +323,8 @@ export default function Checkout() {
       setExpiryError("Expiry field required");
     }
     setExpiry(formattedValue);
-    if(apiError?.length >0){
-      setApiError([])
+    if (apiError?.length > 0) {
+      setApiError([]);
     }
   };
 
@@ -339,7 +355,7 @@ export default function Checkout() {
         isCVVValid !== false
       ) {
         console.log("all fields are validated and are valid");
-        
+
         // setIsSuccess(true)
       } else {
         if (isNameValid === null) {
@@ -379,7 +395,7 @@ export default function Checkout() {
     setActivePaymentMethod(paymentType);
   };
 
- //payment verification razorpay
+  //payment verification razorpay
   async function handleBookingPaymentResponse(res) {
     console.log(res);
     const token = localStorage.getItem("client_token");
@@ -407,7 +423,7 @@ export default function Checkout() {
         setPaymentStatus("success");
         setClientToken(response?.data?.token);
         localStorage.setItem("client_type", "client");
-        fetchOrderdetails()
+        fetchOrderdetails();
         // sendDetails();
       }
     } catch (error) {
@@ -427,7 +443,7 @@ export default function Checkout() {
       currency: "INR",
       name: "Trading Materials",
       description: "Booking Request amount for Trading Materials",
-      image: "https://stage.tradingmaterials.com/images/tm-logo-1.png",
+      image: "https://tradingmaterials.com/images/tm-logo-1.webp",
       order_id: res?.order_id,
       handler: handleBookingPaymentResponse,
       prefill: {
@@ -447,7 +463,7 @@ export default function Checkout() {
     rzp.open();
   }
 
- // create order for razorpay
+  // create order for razorpay
   async function createOrder(id, total, client_id) {
     try {
       dispatch(showLoader());
@@ -482,47 +498,65 @@ export default function Checkout() {
     }
   }
 
-    //create order for stripe 
-    async function createOrderWithStripe(id, total, client_id,city, state,country,zipcode,address) {
-      handleSubmit()
-      if(nameErr === "" && expiryError === "" && cvvError==="" && cardNumberError ==="" && nameOnCard !== "" && expiry !== "" && cvv !== "" && expiry!==""){
+  //create order for stripe
+  async function createOrderWithStripe(
+    id,
+    total,
+    client_id,
+    city,
+    state,
+    country,
+    zipcode,
+    address
+  ) {
+    handleSubmit();
+    if (
+      nameErr === "" &&
+      expiryError === "" &&
+      cvvError === "" &&
+      cardNumberError === "" &&
+      nameOnCard !== "" &&
+      expiry !== "" &&
+      cvv !== "" &&
+      expiry !== ""
+    ) {
       try {
-        console.log(orderData?.order,"orderData")
+        console.log(orderData?.order, "orderData");
         dispatch(showLoader());
         const paymentData = {
           payment_type: "Stripe",
-            client_id: client_id,
-            order_id: id,
-            total: total,
-            amount: total,
-            city: orderData?.order?.city,
-            state: orderData?.order?.state,
-            address_1:  orderData?.order?.address_1,
-            zipcode: orderData?.order?.zip,
-            country: orderData?.order?.country,
-            card_number: cardNumber,
-            exp_month_year: expiry,
-            cvc: cvv,
-            name_on_card: nameOnCard,
-            currency: "INR",
-            call_back_url: "https://client.tradingmaterials.com/payment-status/"
-        }
+          client_id: client_id,
+          order_id: id,
+          total: total,
+          amount: total,
+          city: orderData?.order?.city,
+          state: orderData?.order?.state,
+          address_1: orderData?.order?.address_1,
+          zipcode: orderData?.order?.zip,
+          country: orderData?.order?.country,
+          card_number: cardNumber,
+          exp_month_year: expiry,
+          cvc: cvv,
+          name_on_card: nameOnCard,
+          currency: "INR",
+          call_back_url: "https://client.tradingmaterials.com/payment-status/",
+        };
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/product/checkout/create-order",
           paymentData,
           {
             headers: {
-              Authorization: `Bearer `+localStorage.getItem("client_token"),
+              Authorization: `Bearer ` + localStorage.getItem("client_token"),
             },
           }
         );
-  
+
         if (response?.data?.status) {
-          console.log(response, "response")
-  
+          console.log(response, "response");
+
           // console.log(response?.data);
-          localStorage.setItem("id", id)
-          localStorage.setItem("order_id",id )
+          localStorage.setItem("id", id);
+          localStorage.setItem("order_id", id);
           window.location.replace(response?.data?.redirect_url);
           // handleStripePayment(response?.data?.data);
         }
@@ -534,12 +568,12 @@ export default function Checkout() {
         } else {
           setApiErr([err?.response?.data?.message]);
         }
-        dispatch(hideLoader())
+        dispatch(hideLoader());
       } finally {
         // dispatch(hideLoader());
       }
     }
-    }
+  }
 
   return (
     <>
@@ -548,53 +582,7 @@ export default function Checkout() {
           <div className="loader"></div>
         </div>
       )}
-      <section className="pt-100">
-          <div className="container">
-            <div className="row flex items-center">
-              <div className="col-lg-12 sbreadcrumb">
-                <div className="row flex items-center">
-                  <div className="col-lg-6 lcard text-left">
-                    <div className="flex  items-center gap-3 mb-3">
-                    {userData?.client?.profile?.profile_image?.length > 0 ? (
-                      <img src={userData?.client?.profile?.profile_image} alt="profile-pic" />
-                    ) : (
-                      <img src="/images/blueProfile.png" alt="profile-pic" />
-                    )}
-                      <div>
-                        <span>
-                        <strong>{userData?.client?.first_name} {userData?.client?.last_name}</strong>
-                      </span>
-                      <div>
-                      <span className="s-color"> {userData?.client?.email}</span>
-                      </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 rcard">
-                    <div className="">
-                      <button
-                        type="button"
-                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
-                        name="button"
-                      >
-                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
-                        Message
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
-                        name="button"
-                      >
-                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
-                        Setting
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+      <Dashboard />
       {addressUpdateType === "shipping" && (
         <ShippingAddressModal
           show={showModal}
@@ -756,7 +744,7 @@ export default function Checkout() {
                         <p>No products found in cart</p>
                         <p
                           className="nav-link text-green-900"
-                          onClick={() => navigate("/")}
+                          onClick={() => navigate("/products")}
                         >
                           {" "}
                           Click here to add items
@@ -897,7 +885,7 @@ export default function Checkout() {
                             )}
                             {paymentType?.name !== "Razor_Pay" && (
                               <img
-                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/stripe.png`}
+                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/stripe.webp`}
                                 className="ml-2"
                                 alt={`${paymentType?.name}`}
                               />
@@ -910,7 +898,7 @@ export default function Checkout() {
                     {activePaymentMethod === "Stripe" && (
                       <>
                         <Divider className="mt-2" />
-                        <Form >
+                        <Form>
                           <Form.Group>
                             <label className="font-bold !text-sm mt-3 m-0">
                               Card Number
@@ -924,7 +912,6 @@ export default function Checkout() {
                                 value={cardNumber}
                                 onChange={handleCardNumberChange}
                                 required
-                                
                               />
                               <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
                                 <FaCreditCard size={15} color="gray" />
@@ -1074,8 +1061,8 @@ export default function Checkout() {
                             Discount:
                           </p>
                           <p className="m-0 fs-14 text-danger w-75">
-                          {orderData?.order?.discount_type === "percentage"
-                              ?`₹ ${orderData?.order?.discount_amount} ( ${orderData?.order?.discount}%)`
+                            {orderData?.order?.discount_type === "percentage"
+                              ? `₹ ${orderData?.order?.discount_amount} ( ${orderData?.order?.discount}%)`
                               : "₹" + orderData?.order?.discount_amount}
                           </p>
                         </li>
@@ -1098,19 +1085,19 @@ export default function Checkout() {
                           privacy.
                         </span>
                       </div>
-                      {userData?.client?.payment_types?.length >0 && <button
-                        disabled={allProducts?.length > 0 ? false : true}
-                        className="btn btn-primary w-100"
-                        type="submit"
-                        onClick={() =>
-                          {
-                            if(activePaymentMethod === "Razor_Pay"){
+                      {userData?.client?.payment_types?.length > 0 && (
+                        <button
+                          disabled={allProducts?.length > 0 ? false : true}
+                          className="btn btn-primary w-100"
+                          type="submit"
+                          onClick={() => {
+                            if (activePaymentMethod === "Razor_Pay") {
                               createOrder(
                                 orderData?.order_id,
                                 orderData?.order?.total,
                                 orderData?.client_id
-                              )
-                            }else if(activePaymentMethod === "Stripe"){
+                              );
+                            } else if (activePaymentMethod === "Stripe") {
                               createOrderWithStripe(
                                 orderData?.order_id,
                                 orderData?.order?.total,
@@ -1120,24 +1107,28 @@ export default function Checkout() {
                                 orderData?.country,
                                 orderData?.pincode,
                                 orderData?.address_1
-                              )
+                              );
                             }
-                          }
-                        }
-                      >
-                        Proceed to Pay
-                      </button>}
-                      {userData?.client?.payment_types?.length == 0 && <button
-                        disabled={allProducts?.length > 0 ? false : true}
-                        className="btn btn-primary w-100"
-                        type="submit"
-                        
-                      >
-                        Online Payment Not Available
-                      </button>}
+                          }}
+                        >
+                          Proceed to Pay
+                        </button>
+                      )}
+                      {userData?.client?.payment_types?.length == 0 && (
+                        <button
+                          disabled={allProducts?.length > 0 ? false : true}
+                          className="btn btn-primary w-100"
+                          type="submit"
+                        >
+                          Online Payment Not Available
+                        </button>
+                      )}
                       {apiErr?.length > 0 &&
                         apiErr?.map((err, ind) => (
-                          <span key={ind} className="text-red-800 mt-2 font-semibold">
+                          <span
+                            key={ind}
+                            className="text-red-800 mt-2 font-semibold"
+                          >
                             {err}
                           </span>
                         ))}
@@ -1145,14 +1136,14 @@ export default function Checkout() {
                       <div className="flex  w-full mt-3">
                         <img
                           className="flex justify-start"
-                          src="/images/paymentMethods.jpg"
+                          src="/images/paymentMethods.webp"
                           alt="payment methods"
                           style={{ width: "45%" }}
                         ></img>
                         <div className="w-full flex justify-end">
                           <img
                             className=" "
-                            src="/images/stripe.png"
+                            src="/images/stripe.webp"
                             width={45}
                           ></img>
                         </div>
@@ -1191,7 +1182,7 @@ export default function Checkout() {
                           </div>
 
                           <div className="success-description">
-                          {paymentStatus === "success"
+                            {paymentStatus === "success"
                               ? `Thank you for your payment.`
                               : `There was some internal issue with the payment, please try again after some time`}
                           </div>
@@ -1199,11 +1190,22 @@ export default function Checkout() {
                           {paymentStatus === "success" ? (
                             <>
                               <div className="order-footer text-gray-700">
-                                {orderData?.payments?.length >0 && 
-                                <p>Your transaction ID : <b>{orderData?.payments[orderData?.payments?.length-1]?.transaction_id}</b></p>}
-                                {orderData?.payments?.length === 0 && 
-                                <p>Thank you</p>}
-                                
+                                {orderData?.payments?.length > 0 && (
+                                  <p>
+                                    Your transaction ID :{" "}
+                                    <b>
+                                      {
+                                        orderData?.payments[
+                                          orderData?.payments?.length - 1
+                                        ]?.transaction_id
+                                      }
+                                    </b>
+                                  </p>
+                                )}
+                                {orderData?.payments?.length === 0 && (
+                                  <p>Thank you</p>
+                                )}
+
                                 {/* <ConfettiExplosion
                                   zIndex={999}
                                   force={0.8}
@@ -1225,7 +1227,7 @@ export default function Checkout() {
                             <div className="order-footer">
                               <Button
                                 variant="contained"
-                                onClick={() => navigate("/")}
+                                onClick={() => navigate("/products")}
                                 type="button"
                                 className="!bg-[#009688] !border-[#009688] text-white w-[50%] p-2 mr-1 !rounded-none"
                               >
@@ -1296,7 +1298,7 @@ export default function Checkout() {
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
                   <a
-                    href={`${userLang}/contact`}
+                    href={`https://tradingmaterials.com/contact`}
                     className="btn btn-white fw-semiBold"
                   >
                     Contact Support
@@ -1306,8 +1308,8 @@ export default function Checkout() {
             </div>
           </div>
         </section>
-        <Footer />
       </div>
+      <Footer />
     </>
   );
 }

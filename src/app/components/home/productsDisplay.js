@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { filteredProductsByIds } from "../../../features/products/productsSlice";
+import { fetchAllProducts, filteredProductsByIds } from "../../../features/products/productsSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { loginUser, logoutUser } from "../../../features/login/loginSlice";
@@ -12,12 +12,12 @@ import {
   updateCartCount,
   updateWishListCount,
 } from "../../../features/cartWish/focusedCount";
-import GitHubForkRibbon from "react-github-fork-ribbon";
+// import GitHubForkRibbon from "react-github-fork-ribbon";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation, Autoplay } from "swiper/modules";
 import { useTranslation } from "react-i18next";
 import { FaRegHeart } from "react-icons/fa";
-import { Box, Skeleton } from "@mui/material";
+import { Box, Divider, Skeleton } from "@mui/material";
 import AddToFav from "../modals/addToFav";
 import CryptoJS from "crypto-js";
 
@@ -25,10 +25,12 @@ import CryptoJS from "crypto-js";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-
+import SessionExpired from "../modals/sessionExpired";
+import Dashboard from "../commonDashboard/Dashboard";
+import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
+import { Dropdown } from "react-bootstrap";
 
 export default function ProductsDisplay() {
-
   const { t } = useTranslation();
   const products = useSelector((state) => state?.products?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
@@ -57,10 +59,13 @@ export default function ProductsDisplay() {
   const [modalMessage, setModalMessage] = useState("");
   // eslint-disable-next-line no-unused-vars
   const [animateProductId, setAnimateProductId] = useState("");
+  const [filteredResult, setFilteredResult] = useState(false);
+  const [filteredBundleResult, setFilteredBundleResults] = useState(false);
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false);
   const [currentUserlang, setCurrentUserLang] = useState(
     localStorage.getItem("i18nextLng")
   );
-  
+
   const location = useLocation();
   const navigate = useNavigate();
   const positions = useSelector((state) => state?.position?.value);
@@ -71,19 +76,6 @@ export default function ProductsDisplay() {
   useEffect(() => {
     setCurrentUserLang(localStorage.getItem("i18nextLng"));
   }, [userLang]);
-
-  // useEffect(() => {
-  //   const incrementDate = () => {
-  //     const today = new Date();
-  //     const nextDate = moment(today).add(5, "days");
-  //     console.log(today.toISOString(), megaDealTime, "ttttt");
-
-  //     setMegaDealTime(nextDate);
-  //     // }
-  //   };
-
-  //   incrementDate();
-  // }, []);
 
   useEffect(() => {
     const hash = location.hash;
@@ -100,8 +92,8 @@ export default function ProductsDisplay() {
 
   const getUserInfo = async () => {
     try {
-      dispatch(showLoader())
-      setShowWishlistRemoveMsg(false)
+      dispatch(showLoader());
+      setShowWishlistRemoveMsg(false);
       const response = await axios.get(
         "https://admin.tradingmaterials.com/api/client/get-user-info",
         {
@@ -116,12 +108,15 @@ export default function ProductsDisplay() {
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
         dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
-        dispatch(updateWishListCount(response?.data?.data?.client?.wishlist_count));
+        dispatch(
+          updateWishListCount(response?.data?.data?.client?.wishlist_count)
+        );
       } else {
         console.log(response?.data);
 
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
+        // setShowSessionExpiry(true)
       }
     } catch (err) {
       console.log(err);
@@ -158,13 +153,19 @@ export default function ProductsDisplay() {
     setFilteredProducts({ ...productsFilter });
     setFilteredSubcatproducts({ ...productsFilter });
     setAllProducts(products?.products);
+    setFilteredResult(false);
     if (localStorage?.getItem("client_token")) {
       dispatch(loginUser());
     } else {
       dispatch(logoutUser());
     }
     setShowPlaceHolderLoader(false);
+    
   }, [products]);
+
+  useEffect(() => {
+    fetchProducts()
+  },[])
 
   //useEffect for filtering products from the header (global scope)
   useEffect(() => {
@@ -205,9 +206,38 @@ export default function ProductsDisplay() {
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
 
+  // sorting products based on prices
+    const fetchProducts = async () => {
+      // Fetch the data from the API.
+      try {
+        const response = await axios.get(
+          "https://admin.tradingmaterials.com/api/get/products",
+          {
+            headers: {
+              "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+              Accept: "application/json",
+              "access-token": localStorage.getItem("client_token"),
+            },
+          }
+        );
+        response.data.data.products.sort((a, b) => {
+          // Convert prices to numbers and compare them
+          const priceA = a.prices[0].INR;
+          const priceB = b.prices[0].INR;
+          return parseInt(priceA) - parseInt(priceB);
+        });
+
+        dispatch(fetchAllProducts(response.data.data));
+        return response.data.data;
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
   // function for filtering single products
   function addFilterProducts(subCategoryName, subCategoryId) {
     setStockCount("inStock");
+    setFilteredResult(true);
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId, subCategoryIds, subId);
     const subIDs = [...subCategoryIds];
@@ -276,6 +306,7 @@ export default function ProductsDisplay() {
         filterProducts[key] = key === "all" ? true : false;
       });
       setSubCategoryIds([]);
+      setFilteredResult(false);
       setAllProducts(products?.products);
     }
     console.log(filterProducts);
@@ -286,6 +317,8 @@ export default function ProductsDisplay() {
   // filtering buldle products
   function filtersubcatProducts(subCategoryName, subCategoryId) {
     setStockCount("inStock");
+    setFilteredBundleResults(true);
+    setFilteredResult(false);
     setShowPlaceHolderLoader(true);
     console.log(subCategoryName, subCategoryId);
     const subIDs = [...bundleSubCategoryIDs];
@@ -330,6 +363,7 @@ export default function ProductsDisplay() {
     // checks if all the filter options are false
     if (Object.values(filterProducts).every((value) => value === false)) {
       filterProducts["all"] = true;
+      setFilteredBundleResults(false);
       setBundleSubCategoryIds([]);
       setSubCatProducts(products?.products);
     } else if (filterProducts["all"]) {
@@ -347,13 +381,14 @@ export default function ProductsDisplay() {
       keys.forEach((key) => {
         filterProducts[key] = key === "all" ? true : false;
       });
+      setFilteredBundleResults(false);
       setBundleSubCategoryIds([]);
       setSubCatProducts(products?.products);
 
       // const allProducts = products
     }
     setFilteredSubcatproducts({ ...filterProducts });
-    navigate(`${userLang}/#trading_bundles`);
+    navigate(`${userLang}/products/#trading_bundles`);
     setShowPlaceHolderLoader(false);
   }
 
@@ -376,17 +411,25 @@ export default function ProductsDisplay() {
     const res =
       currentActiveCheckbox === "inStock"
         ? completeProducts?.filter((product) => product?.stock?.stock > 0)
-        : completeProducts?.filter((product) => product?.stock?.stock === 0);
-    const result =
+        : completeProducts?.filter((product) => product?.stock?.stock == "0");
+    // const result =
+    //   currentActiveCheckbox === "inStock"
+    //     ? outOfStockBundleProducts?.filter(
+    //         (product) => product?.combo == 1 && product?.product_count > 0
+    //       )
+    //     : outOfStockBundleProducts?.filter(
+    //         (product) => product?.combo == 1
+    //       );
+    setAllProducts(res);
+    const bundleRes =
       currentActiveCheckbox === "inStock"
         ? outOfStockBundleProducts?.filter(
-            (product) => product?.stock?.stock > 0
+            (product) => product?.stock?.stock != "0" && product?.combo == "1"
           )
         : outOfStockBundleProducts?.filter(
-            (product) => product?.stock?.stock === 0
+            (product) => product?.stock?.stock == "0" && product?.combo == "1"
           );
-    setAllProducts(res);
-    setSubCatProducts(result);
+    setSubCatProducts(bundleRes);
 
     console.log(res);
   }
@@ -413,6 +456,7 @@ export default function ProductsDisplay() {
         setIsNoProducts(false);
       }
       setShowPlaceHolderLoader(false);
+      navigate("#search_results");
     }, 500);
   }
 
@@ -448,7 +492,7 @@ export default function ProductsDisplay() {
 
   async function handleAddToWishList(id, productImg) {
     console.log(id);
-    setShowWishlistRemoveMsg(false)
+    setShowWishlistRemoveMsg(false);
     try {
       dispatch(showLoader());
       const response = await axios.post(
@@ -473,6 +517,11 @@ export default function ProductsDisplay() {
       }
     } catch (err) {
       console.log(err);
+      if (err?.response?.data?.message?.includes("Token")) {
+        localStorage.removeItem("client_token");
+        dispatch(logoutUser());
+        setShowSessionExpiry(true);
+      }
     } finally {
       dispatch(hideLoader());
     }
@@ -504,22 +553,31 @@ export default function ProductsDisplay() {
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
         getUserInfo(productId);
-        if(userData?.client?.wishlist?.length >0){
-          const ids = userData?.client?.wishlist?.map(item =>item?.product_id)
-          const isPresent = ids?.includes(productId)
-          console.log(isPresent,ids,productId,"prest")
-          if(isPresent){
-            dispatch(updateWishListCount(userData?.client?.wishlist?.length -1))
-            setShowWishlistRemoveMsg(true)
-          }else{
-            setShowWishlistRemoveMsg(false)
+        if (userData?.client?.wishlist?.length > 0) {
+          const ids = userData?.client?.wishlist?.map(
+            (item) => item?.product_id
+          );
+          const isPresent = ids?.includes(productId);
+          console.log(isPresent, ids, productId, "prest");
+          if (isPresent) {
+            dispatch(
+              updateWishListCount(userData?.client?.wishlist?.length - 1)
+            );
+            setShowWishlistRemoveMsg(true);
+          } else {
+            setShowWishlistRemoveMsg(false);
           }
         }
       }
     } catch (err) {
+      if (err?.response?.data?.message?.includes("Token")) {
+        localStorage.removeItem("client_token");
+        dispatch(logoutUser());
+        setShowSessionExpiry(true);
+      }
       console.log(err);
-    }finally{
-      dispatch(hideLoader())
+    } finally {
+      dispatch(hideLoader());
     }
   }
 
@@ -544,60 +602,28 @@ export default function ProductsDisplay() {
     setAddedToFavImg("");
   };
 
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/login");
+  }
+
+  // const handleChange = (event) => {
+  //   handleSortingProducts(event.target.value);
+  // };
+
   return (
     <>
+      <SessionExpired
+        open={showSessionExppiry}
+        handleClose={handleSessionExpiryClose}
+      />
+
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
         </div>
       )}
-      {isLoggedIn && <section className="pt-100">
-          <div className="container">
-            <div className="row flex items-center">
-              <div className="col-lg-12 sbreadcrumb">
-                <div className="row flex items-center">
-                  <div className="col-lg-6 lcard text-left">
-                    <div className="flex  items-center gap-3 mb-3">
-                    {userData?.client?.profile?.profile_image?.length > 0 ? (
-                      <img src={userData?.client?.profile?.profile_image} alt="profile-pic" />
-                    ) : (
-                      <img src="/images/blueProfile.png" alt="profile-pic" />
-                    )}
-                      <div>
-                        <span>
-                        <strong>{userData?.client?.first_name} {userData?.client?.last_name}</strong>
-                      </span>
-                      <div>
-                      <span className="s-color"> {userData?.client?.email}</span>
-                      </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 rcard">
-                    <div className="">
-                      <button
-                        type="button"
-                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
-                        name="button"
-                      >
-                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
-                        Message
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
-                        name="button"
-                      >
-                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
-                        Setting
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>}
+      {isLoggedIn && <Dashboard />}
       {addedToFavImg !== "" && (
         <AddToFav
           showModal={showModal}
@@ -608,43 +634,8 @@ export default function ProductsDisplay() {
         />
       )}
       {}
-      <div className="nk-pages">
-        {/* <section className="nk-banner nk-banner-shop">
-          <div className="container">
-            <div className="nk-banner-wrap">
-              <div className="nk-banner-content position-relative">
-                <div className="row align-items-center justify-content-around">
-                  <div className="col-xl-5">
-                    <div className="nk-frame text-center mb-7 mb-xl-0">
-                      <img
-                        src="/images/shop/banner-cover.png"
-                        alt="banner-cover"
-                        // data-aos="zoom-in"
-                        loading="lazy"
-                        rel="preload"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-xl-6">
-                    <div className="text-center text-xl-start">
-                      <div className="mb-5">
-                        <h1 className="text-capitalize display-6 mb-2 !font-bold">
-                          {t("Mega_Deal")}
-                        </h1>
-                        <p className="m-0 text-gray-800">
-                          {" "}
-                          {t("Mega_Deal_desc")}{" "}
-                        </p>
-                      </div>
-                      <Countdown targetDate={megaDealTime} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section> */}
-        <section className="nk-section nk-section-products" id="products">
+      <div className={`nk-pages ${isLoggedIn ? "" : "mt-8"}`}>
+        <section className="nk-section nk-section-products">
           <div className="container">
             <div className="nk-section-content">
               <div className="row">
@@ -662,7 +653,6 @@ export default function ProductsDisplay() {
                               name="search"
                               className="form-control  !py-2 !ps-10 border"
                               placeholder={t("product_search")}
-                              required
                               onChange={handlesearchProducts}
                             />
                           </div>
@@ -676,18 +666,28 @@ export default function ProductsDisplay() {
                         </h6>
                         <ul className="d-flex gy-4 flex-column !text-left">
                           <li>
-                            <div className="form-check d-flex align-items-center">
+                            <div className="form-check d-flex align-items-center cursor-pointer">
                               <input
                                 className="form-check-input"
                                 type="checkbox"
                                 name="category"
                                 id="all-category"
-                                onChange={() => addFilterProducts("all", 0)}
+                                onChange={() =>
+                                  addFilterProducts("all", 0, false)
+                                }
                                 checked={filteredProducts["all"]}
                               />
-                              <div className="d-flex w-100 align-items-center justify-content-between">
+                              <div
+                                className="d-flex w-100 align-items-center justify-content-between cursor-pointer"
+                                onClick={() =>
+                                  addFilterProducts("all", 0, false)
+                                }
+                              >
                                 <label
-                                  className="form-check-label fs-14 text-gray-1200"
+                                  className="form-check-label fs-14 text-gray-1200 cursor-pointer"
+                                  onClick={() =>
+                                    addFilterProducts("all", 0, false)
+                                  }
                                   htmlFor="all-category"
                                 >
                                   All Trading Materials
@@ -711,14 +711,22 @@ export default function ProductsDisplay() {
                                       onClick={() =>
                                         addFilterProducts(
                                           product?.name,
-                                          product?.id
+                                          product?.id,
+                                          false
                                         )
                                       }
                                       checked={filteredProducts[product?.name]}
                                     />
                                     <div className="d-flex w-100 align-items-center justify-content-between">
                                       <label
-                                        className="form-check-label fs-14 text-gray-1200"
+                                        className="form-check-label fs-14 text-gray-1200 cursor-pointer"
+                                        onClick={() =>
+                                          addFilterProducts(
+                                            product?.name,
+                                            product?.id,
+                                            false
+                                          )
+                                        }
                                         // for="tablet"
                                       >
                                         {product?.name}
@@ -740,7 +748,10 @@ export default function ProductsDisplay() {
                         </h6>
                         <ul className="d-flex gy-4 flex-column">
                           <li>
-                            <div className="form-check d-flex align-items-center">
+                            <div
+                              className="form-check d-flex align-items-center cursor-pointer"
+                              onClick={() => filtersubcatProducts("all", 0)}
+                            >
                               <input
                                 className="form-check-input"
                                 type="checkbox"
@@ -749,21 +760,29 @@ export default function ProductsDisplay() {
                                 onChange={() => filtersubcatProducts("all", 0)}
                                 checked={filteredSubcatProducts["all"]}
                               />
-                              <label
-                                className="form-check-label fs-14 text-gray-1200"
-                                // for="themenio"
-                                onClick={() => filteredSubcatProducts["all"]}
+                              <div
+                                className="d-flex w-100 align-items-center justify-content-between"
+                                onClick={() => filtersubcatProducts("all", 0)}
                               >
-                                {" "}
-                                All Trading Materials Pack on Shop{" "}
-                              </label>
+                                <label
+                                  className="form-check-label fs-14 text-gray-1200 cursor-pointer"
+                                  // for="themenio"
+                                  onClick={() => filteredSubcatProducts["all"]}
+                                >
+                                  {" "}
+                                  All Trading Materials Pack on Shop{" "}
+                                </label>
+                                <span className="fs-14 text-gray-1200">
+                                  {bundleProductCount}
+                                </span>
+                              </div>
                             </div>
                           </li>
                           {products?.sub_categories?.map((product, ind) => (
                             <>
                               {product?.combo == 1 && (
                                 <li id="bundles" key={`combo-${ind}`}>
-                                  <div className="form-check d-flex align-items-center">
+                                  <div className="form-check d-flex align-items-center cursor-pointer">
                                     <input
                                       className="form-check-input"
                                       type="checkbox"
@@ -779,9 +798,17 @@ export default function ProductsDisplay() {
                                         filteredSubcatProducts[product?.name]
                                       }
                                     />
-                                    <div className="d-flex w-100 align-items-center justify-content-between cursor-pointer">
+                                    <div
+                                      className="d-flex w-100 align-items-center justify-content-between "
+                                      onClick={() => {
+                                        filtersubcatProducts(
+                                          product?.name,
+                                          product?.id
+                                        );
+                                      }}
+                                    >
                                       <label
-                                        className="form-check-label fs-14 text-gray-1200"
+                                        className="form-check-label fs-14 text-gray-1200 cursor-pointer"
                                         // for="tablet"
                                       >
                                         {product?.name}
@@ -809,14 +836,14 @@ export default function ProductsDisplay() {
                                 type="checkbox"
                                 name="stock"
                                 id="in-stock"
-                                onChange={filterstockProducts}
+                                onChange={() => filterstockProducts("inStock")}
                                 checked={
                                   stockCount === "inStock" ? true : false
                                 }
                               />
                               <div className="d-flex w-100 align-items-center justify-content-between">
                                 <label
-                                  className="form-check-label fs-14 text-gray-1200"
+                                  className="form-check-label fs-14 text-gray-1200 cursor-pointer"
                                   htmlFor="in-stock"
                                 >
                                   In Stock
@@ -834,14 +861,14 @@ export default function ProductsDisplay() {
                                 type="checkbox"
                                 name="stock"
                                 id="out-stock"
-                                onChange={filterstockProducts}
+                                onChange={() => filterstockProducts("outStock")}
                                 checked={
                                   stockCount === "outStock" ? true : false
                                 }
                               />
-                              <div className="d-flex w-100 align-items-center justify-content-between">
+                              <div className="d-flex w-100 align-items-center justify-content-between ">
                                 <label
-                                  className="form-check-label fs-14 text-gray-1200"
+                                  className="form-check-label fs-14 text-gray-1200 cursor-pointer"
                                   htmlFor="out-stock"
                                 >
                                   Out Of Stock
@@ -857,10 +884,16 @@ export default function ProductsDisplay() {
                     </div>
                   </div>
                 </div>
-                <div className="col-lg-9">
-                  <div className="nk-section-content-products">
+                <Divider className="my-2 md:hidden" />
+                <div className="col-lg-9" id="search_results">
+                  <div className="nk-section-content-products" id="products">
                     <div className="row justify-content-between align-items-center pb-5">
                       <div className="col-sm-6">
+                        {!isSearchResult && (
+                          <p className="text-left text-xl font-semibold text-black">
+                            Our Products
+                          </p>
+                        )}
                         {isSearchResult && (
                           <h6 className="fs-16 fw-normal !text-left">
                             Showing {resultsCount} results
@@ -868,91 +901,44 @@ export default function ProductsDisplay() {
                         )}
                       </div>
                       <div className="col-sm-4 col-md-3 col-xl-2">
-                        <div className="nk-dropdown py-1 ps-2 pe-1 border rounded">
-                          <input
-                            type="checkbox"
-                            className="nk-dropdown-field"
-                            id="nk-sorting"
-                            hidden
-                          />
-                          <label
-                            htmlFor="nk-sorting"
-                            className="nk-dropdown-menu"
-                          >
-                            <ul
-                              className="nk-dropdown-filter"
-                              role="listbox"
-                              tabIndex="-1"
+                        <div className="nk-dropdown py-1 ps-2 pe-1">
+                          <Dropdown className="border rounded-sm">
+                            <Dropdown.Toggle
+                              variant="outline"
+                              className="w-full text-start flex"
+                              // displayEmpty
+                              defaultValue={sorting}
                             >
-                              <li
-                                className="nk-dropdown-filter-selected"
-                                aria-selected="true"
+                              {sorting}
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu>
+                              <Dropdown.Item
+                                value={"Popular"}
+                                onClick={() => handleSortingProducts("Popular")}
                               >
-                                <span className="fs-14 text-gray-1200">
-                                  {sorting}
-                                </span>
-                              </li>
-                              <li>
-                                <ul className="nk-dropdown-select">
-                                  <li
-                                    className="nk-dropdown-select-option py-2"
-                                    role="option"
-                                    onClick={() => {
-                                      handleSortingProducts("Popular");
-                                    }}
-                                  >
-                                    <span
-                                      className="fs-14 text-gray-1200"
-                                      onClick={() => {
-                                        handleSortingProducts("Popular");
-                                      }}
-                                    >
-                                      Popular
-                                    </span>
-                                  </li>
-                                  <li
-                                    className="nk-dropdown-select-option py-2"
-                                    role="option"
-                                    onClick={() => {
-                                      handleSortingProducts("Newest");
-                                    }}
-                                  >
-                                    <span
-                                      className="fs-14 text-gray-1200"
-                                      onClick={() => {
-                                        handleSortingProducts("Newest");
-                                      }}
-                                    >
-                                      Newest
-                                    </span>
-                                  </li>
-                                  <li
-                                    className="nk-dropdown-select-option py-2"
-                                    role="option"
-                                    onClick={() => {
-                                      handleSortingProducts("Oldest");
-                                    }}
-                                  >
-                                    <span
-                                      className="fs-14 text-gray-1200"
-                                      onClick={() => {
-                                        handleSortingProducts("Oldest");
-                                      }}
-                                    >
-                                      Oldest
-                                    </span>
-                                  </li>
-                                </ul>
-                              </li>
-                            </ul>
-                          </label>
+                                Popular
+                              </Dropdown.Item>
+                              <Dropdown.Item
+                                value={"Newest"}
+                                onClick={() => handleSortingProducts("Newest")}
+                              >
+                                Newest
+                              </Dropdown.Item>
+                              <Dropdown.Item
+                                value={"Oldest"}
+                                onClick={() => handleSortingProducts("Oldest")}
+                              >
+                                Oldest
+                              </Dropdown.Item>
+                            </Dropdown.Menu>
+                          </Dropdown>
                         </div>
                       </div>
                     </div>
                     {isNoProducts ||
-                      (!allProducts?.length && (
+                      (!products?.products?.length && (
                         <>
-                          <div className="row gy-5">
+                          <div className="row gy-5 " data-aos-delay="0">
                             <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
                               <Box sx={{ pt: 0.5 }}>
                                 <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
@@ -1054,7 +1040,6 @@ export default function ProductsDisplay() {
                                     className="!w-full !h-[250px] sm:!h-[300px] "
                                     width="100%"
                                   />
-                                  {/* <Skeleton animation="wave" /> */}
                                   <Skeleton
                                     animation="wave"
                                     width="80%"
@@ -1095,6 +1080,148 @@ export default function ProductsDisplay() {
                         </>
                       ))}
                     <div className="row gy-5">
+                      {loaderState && isNoProducts && (
+                        <>
+                          <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                            <Box sx={{ pt: 0.5 }}>
+                              <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                <Skeleton
+                                  animation="wave"
+                                  variant="rectangular"
+                                  className="!w-full !h-[250px] sm:!h-[300px] "
+                                  width="100%"
+                                />
+                                {/* <Skeleton animation="wave" /> */}
+                                <Skeleton
+                                  animation="wave"
+                                  width="80%"
+                                  className="!mt-[2.5vh]"
+                                />
+                                <div className="flex !mt-[2.5vh]">
+                                  <Skeleton
+                                    animation="wave"
+                                    width="30%"
+                                    className="mr-3"
+                                  />
+                                  <Skeleton animation="wave" width="20%" />
+                                </div>
+                                <div className="flex mt-2 mb-2  !w-full">
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <div className="flex !justify-end !w-full">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="20%"
+                                      className="mr-2 ml-4"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                </div>
+                              </div>
+                            </Box>
+                          </div>
+                          <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                            <Box sx={{ pt: 0.5 }}>
+                              <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                <Skeleton
+                                  animation="wave"
+                                  variant="rectangular"
+                                  className="!w-full !h-[250px] sm:!h-[300px] "
+                                  width="100%"
+                                />
+                                {/* <Skeleton animation="wave" /> */}
+                                <Skeleton
+                                  animation="wave"
+                                  width="80%"
+                                  className="!mt-[2.5vh]"
+                                />
+                                <div className="flex !mt-[2.5vh]">
+                                  <Skeleton
+                                    animation="wave"
+                                    width="30%"
+                                    className="mr-3"
+                                  />
+                                  <Skeleton animation="wave" width="20%" />
+                                </div>
+                                <div className="flex mt-2 mb-2  !w-full">
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <div className="flex !justify-end !w-full">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="20%"
+                                      className="mr-2 ml-4"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                </div>
+                              </div>
+                            </Box>
+                          </div>
+                          <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                            <Box sx={{ pt: 0.5 }}>
+                              <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                <Skeleton
+                                  animation="wave"
+                                  variant="rectangular"
+                                  className="!w-full !h-[250px] sm:!h-[300px] "
+                                  width="100%"
+                                />
+                                {/* <Skeleton animation="wave" /> */}
+                                <Skeleton
+                                  animation="wave"
+                                  width="80%"
+                                  className="!mt-[2.5vh]"
+                                />
+                                <div className="flex !mt-[2.5vh]">
+                                  <Skeleton
+                                    animation="wave"
+                                    width="30%"
+                                    className="mr-3"
+                                  />
+                                  <Skeleton animation="wave" width="20%" />
+                                </div>
+                                <div className="flex mt-2 mb-2  !w-full">
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <Skeleton
+                                    className="mr-2"
+                                    animation="wave"
+                                    width="50%"
+                                  />
+                                  <div className="flex !justify-end !w-full">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="20%"
+                                      className="mr-2 ml-4"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                </div>
+                              </div>
+                            </Box>
+                          </div>
+                        </>
+                      )}
                       {isNoProducts ||
                         (allProducts?.length === 0 && (
                           <p className="font-bold">No products to Display</p>
@@ -1103,23 +1230,23 @@ export default function ProductsDisplay() {
                         <p className="font-bold">No products to Display</p>
                       )}
                       {!isNoProducts &&
-                        // eslint-disable-next-line array-callback-return
-                        allProducts?.map((product, ind) => {
+                        allProducts?.map((product) => {
                           if (
-                            product?.combo === 0 ||
+                            (product?.combo == 0 &&
+                              (product?.stock?.stock != "0" ||
+                                filteredResult ||
+                                stockCount == "outStock")) ||
                             // product?.combo === 1 ||
                             isSearchResult
                           ) {
                             return (
                               <>
                                 {/* placeholder laoder */}
-                                {showPlaceHolderLoader === true && (
-                                  <div
-                                    key={ind}
-                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
-                                  >
+                                {(showPlaceHolderLoader === true ||
+                                  showLoader === true) && (
+                                  <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
                                     <Box sx={{ pt: 0.5 }}>
-                                      <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                      <div className="nk-card overflow-hidden rounded-3 h-100 border text-left ">
                                         <Skeleton
                                           animation="wave"
                                           variant="rectangular"
@@ -1172,11 +1299,13 @@ export default function ProductsDisplay() {
                                 )}
                                 {showPlaceHolderLoader === false && (
                                   <div
-                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px] group hover:drop-shadow-xl"
+                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px] group hover:drop-shadow-lg"
                                     id={`img-${product?.id}`}
                                   >
-                                    <div className="nk-card overflow-hidden rounded-3 h-100 border text-left ">
-                                      <div className="nk-card-img relative">
+                                    <div className="nk-card overflow-hidden rounded-3  border text-left ">
+                                      <div
+                                        className={`nk-card-img border rounded-md p-3   relative`}
+                                      >
                                         <a
                                           href={`${userLang}/product-detail/${
                                             product?.slug
@@ -1191,22 +1320,11 @@ export default function ProductsDisplay() {
                                           <img
                                             src={product?.img_1}
                                             alt="product-image"
-                                            className="sm:!h-[300px] !w-full group-hover:scale-105 transition duration-500"
-                                            loading="lazy"
+                                            className=" !w-full group-hover:scale-105 transition duration-500 rounded-md backdrop-blur-xl bg-white/10"
                                           />
-                                          {product?.stock?.stock < 10 && (
-                                            <GitHubForkRibbon
-                                              className="drop-shadow-xl subpixel-antialiased"
-                                              color="orange"
-                                              position="left"
-                                            >
-                                              Only {product?.stock?.stock} left
-                                              !!
-                                            </GitHubForkRibbon>
-                                          )}
                                         </a>
                                       </div>
-                                      <div className="nk-card-info bg-white p-4">
+                                      <div className="nk-card-info bg-white p-4 pt-1">
                                         <a
                                           href={`${userLang}/product-detail/${
                                             product?.slug
@@ -1217,16 +1335,16 @@ export default function ProductsDisplay() {
                                             ?.toString()
                                             .replace(/\//g, "_")
                                             .replace(/\+/g, "-")}`}
-                                          className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                          className="d-inline-block text-black !text-sm antialiased"
                                           style={{
                                             textOverflow: "ellipsis",
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
-                                            width: "90%",
+                                            width: "95%",
                                           }}
                                         >
                                           {product?.name}
-                                          <br />
+                                          {/* <br />
                                           <span className="text-xs !mt-1">
                                             <p
                                               onClick={() => {
@@ -1255,9 +1373,9 @@ export default function ProductsDisplay() {
                                                     : product?.description,
                                               }}
                                             />
-                                          </span>
+                                          </span> */}
                                         </a>
-                                        <div className="d-flex align-items-center mb-2 gap-1">
+                                        <div className="d-flex align-items-center gap-1">
                                           {ratingStars(product?.rating)}
 
                                           <span className="fs-14 text-gray-800">
@@ -1267,252 +1385,99 @@ export default function ProductsDisplay() {
                                             } Reviews){" "}
                                           </span>
                                         </div>
-                                        <div className="d-flex align-items-center justify-content-start">
-                                          {product?.prices?.map(
-                                            (price, ind) => (
-                                              <>
-                                                {currentUserlang === "en" &&
-                                                  price?.INR && (
-                                                    <p
-                                                      key={ind}
-                                                      className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
-                                                    >
-                                                      {currentUserlang === "en"
-                                                        ? price?.INR && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              ₹
-                                                            </sub>
-                                                          )
-                                                        : price?.USD && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              $
-                                                            </sub>
-                                                          )}
+                                        <div className="d-flex align-items-center justify-content-start mb-2 ">
+                                          {product?.prices?.map((price) => (
+                                            <>
+                                              {currentUserlang === "en" &&
+                                                price?.INR && (
+                                                  <p
+                                                    className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                                  >
+                                                    {currentUserlang === "en"
+                                                      ? price?.INR && (
+                                                          <sub
+                                                            style={{
+                                                              verticalAlign:
+                                                                "super",
+                                                            }}
+                                                          >
+                                                            ₹
+                                                          </sub>
+                                                        )
+                                                      : price?.USD && (
+                                                          <sub
+                                                            style={{
+                                                              verticalAlign:
+                                                                "super",
+                                                            }}
+                                                          >
+                                                            $
+                                                          </sub>
+                                                        )}
 
-                                                      {currentUserlang === "en"
-                                                        ? price?.INR && (
-                                                            <>
-                                                              {
-                                                                (
-                                                                  Number.parseFloat(
-                                                                    price?.INR
-                                                                  )?.toFixed(
-                                                                    2
-                                                                  ) + ""
-                                                                )?.split(".")[0]
-                                                              }
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[1]
-                                                                }
-                                                              </sub>
-                                                            </>
-                                                          )
-                                                        : price?.USD &&
-                                                          `${Number.parseFloat(
-                                                            price?.USD
-                                                          )}`}
+                                                    {currentUserlang === "en"
+                                                      ? price?.INR && (
+                                                          <>
+                                                            {
+                                                              (
+                                                                Number.parseFloat(
+                                                                  price?.INR
+                                                                )?.toFixed(2) +
+                                                                ""
+                                                              )?.split(".")[0]
+                                                            }
+                                                            .
+                                                            {
+                                                              (
+                                                                Number.parseFloat(
+                                                                  price?.INR
+                                                                )?.toFixed(2) +
+                                                                ""
+                                                              )?.split(".")[1]
+                                                            }
+                                                          </>
+                                                        )
+                                                      : price?.USD &&
+                                                        `${Number.parseFloat(
+                                                          price?.USD
+                                                        )}`}
 
-                                                      {currentUserlang ===
-                                                        "en" &&
-                                                      product?.discount > 0
-                                                        ? price?.INR &&
-                                                          product?.discount >
-                                                            0 && (
-                                                            <>
-                                                              <del className="text-gray-800 !ml-2">
-                                                                {currentUserlang ===
-                                                                "en"
-                                                                  ? price?.INR && (
-                                                                      <sub
-                                                                        style={{
-                                                                          verticalAlign:
-                                                                            "super",
-                                                                        }}
-                                                                      >
-                                                                        ₹
-                                                                      </sub>
-                                                                    )
-                                                                  : price?.USD && (
-                                                                      <sub
-                                                                        style={{
-                                                                          verticalAlign:
-                                                                            "super",
-                                                                        }}
-                                                                      >
-                                                                        $
-                                                                      </sub>
-                                                                    )}
-                                                                {
-                                                                  (
-                                                                    parseFloat(
-                                                                      price?.INR *
-                                                                        (100 /
-                                                                          (100 -
-                                                                            product?.discount))
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
+                                                    {currentUserlang === "en" &&
+                                                    product?.discount > 0
+                                                      ? price?.INR &&
+                                                        product?.discount >
+                                                          0 && (
+                                                          <>
+                                                            <del className="text-gray-800 !ml-2">
+                                                              {currentUserlang ===
+                                                              "en"
+                                                                ? price?.INR && (
+                                                                    <sub
+                                                                      style={{
+                                                                        verticalAlign:
+                                                                          "super",
+                                                                      }}
+                                                                    >
+                                                                      ₹
+                                                                    </sub>
                                                                   )
-                                                                    .toString()
-                                                                    .split(
-                                                                      "."
-                                                                    )[0]
-                                                                }
-                                                                <sub
-                                                                  style={{
-                                                                    verticalAlign:
-                                                                      "super",
-                                                                  }}
-                                                                >
-                                                                  {
-                                                                    (
-                                                                      parseFloat(
-                                                                        price?.INR *
-                                                                          (100 /
-                                                                            (100 -
-                                                                              product?.discount))
-                                                                      )?.toFixed(
-                                                                        2
-                                                                      ) + ""
-                                                                    )
-                                                                      .toString()
-                                                                      .split(
-                                                                        "."
-                                                                      )[1]
-                                                                  }
-                                                                </sub>
-                                                              </del>
-                                                            </>
-                                                          )
-                                                        : price?.USD &&
-                                                          product?.discount >
-                                                            0 && (
-                                                            <>
-                                                              <del className="text-gray-800 block !ml-2">
-                                                                {currentUserlang ===
-                                                                "en"
-                                                                  ? price?.INR && (
-                                                                      <sub
-                                                                        style={{
-                                                                          verticalAlign:
-                                                                            "super",
-                                                                        }}
-                                                                      >
-                                                                        ₹
-                                                                      </sub>
-                                                                    )
-                                                                  : price?.USD && (
-                                                                      <sub
-                                                                        style={{
-                                                                          verticalAlign:
-                                                                            "super",
-                                                                        }}
-                                                                      >
-                                                                        $
-                                                                      </sub>
-                                                                    )}
-                                                                {
-                                                                  (
-                                                                    parseFloat(
-                                                                      price?.USD *
-                                                                        (100 /
-                                                                          (100 -
-                                                                            product?.discount))
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )
-                                                                    .toString()
-                                                                    .split(
-                                                                      "."
-                                                                    )[0]
-                                                                }
-                                                                <sub
-                                                                  style={{
-                                                                    verticalAlign:
-                                                                      "super",
-                                                                  }}
-                                                                >
-                                                                  {
-                                                                    (
-                                                                      parseFloat(
-                                                                        price?.USD *
-                                                                          (100 /
-                                                                            (100 -
-                                                                              product?.discount))
-                                                                      )?.toFixed(
-                                                                        2
-                                                                      ) + ""
-                                                                    )
-                                                                      .toString()
-                                                                      .split(
-                                                                        "."
-                                                                      )[1]
-                                                                  }
-                                                                </sub>
-                                                              </del>
-                                                            </>
-                                                          )}
-                                                    </p>
-                                                  )}
-                                                {currentUserlang !== "en" &&
-                                                  price?.USD && (
-                                                    <p
-                                                      className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
-                                                    >
-                                                      {currentUserlang === "en"
-                                                        ? price?.INR && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              ₹
-                                                            </sub>
-                                                          )
-                                                        : price?.USD && (
-                                                            <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            >
-                                                              $
-                                                            </sub>
-                                                          )}
-
-                                                      {currentUserlang === "en"
-                                                        ? price?.INR && (
-                                                            <>
+                                                                : price?.USD && (
+                                                                    <sub
+                                                                      style={{
+                                                                        verticalAlign:
+                                                                          "super",
+                                                                      }}
+                                                                    >
+                                                                      $
+                                                                    </sub>
+                                                                  )}
                                                               {
                                                                 (
                                                                   parseFloat(
-                                                                    price?.INR
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
                                                                   )?.toFixed(
                                                                     2
                                                                   ) + ""
@@ -1520,34 +1485,58 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                {
-                                                                  (
-                                                                    parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )
-                                                                    .toString()
-                                                                    .split(
-                                                                      "."
-                                                                    )[1]
-                                                                }
-                                                              </sub>
-                                                            </>
-                                                          )
-                                                        : price?.USD && (
-                                                            <>
+                                                              .
                                                               {
                                                                 (
                                                                   parseFloat(
-                                                                    price?.USD
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[1]
+                                                              }
+                                                            </del>
+                                                          </>
+                                                        )
+                                                      : price?.USD &&
+                                                        product?.discount >
+                                                          0 && (
+                                                          <>
+                                                            <del className="text-gray-800 block !ml-2">
+                                                              {currentUserlang ===
+                                                              "en"
+                                                                ? price?.INR && (
+                                                                    <sub
+                                                                      style={{
+                                                                        verticalAlign:
+                                                                          "super",
+                                                                      }}
+                                                                    >
+                                                                      ₹
+                                                                    </sub>
+                                                                  )
+                                                                : price?.USD && (
+                                                                    <sub
+                                                                      style={{
+                                                                        verticalAlign:
+                                                                          "super",
+                                                                      }}
+                                                                    >
+                                                                      $
+                                                                    </sub>
+                                                                  )}
+                                                              {
+                                                                (
+                                                                  parseFloat(
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
                                                                   )?.toFixed(
                                                                     2
                                                                   ) + ""
@@ -1555,175 +1544,243 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                              <sub
+                                                              .
+                                                              {
+                                                                (
+                                                                  parseFloat(
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[1]
+                                                              }
+                                                            </del>
+                                                          </>
+                                                        )}
+                                                  </p>
+                                                )}
+                                              {currentUserlang !== "en" &&
+                                                price?.USD && (
+                                                  <p
+                                                    className={`fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2  !w-full`}
+                                                  >
+                                                    {currentUserlang === "en"
+                                                      ? price?.INR && (
+                                                          <sub
+                                                            style={{
+                                                              verticalAlign:
+                                                                "super",
+                                                            }}
+                                                          >
+                                                            ₹
+                                                          </sub>
+                                                        )
+                                                      : price?.USD && (
+                                                          <sub
+                                                            style={{
+                                                              verticalAlign:
+                                                                "super",
+                                                            }}
+                                                          >
+                                                            $
+                                                          </sub>
+                                                        )}
+
+                                                    {currentUserlang === "en"
+                                                      ? price?.INR && (
+                                                          <>
+                                                            {
+                                                              (
+                                                                parseFloat(
+                                                                  price?.INR
+                                                                )?.toFixed(2) +
+                                                                ""
+                                                              )
+                                                                .toString()
+                                                                .split(".")[0]
+                                                            }
+                                                            .
+                                                            {
+                                                              (
+                                                                parseFloat(
+                                                                  price?.INR
+                                                                )?.toFixed(2) +
+                                                                ""
+                                                              )
+                                                                .toString()
+                                                                .split(".")[1]
+                                                            }
+                                                          </>
+                                                        )
+                                                      : price?.USD && (
+                                                          <>
+                                                            {
+                                                              (
+                                                                parseFloat(
+                                                                  price?.USD
+                                                                )?.toFixed(2) +
+                                                                ""
+                                                              )
+                                                                .toString()
+                                                                .split(".")[0]
+                                                            }
+                                                            .
+                                                            {
+                                                              (
+                                                                parseFloat(
+                                                                  price?.USD
+                                                                )?.toFixed(2) +
+                                                                ""
+                                                              )
+                                                                .toString()
+                                                                .split(".")[1]
+                                                            }
+                                                          </>
+                                                        )}
+
+                                                    {currentUserlang === "en" &&
+                                                    product?.discount > 0
+                                                      ? price?.INR &&
+                                                        product?.discount >
+                                                          0 && (
+                                                          <>
+                                                            <del className="text-gray-800 !ml-2">
+                                                              {currentUserlang ===
+                                                              "en"
+                                                                ? price?.INR && (
+                                                                    <sub
+                                                                      style={{
+                                                                        verticalAlign:
+                                                                          "super",
+                                                                      }}
+                                                                    >
+                                                                      ₹
+                                                                    </sub>
+                                                                  )
+                                                                : price?.USD && (
+                                                                    <sub
+                                                                      style={{
+                                                                        verticalAlign:
+                                                                          "super",
+                                                                      }}
+                                                                    >
+                                                                      $
+                                                                    </sub>
+                                                                  )}
+                                                              {
+                                                                (
+                                                                  parseFloat(
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[0]
+                                                              }
+                                                              {/* <sub
                                                                 style={{
                                                                   verticalAlign:
                                                                     "super",
                                                                 }}
-                                                              >
-                                                                {
-                                                                  (
-                                                                    parseFloat(
-                                                                      price?.USD
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
+                                                              > */}
+                                                              .
+                                                              {
+                                                                (
+                                                                  parseFloat(
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[1]
+                                                              }
+                                                              {/* </sub> */}
+                                                            </del>
+                                                          </>
+                                                        )
+                                                      : price?.USD &&
+                                                        product?.discount >
+                                                          0 && (
+                                                          <>
+                                                            <del className="text-gray-800 !ml-2">
+                                                              {currentUserlang ===
+                                                              "en"
+                                                                ? price?.INR && (
+                                                                    <sub
+                                                                      style={{
+                                                                        verticalAlign:
+                                                                          "super",
+                                                                      }}
+                                                                    >
+                                                                      ₹
+                                                                    </sub>
                                                                   )
-                                                                    .toString()
-                                                                    .split(
-                                                                      "."
-                                                                    )[1]
-                                                                }
-                                                              </sub>
-                                                            </>
-                                                          )}
-
-                                                      {currentUserlang ===
-                                                        "en" &&
-                                                      product?.discount > 0
-                                                        ? price?.INR &&
-                                                          product?.discount >
-                                                            0 && (
-                                                            <>
-                                                              <del className="text-gray-800 !ml-2">
-                                                                {currentUserlang ===
-                                                                "en"
-                                                                  ? price?.INR && (
-                                                                      <sub
-                                                                        style={{
-                                                                          verticalAlign:
-                                                                            "super",
-                                                                        }}
-                                                                      >
-                                                                        ₹
-                                                                      </sub>
-                                                                    )
-                                                                  : price?.USD && (
-                                                                      <sub
-                                                                        style={{
-                                                                          verticalAlign:
-                                                                            "super",
-                                                                        }}
-                                                                      >
-                                                                        $
-                                                                      </sub>
-                                                                    )}
-                                                                {
-                                                                  (
-                                                                    parseFloat(
-                                                                      price?.INR *
-                                                                        (100 /
-                                                                          (100 -
-                                                                            product?.discount))
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )
-                                                                    .toString()
-                                                                    .split(
-                                                                      "."
-                                                                    )[0]
-                                                                }
-                                                                <sub
-                                                                  style={{
-                                                                    verticalAlign:
-                                                                      "super",
-                                                                  }}
-                                                                >
-                                                                  {
-                                                                    (
-                                                                      parseFloat(
-                                                                        price?.INR *
-                                                                          (100 /
-                                                                            (100 -
-                                                                              product?.discount))
-                                                                      )?.toFixed(
-                                                                        2
-                                                                      ) + ""
-                                                                    )
-                                                                      .toString()
-                                                                      .split(
-                                                                        "."
-                                                                      )[1]
-                                                                  }
-                                                                </sub>
-                                                              </del>
-                                                            </>
-                                                          )
-                                                        : price?.USD &&
-                                                          product?.discount >
-                                                            0 && (
-                                                            <>
-                                                              <del className="text-gray-800 !ml-2">
-                                                                {currentUserlang ===
-                                                                "en"
-                                                                  ? price?.INR && (
-                                                                      <sub
-                                                                        style={{
-                                                                          verticalAlign:
-                                                                            "super",
-                                                                        }}
-                                                                      >
-                                                                        ₹
-                                                                      </sub>
-                                                                    )
-                                                                  : price?.USD && (
-                                                                      <sub
-                                                                        style={{
-                                                                          verticalAlign:
-                                                                            "super",
-                                                                        }}
-                                                                      >
-                                                                        $
-                                                                      </sub>
-                                                                    )}
-                                                                {
-                                                                  (
-                                                                    parseFloat(
-                                                                      price?.USD *
-                                                                        (100 /
-                                                                          (100 -
-                                                                            product?.discount))
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )
-                                                                    .toString()
-                                                                    .split(
-                                                                      "."
-                                                                    )[0]
-                                                                }
-                                                                <sub
-                                                                  style={{
-                                                                    verticalAlign:
-                                                                      "super",
-                                                                  }}
-                                                                >
-                                                                  {
-                                                                    (
-                                                                      parseFloat(
-                                                                        price?.USD *
-                                                                          (100 /
-                                                                            (100 -
-                                                                              product?.discount))
-                                                                      )?.toFixed(
-                                                                        2
-                                                                      ) + ""
-                                                                    )
-                                                                      .toString()
-                                                                      .split(
-                                                                        "."
-                                                                      )[1]
-                                                                  }
-                                                                </sub>
-                                                              </del>
-                                                            </>
-                                                          )}
-                                                    </p>
-                                                  )}
-                                              </>
-                                            )
-                                          )}
+                                                                : price?.USD && (
+                                                                    <sub
+                                                                      style={{
+                                                                        verticalAlign:
+                                                                          "super",
+                                                                      }}
+                                                                    >
+                                                                      $
+                                                                    </sub>
+                                                                  )}
+                                                              {
+                                                                (
+                                                                  parseFloat(
+                                                                    price?.USD *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[0]
+                                                              }
+                                                              {/* <sub
+                                                                style={{
+                                                                  verticalAlign:
+                                                                    "super",
+                                                                }}
+                                                              > */}
+                                                              .
+                                                              {
+                                                                (
+                                                                  parseFloat(
+                                                                    price?.INR *
+                                                                      (100 /
+                                                                        (100 -
+                                                                          product?.discount))
+                                                                  )?.toFixed(
+                                                                    2
+                                                                  ) + ""
+                                                                )
+                                                                  .toString()
+                                                                  .split(".")[1]
+                                                              }
+                                                              {/* </sub> */}
+                                                            </del>
+                                                          </>
+                                                        )}
+                                                  </p>
+                                                )}
+                                            </>
+                                          ))}
                                           <div className="flex justify-start items-center">
                                             <button
                                               className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center  !text-right"
@@ -1738,14 +1795,22 @@ export default function ProductsDisplay() {
                                                       product?.id,
                                                       product?.img_1
                                                     )
-                                                  : navigate(`/login`);
+                                                  : dispatch(
+                                                      usersignupinModal({
+                                                        showSignupModal: false,
+                                                        showLoginModal: true,
+                                                        showforgotPasswordModal: false,
+                                                        showOtpModal: false,
+                                                        showNewPasswordModal: false,
+                                                      })
+                                                    );
                                               }}
                                             >
                                               <FaRegHeart size={18} />
                                             </button>
 
                                             <button
-                                              className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                              className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right  group-hover:animate-shake"
                                               onClick={(event) => {
                                                 return isLoggedIn
                                                   ? (handleAddToCart(
@@ -1753,7 +1818,15 @@ export default function ProductsDisplay() {
                                                       product?.img_1
                                                     ),
                                                     handleCartPosition(event))
-                                                  : navigate(`/login`);
+                                                  : dispatch(
+                                                      usersignupinModal({
+                                                        showSignupModal: false,
+                                                        showLoginModal: true,
+                                                        showforgotPasswordModal: false,
+                                                        showOtpModal: false,
+                                                        showNewPasswordModal: false,
+                                                      })
+                                                    );
                                               }}
                                             >
                                               {animateProductId ===
@@ -1770,14 +1843,14 @@ export default function ProductsDisplay() {
                                         </div>
                                       </div>
                                       {product?.discount > 0 && (
-                                        <div className="flex justify-end items-end   !mt-2">
+                                        <div className="flex justify-end items-end ">
                                           <div
                                             className="flex absolute items-center justify-center img-box !drop-shadow-lg
 
 "
                                           >
                                             <img
-                                              src="/images/sale-2.png"
+                                              src="/images/sale-2.webp"
                                               alt="ffer_label"
                                               width={65}
                                               className="drop-shadow-lg"
@@ -1813,13 +1886,17 @@ export default function ProductsDisplay() {
                 </div>
               </div>
             </div>
-            <div className="row gy-5 justify-between overflow-auto !max-h-[354px] sm:!max-h-[500px] lg:!max-h-[670px]">
+            <div className="row gy-5 justify-between ">
+              {/* overflow-auto !max-h-[354px] sm:!max-h-[500px] lg:!max-h-[670px] */}
               {subCatProducts?.length === 0 && (
                 <p className="font-bold">No products to Display</p>
               )}
               {subCatProducts?.length !== 0 &&
                 subCatProducts?.map((product) => {
-                  if (product?.combo) {
+                  if (
+                    product?.combo &&
+                    (product?.stock?.stock != "0" || filteredBundleResult)
+                  ) {
                     return (
                       <>
                         {(showPlaceHolderLoader === true ||
@@ -1841,7 +1918,11 @@ export default function ProductsDisplay() {
                           </div>
                         )}
                         {showPlaceHolderLoader === false && (
-                          <div className="col-xl-4 col-lg-4 col-md-6 !pb-[27px] group  hover:drop-shadow-xl">
+                          <div
+                            className="col-xl-4 col-lg-4 col-md-6 !pb-[27px] group hover:drop-shadow-xl"
+                            data-aos="fade-up"
+                            data-aos-delay="100"
+                          >
                             <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
                               <div className="nk-card-img relative">
                                 <a
@@ -1858,21 +1939,12 @@ export default function ProductsDisplay() {
                                   <img
                                     src={product?.img_1}
                                     alt="product-image"
-                                    className="w-100 group-hover:scale-105 transition duration-500"
+                                    className="w-100 group-hover:scale-105 p-3 rounded-md transition duration-500"
                                     // loading="lazy"
                                   />
-                                  {product?.stock?.stock < 10 && (
-                                    <GitHubForkRibbon
-                                      className="drop-shadow-xl subpixel-antialiased"
-                                      color="orange"
-                                      position="left"
-                                    >
-                                      Only {product?.stock?.stock} left !!
-                                    </GitHubForkRibbon>
-                                  )}
                                 </a>
                               </div>
-                              <div className="nk-card-info bg-white p-4">
+                              <div className="nk-card-info bg-white p-4 pt-1">
                                 <a
                                   href={`${userLang}/product-detail/${
                                     product?.slug
@@ -1883,44 +1955,15 @@ export default function ProductsDisplay() {
                                     ?.toString()
                                     .replace(/\//g, "_")
                                     .replace(/\+/g, "-")}`}
-                                  className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
+                                  className="d-inline-block text-black text-sm subpixel-antialiased"
                                   style={{
                                     textOverflow: "ellipsis",
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
-                                    width: "90%",
+                                    width: "95%",
                                   }}
                                 >
                                   {product?.name}
-                                  <br />
-                                  <span className="text-xs">
-                                    <p
-                                      className="!mt-5 text-gray-700"
-                                      onClick={() => {
-                                        navigate(
-                                          `${userLang}/product-detail/${
-                                            product?.slug
-                                          }/${CryptoJS?.AES?.encrypt(
-                                            `${product?.id}`,
-                                            "trading_materials"
-                                          )
-                                            ?.toString()
-                                            .replace(/\//g, "_")
-                                            .replace(/\+/g, "-")}`
-                                        );
-                                        dispatch(showLoader());
-                                      }}
-                                      dangerouslySetInnerHTML={{
-                                        __html:
-                                          product?.description?.length > 55
-                                            ? `${product?.description?.slice(
-                                                0,
-                                                55
-                                              )}...`
-                                            : product?.description,
-                                      }}
-                                    />
-                                  </span>
                                 </a>
                                 <div className="d-flex align-items-center mb-2 gap-1">
                                   {ratingStars(product?.rating)}
@@ -1967,19 +2010,20 @@ export default function ProductsDisplay() {
                                                         )?.toFixed(2) + ""
                                                       )?.split(".")[0]
                                                     }
-                                                    <sub
+                                                    {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
-                                                    >
-                                                      {
-                                                        (
-                                                          Number.parseFloat(
-                                                            price?.INR
-                                                          )?.toFixed(2) + ""
-                                                        )?.split(".")[1]
-                                                      }
-                                                    </sub>
+                                                    > */}
+                                                    .
+                                                    {
+                                                      (
+                                                        Number.parseFloat(
+                                                          price?.INR
+                                                        )?.toFixed(2) + ""
+                                                      )?.split(".")[1]
+                                                    }
+                                                    {/* </sub> */}
                                                   </>
                                                 )
                                               : price?.USD &&
@@ -2026,25 +2070,26 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
-                                                          (
-                                                            parseFloat(
-                                                              price?.INR *
-                                                                (100 /
-                                                                  (100 -
-                                                                    product?.discount))
-                                                            )?.toFixed(2) + ""
-                                                          )
-                                                            .toString()
-                                                            .split(".")[1]
-                                                        }
-                                                      </sub>
+                                                      > */}
+                                                      .
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR *
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
+                                                      }
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )
@@ -2085,25 +2130,26 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
-                                                          (
-                                                            parseFloat(
-                                                              price?.INR *
-                                                                (100 /
-                                                                  (100 -
-                                                                    product?.discount))
-                                                            )?.toFixed(2) + ""
-                                                          )
-                                                            .toString()
-                                                            .split(".")[1]
-                                                        }
-                                                      </sub>
+                                                      > */}
+                                                      .
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR *
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
+                                                      }
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )}
@@ -2146,21 +2192,22 @@ export default function ProductsDisplay() {
                                                         .toString()
                                                         .split(".")[0]
                                                     }
-                                                    <sub
+                                                    {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
-                                                    >
-                                                      {
-                                                        (
-                                                          parseFloat(
-                                                            price?.INR
-                                                          )?.toFixed(2) + ""
-                                                        )
-                                                          .toString()
-                                                          .split(".")[1]
-                                                      }
-                                                    </sub>
+                                                    > */}
+                                                    .
+                                                    {
+                                                      (
+                                                        parseFloat(
+                                                          price?.INR
+                                                        )?.toFixed(2) + ""
+                                                      )
+                                                        .toString()
+                                                        .split(".")[1]
+                                                    }
+                                                    {/* </sub> */}
                                                   </>
                                                 )
                                               : price?.USD && (
@@ -2174,21 +2221,22 @@ export default function ProductsDisplay() {
                                                         .toString()
                                                         .split(".")[0]
                                                     }
-                                                    <sub
+                                                    {/* <sub
                                                       style={{
                                                         verticalAlign: "super",
                                                       }}
-                                                    >
-                                                      {
-                                                        (
-                                                          parseFloat(
-                                                            price?.USD
-                                                          )?.toFixed(2) + ""
-                                                        )
-                                                          .toString()
-                                                          .split(".")[1]
-                                                      }
-                                                    </sub>
+                                                    > */}
+                                                    .
+                                                    {
+                                                      (
+                                                        parseFloat(
+                                                          price?.USD
+                                                        )?.toFixed(2) + ""
+                                                      )
+                                                        .toString()
+                                                        .split(".")[1]
+                                                    }
+                                                    {/* </sub> */}
                                                   </>
                                                 )}
 
@@ -2231,25 +2279,26 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
-                                                          (
-                                                            parseFloat(
-                                                              price?.INR *
-                                                                (100 /
-                                                                  (100 -
-                                                                    product?.discount))
-                                                            )?.toFixed(2) + ""
-                                                          )
-                                                            .toString()
-                                                            .split(".")[1]
-                                                        }
-                                                      </sub>
+                                                      > */}
+                                                      .
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR *
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
+                                                      }
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )
@@ -2289,25 +2338,26 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      <sub
+                                                      {/* <sub
                                                         style={{
                                                           verticalAlign:
                                                             "super",
                                                         }}
-                                                      >
-                                                        {
-                                                          (
-                                                            parseFloat(
-                                                              price?.INR *
-                                                                (100 /
-                                                                  (100 -
-                                                                    product?.discount))
-                                                            )?.toFixed(2) + ""
-                                                          )
-                                                            .toString()
-                                                            .split(".")[1]
-                                                        }
-                                                      </sub>
+                                                      > */}
+                                                      .
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            price?.INR *
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
+                                                      }
+                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )}
@@ -2328,13 +2378,21 @@ export default function ProductsDisplay() {
                                             product?.id,
                                             product?.img_1
                                           )
-                                        : navigate(`/login`);
+                                        : dispatch(
+                                            usersignupinModal({
+                                              showSignupModal: false,
+                                              showLoginModal: true,
+                                              showforgotPasswordModal: false,
+                                              showOtpModal: false,
+                                              showNewPasswordModal: false,
+                                            })
+                                          );
                                     }}
                                   >
                                     <FaRegHeart size={18} />
                                   </button>
                                   <button
-                                    className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                    className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:animate-shake"
                                     onClick={(event) => {
                                       return isLoggedIn
                                         ? (handleAddToCart(
@@ -2342,7 +2400,15 @@ export default function ProductsDisplay() {
                                             product?.img_1
                                           ),
                                           handleCartPosition(event))
-                                        : navigate(`/login`);
+                                        : dispatch(
+                                            usersignupinModal({
+                                              showSignupModal: false,
+                                              showLoginModal: true,
+                                              showforgotPasswordModal: false,
+                                              showOtpModal: false,
+                                              showNewPasswordModal: false,
+                                            })
+                                          );
                                     }}
                                   >
                                     {animateProductId === product?.id ? (
@@ -2365,7 +2431,7 @@ export default function ProductsDisplay() {
 "
                                 >
                                   <img
-                                    src="/images/sale-2.png"
+                                    src="/images/sale-2.webp"
                                     alt="ffer_label"
                                     width={65}
                                     className="drop-shadow-lg"
@@ -2394,6 +2460,12 @@ export default function ProductsDisplay() {
                     {t("Stories_From_Our_Customers")}
                   </h2>
                   <p className="nk-section-text">{t("stories_desc")}</p>
+                  <div className="flex w-full justify-center">
+                    <img
+                      src="/images/shop/trust-icon.webp"
+                      alt="rating_starts"
+                    ></img>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2401,11 +2473,11 @@ export default function ProductsDisplay() {
             <Swiper
               slidesPerView={2}
               spaceBetween={30}
-              dots={false}
+              dots={true}
               speed={1500}
               loop={true}
               autoplay={true}
-              navigation={true}
+              // navigation={true}
               breakpoints={{
                 0: {
                   slidesPerView: 1,
@@ -2424,14 +2496,17 @@ export default function ProductsDisplay() {
                   spaceBetween: 50,
                 },
               }}
+              pagination={{
+                dynamicBullets: true,
+              }}
               modules={[Pagination, Navigation, Autoplay]}
               className="swiper swiper-init nk-swiper nk-swiper-s4 pt-5 pt-lg-0"
               data-autoplay="true"
               data-space-between="30"
             >
               <SwiperSlide className="swiper-slide h-auto">
-                <div className="nk-testimonial-card-2 nk-testimonial-card-s3 shadow-none">
-                  <div className="nk-testimonial-content">
+                <div className="nk-testimonial-card-2 nk-testimonial-card-s3 ">
+                  <div className="nk-testimonial-content ">
                     <div>
                       <ul className="d-flex aling-items-center gap-1 mb-2">
                         <li className="text-green-2">
@@ -2455,11 +2530,13 @@ export default function ProductsDisplay() {
                       <h5 className="mb-2 !font-bold text-left !text-xl">
                         Chadha Acharya
                       </h5>
-                      <p className="fs-14 line-clamp-3 text-left">
-                        &quot;Thank you for your kind words! We strive to
-                        provide brilliant solutions for our customers. If
-                        there&apos;s anything else we can assist you with,
-                        please let us know.&quot;
+                      <p className="fs-14 line-clamp-6 text-left">
+                        &quot;Thanks to Trading Materials for providing
+                        high-quality complete trading materials! Ordering was a
+                        breeze, and the payment process was simple and
+                        efficient. They delivered the product in record time,
+                        exceeding my expectations. I&apos;m highly satisfied
+                        with their service and products.&quot;
                       </p>
                     </div>
                   </div>
@@ -2492,11 +2569,13 @@ export default function ProductsDisplay() {
                       <h5 className="mb-2 !font-bold text-left !text-xl">
                         Barman Agarwal
                       </h5>
-                      <p className="fs-14 line-clamp-3 text-left">
-                        &quot;Thank you for your kind words! We strive to
-                        provide brilliant solutions for our customers. If
-                        there&apos;s anything else we can assist you with,
-                        please let us know.&quot;
+                      <p className="fs-14 line-clamp-6 text-left">
+                        &quot;I highly recommend Trading Materials for traders.
+                        They have all your trading requirements conveniently
+                        available in one place. Their fastest delivery service
+                        impresses everyone, and I can attest to the reliability
+                        of their speedy shipping. You can trust them with a 100%
+                        guarantee for product quality.&quot;
                       </p>
                     </div>
                   </div>
@@ -2528,11 +2607,13 @@ export default function ProductsDisplay() {
                     <h5 className="mb-2 !font-bold text-left !text-xl">
                       Aadarsh Chopra
                     </h5>
-                    <p className="fs-14 line-clamp-3 text-left">
-                      &quot;Thank you for your feedback! We&apos;re glad to hear
-                      that you find our platform to be the best for learning. We
-                      are committed to providing high-quality educational
-                      resources and a user-friendly experience.&quot;
+                    <p className="fs-14 line-clamp-6 text-left">
+                      &quot;Trading Materials has been a game-changer for my
+                      trading journey. I appreciate their commitment to quality
+                      and convenience. With easy ordering, secure payments, and
+                      lightning-fast delivery, they&apos;ve made trading
+                      materials accessible and hassle-free. I wouldn&apos;t
+                      hesitate to recommend them to fellow traders.&quot;
                     </p>
                   </div>
                 </div>
@@ -2560,12 +2641,16 @@ export default function ProductsDisplay() {
                       </ul>
                     </div>
                     <h5 className="mb-2 !font-bold text-left !text-xl">
-                      Farhan Aktar
+                      Rahul Nambiar
                     </h5>
                     <p className="fs-14 text-left">
-                      &quot;Thanks to Trading Materials, our application is
-                      undergoing significant improvements, resulting in a better
-                      user experience and enhanced features.&quot;
+                      &quot;Trading Materials is the go-to source for traders
+                      seeking top-notch trading resources. Their dedication to
+                      fast and reliable deliveries ensures you get what you need
+                      when you need it. Rest assured, their products are of the
+                      highest quality, and I couldn&apos;t be happier with my
+                      experience. A trusted partner in the world of
+                      trading.&quot;
                     </p>
                   </div>
                 </div>
@@ -2599,7 +2684,7 @@ export default function ProductsDisplay() {
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
                   <a
-                    href={`${userLang}/contact`}
+                    href={`https://tradingmaterials.com/contact`}
                     className="btn btn-white fw-semiBold"
                   >
                     {t("Contact_support")}
@@ -2610,7 +2695,7 @@ export default function ProductsDisplay() {
           </div>
         </section>
       </div>
-      <div className="nk-sticky-badge cursor-pointer">
+      {/* <div className="nk-sticky-badge cursor-pointer">
         <ul>
           <li>
             <a
@@ -2640,7 +2725,7 @@ export default function ProductsDisplay() {
             </a>
           </li>
         </ul>
-      </div>
+      </div> */}
     </>
   );
 }

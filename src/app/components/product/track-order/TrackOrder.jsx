@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import Header from "../../header/header";
 import Footer from "../../footer/footer";
 import { Box, Divider, Chip, CardActionArea } from "@mui/material";
-import CallIcon from "@mui/icons-material/Call";
-import DoneSharpIcon from '@mui/icons-material/DoneSharp';
-import LocalShippingSharpIcon from '@mui/icons-material/LocalShippingSharp';
-import UnarchiveSharpIcon from '@mui/icons-material/UnarchiveSharp';
+// import CallIcon from "@mui/icons-material/Call";
+// import DoneSharpIcon from '@mui/icons-material/DoneSharp';
+// import LocalShippingSharpIcon from '@mui/icons-material/LocalShippingSharp';
+// import UnarchiveSharpIcon from '@mui/icons-material/UnarchiveSharp';
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { hideLoader, showLoader } from "../../../../features/loader/loaderSlice";
@@ -21,6 +21,7 @@ import ListAltSharpIcon from '@mui/icons-material/ListAltSharp';
 import AssignmentTurnedInSharpIcon from "@mui/icons-material/AssignmentTurnedInSharp";
 import CryptoJS from "crypto-js";
 import { Button, Modal } from "react-bootstrap";
+import CustomizedSteppers from "./orderTrackerStepper";
 
 
 export default function OrderTacker() {
@@ -35,9 +36,24 @@ export default function OrderTacker() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const params = useParams()
+  const steps = [
+    //    "Placed ",
+      "Placed",
+      "Confirmed",
+      "Dispatched",
+      "Delivered",
+    //   "Delivered",
+    //   "Delivered",
+    ];
   
   const clientId= userData?.client?.id
-  const {order_id} = useParams()
+  const { order_id } = useParams()
+  const descryptedId = CryptoJS.AES.decrypt(
+    order_id.replace(/_/g, "/").replace(/-/g, "+"),
+    "trading_materials"
+  ).toString(CryptoJS.enc.Utf8);
+  
+  
 
   useEffect(()=>{
     if(!params?.order_id){
@@ -51,7 +67,7 @@ export default function OrderTacker() {
       console.log(userData?.client?.id, "ttttttttt")
       dispatch(showLoader());
       const response = await axios.get(
-        `https://admin.tradingmaterials.com/api/client/product/checkout/view-order?order_id=${order_id}&client_id=${clientId}`,
+        `https://admin.tradingmaterials.com/api/client/product/checkout/view-order?order_id=${descryptedId}&client_id=${clientId}`,
         {
           headers: {
             Authorization: `Bearer ` + localStorage.getItem("client_token"),
@@ -111,40 +127,50 @@ export default function OrderTacker() {
       )}
       <Header />
 
-      <div className="nk-pages text-left mt-80 sm:mt-60 md:mt-40">
+      <div className="nk-pages text-left mt-40 sm:mt-40 md:mt-40">
         <section className="nk-banner nk-banner-career-job-details bg-gray">
-          <div className="nk-banner-wrap pt-120 pt-lg-80 pb-[100px]">
+          <div className="nk-banner-wrap pt-20 pt-lg-80 pb-[100px]">
             <div className="container">
               <div className=" text-left">
-                <div>
+                <div className="mb-2">
                   <h2 className="text-xl !font-bold ">My Orders / Tracking</h2>
                   <Divider />
                   <p className="mt-2 pb-3">
-                    Order ID: <b>ORD123456789</b>
+                    Order No: <b>{orderDetails?.order?.order_number}</b>
                   </p>
-                  <div className="p-2 border-1 border mb-6">
-                    <div className="flex justify-between">
+                  <div className="p-2 border-1 border mb-2">
+                    <div className="flex justify-between flex-wrap">
                       <div className="text-left">
-                        <p className="!font-bold"> Estimated Delivery time:</p>
-                        <span>29 nov 2019</span>
+                        <p className="!font-bold"> {orderDetails?.order?.status > 3 ? "Delivered Date" :  "Estimated Delivery Date"}:</p>
+                        <span>{orderDetails?.order?.delivered_date != null ? new Date(
+                        orderDetails?.order?.delivered_date
+                      ).toLocaleDateString("en", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }) : null}</span>
                       </div>
                       <div className="text-left">
                         <p className="!font-bold"> Shipping By:</p>
                         <span>
-                          BLUEDART | <CallIcon fontSize="md" /> 8998675986{" "}
+                          Trading Materials
                         </span>
                       </div>
                       <div className="text-left">
                         <p className="!font-bold"> Status:</p>
-                        <span>Picked by the courier </span>
+                        <span>{steps[orderDetails?.order?.status == "0"
+                            ? 0
+                            : orderDetails?.order?.status >= 4
+                            ? 3
+                            : orderDetails?.order?.status-1]} </span>
                       </div>
                       <div className="text-left">
                         <p className="!font-bold"> Tracking #:</p>
-                        <span>sdgnlak3546 </span>
+                        <span>{null} </span>
                       </div>
                     </div>
                   </div>
-                  <div className="mb-4">
+                  {/* <div className="mb-4">
                     <div className="vefs-milestone-wrapper flex justify-center">
                       <div className="milestone-container">
                         <div className="chart-container">
@@ -174,22 +200,30 @@ export default function OrderTacker() {
 
                         <div className="label-container">
                           <div className="milestones milestone__0 mt-2">
-                            <div className=" colored">Order Confirmed</div>
+                            <div className=" colored">Placed</div>
                           </div>
                           <div className="milestones milestone__35  mt-2">
-                            <div className=" colored">Picked by courier</div>
+                            <div className=" colored">Confirmed</div>
                           </div>
                           <div className="milestones milestone__70  mt-2">
-                            <div className=" colored">on the way</div>
+                            <div className=" colored">Dispatched</div>
                           </div>
                           
                           <div className="milestones milestone__100  mt-2">
-                            <div className="" style={{width:"max-content"}}>Ready for Pickup</div>
+                            <div className="" style={{width:"max-content"}}>Delivered</div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
+                  <p> Order Status</p>
+                  <CustomizedSteppers orderStatus={
+                          orderDetails?.order?.status == "0"
+                            ? "0"
+                            : orderDetails?.order?.status >= 4
+                            ? "3"
+                            : orderDetails?.order?.status-1
+                        }/>
                   
                 </div>
                 <Divider/>
@@ -199,11 +233,11 @@ export default function OrderTacker() {
                 <Divider />
                 <div className="flex w-full p-3 !items-start">
                   <div className="w-full">
-                    <h3 className="!font-bold">
-                      <AssignmentIcon style={{ width: "15px" }} />
-                      {orderDetails?.order?.invoice_no === null
+                    <h3 className="!font-bold flex items-center text-xs md:text-sm">
+                      Invoice No: <AssignmentIcon style={{ width: "15px" }} />
+                      { orderDetails?.order?.invoice?.number === null
                         ? 1324567980
-                        : orderDetails?.order?.invoice_no}{" "}
+                        : orderDetails?.order?.invoice?.prefix+orderDetails?.order?.invoice?.number}{" "}
                     </h3>
                     <small className="!w-full font-semibold">
                       {new Date(
@@ -217,7 +251,11 @@ export default function OrderTacker() {
                   </div>
                   <div className="flex justify-end w-full items-center">
                     <SnoozeIcon />
-                    <Chip label="On the Way" variant="outlined"></Chip>
+                    <Chip label={steps[orderDetails?.order?.status == "0"
+                            ? 0
+                            : orderDetails?.order?.status >= 4
+                            ? 3
+                            : orderDetails?.order?.status-1]} variant="outlined"></Chip>
                   </div>
                 </div>
                 <Divider />
@@ -259,24 +297,24 @@ export default function OrderTacker() {
                       )
                     }
                   >
-                    <div className="flex w-full  items-center justify-between p-3">
-                      <div className="flex items-center">
+                    <div className="flex w-full  items-center justify-between p-3 flex-wrap">
+                      <div className="flex items-center px-4">
                         <p className="font-bold mr-1">{ind + 1}.</p>
                         <img
                           src={product?.product?.img_1}
                           alt="product_img"
-                          width={75}
-                          height={75}
+                          width={"100"}
+                          height={"100"}
                         />
                         <div >
-                          <p className="font-bold ml-2 truncate w-[100px] md:w-[145px]">
+                          <p className="font-bold ml-2 truncate w-[100px] sm:w-[90%]  md:w-[99%]">
                             {product?.product?.name}
                           </p>
                         </div>
                       </div>
                       <div className=" justify-end text-right">
                         <b className="text-sm text-black font-semibold">
-                          {orderDetails?.order?.currency} {product?.price}
+                          {orderDetails?.order?.currency} {parseFloat(product?.price)?.toFixed(2)}
                         </b>
                         <p className="text-sm font-bold ">
                           qty:{" "}
@@ -303,7 +341,7 @@ export default function OrderTacker() {
                     </p>
                     <p className="text-black font-semibold">
                       {orderDetails?.order?.currency}{" "}
-                      {orderDetails?.order?.sub_total}
+                      {parseFloat(orderDetails?.order?.sub_total)?.toFixed(2)}
                     </p>
                   </div>
                   <div className="flex !w-full justify-between">
@@ -317,7 +355,7 @@ export default function OrderTacker() {
                     </p>
                     <p className="text-black font-semibold">
                       {orderDetails?.order?.currency}{" "}
-                      {orderDetails?.order?.total_tax}
+                      {parseFloat(orderDetails?.order?.total_tax)?.toFixed(2)}
                     </p>
                   </div>
                   <div className="flex !w-full justify-between">
@@ -330,7 +368,7 @@ export default function OrderTacker() {
                     </p>
                     <p className="text-black font-semibold">
                       {orderDetails?.order?.currency}{" "}
-                      {orderDetails?.order?.discount_amount}
+                      {parseFloat(orderDetails?.order?.discount_amount)?.toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -345,7 +383,7 @@ export default function OrderTacker() {
                   </p>
                   <p className="text-black font-semibold">
                     {orderDetails?.order?.currency}{" "}
-                    {orderDetails?.order?.amount_paid}{" "}
+                    {parseFloat(orderDetails?.order?.amount_paid)?.toFixed(2)}{" "}
                   </p>
                 </div>
                 <div className="flex justify-between p-3 pt-0">
@@ -359,7 +397,7 @@ export default function OrderTacker() {
                   <p className="text-black font-semibold">
                     {" "}
                     {orderDetails?.order?.currency}{" "}
-                    {orderDetails?.order?.balance}
+                    {parseFloat(orderDetails?.order?.balance)?.toFixed(2)}
                   </p>
                 </div>
 

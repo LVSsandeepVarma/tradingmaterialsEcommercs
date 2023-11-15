@@ -36,7 +36,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -149,7 +149,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                   >
                     <img
                       className="logo-img "
-                      src="/images/tm-logo-1.png"
+                      src="/images/tm-logo-1.webp"
                       alt="logo"
                     />
                   </a>
@@ -186,7 +186,9 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                 <div className="row gy-4">
                   <div className="col-12">
                     <div className="form-group text-left">
-                      <label className="form-label">Email</label>
+                      <label className="form-label">
+                        Email<sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <input
                           type="email"

@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import MuiDrawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
@@ -10,9 +8,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
 import MailIcon from "@mui/icons-material/Mail";
+import EmailIcon from "@mui/icons-material/Email";
 import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { updateUsers } from "../../../features/users/userSlice";
+import Footer from "../footer/footer";
 import { updateCart } from "../../../features/cartItems/cartSlice";
 import {
   updateCartCount,
@@ -22,9 +22,7 @@ import { updateNotifications } from "../../../features/notifications/notificatio
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
-import GitHubForkRibbon from "react-github-fork-ribbon";
-
-import { Avatar, CardActionArea } from "@mui/material";
+import { Avatar, CardActionArea, Tooltip } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import BusinessIcon from "@mui/icons-material/Business";
 import axios from "axios";
@@ -34,37 +32,14 @@ import Header from "../header/header";
 import { useNavigate } from "react-router-dom";
 import { FaMinusCircle } from "react-icons/fa";
 import CryptoJS from "crypto-js";
-import Invoices from "./invoices";
 import { BsFillBoxSeamFill } from "react-icons/bs";
-import { MdOutlineAlternateEmail } from "react-icons/md";
 import { BiSolidPhoneCall } from "react-icons/bi";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { logoutUser } from "../../../features/login/loginSlice";
 import AddToFav from "../modals/addToFav";
+import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
+import SessionExpired from "../modals/sessionExpired";
 // import { logoutUser } from "../../../features/login/loginSlice";
-
-const drawerWidth = 240;
-
-const openedMixin = (theme) => ({
-  width: drawerWidth,
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  //   overflowX: 'hidden',
-});
-
-const closedMixin = (theme) => ({
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -73,23 +48,6 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 1),
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
-}));
-
-const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
-  ...(open && {
-    ...openedMixin(theme),
-    "& .MuiDrawer-paper": openedMixin(theme),
-  }),
-  ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme),
-  }),
 }));
 
 export default function SideBar() {
@@ -103,27 +61,22 @@ export default function SideBar() {
   const tabs = ["Address", "Cart", "Wishlist", "Orders"];
   const [animateProductId, setAnimateProductId] = useState("");
   const [formType, setFormType] = useState("add");
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const userLang = useSelector((state) => state?.lang?.value);
-  const clientType = useSelector((state) => state?.clientType?.value);
-  const addressStatus = useSelector((state) => state?.addressStatus?.value);
   const [addedToFavImg, setAddedToFavImg] = useState("");
   const [modalMessage, setModalMessage] = useState("");
   const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
-  const isLoggedIn = useSelector((state) => state?.login?.value);
   const [dialogShow, setDialogShow] = useState(false);
   const [profileImage, setProfileImage] = useState("");
   // eslint-disable-next-line no-unused-vars
   const [showFileInput, setShowFileInput] = useState(false);
   const [profileUploadErr, setProfileUploadErr] = useState("");
-  // const [profileuploadSucc, setProfileUploadSucc] = useState("");
+  const [showSessionExppiry, setShowSessionExpiry] = useState(false);
 
-  // const closeModal = () => {
-  //   setShowModal(false);
-  //   setModalMessage("");
-  //   setAddedToFavImg("");
-  // };
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const userLang = useSelector((state) => state?.lang?.value);
+  const addressStatus = useSelector((state) => state?.addressStatus?.value);
+  const isLoggedIn = useSelector((state) => state?.login?.value);
 
   const imageUpdate = async () => {
     dispatch(showLoader());
@@ -147,7 +100,7 @@ export default function SideBar() {
 
       console.log(response);
       if (response.data.status) {
-        window.location.reload()
+        window.location.reload();
       }
     } catch (error) {
       setProfileUploadErr(error?.response?.data?.message);
@@ -208,12 +161,7 @@ export default function SideBar() {
         dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
       } else {
         console.log(response?.data);
-        dispatch(
-          updateNotifications({
-            type: "warning",
-            message: response?.data?.message,
-          })
-        );
+        setShowSessionExpiry(true);
         // navigate("/login")
       }
     } catch (err) {
@@ -242,22 +190,16 @@ export default function SideBar() {
   async function handleLogout() {
     try {
       dispatch(showLoader());
-      const url = "https://admin.tradingmaterials.com/api/client/auth/logout";
-      const headerData =
-        clientType === "client"
-          ? {
-              headers: {
-                Authorization: `Bearer ` + localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            }
-          : {
-              headers: {
-                "access-token": localStorage.getItem("client_token"),
-                Accept: "application/json",
-              },
-            };
-      const response = await axios.post(url, {}, headerData);
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/client/auth/logout",
+        { client_id: userData?.client?.id },
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
 
       if (response?.status) {
         dispatch(logoutUser());
@@ -274,25 +216,26 @@ export default function SideBar() {
   }
 
   const handleActiveTab = (index) => {
-    if (index !== 3 && index !== 4 && index !== 1) {
+    if (index !== 3 && index !== 4 && index !== 1 && index != 0) {
       setActiveIndex(index);
     } else {
       if (index === 3) {
-        // `/orders/${CryptoJS?.AES?.encrypt(
-        //   `${userData?.client?.id}`,
-        //   "order_details"
-        // )
-        //   ?.toString()
-        //   .replace(/\//g, "_")
-        //   .replace(/\+/g, "-")}`
         window.open(
-        " /view-order/placed",
+          `/orders/${CryptoJS?.AES?.encrypt(
+            `${userData?.client?.id}`,
+            "order_details"
+          )
+            ?.toString()
+            .replace(/\//g, "_")
+            .replace(/\+/g, "-")}`,
           "_blank"
         );
       } else if (index === 4) {
         handleLogout();
-      } else if (index === 1) {
-        navigate("/cart");
+      } else if (index == 1) {
+        window.location.href = "/cart";
+      } else if (index == 0) {
+        window.location.href = "/profile";
       }
     }
   };
@@ -366,15 +309,23 @@ export default function SideBar() {
     }
   }, [handleImageUpload]);
 
+  function handleSessionExpiryClose() {
+    setShowSessionExpiry(false);
+    navigate("/login");
+  }
+
   return (
     <>
+      <SessionExpired
+        open={showSessionExppiry}
+        handleClose={handleSessionExpiryClose}
+      />
       <ShippingAddressModal
         show={showModal}
         onHide={() => setShowModal(false)}
         addressType={addressUpdateType}
         data={addressData}
         type={formType}
-        // handleFormSubmit={handleFormSubmit}
       />
       {addedToFavImg !== "" && (
         <AddToFav
@@ -385,431 +336,367 @@ export default function SideBar() {
           wishMsg={showWishlistRemoveMsg}
         />
       )}
-      <div className="container">
-        <Header />
-        <Box sx={{ display: "flex" }}>
-          {/* <CssBaseline /> */}
-          {/* <AppBar open={open} style={{background: "linear-gradient(23.01deg, #2b5cfd 14.9%, #1d3faf 85.1%)"}}>
-        
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: 'none' }),
-            }}
-          >
-            <MenuIcon  />
-          </IconButton>
-          
-        </Toolbar>
-      </AppBar> */}
-          <Drawer
-            variant="permanent"
-            className="drop-shadow-xl !w-[100%] sm:!w-[100%]  md:!w-[35%] lg:!w-[24%]"
-            open={open}
-          >
-            <Divider />
-            <DrawerHeader
-              className="drop-shadow-xl !w-full"
-              style={{ width: "100% !important" }}
-            >
+      <Header />
+      <div className="">
+        <main className="nk-pages mt-20 sm:mt-20 md:mt-24">
+          <section className="nk-section container">
+            <div className="flex flex-wrap md:flex-wrap-nowrap">
               <div
+                // variant="permanent"
+                className="shadow-xl text-black !w-[100%] sm:!w-[100%]   lg:!w-[24%]"
+              >
+                <Divider />
+                <div
+                  className="drop-shadow-xl !w-full"
+                  style={{ width: "100% !important" }}
+                >
+                  <div
+                    style={{
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      width: "100%",
+                    }}
+                  >
+                    <p
+                      className="font-bold !text-left w-full ml-3 p-3 flex justify-center w-full cursor-pointer"
+                      style={{
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        width: "90%",
+                      }}
+                    >
+                      <label
+                        htmlFor="upload-button"
+                        className="  w-full flex justify-center !w-full !h-auto cursor-pointer"
+                      >
+                        <Tooltip title="upload profile" placement="bottom-end">
+                          {userData?.client?.profile?.profile_image?.length >
+                          0 ? (
+                            <Avatar
+                              alt="user profile"
+                              src={userData?.client?.profile?.profile_image}
+                              sx={{ width: "140px", height: "140px" }}
+                              className=""
+                            ></Avatar>
+                          ) : (
+                            <Avatar
+                              alt="user profile"
+                              src="/images/blueProfile.webp"
+                              sx={{ width: "50%", height: "100%" }}
+                              className=""
+                            ></Avatar>
+                          )}
+                        </Tooltip>
+                      </label>
+                    </p>
+                    <input
+                      type="file"
+                      id="upload-button"
+                      onChange={handleImageUpload}
+                      className="opacity-0 visibility-0"
+                    />
+                    {profileUploadErr && (
+                      <p className="text-red-600">{profileUploadErr}</p>
+                    )}
+                    <p
+                      className="font-bold text-lg !text-left w-full ml-3 p-1"
+                      style={{
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        width: "90%",
+                      }}
+                    >
+                      {userData?.client?.first_name?.charAt(0)?.toUpperCase() +
+                        userData?.client?.first_name?.slice(1)}{" "}
+                      {userData?.client?.last_name}
+                    </p>
+                    <div className="flex items-center p-1">
+                      <EmailIcon className="mr-1" fontSize="small" />
+                      <p
+                        className=" flex items-center font-bold text-sm !text-left w-full !mt-0  ml-0 pt-0 pl-0 pb-0"
+                        style={{
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          width: "90%",
+                        }}
+                      >
+                        {userData?.client?.email}
+                      </p>
+                    </div>
+                    <p
+                      className="flex  items-center font-bold text-sm !text-left w ml-0 p-1 pt-0 "
+                      style={{
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        width: "90%",
+                      }}
+                    >
+                      <BiSolidPhoneCall className="mr-1" size={16} />
+                      {userData?.client?.phone}
+                    </p>
+                  </div>
+                </div>
+                <Divider />
+                <List>
+                  {["Address", "Cart", "Wishlist", "Orders", "Logout"].map(
+                    (text, index) => (
+                      <ListItem
+                        key={text}
+                        disablePadding
+                        sx={{ display: "block" }}
+                      >
+                        <ListItemButton
+                          sx={{
+                            minHeight: 48,
+                            justifyContent: open ? "initial" : "center",
+                            px: 2.5,
+                            backgroundColor:
+                              activeIndex === index ? "skyblue" : "",
+                          }}
+                          color={`${activeIndex === index ? "blue" : ""} `}
+                          onClick={() => handleActiveTab(index)}
+                        >
+                          {text === "Logout" && (
+                            <LogoutIcon
+                              size={20}
+                              className="mr-7"
+                              sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
+                              }}
+                            ></LogoutIcon>
+                          )}
+                          {text === "Orders" && (
+                            <BsFillBoxSeamFill
+                              size={20}
+                              className="mr-7"
+                              sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <MailIcon />
+                            </BsFillBoxSeamFill>
+                          )}
+                          {text === "Cart" && (
+                            <ShoppingCartRoundedIcon
+                              sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <MailIcon />
+                            </ShoppingCartRoundedIcon>
+                          )}
+                          {text === "Address" && (
+                            <BusinessIcon
+                              sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <MailIcon />
+                            </BusinessIcon>
+                          )}
+                          {text === "Wishlist" && (
+                            <FavoriteBorderIcon
+                              sx={{
+                                minWidth: 0,
+                                mr: open ? 3 : "auto",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <MailIcon />
+                            </FavoriteBorderIcon>
+                          )}
+                          <ListItemText
+                            primary={text}
+                            sx={{ opacity: open ? 1 : 0 }}
+                          />
+                        </ListItemButton>
+                        <Divider />
+                      </ListItem>
+                    )
+                  )}
+                </List>
+                {/* <Divider /> */}
+              </div>
+              <Divider />
+              <div
+                className="drop-shadow-lg max-w-full lg:max-w-[75%] ml-2"
+                // component="main"
                 style={{
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  width: "100%",
+                  flexGrow: 1,
+                  p: 3,
+                  borderTop: "1px solid #eeeeee",
+                  borderRight: "1px solid #eeeeee",
+                  borderLeft: "1px solid #eeeeee",
                 }}
               >
                 <p
-                  className="font-bold !text-left w-full ml-3 p-3 flex justify-center w-full cursor-pointer"
-                  style={{
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    width: "90%",
-                  }}
+                  className="pt-2 ml-2 !mt-2 md:!ml-2 md:!p-0 md:!m-2 text-left text-sm font-bold"
+                  style={{ color: "darkgray" }}
                 >
-                  <label
-                    htmlFor="upload-button"
-                    className="  w-full flex justify-center !w-full !h-auto cursor-pointer"
-                  >
-                    {userData?.client?.profile?.profile_image?.length > 0 ? (
-                      <Avatar
-                        alt="user profile"
-                        src={userData?.client?.profile?.profile_image}
-                        sx={{ width: "140px", height: "140px" }}
-                        className=""
-                      ></Avatar>
-                    ) : (
-                      <Avatar
-                        alt="user profile"
-                        src="/images/blueProfile.png"
-                        sx={{ width: "50%", height: "100%" }}
-                        className=""
-                      ></Avatar>
-                    )}
-                  </label>
+                  {" "}
+                  {activeIndex > 0
+                    ? "Product details"
+                    : "Profile Details"} &gt;{" "}
+                  <b style={{ color: "black" }}>{tabs[activeIndex]}</b>
                 </p>
-                <input
-                  type="file"
-                  id="upload-button"
-                  onChange={handleImageUpload}
-                  className="opacity-0 visibility-0"
-                />
-                {profileUploadErr && (
-                  <p className="text-red-600">{profileUploadErr}</p>
-                )}
-                {/* {profileuploadSucc && <p>{profileuploadSucc}</p>} */}
-                <p
-                  className="font-bold text-lg !text-left w-full ml-3 p-1"
-                  style={{
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    width: "90%",
-                  }}
-                >
-                  {userData?.client?.first_name?.charAt(0)?.toUpperCase() +
-                    userData?.client?.first_name?.slice(1)}{" "}
-                  {userData?.client?.last_name}
-                </p>
-                <p
-                  className=" flex items-center font-bold text-sm !text-left w-full ml-3  p-1 pb-0"
-                  style={{
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    width: "90%",
-                  }}
-                >
-                  <MdOutlineAlternateEmail className="mr-1" size={16} />
-                  {userData?.client?.email}
-                </p>
-                <p
-                  className="flex  items-center font-bold text-sm !text-left w-full ml-3 p-1 pt-0 "
-                  style={{
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    width: "90%",
-                  }}
-                >
-                  <BiSolidPhoneCall className="mr-1" size={16} />
-                  {userData?.client?.phone}
-                </p>
-              </div>
-              {/* <IconButton onClick={handleDrawerClose}>
+                <DrawerHeader />
 
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton> */}
-            </DrawerHeader>
-            <Divider />
-            <List>
-              {["Address", "Cart", "Wishlist", "Orders", "Logout"].map(
-                (text, index) => (
-                  <ListItem key={text} disablePadding sx={{ display: "block" }}>
-                    <ListItemButton
-                      sx={{
-                        minHeight: 48,
-                        justifyContent: open ? "initial" : "center",
-                        px: 2.5,
-                        backgroundColor: activeIndex === index ? "skyblue" : "",
-                      }}
-                      color={`${activeIndex === index ? "blue" : ""} `}
-                      onClick={() => handleActiveTab(index)}
-                    >
-                      {text === "Logout" && (
-                        <LogoutIcon
-                          size={20}
-                          className="mr-7"
-                          sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                          }}
-                        ></LogoutIcon>
-                      )}
-                      {text === "Orders" && (
-                        <BsFillBoxSeamFill
-                          size={20}
-                          className="mr-7"
-                          sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <MailIcon />
-                        </BsFillBoxSeamFill>
-                      )}
-                      {text === "Cart" && (
-                        <ShoppingCartRoundedIcon
-                          sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <MailIcon />
-                        </ShoppingCartRoundedIcon>
-                      )}
-                      {text === "Address" && (
-                        <BusinessIcon
-                          sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <MailIcon />
-                        </BusinessIcon>
-                      )}
-                      {text === "Wishlist" && (
-                        <FavoriteBorderIcon
-                          sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : "auto",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <MailIcon />
-                        </FavoriteBorderIcon>
-                      )}
-                      <ListItemText
-                        primary={text}
-                        sx={{ opacity: open ? 1 : 0 }}
-                      />
-                    </ListItemButton>
-                    <Divider />
-                  </ListItem>
-                )
-              )}
-            </List>
-            {/* <Divider /> */}
-          </Drawer>
-          <Divider />
-          <Box
-            className="drop-shadow-lg"
-            component="main"
-            sx={{
-              flexGrow: 1,
-              p: 3,
-              borderTop: "1px solid #eeeeee",
-              borderRight: "1px solid #eeeeee",
-              borderLeft: "1px solid #eeeeee",
-            }}
-          >
-            <p
-              className="p-0 m-0 text-left text-sm font-bold"
-              style={{ color: "darkgray" }}
-            >
-              {" "}
-              {activeIndex > 0
-                ? "Product details"
-                : "Profile Details"} &gt;{" "}
-              <b style={{ color: "black" }}>{tabs[activeIndex]}</b>
-            </p>
-            <DrawerHeader />
-            {/* {activeIndex === 0 && <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-          enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-          imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-          Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-          Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-          nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-          leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-          feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-          consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-          sapien faucibus et molestie ac.
-        </Typography>} */}
-            {activeIndex === 0 && (
-              <>
-                <div>
-                  <h4 className="!font-bold !text-gray-900">Billing address</h4>
-                  <div>
-                    <small className="w-full !text-left">
-                      Showing All Billing address available
-                    </small>
-                    <div className="flex overflow-x-auto">
-                      {userData?.client?.primary_address?.map(
-                        (address, ind) => (
-                          <div
-                            key={ind * 3}
-                            className="w-fit border border-1 p-3  text-left !min-w-[45%]  sm:!min-w-[25%] sm:max-w-[40%]  mt-5 ml-5 gap-5"
-                          >
-                            <CardActionArea
-                              onClick={() => {
-                                setAddressUpdateType("billing");
-                                setShowModal(true);
-                                setFormType("update");
-                                setAddressData(
-                                  userData?.client?.primary_address[ind]
-                                );
-                              }}
+                {activeIndex === 0 && (
+                  <>
+                    <div>
+                      <h4 className="mt-5 !font-bold">Address</h4>
+                      <div className="!mb-3">
+                        <small className="w-full !text-left">
+                          {userData?.client?.primary_address?.length > 0
+                            ? "Showing all addresses"
+                            : "No Address Found"}
+                        </small>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-4  mb-2">
+                          {userData?.client?.address?.map((address, ind) => (
+                            <div
+                              key={ind}
+                              className="col-sm-4  w-fit border border-1 p-3  text-left !w-[95%]  mt-5 ml-2 mr-3  gap-5"
                             >
-                              <h3 className="!font-bold">
-                                Address - {ind + 1}
-                              </h3>
-                              <p>{address?.add_1},</p>
-                              <p>
+                              {/* !min-w-[75%]  sm:!min-w-[25%] sm:max-w-[40%] */}
+                              <CardActionArea
+                                onClick={() => {
+                                  if (ind == 0) {
+                                    setAddressUpdateType("primary");
+                                    setShowModal(true);
+                                    setFormType("update");
+                                    setAddressData(
+                                      userData?.client?.address[ind]
+                                    );
+                                  } else {
+                                    setAddressUpdateType("");
+                                    setShowModal(true);
+                                    setFormType("update");
+                                    setAddressData(
+                                      userData?.client?.address[ind]
+                                    );
+                                  }
+                                }}
+                              >
+                                <h3
+                                  className={`!font-bold ${
+                                    ind == 0 ? "!text-blue-600" : ""
+                                  }`}
+                                >
+                                  {ind == 0
+                                    ? "Primary Address"
+                                    : `Address - ${ind + 1}`}
+                                </h3>
+                                <p className="truncate">{address?.add_1},</p>
                                 {address?.add_2 !== null
                                   ? `${address?.add_2},`
                                   : ""}
-                              </p>
-                              <p>{address?.city},</p>
-                              <p>{address?.zip},</p>
-                              <p>{address?.state},</p>
-                              <p>{address?.country}.</p>
-                            </CardActionArea>
-                          </div>
-                        )
-                      )}
-                      {userData?.client?.primary_address?.length === 0 && (
-                        <Button
-                          className="!ml-2 !mr-2"
-                          onClick={() => {
-                            setAddressUpdateType("billing");
-                            setShowModal(true);
-                            setAddressData([]);
-                            setFormType("add");
-                          }}
-                        >
-                          + Add new Address
-                        </Button>
-                      )}
-                    </div>
-
-                    <Divider />
-                  </div>
-                  <h4 className="mt-5 !font-bold">Shippping address</h4>
-                  <div>
-                    <small className="w-full !text-left">
-                      Showing All Shipping address available
-                    </small>
-                    <div className="flex overflow-x-auto ">
-                      {userData?.client?.address?.map((address, ind) => (
-                        <div
-                          key={ind}
-                          className=" w-fit border border-1 p-3  text-left !min-w-[45%]  sm:!min-w-[25%] sm:max-w-[40%]  mt-5 ml-5 gap-5"
-                        >
-                          <CardActionArea
+                                <p className="truncate">{address?.city},</p>
+                                <p className="truncate">{address?.state},</p>
+                                <p className="truncate">{address?.country},</p>
+                                <p className="truncate">{address?.zip}.</p>
+                              </CardActionArea>
+                            </div>
+                          ))}
+                          <Button
+                            className="!ml-2 !mt-7"
                             onClick={() => {
-                              setAddressUpdateType("shipping");
+                              setAddressUpdateType("");
                               setShowModal(true);
-                              setFormType("update");
-                              setAddressData(userData?.client?.address[ind]);
+                              setAddressData([]);
+                              setFormType("add");
                             }}
                           >
-                            <h3 className="!font-bold">Address - {ind + 1}</h3>
-                            <p>{address?.add_1},</p>
-                            <p>
-                              {address?.add_2 !== null
-                                ? `${address?.add_2},`
-                                : ""}
-                            </p>
-                            <p>{address?.city},</p>
-                            <p>{address?.zip},</p>
-                            <p>{address?.state},</p>
-                            <p>{address?.country}.</p>
-                          </CardActionArea>
+                            + Add new Address
+                          </Button>
                         </div>
-                      ))}
-                      <Button
-                        className="!ml-2"
-                        onClick={() => {
-                          setAddressUpdateType("shipping");
-                          setShowModal(true);
-                          setAddressData([]);
-                          setFormType("add");
-                        }}
-                      >
-                        + Add new Address
-                      </Button>
-                    </div>
-                    <Divider />
-                  </div>
-                </div>
-              </>
-            )}
-            {activeIndex === 1 && (
-              <>
-                <div>
-                  <h4 className="!font-bold">Your cart</h4>
-                  <Divider />
-                  {userData?.client?.cart?.length === 0 && (
-                    <div>
-                      <FaMinusCircle
-                        className="text-center w-full mt-5 "
-                        size={45}
-                        color="red"
-                      />
-                      <div className="flex justify-center items-center ">
-                        <img
-                          className="text-center"
-                          style={{ filter: "blur(2px)" }}
-                          src="/images/favicon.png"
-                        ></img>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-red-600 font-semibold">
-                          Your cart is Empty.
-                        </p>
-                        <p
-                          className="text-center font-semibold cursor-pointer"
-                          onClick={() => navigate(`${userLang}/`)}
-                          style={{ color: "#007aff" }}
-                        >
-                          Add Products to Cart
-                        </p>
+                        <Divider />
                       </div>
                     </div>
-                  )}
+                  </>
+                )}
+                {activeIndex === 1 && (
+                  <>
+                    <div className="mx-2">
+                      <h4 className="!font-bold">Your cart</h4>
+                      <Divider />
+                      {userData?.client?.cart?.length === 0 && (
+                        <div>
+                          <FaMinusCircle
+                            className="text-center w-full mt-5 "
+                            size={45}
+                            color="red"
+                          />
+                          <div className="flex justify-center items-center ">
+                            <img
+                              className="text-center"
+                              style={{ filter: "blur(2px)" }}
+                              src="/images/favicon.webp"
+                            ></img>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-red-600 font-semibold">
+                              Your cart is Empty.
+                            </p>
+                            <p
+                              className="text-center font-semibold cursor-pointer"
+                              onClick={() => navigate(`${userLang}/`)}
+                              style={{ color: "#007aff" }}
+                            >
+                              Add Products to Cart
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
-                  {userData?.client?.cart?.length > 0 && (
-                    <div className="row gy-5">
-                      {userData?.client?.cart?.map((product, ind) => (
-                        <div
-                          key={ind * 2}
-                          className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
-                        >
-                          <Card className="mt-5 " sx={{ maxWidth: 345 }}>
-                            <CardActionArea>
-                              <CardMedia
-                                component="img"
-                                height="140"
-                                image={
-                                  product?.product?.product?.product?.img_1
-                                }
-                                alt="green iguana"
-                                className="sm:!h-[300px]"
-                                onClick={() =>
-                                  navigate(
-                                    `${userLang}/product-detail/${
-                                      product?.product?.product?.product?.slug
-                                    }/${CryptoJS?.AES?.encrypt(
-                                      `${product?.product?.product?.product?.id}`,
-                                      "trading_materials"
-                                    )
-                                      ?.toString()
-                                      .replace(/\//g, "_")
-                                      .replace(/\+/g, "-")}`
-                                  )
-                                }
-                              />
-                              <CardContent>
-                                <Typography
-                                  gutterBottom
-                                  variant="h5"
-                                  component="div"
-                                >
-                                  {/* <div className="flex items-center">
+                      {userData?.client?.cart?.length > 0 && (
+                        <div className="row gy-5">
+                          {userData?.client?.cart?.map((product, ind) => (
+                            <div
+                              key={ind * 2}
+                              className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
+                            >
+                              <Card className="mt-5 " sx={{ maxWidth: 345 }}>
+                                <CardActionArea>
+                                  <CardMedia
+                                    component="img"
+                                    height="140"
+                                    image={product?.product?.img_1}
+                                    alt="green iguana"
+                                    className="sm:!h-[300px]"
+                                    onClick={() =>
+                                      navigate(
+                                        `${userLang}/product-detail/${
+                                          product?.product?.slug
+                                        }/${CryptoJS?.AES?.encrypt(
+                                          `${product?.product?.id}`,
+                                          "trading_materials"
+                                        )
+                                          ?.toString()
+                                          .replace(/\//g, "_")
+                                          .replace(/\+/g, "-")}`
+                                      )
+                                    }
+                                  />
+                                  <CardContent>
+                                    <Typography
+                                      gutterBottom
+                                      variant="h5"
+                                      component="div"
+                                    >
+                                      {/* <div className="flex items-center">
                                   <p
                                     className="max-w-[100%] md:max-w-[75%]"
                                     style={{
@@ -819,46 +706,289 @@ export default function SideBar() {
                                       width: "90%",
                                     }}
                                   >
-                                    {product?.product?.product?.product?.name}
+                                    {product?.product?.name}
                                   </p>
                                 </div>
                                 <small className="font-bold block !w-full !text-left">
-                                  Qty : {product?.product?.qty}{" "}
+                                  Qty : {product?.qty}{" "}
                                 </small> */}
-                                  <div className="nk-card-info bg-white p-4">
-                                    {/* <a
+                                      <div className="nk-card-info bg-white p-4">
+                                        {/* <a
                               href="/"
                               className="d-inline-block mb-1 line-clamp-1 h5"
                             >
-                               {product?.product?.name}
+                               {product?.name}
                             </a> */}
-                                    <a
-                                      href={`${userLang}/product-detail/${
-                                        product?.product?.product?.product?.slug
-                                      }/${CryptoJS?.AES?.encrypt(
-                                        `${product?.product?.id}`,
-                                        "trading_materials"
-                                      )
-                                        ?.toString()
-                                        .replace(/\//g, "_")
-                                        .replace(/\+/g, "-")}`}
-                                      className="d-inline-block mb-1 line-clamp-1 h5 !font-bold text-left"
-                                      style={{
-                                        textOverflow: "ellipsis",
-                                        whiteSpace: "nowrap",
-                                        overflow: "hidden",
-                                        width: "90%",
-                                      }}
+                                        <a
+                                          href={`${userLang}/product-detail/${
+                                            product?.product?.slug
+                                          }/${CryptoJS?.AES?.encrypt(
+                                            `${product?.id}`,
+                                            "trading_materials"
+                                          )
+                                            ?.toString()
+                                            .replace(/\//g, "_")
+                                            .replace(/\+/g, "-")}`}
+                                          className="d-inline-block mb-1 line-clamp-1 h5 !font-bold text-left"
+                                          style={{
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            width: "90%",
+                                          }}
+                                        >
+                                          {product?.product?.name}
+                                          <br />
+                                          <span className="text-xs !mt-1">
+                                            <p
+                                              onClick={() => {
+                                                navigate(
+                                                  `${userLang}/product-detail/${
+                                                    product?.product?.slug
+                                                  }/${CryptoJS?.AES?.encrypt(
+                                                    `${product?.id}`,
+                                                    "trading_materials"
+                                                  )
+                                                    ?.toString()
+                                                    .replace(/\//g, "_")
+                                                    .replace(/\+/g, "-")}`
+                                                );
+                                                dispatch(showLoader());
+                                              }}
+                                              className="!mt-5 text-gray-700  truncate"
+                                              dangerouslySetInnerHTML={{
+                                                __html:
+                                                  product?.product?.description
+                                                    ?.length > 55
+                                                    ? `${product?.product?.description?.slice(
+                                                        0,
+                                                        55
+                                                      )}...`
+                                                    : product?.product
+                                                        ?.description,
+                                              }}
+                                            />
+                                          </span>
+                                        </a>
+                                        <div className="d-flex align-items-center text-lg mb-2 gap-1">
+                                          {ratingStars(
+                                            product?.product?.rating
+                                              ? product?.product?.rating
+                                              : 0
+                                          )}
+
+                                          <span className=" fs-12 text-gray-800">
+                                            {" "}
+                                            ({
+                                              product?.product?.total_reviews
+                                            }{" "}
+                                            Reviews){" "}
+                                          </span>
+                                        </div>
+                                        <div className="d-flex align-items-center justify-content-start">
+                                          <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                            <sub
+                                              style={{
+                                                verticalAlign: "super",
+                                              }}
+                                            >
+                                              ₹
+                                            </sub>
+                                            {product?.price}
+                                            {product?.product?.discount > 0 && (
+                                              <del className="text-gray-800 !ml-2">
+                                                {
+                                                  (
+                                                    parseFloat(
+                                                      product?.price *
+                                                        (100 /
+                                                          product?.product
+                                                            ?.discount)
+                                                    )?.toFixed(2) + ""
+                                                  )
+                                                    .toString()
+                                                    .split(".")[0]
+                                                }
+                                                {/* <sub
+                                              style={{
+                                                verticalAlign: "super",
+                                              }}
+                                            > */}
+                                                .
+                                                {
+                                                  (
+                                                    parseFloat(
+                                                      product?.price *
+                                                        (100 /
+                                                          product?.product
+                                                            ?.discount)
+                                                    )?.toFixed(2) + ""
+                                                  )
+                                                    .toString()
+                                                    .split(".")[1]
+                                                }
+                                                {/* </sub> */}
+                                              </del>
+                                            )}
+                                          </p>
+
+                                          {/* {product?.prices?.map(
+                                            (price, ind) => (
+                                              <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                                {currentUserlang === "en"
+                                                  ? price?.INR &&
+                                                    `₹${Number.parseFloat(
+                                                      price?.INR
+                                                    ).toFixed(2)}`
+                                                  : price?.USD &&
+                                                    `$${Number.parseFloat(
+                                                      price?.USD
+                                                    ).toFixed(2)}`}
+                                                {currentUserlang === "en"
+                                                  ? price?.INR && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {getRandomNumberWithOffset(
+                                                          price?.INR
+                                                        )}
+                                                      </del>
+                                                    )
+                                                  : price?.USD && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {getRandomNumberWithOffset(
+                                                          Number.parseFloat(
+                                                            price?.USD
+                                                          ).toFixed(2)
+                                                        )}
+                                                      </del>
+                                                    )}
+                                              </p>
+                                            )
+                                          )} */}
+
+                                          {/* <button
+                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "end",
+                                              marginRight: "5px",
+                                            }}
+                                            onClick={() => {
+                                              isLoggedIn
+                                                ? handleAddToWishList(
+                                                    product?.id
+                                                  )
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            <FaRegHeart size={18} />
+                                          </button> */}
+
+                                          {/* <button
+                                            className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                            onClick={(event) => {
+                                              return isLoggedIn
+                                                ? (handleAddToCart(product?.id),
+                                                  handleCartPosition(event))
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            {animateProductId ===
+                                            product?.id ? (
+                                              <img src="/images/addedtocart.gif" />
+                                            ) : (
+                                              <em className="icon ni ni-cart text-2xl"></em>
+                                            )}
+                                          </button> */}
+                                          <p
+                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "end",
+                                              marginRight: "5px",
+                                            }}
+                                          >
+                                            <span className="text-base text-black font-semibold flex !items-center">
+                                              Qty:
+                                            </span>
+                                            {product?.qty}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </Typography>
+                                    {/* <Typography variant="body2" color="text.secondary">
+                       <p dangerouslySetInnerHTML={{__html: product?.product?.description}}/>
+                    </Typography> */}
+                                  </CardContent>
+                                </CardActionArea>
+                              </Card>
+                              {product?.product?.discount > 0 && (
+                                <div className="flex justify-end items-end ">
+                                  <div
+                                    className="flex absolute items-center justify-center img-box !drop-shadow-lg
+
+"
+                                  >
+                                    <img
+                                      src="/images/sale-2.webp"
+                                      alt="ffer_label"
+                                      width={65}
+                                      className="drop-shadow-lg"
+                                    ></img>
+                                    <label className="absolute !font-bold text-white !text-xs right-1">
+                                      {product?.product?.discount}%
+                                    </label>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        // </div>
+                      )}
+                    </div>
+                  </>
+                )}
+                {activeIndex === 2 && (
+                  <>
+                    <div>
+                      <h4 className="!font-bold">Your Wishlist</h4>
+                      <Divider />
+                      {userData?.client?.wishlist?.length === 0 && (
+                        <p>Your Wishlist is empty</p>
+                      )}
+                      <div className="nk-section-content-products">
+                        <div className="mx-2 ">
+                          {userData?.client?.wishlist?.length > 0 && (
+                            <div className="row">
+                              {userData?.client?.wishlist?.map(
+                                (product, ind) => (
+                                  <div
+                                    key={ind}
+                                    className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]"
+                                  >
+                                    <Card
+                                      className="mt-5 "
+                                      sx={{ maxWidth: 345 }}
                                     >
-                                      {product?.product?.product?.product?.name}
-                                      <br />
-                                      <span className="text-xs !mt-1">
-                                        <p
-                                          onClick={() => {
+                                      <div>
+                                        <CardMedia
+                                          component="img"
+                                          height="140"
+                                          image={product?.product?.img_1}
+                                          alt="green iguana"
+                                          className="sm:!h-[300px]"
+                                          onClick={() =>
                                             navigate(
                                               `${userLang}/product-detail/${
-                                                product?.product?.product
-                                                  ?.product?.slug
+                                                product?.product?.slug
                                               }/${CryptoJS?.AES?.encrypt(
                                                 `${product?.product?.id}`,
                                                 "trading_materials"
@@ -866,288 +996,343 @@ export default function SideBar() {
                                                 ?.toString()
                                                 .replace(/\//g, "_")
                                                 .replace(/\+/g, "-")}`
-                                            );
-                                            dispatch(showLoader());
-                                          }}
-                                          className="!mt-5 text-gray-700  truncate"
-                                          dangerouslySetInnerHTML={{
-                                            __html:
-                                              product?.product?.product?.product
-                                                ?.description?.length > 55
-                                                ? `${product?.product?.product?.product?.description?.slice(
-                                                    0,
-                                                    55
-                                                  )}...`
-                                                : product?.product?.product
-                                                    ?.product?.description,
-                                          }}
+                                            )
+                                          }
                                         />
-                                      </span>
-                                    </a>
-                                    <div className="d-flex align-items-center text-lg mb-2 gap-1">
-                                      {ratingStars(
-                                        product?.rating ? product?.rating : 0
-                                      )}
+                                        <CardContent>
+                                          <Typography
+                                            gutterBottom
+                                            variant="h5"
+                                            component="div"
+                                          >
+                                            <div>
+                                              <a
+                                                href={`${userLang}/product-detail/${
+                                                  product?.product?.slug
+                                                }/${CryptoJS?.AES?.encrypt(
+                                                  `${product?.product?.id}`,
+                                                  "trading_materials"
+                                                )
+                                                  ?.toString()
+                                                  .replace(/\//g, "_")
+                                                  .replace(/\+/g, "-")}`}
+                                                className="d-inline-block mb-1 line-clamp-1 h5 !font-bold text-left"
+                                                style={{
+                                                  textOverflow: "ellipsis",
+                                                  whiteSpace: "nowrap",
+                                                  overflow: "hidden",
+                                                  width: "97%",
+                                                }}
+                                              >
+                                                {product?.product?.name}
+                                                <br />
+                                                <span className="text-xs !mt-1">
+                                                  <p
+                                                    onClick={() => {
+                                                      navigate(
+                                                        `${userLang}/product-detail/${
+                                                          product?.product?.slug
+                                                        }/${CryptoJS?.AES?.encrypt(
+                                                          `${product?.product?.id}`,
+                                                          "trading_materials"
+                                                        )
+                                                          ?.toString()
+                                                          .replace(/\//g, "_")
+                                                          .replace(/\+/g, "-")}`
+                                                      );
+                                                      dispatch(showLoader());
+                                                    }}
+                                                    className="!mt-5 text-gray-700  truncate"
+                                                    dangerouslySetInnerHTML={{
+                                                      __html:
+                                                        product?.product
+                                                          ?.description
+                                                          ?.length > 55
+                                                          ? `${product?.product?.description?.slice(
+                                                              0,
+                                                              55
+                                                            )}...`
+                                                          : product?.product
+                                                              ?.description,
+                                                    }}
+                                                  />
+                                                </span>
+                                              </a>
+                                              <div className="d-flex align-items-center text-lg mb-2 gap-1">
+                                                {ratingStars(
+                                                  product?.rating
+                                                    ? product?.rating
+                                                    : 0
+                                                )}
 
-                                      <span className=" fs-12 text-gray-800">
-                                        {" "}
-                                        ({
-                                          product?.product?.review
-                                        } Reviews){" "}
-                                      </span>
-                                    </div>
-                                    <div className="d-flex align-items-center justify-content-start">
-                                      <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                        <sub
-                                          style={{
-                                            verticalAlign: "super",
-                                          }}
-                                        >
-                                          ₹
-                                        </sub>
-                                        {product?.product?.price}
-                                      </p>
+                                                <span className=" fs-12 text-gray-800">
+                                                  {" "}
+                                                  ({
+                                                    product?.review
+                                                  } Reviews){" "}
+                                                </span>
+                                              </div>
+                                              <div className="d-flex align-items-center justify-content-start">
+                                                <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                                  <sub
+                                                    style={{
+                                                      verticalAlign: "super",
+                                                    }}
+                                                  >
+                                                    ₹
+                                                  </sub>
+                                                  {product?.price}
+                                                  {product?.discount > 0 && (
+                                                    <del className="text-gray-800 !ml-2">
+                                                      <sub
+                                                        style={{
+                                                          verticalAlign:
+                                                            "super",
+                                                        }}
+                                                      >
+                                                        ₹
+                                                      </sub>
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            product?.price *
+                                                              (100 /
+                                                                (100 -
+                                                                  product?.discount))
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[0]
+                                                      }
+                                                      {/* <sub
+                                                  style={{
+                                                    verticalAlign: "super",
+                                                  }}
+                                                > */}
+                                                      .
+                                                      {
+                                                        (
+                                                          parseFloat(
+                                                            product?.price *
+                                                              (100 /
+                                                                product?.discount)
+                                                          )?.toFixed(2) + ""
+                                                        )
+                                                          .toString()
+                                                          .split(".")[1]
+                                                      }
+                                                      {/* </sub> */}
+                                                    </del>
+                                                  )}
+                                                </p>
 
-                                      <p
-                                        className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
-                                        style={{
-                                          display: "flex",
-                                          justifyContent: "end",
-                                          marginRight: "5px",
-                                        }}
-                                      >
-                                        <span className="text-base text-black font-semibold flex !items-center">
-                                          Qty:
-                                        </span>
-                                        {product?.product?.qty}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </Typography>
-                                {/* <Typography variant="body2" color="text.secondary">
-                       <p dangerouslySetInnerHTML={{__html: product?.product?.product?.product?.description}}/>
-                    </Typography> */}
-                              </CardContent>
-                            </CardActionArea>
-                          </Card>
-                          {product?.discount > 0 && (
-                            <div className="flex justify-end items-end ">
-                              <div
-                                className="flex absolute items-center justify-center img-box !drop-shadow-lg
+                                                <div className="flex justify-end w-full items-center">
+                                                  <button
+                                                    className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                                    // eslint-disable-next-line no-unused-vars
+                                                    onClick={(event) => {
+                                                      return isLoggedIn
+                                                        ? handleAddToCart(
+                                                            product?.product
+                                                              ?.id,
+                                                            product?.product
+                                                              ?.img_1
+                                                          )
+                                                        : dispatch(
+                                                            usersignupinModal({
+                                                              showSignupModal: false,
+                                                              showLoginModal: true,
+                                                              showforgotPasswordModal: false,
+                                                              showOtpModal: false,
+                                                              showNewPasswordModal: false,
+                                                            })
+                                                          );
+                                                    }}
+                                                  >
+                                                    {animateProductId ===
+                                                    product?.product?.id ? (
+                                                      <img
+                                                        src="/images/addedtocart.gif"
+                                                        className="max-w-[45px]"
+                                                      />
+                                                    ) : (
+                                                      <em className="icon ni ni-cart text-2xl "></em>
+                                                    )}
+                                                  </button>
+                                                </div>
+
+                                                {/* {product?.prices?.map(
+                                            (price, ind) => (
+                                              <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
+                                                {currentUserlang === "en"
+                                                  ? price?.INR &&
+                                                    `₹${Number.parseFloat(
+                                                      price?.INR
+                                                    ).toFixed(2)}`
+                                                  : price?.USD &&
+                                                    `$${Number.parseFloat(
+                                                      price?.USD
+                                                    ).toFixed(2)}`}
+                                                {currentUserlang === "en"
+                                                  ? price?.INR && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {getRandomNumberWithOffset(
+                                                          price?.INR
+                                                        )}
+                                                      </del>
+                                                    )
+                                                  : price?.USD && (
+                                                      <del className="text-gray-800 !ml-2">
+                                                        {currentUserlang ===
+                                                        "en"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {getRandomNumberWithOffset(
+                                                          Number.parseFloat(
+                                                            price?.USD
+                                                          ).toFixed(2)
+                                                        )}
+                                                      </del>
+                                                    )}
+                                              </p>
+                                            )
+                                          )} */}
+
+                                                {/* <button
+                                            className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "end",
+                                              marginRight: "5px",
+                                            }}
+                                            onClick={() => {
+                                              isLoggedIn
+                                                ? handleAddToWishList(
+                                                    product?.id
+                                                  )
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            <FaRegHeart size={18} />
+                                          </button> */}
+
+                                                {/* <button
+                                            className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                            onClick={(event) => {
+                                              return isLoggedIn
+                                                ? (handleAddToCart(product?.id),
+                                                  handleCartPosition(event))
+                                                : dispatch(showPopup());
+                                            }}
+                                          >
+                                            {animateProductId ===
+                                            product?.id ? (
+                                              <img src="/images/addedtocart.gif" />
+                                            ) : (
+                                              <em className="icon ni ni-cart text-2xl"></em>
+                                            )}
+                                          </button> */}
+                                                {/* <p
+                                      className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent !content-center w-full !text-right text-lg"
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "end",
+                                        marginRight: "5px",
+                                      }}
+                                    >
+                                      <span className="text-base text-black font-semibold flex !items-center">
+                                        Qty:
+                                      </span>
+                                      {product?.qty}
+                                    </p> */}
+                                              </div>
+                                            </div>
+                                          </Typography>
+                                        </CardContent>
+                                      </div>
+                                    </Card>
+                                    {product?.discount > 0 && (
+                                      <div className="flex justify-end items-end ">
+                                        <div
+                                          className="flex absolute items-center justify-center img-box !drop-shadow-lg
 
 "
-                              >
-                                <img
-                                  src="/images/sale-2.png"
-                                  alt="ffer_label"
-                                  width={65}
-                                  className="drop-shadow-lg"
-                                ></img>
-                                <label className="absolute !font-bold text-white !text-xs right-1">
-                                  {product?.product?.product?.product?.discount}
-                                  %
-                                </label>
-                              </div>
+                                        >
+                                          <img
+                                            src="/images/sale-2.webp"
+                                            alt="ffer_label"
+                                            width={65}
+                                            className="drop-shadow-lg"
+                                          ></img>
+                                          <label className="absolute !font-bold text-white !text-xs right-1">
+                                            {product?.discount}%
+                                          </label>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )
+                              )}
                             </div>
                           )}
                         </div>
-                      ))}
+                      </div>
                     </div>
-                    // </div>
-                  )}
-                </div>
-              </>
-            )}
-            {activeIndex === 2 && (
-              <>
-                <div>
-                  <h4 className="!font-bold">Your Wishlist</h4>
-                  <Divider />
-                  {userData?.client?.wishlist?.length === 0 && (
-                    <p>Your Wishlist is empty</p>
-                  )}
-                  <div className="nk-section-content-products">
-                    <div className=" ">
-                      {userData?.client?.wishlist?.length > 0 && (
-                        <div className="row">
-                          {userData?.client?.wishlist?.map((product, ind) => (
-                            <div
-                              key={ind}
-                              className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px] group hover:drop-shadow-xl"
-                              id={`img-${product?.product?.id}`}
-                            >
-                              <div className="nk-card overflow-hidden rounded-3 h-100 border text-left ">
-                                <div className="nk-card-img relative">
-                                  <a
-                                    href={`${userLang}/product-detail/${
-                                      product?.product?.slug
-                                    }/${CryptoJS?.AES?.encrypt(
-                                      `${product?.product?.id}`,
-                                      "trading_materials"
-                                    )
-                                      ?.toString()
-                                      .replace(/\//g, "_")
-                                      .replace(/\+/g, "-")}`}
-                                  >
-                                    <img
-                                      src={product?.product?.img_1}
-                                      alt="product-image"
-                                      className="sm:!h-[300px] !w-full group-hover:scale-105 transition duration-500"
-                                      loading="lazy"
-                                    />
-                                    {product?.product?.stock?.stock < 10 && (
-                                      <GitHubForkRibbon
-                                        className="drop-shadow-xl subpixel-antialiased"
-                                        color="orange"
-                                        position="left"
-                                      >
-                                        Only {product?.product?.stock?.stock}{" "}
-                                        left !!
-                                      </GitHubForkRibbon>
-                                    )}
-                                  </a>
-                                </div>
-                                <div className="nk-card-info bg-white p-4">
-                                  <a
-                                    href={`${userLang}/product-detail/${
-                                      product?.product?.slug
-                                    }/${CryptoJS?.AES?.encrypt(
-                                      `${product?.product?.id}`,
-                                      "trading_materials"
-                                    )
-                                      ?.toString()
-                                      .replace(/\//g, "_")
-                                      .replace(/\+/g, "-")}`}
-                                    className="d-inline-block mb-1 line-clamp-1 h5 !font-bold"
-                                    style={{
-                                      textOverflow: "ellipsis",
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      width: "90%",
-                                    }}
-                                  >
-                                    {product?.product?.name}
-                                    <br />
-                                    <span className="text-xs !mt-1">
-                                      <p
-                                        onClick={() => {
-                                          navigate(
-                                            `${userLang}/product-detail/${
-                                              product?.product?.slug
-                                            }/${CryptoJS?.AES?.encrypt(
-                                              `${product?.product?.id}`,
-                                              "trading_materials"
-                                            )
-                                              ?.toString()
-                                              .replace(/\//g, "_")
-                                              .replace(/\+/g, "-")}`
-                                          );
-                                          dispatch(showLoader());
-                                        }}
-                                        className="!mt-5 text-gray-700  truncate"
-                                        dangerouslySetInnerHTML={{
-                                          __html:
-                                            product?.product?.description
-                                              ?.length > 55
-                                              ? `${product?.product?.description?.slice(
-                                                  0,
-                                                  55
-                                                )}...`
-                                              : product?.product?.description,
-                                        }}
-                                      />
-                                    </span>
-                                  </a>
-                                  <div className="d-flex align-items-center mb-2 gap-1">
-                                    {ratingStars(product?.product?.rating)}
-
-                                    <span className="fs-14 text-gray-800">
-                                      {" "}
-                                      ({product?.product?.total_reviews}{" "}
-                                      Reviews){" "}
-                                    </span>
-                                  </div>
-                                  <div className="d-flex align-items-center justify-content-start">
-                                    <p className="fs-16 m-0 text-gray-1200 text-start fw-bold !mr-2 ">
-                                      <sub
-                                        style={{
-                                          verticalAlign: "super",
-                                        }}
-                                      >
-                                        ₹
-                                      </sub>
-                                      {product?.price}
-                                    </p>
-
-                                    <div className="flex justify-start items-center">
-                                      <button
-                                        className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
-                                        // eslint-disable-next-line no-unused-vars
-                                        onClick={(event) => {
-                                          return isLoggedIn
-                                            ? handleAddToCart(
-                                                product?.product?.id,
-                                                product?.product?.img_1
-                                              )
-                                            : navigate(`/login`);
-                                        }}
-                                      >
-                                        {animateProductId ===
-                                        product?.product?.id ? (
-                                          <img
-                                            src="/images/addedtocart.gif"
-                                            className="max-w-[45px]"
-                                          />
-                                        ) : (
-                                          <em className="icon ni ni-cart text-2xl "></em>
-                                        )}
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                                {product?.product?.discount > 0 && (
-                                  <div className="flex justify-end items-end   !mt-2">
-                                    <div
-                                      className="flex absolute items-center justify-center img-box !drop-shadow-lg
-
-"
-                                    >
-                                      <img
-                                        src="/images/sale-2.png"
-                                        alt="ffer_label"
-                                        width={65}
-                                        className="drop-shadow-lg"
-                                      ></img>
-                                      <label className="absolute !font-bold text-white !text-xs right-1">
-                                        {product?.product?.discount}%
-                                      </label>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-            {activeIndex === 3 && (
-              <>
-                <div className="!w-full">
-                  <h4 className="!font-bold">Your Orders</h4>
-                  <Divider />
-                  {/* {userData?.client?.orders?.length === 0 && (
+                  </>
+                )}
+                {activeIndex === 3 && (
+                  <>
+                    <div className="!w-full">
+                      <h4 className="!font-bold">Your Orders</h4>
+                      <Divider />
+                      {/* {userData?.client?.orders?.length === 0 && (
                     <p>Your Orders are empty</p>
                   )} */}
-                  <Invoices />
+                      {/* <Invoices /> */}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+          <section className="nk-section nk-cta-section nk-section-content-1">
+            <div className="container">
+              <div className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7">
+                <div className="row g-gs align-items-center">
+                  <div className="col-lg-8">
+                    <div className="media-group flex-column flex-lg-row align-items-center">
+                      <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                        <em className="icon ni ni-chat-fill"></em>
+                      </div>
+                      <div className="text-center text-lg-start">
+                        <h3 className="text-capitalize m-0 !text-3xl !font-bold !leading-loose">
+                          Chat with our support team!
+                        </h3>
+                        <p className="fs-16 opacity-75">
+                          Get in touch with our support team if you still can’t
+                          find your answer.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-4 text-center text-lg-end">
+                    <a
+                      href={`https://tradingmaterials.com/contact`}
+                      className="btn btn-white fw-semiBold"
+                    >
+                      Contact Support
+                    </a>
+                  </div>
                 </div>
-              </>
-            )}
-          </Box>
-        </Box>
+              </div>
+            </div>
+          </section>
+        </main>
+        <Footer />
       </div>
     </>
   );

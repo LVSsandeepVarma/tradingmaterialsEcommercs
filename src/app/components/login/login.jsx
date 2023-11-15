@@ -1,5 +1,5 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -12,7 +12,6 @@ import { updateclientType } from "../../../features/clientType/clientType";
 import { Alert } from "@mui/material";
 
 export default function Login() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -46,12 +45,11 @@ export default function Login() {
       dispatch(userLanguage("/ms"));
     } else {
       dispatch(userLanguage(""));
-      
     }
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -115,7 +113,7 @@ export default function Login() {
               localStorage.removeItem("phone", password);
             }
           }
-          
+
           localStorage.removeItem("client_token");
           localStorage.setItem("client_token", response?.data?.token);
           // localStorage
@@ -132,12 +130,14 @@ export default function Login() {
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
           if (response?.data?.type === "client") {
-            setLoginsuccessMsg(response?.data?.message)
-            window.location.href = `/auto-login/${localStorage.getItem("client_token")}`
+            setLoginsuccessMsg(response?.data?.message);
+            window.location.href = `/auto-login/${localStorage.getItem(
+              "client_token"
+            )}`;
           }
           if (response?.data?.type === "lead") {
-            setApiError["Unauthorized"]
-            window.location.href = `http://tradingmaterials.com`
+            setApiError["Unauthorized"];
+            window.location.href = `http://tradingmaterials.com`;
           }
           setTimeout(() => {
             localStorage.removeItem("token");
@@ -151,14 +151,13 @@ export default function Login() {
           }, 3600000);
         }
       } catch (err) {
-        
         console.log("err", err);
         if (err?.response?.data?.errors) {
           setEmailError(err?.response?.data?.errors["email"]);
           setPasswordError(err?.response?.data?.errors["password"]);
           // setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
-          console.log(err?.response)
+          console.log(err?.response);
           setApiError([err?.response?.data?.message]);
         }
         setTimeout(() => {
@@ -195,7 +194,7 @@ export default function Login() {
                       >
                         <img
                           className="logo-img justify-center"
-                          src="/images/tm-logo-1.png"
+                          src="/images/tm-logo-1.webp"
                           alt="logo"
                         />
                       </a>
@@ -206,7 +205,7 @@ export default function Login() {
                     >
                       Login to your account
                     </h3>
-                    <p className="text">
+                    {/* <p className="text">
                       Not a member yet?{" "}
                       <a
                         href={`${userLang}/signup`}
@@ -215,13 +214,16 @@ export default function Login() {
                         Sign Up
                       </a>
                       .
-                    </p>
+                    </p> */}
                   </div>
                   <Form>
                     <div className="row gy-4 !text-left">
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label ">Email</label>
+                          <label className="form-label ">
+                            Email
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <input
                               type="email"
@@ -240,7 +242,10 @@ export default function Login() {
                       </div>
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">Password</label>
+                          <label className="form-label">
+                            Password
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <a
                               // href="show-hide-password.html"
@@ -262,6 +267,7 @@ export default function Login() {
                               type={showPassword ? "text" : "password"}
                               className="form-control"
                               placeholder="Enter your password"
+                              maxLength="15"
                               onChange={handlePasswordChange}
                               value={password}
                             />
@@ -327,7 +333,7 @@ export default function Login() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
-                                key={ind}
+                                  key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"
@@ -345,7 +351,6 @@ export default function Login() {
                       </div>
                     </div>
                   </Form>
-                  
                 </div>
               </div>
             </div>
@@ -361,22 +366,21 @@ export default function Login() {
                     <em className="icon ni ni-quote-left text-white"></em>
                   </div>
                   <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
-                    We’re building a better application now
+                    Join to all traders community
                   </h1>
                   <div className="nk-auth-quote ms-sm-5">
                     <div className="nk-auth-quote-inner">
                       <p className="small">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Venenatis magna massa semper tristique. Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit. Venenatis
-                        magna massa semper tristique dotset.
+                        The trading materials is about to have a twist on forum
+                        and community space for all who love to trade and make
+                        their own living.
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
-                          <img src="/images/avatar/a.jpg" alt="avatar" />
+                          <img src="/images/avatar/a.webp" alt="avatar" />
                         </div>
                         <div className="media-text">
-                          <div className="h5 mb-0 !font-bold">Wade Warren</div>
+                          <div className="h5 mb-0 !font-bold">Founder</div>
                           <span className="small">3 months ago</span>
                         </div>
                       </div>

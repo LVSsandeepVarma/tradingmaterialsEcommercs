@@ -16,7 +16,6 @@ import { Alert } from "@mui/material";
 
 // eslint-disable-next-line react/prop-types, no-unused-vars
 const LoginModal = ({ show, onHide }) => {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -54,7 +53,7 @@ const LoginModal = ({ show, onHide }) => {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -136,7 +135,7 @@ const LoginModal = ({ show, onHide }) => {
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
           // if (response?.data?.type === "client") {
-            navigate(`${userLang}/profile`);
+          navigate(`${userLang}/profile`);
           // }
           handleHide();
           setTimeout(() => {
@@ -151,14 +150,13 @@ const LoginModal = ({ show, onHide }) => {
           }, 3600000);
         }
       } catch (err) {
-        
         console.log("err", err);
         if (err?.response?.data?.errors) {
           setEmailError(err?.response?.data?.errors["email"]);
           setPasswordError(err?.response?.data?.errors["password"]);
           // setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
-          console.log(err?.response)
+          console.log(err?.response);
           setApiError([err?.response?.data?.message]);
         }
         setTimeout(() => {
@@ -232,7 +230,7 @@ const LoginModal = ({ show, onHide }) => {
                   >
                     <img
                       className="logo-img "
-                      src="/images/tm-logo-1.png"
+                      src="/images/tm-logo-1.webp"
                       alt="logo"
                     />
                   </a>
@@ -244,7 +242,7 @@ const LoginModal = ({ show, onHide }) => {
                   Login to your account
                 </h3>
                 {/* <small className="text font-semibold text-lg">To Offers</small> */}
-                <p className="text-sm">
+                {/* <p className="text-sm">
                   Not a member yet?{" "}
                   <a
                     onClick={() =>
@@ -263,13 +261,15 @@ const LoginModal = ({ show, onHide }) => {
                     Sign Up
                   </a>
                   .
-                </p>
+                </p> */}
               </div>
               <Form>
                 <div className="row gy-4 !text-left">
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label ">Email</label>
+                      <label className="form-label ">
+                        Email<sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <input
                           type="email"
@@ -288,7 +288,9 @@ const LoginModal = ({ show, onHide }) => {
                   </div>
                   <div className="col-12">
                     <div className="form-group">
-                      <label className="form-label">Password</label>
+                      <label className="form-label">
+                        Password<sup className="text-red-600 !font-bold">*</sup>
+                      </label>
                       <div className="form-control-wrap">
                         <a
                           // href="show-hide-password.html"
@@ -308,6 +310,7 @@ const LoginModal = ({ show, onHide }) => {
                           type={showPassword ? "text" : "password"}
                           className="form-control"
                           placeholder="Enter your password"
+                          maxLength="15"
                           onChange={handlePasswordChange}
                           value={password}
                         />
@@ -330,7 +333,10 @@ const LoginModal = ({ show, onHide }) => {
                           checked={saveCredentials}
                           onChange={() => setSavecredentials(!saveCredentials)}
                         />
-                        <label className="form-check-label" htmlFor="rememberMe">
+                        <label
+                          className="form-check-label"
+                          htmlFor="rememberMe"
+                        >
                           {" "}
                           Remember Me{" "}
                         </label>
@@ -385,7 +391,7 @@ const LoginModal = ({ show, onHide }) => {
                         apiError?.map((err, ind) => {
                           return (
                             <Alert
-                            key={ind}
+                              key={ind}
                               variant="outlined"
                               severity="error"
                               className="mt-2"

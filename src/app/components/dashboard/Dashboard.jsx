@@ -1,19 +1,77 @@
 /* eslint-disable react/no-unknown-property */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../header/header";
-import { FaBoxOpen, FaBoxes, FaWindowClose } from "react-icons/fa";
-import { TbTruckDelivery } from "react-icons/tb";
-import { BsArrowLeftRight, BsFillFileEarmarkCheckFill } from "react-icons/bs";
-import {MdOutlinePendingActions} from "react-icons/md"
+// import { FaBoxOpen, FaWindowClose } from "react-icons/fa";
+// import { TbTruckDelivery } from "react-icons/tb";
+// import { BsArrowLeftRight } from "react-icons/bs";
+// import {MdOutlinePendingActions} from "react-icons/md"
 import "../dashboard/dashboard.css";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Footer from "../footer/footer";
 import { Avatar, Divider } from "@mui/material";
+import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
+import axios from "axios";
 export default function Dashboard() {
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector((state) => state?.login?.value);
   const userData = useSelector((state) => state?.user?.value);
   console.log(userData);
+  const [userIp, setUserIp] = useState("");
+  // eslint-disable-next-line no-unused-vars
+  const [orders, setOrders] = useState();
+
+  useEffect(() => {
+    if (!localStorage.getItem("client_token")) {
+      window.location.href = "/login";
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then((response) => response.json())
+      .then((data) => setUserIp(data.ip));
+  }, []);
+
+  // useEffect(()=>{
+  //   if(!isLoggedIn){
+  //     window.location.href="/login"
+  //   }
+  // },[isLoggedIn])
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        dispatch(showLoader());
+        const token = localStorage.getItem("client_token");
+        console.log(token);
+        const response = await axios.get(
+          `https://admin.tradingmaterials.com/api/client/product/checkout/order-list?client_id=${userData?.client?.id}`,
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          }
+        );
+        if (response?.data?.status) {
+          console.log(response?.data);
+
+          const data = response?.data?.data?.order;
+          // Sort the array in descending order based on 'created_at'
+          data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+          setOrders(data);
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        dispatch(hideLoader());
+      }
+    };
+    fetchOrders();
+  }, [userData]);
+
   const { t } = useTranslation();
   const navigate = useNavigate();
   return (
@@ -21,7 +79,7 @@ export default function Dashboard() {
       <div className="nk-app-root">
         <Header />
 
-        <main className="nk-pages mt-20 sm:mt-60 md:mt-40">
+        <main className="nk-pages mt-10 sm:mt-40 md:mt-[6rem]">
           <section className="nk-section ">
             <div className="nk-mask blur-1 left center"></div>
             <div className="container">
@@ -33,32 +91,114 @@ export default function Dashboard() {
                 >
                   <div class="left-side-bar">
                     <div class="profiles  drop-shadow-lg justify-content-center">
-                    {userData != {} && <p className="!font-bold text-xl">No Data Found</p>}
-                    { userData != {} && <div>
-                    <div className="flex justify-center mb-3">
-                    {userData?.client?.profile?.profile_image?.length > 0 ? (
-                      <Avatar
-                      alt="user profile"
-                      src={userData?.client?.profile?.profile_image}
-                      sx={{ width: "60%", height: "70%" }}
-                      className=""
-                    ></Avatar>
-                    ) : (
-                      <Avatar
-                        alt="user profile"
-                        src="/images/blueProfile.png"
-                        sx={{ width: "50%", height: "100%" }}
-                        className=""
-                      ></Avatar>
-                    )}
+                      {userData == {} && (
+                        <p className="!font-bold text-xl">No Data Found</p>
+                      )}
+                      {userData != {} && (
+                        <div>
+                          <div className="flex justify-center mb-3">
+                            {userData?.client?.profile?.profile_image?.length >
+                            0 ? (
+                              <Avatar
+                                alt="user profile"
+                                src={userData?.client?.profile?.profile_image}
+                                sx={{ width: "60%", height: "70%" }}
+                                className=""
+                              ></Avatar>
+                            ) : (
+                              <Avatar
+                                alt="user profile"
+                                src="/images/blueProfile.webp"
+                                sx={{ width: "50%", height: "100%" }}
+                                className=""
+                              ></Avatar>
+                            )}
+                          </div>
+                          <h4 className="truncate">
+                            {userData?.client?.first_name}{" "}
+                            {userData?.client?.last_name}
+                          </h4>
+                          <h5 className="truncate">
+                            {userData?.client?.email}
+                          </h5>
+                          <p>{userData?.client?.phone}</p>
+                          <Divider className="!mt-[1rem] !mb-[1rem]" />
+                        </div>
+                      )}
                     </div>
-                      <h4 className="">{userData?.client?.first_name} {userData?.client?.last_name}</h4>
-                      <h5>{userData?.client?.email}</h5>
-                      <p>{userData?.client?.phone}</p>
-                      <Divider />
-                      </div>}
+                    <div class="last-login justify-content-center ">
+                      <h4>
+                        Last Login:{" "}
+                        <span>
+                          {new Date().toLocaleDateString("en-US", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </h4>
+                      <h4>
+                        IP Address: <span>{userIp}</span>
+                      </h4>
+                      <hr className="mt-[1rem] mb-[1rem]" />
+                    </div>
+                    {/* <div class="activitys">
+                    <h3>Activity</h3>
+
+                    {orders ?.map((order,ind)=>{
+                      if(new Date(order?.created_at).getMonth === new Date()?.getMonth){
+                        return(
+                        <div key={ind} className="">
+                         {ind != 0 && <div class="act-col"><span class="vl"></span></div>}
+                          <div class="act-col">
+                      <div class="left-c"><span>Order Placed:</span></div>
+                      <div class="right-c"><span>{new Date(order?.created_at).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</span></div>
+                    </div>
+                    <div class="act-col">
+                      <div class="left-c">
+                        <span
+                          >Lorem ipsum dolor sit amet, consectetur adipiscing
+                          elit.</span
+                        >
+                      </div>
+                      <div class="right-c"><span>29 Aug 2023</span></div>
                     </div>
                     
+                        </div>)
+                      }
+
+                    })}
+
+                  </div>
+                  <div></div>
+                  < hr className="mt-[1rem] mb-[1rem]" />
+                  <div class="last-months">
+                    <h3>Last Month</h3>
+                    {orders ?.map((order,ind)=>{
+                      if(new Date(order?.created_at).getMonth != new Date()?.getMonth){
+                        return(
+                          <div key={ind} className="">
+                          {ind != 0 && <div class="act-col"><span class="vl"></span></div>}
+                           <div class="act-col">
+                       <div class="left-c"><span>Order Placed:</span></div>
+                       <div class="right-c"><span>{new Date(order?.created_at).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</span></div>
+                     </div>
+                     <div class="act-col">
+                       <div class="left-c">
+                         <span
+                           >Lorem ipsum dolor sit amet, consectetur adipiscing
+                           elit.</span
+                         >
+                       </div>
+                       <div class="right-c"><span>29 Aug 2023</span></div>
+                     </div>
+                     
+                         </div>)
+                      }
+
+                    })}
+                    
+                  </div> */}
                   </div>
                 </div>
                 <div
@@ -66,24 +206,41 @@ export default function Dashboard() {
                   data-aos="fade-up"
                   data-aos-delay="200"
                 >
-
                   <div class="row">
-                  <div
+                    <div
                       class="col-md-6 col-xl-3  !pl-[0px] !pr-[0px]"
                       data-aos="fade-up"
                       data-aos-delay="150"
                     >
-                      <div class="card-rs  group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200" onClick={()=>navigate("/view-order/unpaid")}>
+                      <div
+                        class="card-rs  !mt-0 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
+                        onClick={() => navigate("/view-order/unpaid")}
+                      >
                         <div class="card-content flex-column justify-content-between  g-5">
-                          <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="!flex justify-end w-full">
-                              <MdOutlinePendingActions className="w-fit h-[30px]"/>
+                          <div class="d-flex !items-center gap-2 group-hover:!text-blue-600">
+                            <div className="!flex justify-en w-full !items-center">
+                              {/* <MdOutlinePendingActions className="w-fit h-[30px]"/> */}
+                              <img
+                                className="flex !rounded-none !w-[30px] !h-auto"
+                                src="/images/orders/unpaid.png"
+                              />
+                              <h3 className="gap-2 !m-0 !text-left !relative group-hover:!text-blue-600 !font-bold">
+                                Pending Orders
+                              </h3>
                             </div>
-                            <h3 className="group-hover:!text-blue-600 !font-bold">Pending Orders</h3>
+
                             <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">{userData?.client?.order_pending}</span>
+                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
+                                {userData?.client?.order_pending}
+                              </span>
                             </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">{new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
+                              {new Date().toLocaleDateString("en-US", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -93,17 +250,35 @@ export default function Dashboard() {
                       data-aos="fade-up"
                       data-aos-delay="150"
                     >
-                      <div class="card-rs  group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200" onClick={()=>navigate("/view-order/placed")}>
+                      <div
+                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
+                        onClick={() => navigate("/view-order/placed")}
+                      >
                         <div class="card-content flex-column justify-content-between  g-5">
-                          <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="!flex justify-end w-full">
-                              <FaBoxes className="w-fit h-[30px]"/>
+                          <div class="d-flex items-center gap-2 group-hover:!text-blue-600">
+                            <div className="!flex justify-en w-full">
+                              {/* <FaBoxes className="w-fit h-[30px]"/> */}
+                              <img
+                                className="flex !rounded-none !w-[30px] !h-auto"
+                                src="/images/orders/placed.png"
+                                alt="placed"
+                              />
+                              <h3 className="group-hover:!text-blue-600 !m-0 !relative !font-bold">
+                                Order Placed
+                              </h3>
                             </div>
-                            <h3 className="group-hover:!text-blue-600 !font-bold">Order Placed</h3>
                             <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">{userData?.client?.order_placed}</span>
+                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
+                                {userData?.client?.order_placed}
+                              </span>
                             </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">{new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
+                              {new Date().toLocaleDateString("en-US", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -114,17 +289,36 @@ export default function Dashboard() {
                       data-aos="fade-up"
                       data-aos-delay="150"
                     >
-                      <div class="card-rs group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200" onClick={()=>navigate("/view-order/confirmed")}>
+                      <div
+                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
+                        onClick={() => navigate("/view-order/confirmed")}
+                      >
                         <div class="card-content flex-column justify-content-between g-5">
                           <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="flex justify-end w-full">
-                              <BsFillFileEarmarkCheckFill className="w-fit h-[30px]"/>
+                            <div className="flex justify-star w-full">
+                              {/* <BsFillFileEarmarkCheckFill className="w-fit h-[30px]"/> */}
+                              <h3 className=" group-hover:!text-blue-600 !text-start !w-[85%] !m-0 !relative !font-bold">
+                                Order Confirmed
+                              </h3>
+                              <img
+                                className="flex !rounded-none !w-[30px] !h-auto"
+                                src="/images/orders/confirmed.png"
+                                alt="order_confirmed"
+                              />
                             </div>
-                            <h3 className="group-hover:!text-blue-600 !font-bold">Order Confirmed</h3>
+
                             <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">{userData?.client?.order_confirmed}</span>
+                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
+                                {userData?.client?.order_confirmed}
+                              </span>
                             </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">{new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
+                              {new Date().toLocaleDateString("en-US", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -135,20 +329,38 @@ export default function Dashboard() {
                       data-aos="fade-up"
                       data-aos-delay="150"
                     >
-                      <div class="card-rs group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200" onClick={()=>navigate("/view-order/dispatched")}>
+                      <div
+                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
+                        onClick={() => navigate("/view-order/dispatched")}
+                      >
                         <div class="card-content flex-column justify-content-between g-5">
                           <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="flex justify-end w-full">
-                              <div className="">
-                              <TbTruckDelivery className="w-fit h-[30px] "/>
+                            <div className="flex justify-en w-full">
+                              <div className="flex justify-en w-full">
+                                {/* <TbTruckDelivery className="w-fit h-[30px] "/> */}
+                                <img
+                                  src="/images/orders/dispatched.png"
+                                  alt="order-dispatched"
+                                  className="flex !rounded-none !w-[30px] !h-auto"
+                                />
+                                <h3 className="group-hover:!text-blue-600 !m-0 !relative !font-bold">
+                                  Order Dispatched
+                                </h3>
                               </div>
-                              
                             </div>
-                            <h3 className="group-hover:!text-blue-600 !font-bold">Order Dispatched</h3>
+
                             <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">{userData?.client?.order_dispatched}</span>
+                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
+                                {userData?.client?.order_dispatched}
+                              </span>
                             </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">{new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
+                              {new Date().toLocaleDateString("en-US", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -161,17 +373,37 @@ export default function Dashboard() {
                       data-aos="fade-up"
                       data-aos-delay="150"
                     >
-                      <div class="card-rs group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200" onClick={()=>navigate("/view-order/delivered")}>
+                      <div
+                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
+                        onClick={() => navigate("/view-order/delivered")}
+                      >
                         <div class="card-content flex-column justify-content-between g-5">
                           <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="flex justify-end w-full">
-                              <FaBoxOpen className="w-fit h-[30px] flex justify-end"/>
+                            <div className="flex w-full">
+                              {/* <FaBoxOpen className="w-fit h-[30px] flex justify-end"/> */}
+                              <h3 className="group-hover:!text-blue-600 !m-0 !text-left !relative !font-bold">
+                                Order Completed
+                              </h3>
+
+                              <img
+                                className="flex !rounded-none !w-[30px] !h-auto"
+                                src="/images/orders/delivered.png"
+                                alt="order_delivered"
+                              />
                             </div>
-                            <h3 className="group-hover:!text-blue-600 !font-bold">Order Completed</h3>
+
                             <h4>
-                             <span className="group-hover:!text-blue-600 group-hover:!font-bold">{userData?.client?.order_completed}</span>
+                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
+                                {userData?.client?.order_completed}
+                              </span>
                             </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">{new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
+                              {new Date().toLocaleDateString("en-US", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -182,17 +414,36 @@ export default function Dashboard() {
                       data-aos="fade-up"
                       data-aos-delay="150"
                     >
-                      <div class="card-rs group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200" onClick={()=>navigate("/view-order/cancelled")}>
+                      <div
+                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
+                        onClick={() => navigate("/view-order/cancelled")}
+                      >
                         <div class="card-content flex-column justify-content-between g-5">
                           <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="flex justify-end w-full">
-                              <FaWindowClose className="w-fit h-[30px]"/>
+                            <div className="flex w-full">
+                              {/* <FaWindowClose className="w-fit h-[30px]"/> */}
+                              <img
+                                className="flex !rounded-none !w-[30px] !h-auto"
+                                src="/images/orders/cancelled.png"
+                                alt="order_cancelled"
+                              />
+                              <h3 className="group-hover:!text-blue-600 !m-0 !relative !font-bold">
+                                Order Cancelled
+                              </h3>
                             </div>
-                            <h3 className="group-hover:!text-blue-600 !font-bold">Order Cancelled</h3>
+
                             <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">{userData?.client?.order_cancelled}</span>
+                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
+                                {userData?.client?.order_cancelled}
+                              </span>
                             </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">{new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
+                              {new Date().toLocaleDateString("en-US", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -203,17 +454,36 @@ export default function Dashboard() {
                       data-aos="fade-up"
                       data-aos-delay="150"
                     >
-                      <div class="card-rs group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200" onClick={()=>navigate("/view-order/returned")}>
+                      <div
+                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
+                        onClick={() => navigate("/view-order/returned")}
+                      >
                         <div class="card-content flex-column justify-content-between g-5">
                           <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="flex justify-end w-full">
-                             <BsArrowLeftRight className="w-fit h-[30px]"/>
+                            <div className="flex w-full">
+                              {/* <BsArrowLeftRight className="w-fit h-[30px]"/> */}
+                              <img
+                                className="flex !rounded-none !w-[30px] !h-auto"
+                                src="/images/orders/returned.png"
+                                alt="orders_returned"
+                              />
+                              <h3 className="group-hover:!text-blue-600 !m-0 !relative !font-bold">
+                                Order Returned
+                              </h3>
                             </div>
-                            <h3 className="group-hover:!text-blue-600 !font-bold">Order Returned</h3>
+
                             <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">{userData?.client?.order_returned}</span>
+                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
+                                {userData?.client?.order_returned}
+                              </span>
                             </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">{new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
+                              {new Date().toLocaleDateString("en-US", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -251,7 +521,10 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="col-lg-4 text-center text-lg-end">
-                    <a href={`/contact`} className="btn btn-white fw-semiBold">
+                    <a
+                      href={`https://tradingmaterials.com/contact`}
+                      className="btn btn-white fw-semiBold"
+                    >
                       {t("Contact_support")}
                     </a>
                   </div>

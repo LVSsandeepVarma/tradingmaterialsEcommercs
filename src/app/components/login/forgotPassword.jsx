@@ -30,7 +30,7 @@ export default function ForgotPassword() {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -42,7 +42,7 @@ export default function ForgotPassword() {
 
   const handleEmailChange = (e) => {
     setEmail(e?.target?.value);
-    emailValidaiton(email);
+    emailValidaiton(e?.target?.value);
   };
 
   async function handleFormSubmission() {
@@ -104,7 +104,7 @@ export default function ForgotPassword() {
                       <a href={`/`}>
                         <img
                           className="logo-img justify-center"
-                          src="/images/tm-logo-1.png"
+                          src="/images/tm-logo-1.webp"
                           alt="logo"
                         />
                       </a>
@@ -116,7 +116,7 @@ export default function ForgotPassword() {
                       Password Forgotten?
                     </h3>
                     <p className="text">
-                      Shouldn&apos;t be here{" "}
+                      Already a member?{" "}
                       <a href={`/login`} className="btn-link text-primary">
                         Login
                       </a>
@@ -127,7 +127,10 @@ export default function ForgotPassword() {
                     <div className="row gy-4">
                       <div className="col-12">
                         <div className="form-group text-left">
-                          <label className="form-label">Email</label>
+                          <label className="form-label">
+                            Email
+                            <sup className="text-red-600 !font-bold">*</sup>
+                          </label>
                           <div className="form-control-wrap">
                             <input
                               type="email"
@@ -190,29 +193,32 @@ export default function ForgotPassword() {
               </div>
             </div>
             <div className="nk-split-col nk-auth-col nk-auth-col-content  bg-primary-gradient is-theme">
-              <div className="nk-mask shape-33" data-aos="fade-in"></div>
+              <div
+                className="nk-mask shape-33"
+                data-aos="fade-in"
+                data-aos-delay="0"
+              ></div>
               <div className="nk-auth-content mx-md-9 mx-xl-auto">
                 <div className="nk-auth-content-inner">
                   <div className="media media-lg media-circle media-middle text-bg-cyan-200 mb-5">
                     <em className="icon ni ni-quote-left text-white"></em>
                   </div>
                   <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
-                    We’re building a better application now
+                    Join to all traders community
                   </h1>
                   <div className="nk-auth-quote ms-sm-5">
                     <div className="nk-auth-quote-inner">
                       <p className="small">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Venenatis magna massa semper tristique. Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit. Venenatis
-                        magna massa semper tristique dotset.
+                        The trading materials is about to have a twist on forum
+                        and community space for all who love to trade and make
+                        their own living.
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
-                          <img src="/images/avatar/a.jpg" alt="avatar" />
+                          <img src="/images/avatar/a.webp" alt="avatar" />
                         </div>
                         <div className="media-text">
-                          <div className="h5 mb-0 !font-bold">Wade Warren</div>
+                          <div className="h5 mb-0 !font-bold">Founder</div>
                           <span className="small">3 months ago</span>
                         </div>
                       </div>

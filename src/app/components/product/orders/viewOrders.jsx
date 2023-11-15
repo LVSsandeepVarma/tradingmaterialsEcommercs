@@ -4,7 +4,7 @@ import Footer from "../../footer/footer";
 import "../orders/viewOrder.css";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   hideLoader,
   showLoader,
@@ -14,9 +14,10 @@ import { FaCrosshairs, FaFileInvoice } from "react-icons/fa";
 import CryptoJS from "crypto-js";
 
 import {RiSecurePaymentFill} from "react-icons/ri"
+import Dashboard from "../../commonDashboard/Dashboard";
 
 export default function ViewOrders() {
-  const userData  =useSelector(state => state?.user?.value)
+  // const userData  =useSelector(state => state?.user?.value)
   // eslint-disable-next-line no-unused-vars
   const [orders, setOrders] = useState();
   const [orderId, setOrderId] = useState();
@@ -94,61 +95,19 @@ export default function ViewOrders() {
           <div className="loader"></div>
         </div>
       )} */}
-        <section className="pt-100">
-          <div className="container">
-            <div className="row flex items-center">
-              <div className="col-lg-12 sbreadcrumb">
-                <div className="row flex items-center">
-                  <div className="col-lg-6 lcard text-left">
-                    <div className="flex  items-center gap-3 mb-3">
-                    {userData?.client?.profile?.profile_image?.length > 0 ? (
-                      <img src={userData?.client?.profile?.profile_image} alt="profile-pic" />
-                    ) : (
-                      <img src="/images/blueProfile.png" alt="profile-pic" />
-                    )}
-                      <div>
-                        <span>
-                        <strong>{userData?.client?.first_name} {userData?.client?.last_name}</strong>
-                      </span>
-                      <div>
-                      <span className="s-color"> {userData?.client?.email}</span>
-                      </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-lg-6 rcard">
-                    <div className="">
-                      <button
-                        type="button"
-                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
-                        name="button"
-                      >
-                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
-                        Message
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
-                        name="button"
-                      >
-                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
-                        Setting
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <Dashboard />
         <section className="nk-section ">
           <div className="nk-mask blur-1 left center"></div>
           <div className="container">
             <div className="row mt-1">
               <div className="col-lg-12">
                 <div className="card">
-                  <div className="card-header px-3 py-1">
-                    <h5 className="text-muted text-left capitalize !font-bold">
+                  <div className=" flex items-center card-header px-3 py-1">
+                    <img
+                      className="flex items-center !rounded-none !w-[30px] mr-2 !h-auto"
+                      src={`/images/orders/${params?.order_type}.png`}
+                    />
+                    <h5 className="text-muted text-left capitalize !font-bold mb-0">
                       Orders {params?.order_type}
                       {orders?.length > 0 && (
                         <span className="badge bg-primary ms-2">
@@ -161,14 +120,26 @@ export default function ViewOrders() {
                     <div className="row">
                       <div className="col-lg-12">
                         {orders?.length == 0 && (
-                          <div
-                            className="nav flex-column nav-pills me-3"
-                            id="v-pills-tab"
-                            role="tablist"
-                            aria-orientation="vertical"
-                          >
-                            No Orders Available
-                          </div>
+                          <>
+                            <div className="">
+                              <div className="flex justify-center">
+                                <img
+                                  src={`/images/orders/large/${params?.order_type}.png`}
+                                  className="w-22 h-auto"
+                                  alt="orders_large_icons"
+                                  style={{ filter: "blur(3px)" }}
+                                />
+                              </div>
+                              <div
+                                className="nav flex-column nav-pills me-3 !text-sm !font-bold text-[#0082f1]"
+                                id="v-pills-tab"
+                                role="tablist"
+                                aria-orientation="vertical "
+                              >
+                                No Orders Available
+                              </div>
+                            </div>
+                          </>
                         )}
                       </div>
                       <div className="col-lg-3">
@@ -188,8 +159,10 @@ export default function ViewOrders() {
                                     setOrderNumber(order?.order_number);
                                 }}
                                 className={`nav-but-left ${
+                                  ind == 0 ? "!mt-0" : ""
+                                } ${
                                   activeOrder === ind ? "active" : ""
-                                } hover:drop-shadow-lg shadow-sm`}
+                                } hover:drop-shadow-xl shadow-sm`}
                                 id="prod-1-tab"
                                 data-bs-toggle="pill"
                                 data-bs-target="#prod-1"
@@ -198,8 +171,8 @@ export default function ViewOrders() {
                                 aria-controls="prod-1"
                                 aria-selected="true"
                               >
-                                {order?.order_number} <br />{" "}
-                                <small>
+                                #{order?.order_number} <br />{" "}
+                                <small className="drop-shadow-lg">
                                   {new Date(
                                     order?.created_at
                                   ).toLocaleDateString("en-US", {
@@ -228,13 +201,21 @@ export default function ViewOrders() {
                                     <div className="col-12 drop-shadow-lg">
                                       <div>
                                         <div className="bd-breadcrumb d-flex align-items-center gap-3 mb-3">
-                                          <span>Home</span>
+                                          <span
+                                            className="cursor-pointer hover:text-blue-600"
+                                            onClick={() => {
+                                              window.location.href =
+                                                "/products";
+                                            }}
+                                          >
+                                            Home
+                                          </span>
                                           <span>Orders</span>
                                           <span>
                                             Orders {params?.order_type}
                                           </span>
                                           <span>
-                                            Order id:{" "}
+                                            Order No:{" "}
                                             <b className="!text-blue-600">
                                               {orderNumber}
                                             </b>
@@ -249,6 +230,12 @@ export default function ViewOrders() {
                                               type="button"
                                               className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
                                               name="button"
+                                              onClick={() => {
+                                                window.open(
+                                                  `${viewOrderDetails?.invoice?.invoicefile?.invoice_pdf}`,
+                                                  "_blank"
+                                                );
+                                              }}
                                             >
                                               <FaFileInvoice className="mr-1" />{" "}
                                               Invoice
@@ -258,23 +245,41 @@ export default function ViewOrders() {
                                               className="btn btn-primary btn-sm rounded custom-btn"
                                               name="button"
                                               onClick={() => {
-                                                if(params?.order_type == "unpaid"){
-                                                  window.open(`/checkout/order_id/${CryptoJS?.AES?.encrypt(
-                                                    `${orderId}`,
-                                                    "trading_materials_order"
-                                                  )?.toString()
-                                                  .replace(/\//g, "_")
-                                                  .replace(/\+/g, "-")}`)
-                                                }else{
-                                                window.open(
-                                                  `/track-order/${orderId}`,
-                                                  "_blank"
-                                                );
+                                                if (
+                                                  params?.order_type == "unpaid"
+                                                ) {
+                                                  window.open(
+                                                    `/checkout/order_id/${CryptoJS?.AES?.encrypt(
+                                                      `${orderId}`,
+                                                      "trading_materials_order"
+                                                    )
+                                                      ?.toString()
+                                                      .replace(/\//g, "_")
+                                                      .replace(/\+/g, "-")}`
+                                                  );
+                                                } else {
+                                                  window.open(
+                                                    `/track-order/${CryptoJS?.AES?.encrypt(
+                                                      `${orderId}`,
+                                                      "trading_materials"
+                                                    )
+                                                      ?.toString()
+                                                      .replace(/\//g, "_")
+                                                      .replace(/\+/g, "-")}`,
+                                                    "_blank"
+                                                  );
                                                 }
                                               }}
                                             >
-                                              {params?.order_type == "unpaid" ? <RiSecurePaymentFill/> : <FaCrosshairs className="mr-1" />}
-                                              {params?.order_type == "unpaid" ? "Pay now" : "Track order"}{" "}
+                                              {params?.order_type ==
+                                              "unpaid" ? (
+                                                <RiSecurePaymentFill />
+                                              ) : (
+                                                <FaCrosshairs className="mr-1" />
+                                              )}
+                                              {params?.order_type == "unpaid"
+                                                ? "Pay now"
+                                                : "Track order"}{" "}
                                             </button>
                                           </div>
                                         </div>
@@ -317,19 +322,27 @@ export default function ViewOrders() {
                                                     ?.sub_total
                                                 }
                                               </span>
-                                              {params?.order_type != "unpaid" && <span className="badge badge-light">
-                                                <a onClick={()=>setShowModal(true)}  className="!text-blue-600 cursor-pointer">
-                                                  Paid :{" "}
-                                                  {viewOrderDetails?.currency ===
-                                                  "INR"
-                                                    ? "₹"
-                                                    : "$"}
-                                                  {
-                                                    viewOrderDetails?.invoice
-                                                      ?.amount_paid
-                                                  }
-                                                </a>
-                                              </span>}
+                                              {params?.order_type !=
+                                                "unpaid" && (
+                                                <span className="badge badge-light">
+                                                  <a
+                                                    onClick={() =>
+                                                      setShowModal(true)
+                                                    }
+                                                    className="!text-blue-600 cursor-pointer"
+                                                  >
+                                                    Paid :{" "}
+                                                    {viewOrderDetails?.currency ===
+                                                    "INR"
+                                                      ? "₹"
+                                                      : "$"}
+                                                    {
+                                                      viewOrderDetails?.invoice
+                                                        ?.amount_paid
+                                                    }
+                                                  </a>
+                                                </span>
+                                              )}
                                               <span className="badge badge-light">
                                                 Balance :{" "}
                                                 {viewOrderDetails?.currency ===
@@ -425,10 +438,12 @@ export default function ViewOrders() {
                                                   </p>
                                                 </div>
                                                 <h6 className="!font-bold text-lg">
-                                                <small>{viewOrderDetails?.currency ===
-                                                      "INR"
-                                                        ? "₹"
-                                                        : "$"}</small>
+                                                  <small>
+                                                    {viewOrderDetails?.currency ===
+                                                    "INR"
+                                                      ? "₹"
+                                                      : "$"}
+                                                  </small>
                                                   {order?.total}
                                                 </h6>
                                               </div>
@@ -570,7 +585,10 @@ export default function ViewOrders() {
                   </div>
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
-                  <a href={`/contact`} className="btn btn-white fw-semiBold">
+                  <a
+                    href={`https://tradingmaterials.com/contact`}
+                    className="btn btn-white fw-semiBold"
+                  >
                     {t("Contact_support")}
                   </a>
                 </div>
@@ -581,35 +599,98 @@ export default function ViewOrders() {
       </main>
       <Footer />
       {/* <!--Paid modal -->								 */}
-      <div id="popup1" className={`popup-container text-left !ease-in-out ${showModal ? "show-popup " : ""}`}>
+      <div
+        id="popup1"
+        className={`popup-container text-left !ease-in-out ${
+          showModal ? "show-popup " : ""
+        }`}
+      >
         <div className="popup-content">
-          <a onClick={()=>setShowModal(false)} className="close cursor-pointer">
+          <a
+            onClick={() => setShowModal(false)}
+            className="close cursor-pointer"
+          >
             &times;
           </a>
           <div className="pricing-tables turquoise">
             {/* <!-- Table Head --> */}
-            <div className="pricing-labels">{viewOrderDetails?.order_number}</div>
-            <h2><small>Transaction id: {viewOrderDetails?.payments[viewOrderDetails?.payments?.length-1]?.transaction_id} </small></h2>
-            <h5><small className="">Payment id: {viewOrderDetails?.payments[viewOrderDetails?.payments?.length-1]?.payment_id}</small></h5>
+            <div className="pricing-labels">
+              {viewOrderDetails?.order_number}
+            </div>
+            <h2>
+              <small>
+                Transaction id:{" "}
+                {
+                  viewOrderDetails?.payments[
+                    viewOrderDetails?.payments?.length - 1
+                  ]?.transaction_id
+                }{" "}
+              </small>
+            </h2>
+            <h5>
+              <small className="">
+                Payment id:{" "}
+                {
+                  viewOrderDetails?.payments[
+                    viewOrderDetails?.payments?.length - 1
+                  ]?.payment_id
+                }
+              </small>
+            </h5>
             {/* <!-- Features --> */}
             <div className="pricing-features">
               <div className="feature">
-                Payment 1: <span className={` ${viewOrderDetails?.payments[viewOrderDetails?.payments?.length-1]?.payment_status == "SUCCESS" ? "borderr" : "bg-red-300 border-red-600"}`}>{viewOrderDetails?.payments[viewOrderDetails?.payments?.length-1]?.payment_status}</span>
+                Payment 1:{" "}
+                <span
+                  className={` ${
+                    viewOrderDetails?.payments[
+                      viewOrderDetails?.payments?.length - 1
+                    ]?.payment_status == "SUCCESS"
+                      ? "borderr"
+                      : "bg-red-300 border-red-600"
+                  }`}
+                >
+                  {
+                    viewOrderDetails?.payments[
+                      viewOrderDetails?.payments?.length - 1
+                    ]?.payment_status
+                  }
+                </span>
               </div>
               <div className="feature">
-                Paid On:<span>{new Date(
-                                                viewOrderDetails?.payments[viewOrderDetails?.payments?.length-1]?.updated_at
-                                              ).toLocaleDateString("en-US", {
-                                                year: "numeric",
-                                                month: "short",
-                                                day: "numeric",
-                                              })}</span>
+                Paid On:
+                <span>
+                  {new Date(
+                    viewOrderDetails?.payments[
+                      viewOrderDetails?.payments?.length - 1
+                    ]?.updated_at
+                  ).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
               </div>
               <div className="feature">
-                Amount:<span>{viewOrderDetails?.payments[viewOrderDetails?.payments?.length-1]?.paid_amount}</span>
+                Amount:
+                <span>
+                  {
+                    viewOrderDetails?.payments[
+                      viewOrderDetails?.payments?.length - 1
+                    ]?.paid_amount
+                  }
+                </span>
               </div>
               <div className="feature">
-                Payment Method:<span className="borders"> {viewOrderDetails?.payments[viewOrderDetails?.payments?.length-1]?.payment_type}</span>
+                Payment Method:
+                <span className="borders">
+                  {" "}
+                  {
+                    viewOrderDetails?.payments[
+                      viewOrderDetails?.payments?.length - 1
+                    ]?.payment_type
+                  }
+                </span>
               </div>
             </div>
             {/* <!-- Price --> */}

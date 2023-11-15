@@ -44,7 +44,7 @@ export default function Register() {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -73,8 +73,12 @@ export default function Register() {
     const nameRegex = /^[a-zA-Z. ]+$/;
     if (name === "") {
       setFirstNameError("First name is required");
+    } else if (name?.length < 3) {
+      setFirstNameError("Min 3 characters are required");
+    } else if (name?.length > 25) {
+      setFirstNameError("Max 25 characters are allowed");
     } else if (!nameRegex.test(name)) {
-      setFirstNameError("Invalid first name, only charecters are allowed");
+      setFirstNameError("Invalid first name, only characters are allowed");
     } else {
       setFirstNameError("");
     }
@@ -84,8 +88,12 @@ export default function Register() {
     const nameRegex = /^[a-zA-Z. ]+$/;
     if (name === "") {
       setLastNameError("Last name is required");
+    } else if (name?.length < 3) {
+      setLastNameError("Min 3 characters are required");
+    } else if (name?.length > 25) {
+      setLastNameError("Max 25 characters are allowed");
     } else if (!nameRegex.test(name)) {
-      setLastNameError("Invalid last name, only charecters are allowed");
+      setLastNameError("Invalid last name");
     } else {
       setLastNameError("");
     }
@@ -97,16 +105,19 @@ export default function Register() {
   }
 
   function handlePhoneChange(e) {
+    e.target.value = e?.target?.value.trim()
     setPhone(e?.target?.value);
     phoneValidation(e?.target?.value);
   }
 
   function handleFirstNamechange(e) {
+    e.target.value = e?.target?.value.trimStart();
     setFirstName(e?.target?.value);
     firstNameVerification(e?.target?.value);
   }
 
   function handleLastNameChange(e) {
+    e.target.value = e?.target?.value.trimStart();
     setLastName(e?.target?.value);
     lastNameVerification(e?.target?.value);
   }
@@ -216,7 +227,7 @@ export default function Register() {
                       <a href={`${userLang}/`}>
                         <img
                           className="logo-img justify-center"
-                          src="images/tm-logo-1.png"
+                          src="images/tm-logo-1.webp"
                           alt="logo"
                         />
                       </a>
@@ -377,7 +388,7 @@ export default function Register() {
                       </p>
                       <div className="media-group align-items-center pt-3">
                         <div className="media media-md media-circle media-middle">
-                          <img src="images/avatar/a.jpg" alt="avatar" />
+                          <img src="images/avatar/a.webp" alt="avatar" />
                         </div>
                         <div className="media-text">
                           <div className="h5 mb-0 !font-bold">Wade Warren</div>

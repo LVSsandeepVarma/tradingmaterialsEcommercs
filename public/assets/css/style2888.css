@@ -311,7 +311,7 @@
     --bs-border-color-translucent: rgba(0, 0, 0, 0.175);
     --bs-border-radius: 0.5rem;
     --bs-border-radius-sm: 0.25rem;
-    --bs-border-radius-lg: 0.75rem;
+    --bs-border-radius-lg: 4px;
     --bs-border-radius-xl: 1.5rem;
     --bs-border-radius-xxl: 2rem;
     --bs-border-radius-2xl: var(--bs-border-radius-xxl);
@@ -34064,7 +34064,7 @@ button.swiper-pagination-bullet {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap
+    /* flex-wrap: wrap */
 }
 
 .nk-header-logo {
@@ -34372,8 +34372,8 @@ button.swiper-pagination-bullet {
 @media(min-width: 1200px) {
     .nk-nav-mega .nk-nav-item {
         flex-grow: 1;
-        min-width: 214px;
-        display: block
+    min-width: 100% !important;
+    display: block;
     }
 
     
@@ -34558,7 +34558,7 @@ button.swiper-pagination-bullet {
     width: 819px;
     height: 100%;
     background-size: auto;
-    background-image: url("../images/blur/d.png")
+    background-image: url("../images/blur/d.webp")
 }
 
 .nk-banner-landing .nk-mask.blur::before {
@@ -34567,7 +34567,7 @@ button.swiper-pagination-bullet {
     bottom: 0px;
     height: 49.9375rem;
     background-size: contain;
-    background-image: url("../images/blur/c.png")
+    background-image: url("../images/blur/c.webp")
 }
 
 .nk-banner-landing .nk-mask.shape::before,
@@ -34588,7 +34588,7 @@ button.swiper-pagination-bullet {
     width: 1142px;
     height: 569px;
     transform: translateY(-50%);
-    background-image: url("../images/shape/geo-2.png")
+    background-image: url("../images/shape/geo-2.webp")
 }
 
 @media(min-width: 1200px) {
@@ -34599,7 +34599,7 @@ button.swiper-pagination-bullet {
         top: calc(50% - 170px);
         background-size: contain;
         transform: translateY(-50%);
-        background-image: url("../images/shape/geo-1.png")
+        background-image: url("../images/shape/geo-1.webp")
     }
 }
 
@@ -34907,7 +34907,7 @@ button.swiper-pagination-bullet {
     pointer-events: none;
     background-size: contain;
     background-repeat: no-repeat;
-    background-image: url("../images/shape/b.png")
+    background-image: url("../images/shape/b.webp")
 }
 
 @media(min-width: 768px) {
@@ -35891,7 +35891,7 @@ button.swiper-pagination-bullet {
         height: 160px;
         background-position: center;
         background-size: contain !important;
-        background-image: url("../images/shape/c1.png")
+        background-image: url("../images/shape/c1.webp")
     }
 }
 
@@ -35903,7 +35903,7 @@ button.swiper-pagination-bullet {
         height: 160px;
         background-position: center;
         background-size: contain !important;
-        background-image: url("../images/shape/b1.png")
+        background-image: url("../images/shape/b1.webp")
     }
 }
 
@@ -35983,7 +35983,7 @@ button.swiper-pagination-bullet {
     width: 100%;
     height: 100%;
     background-position: center;
-    background-image: url("../images/shape/k.png")
+    background-image: url("../images/shape/k.webp")
 }
 
 .nk-banner-crypto::before {
@@ -35995,7 +35995,7 @@ button.swiper-pagination-bullet {
     position: absolute;
     background-size: contain;
     background-repeat: no-repeat;
-    background-image: url("../images/blur/blur-9-a.png")
+    background-image: url("../images/blur/blur-9-a.webp")
 }
 
 @media(min-width: 1200px) {
@@ -36844,12 +36844,12 @@ button.swiper-pagination-bullet {
 
 .home-bs-solution .nk-section-content .nk-mask.shape::before {
     left: 0;
-    background-image: url("../images/shape/y.png")
+    background-image: url("../images/shape/y.webp")
 }
 
 .home-bs-solution .nk-section-content .nk-mask.shape::after {
     right: 0;
-    background-image: url("../images/shape/z.png")
+    background-image: url("../images/shape/z.webp")
 }
 
 @media(max-width: 767.98px) {
@@ -37223,7 +37223,7 @@ button.swiper-pagination-bullet {
     top: -260px;
     width: 977px;
     height: 923px;
-    background-image: url("../images/blur/cta-podcast-blur-1.png")
+    background-image: url("../images/blur/cta-podcast-blur-1.webp")
 }
 
 .home-podcast-app .nk-section-podcast-cta .nk-section-content .nk-mask.blur::after {
@@ -37231,7 +37231,7 @@ button.swiper-pagination-bullet {
     right: -32px;
     width: 572px;
     height: 540px;
-    background-image: url("../images/blur/cta-podcast-blur-2.png")
+    background-image: url("../images/blur/cta-podcast-blur-2.webp")
 }
 
 @media(max-width: 767.98px) {
@@ -41704,7 +41704,7 @@ h6,
     position: absolute;
     background-size: contain;
     background-repeat: no-repeat;
-    background-image: url("../images/blur/a.png")
+    background-image: url("../images/blur/a.webp")
 }
 
 .blur-1.left.top::before {
@@ -41729,7 +41729,7 @@ h6,
     position: absolute;
     background-size: contain;
     background-repeat: no-repeat;
-    background-image: url("../images/blur/b.png")
+    background-image: url("../images/blur/b.webp")
 }
 
 .blur-1.right.top::after {
@@ -41751,7 +41751,7 @@ h6,
     width: 100%;
     height: 23.8194rem;
     background-size: contain;
-    background-image: url("../images/blur/f.png")
+    background-image: url("../images/blur/f.webp")
 }
 
 .blur-6::after {
@@ -41763,7 +41763,7 @@ h6,
     height: 27.5rem;
     background-size: cover;
     background-image: url("../images/blur/g.png")
-}
+}webp
 
 .blur-7::before {
     left: 50%;
@@ -41772,7 +41772,7 @@ h6,
     top: calc(50% + 120px);
     background-size: contain;
     transform: translate(-50%, -50%);
-    background-image: url("../images/blur/h.png")
+    background-image: url("../images/blur/h.webp")
 }
 
 .blur-9::before {
@@ -41781,7 +41781,7 @@ h6,
     width: 384px;
     height: 860px;
     background-size: contain;
-    background-image: url("../images/blur/blur-9-b.png")
+    background-image: url("../images/blur/blur-9-b.webp")
 }
 
 .blur-10::before {
@@ -41790,7 +41790,7 @@ h6,
     height: 860px;
     top: calc(100% - 120px);
     background-size: contain;
-    background-image: url("../images/blur/blur-9-d.png")
+    background-image: url("../images/blur/blur-9-d.webp")
 }
 
 .blur-11::before {
@@ -41800,7 +41800,7 @@ h6,
     width: 380px;
     height: 360px;
     background-size: contain;
-    background-image: url("../images/blur/codebase-blur-1.png")
+    background-image: url("../images/blur/codebase-blur-1.webp")
 }
 
 .shape-1::after {
@@ -41808,7 +41808,7 @@ h6,
     top: 0;
     width: 100%;
     height: 100%;
-    background-image: url("../images/shape/a.png")
+    background-image: url("../images/shape/a.webp")
 }
 
 .shape-3::after {
@@ -41818,7 +41818,7 @@ h6,
     height: 100%;
     opacity: .1;
     mix-blend-mode: overlay;
-    background-image: url("../images/shape/c.png")
+    background-image: url("../images/shape/c.webp")
 }
 
 .shape-4::after,
@@ -41831,7 +41831,7 @@ h6,
 }
 
 .shape-4::after {
-    background-image: url("../images/shape/d.png")
+    background-image: url("../images/shape/d.webp")
 }
 
 .shape-4-a::after {
@@ -41851,7 +41851,7 @@ h6,
     bottom: 0;
     width: 100%;
     height: 100%;
-    background-image: url("../images/shape/e.png")
+    background-image: url("../images/shape/e.webp")
 }
 
 .shape-6::after {
@@ -41861,7 +41861,7 @@ h6,
     width: 100%;
     height: 80px;
     display: none;
-    background-image: url("../images/shape/f.png")
+    background-image: url("../images/shape/f.webp")
 }
 
 .shape-6::before {
@@ -41870,7 +41870,7 @@ h6,
     width: 100%;
     height: 100%;
     background-size: contain;
-    background-image: url("../images/shape/g.png")
+    background-image: url("../images/shape/g.webp")
 }
 
 .shape-10::after {
@@ -41878,7 +41878,7 @@ h6,
     top: 0;
     height: 100%;
     width: 651px;
-    background-image: url("../images/shape/l.png")
+    background-image: url("../images/shape/l.webp")
 }
 
 .shape-11::after {
@@ -41887,7 +41887,7 @@ h6,
     width: 639px;
     height: 65%;
     object-fit: contain;
-    background-image: url("../images/shape/m.png")
+    background-image: url("../images/shape/m.webp")
 }
 
 .shape-12::after {
@@ -41897,7 +41897,7 @@ h6,
     width: 150px;
     background-size: contain;
     background-position: center;
-    background-image: url("../images/shape/n.png")
+    background-image: url("../images/shape/n.webp")
 }
 
 .shape-13::after {
@@ -41907,7 +41907,7 @@ h6,
     top: calc(50% + 160px);
     background-size: contain;
     transform: translateY(-50%);
-    background-image: url("../images/shape/o.png")
+    background-image: url("../images/shape/o.webp")
 }
 
 .shape-14::after {
@@ -41916,7 +41916,7 @@ h6,
     height: 267px;
     top: calc(50% + 40px);
     transform: translateY(-50%);
-    background-image: url("../images/shape/p.png")
+    background-image: url("../images/shape/p.webp")
 }
 
 .shape-15::after {
@@ -41925,7 +41925,7 @@ h6,
     width: 445px;
     height: 308px;
     background-size: contain;
-    background-image: url("../images/shape/r.png")
+    background-image: url("../images/shape/r.webp")
 }
 
 .shape-16::after {
@@ -41933,7 +41933,7 @@ h6,
     right: 0;
     width: 80px;
     height: 60px;
-    background-image: url("../images/shape/s.png");
+    background-image: url("../images/shape/s.webp");
     background-size: contain
 }
 
@@ -41947,7 +41947,7 @@ h6,
     width: 220px;
     bottom: -50px;
     height: 206px;
-    background-image: url("../images/shape/t.png")
+    background-image: url("../images/shape/t.webp")
 }
 
 .shape-18::after {
@@ -41956,7 +41956,7 @@ h6,
     width: 100%;
     height: 100%;
     background-position: center;
-    background-image: url("../images/shape/u.png")
+    background-image: url("../images/shape/u.webp")
 }
 
 .shape-19::after {
@@ -41965,7 +41965,7 @@ h6,
     width: 1085px;
     height: 100%;
     background-position: center;
-    background-image: url("../images/shape/v.png")
+    background-image: url("../images/shape/v.webp")
 }
 
 .shape-20::after {
@@ -41974,7 +41974,7 @@ h6,
     width: 493px;
     height: 570px;
     background-position: center;
-    background-image: url("../images/shape/w.png")
+    background-image: url("../images/shape/w.webp")
 }
 
 .shape-21::after {
@@ -41987,7 +41987,7 @@ h6,
     background-size: contain;
     background-position: center;
     transform: translate(-50%, -50%);
-    background-image: url("../images/shape/x.png")
+    background-image: url("../images/shape/x.webp")
 }
 
 .shape-22::before,
@@ -42001,12 +42001,12 @@ h6,
 
 .shape-22::before {
     left: 0;
-    background-image: url("../images/shape/y.png")
+    background-image: url("../images/shape/y.webp")
 }
 
 .shape-22::after {
     right: 0;
-    background-image: url("../images/shape/z.png")
+    background-image: url("../images/shape/z.webp")
 }
 
 .shape-28::before,
@@ -42019,7 +42019,7 @@ h6,
     right: -40px;
     width: 9.75rem;
     height: 9.75rem;
-    background-image: url("../images/shape/f1.png")
+    background-image: url("../images/shape/f1.webp")
 }
 
 .shape-28::after {
@@ -42027,7 +42027,7 @@ h6,
     bottom: -40px;
     width: 11.25rem;
     height: 6.875rem;
-    background-image: url("../images/shape/g1.png")
+    background-image: url("../images/shape/g1.webp")
 }
 
 .shape-29::before,
@@ -42042,12 +42042,12 @@ h6,
 .shape-29::before {
     left: 0;
     transform: translateY(-50%);
-    background-image: url("../images/quote/b.png")
+    background-image: url("../images/quote/b.webp")
 }
 
 .shape-29::after {
     right: 0;
-    background-image: url("../images/quote/c.png")
+    background-image: url("../images/quote/c.webp")
 }
 
 .shape-30::before,
@@ -42065,22 +42065,22 @@ h6,
     left: 0;
     top: 36%;
     transform: translateY(-50%);
-    background-image: url("../images/quote/d.png")
+    background-image: url("../images/quote/d.webp")
 }
 
 .shape-30::after,
 .shape-30-a::after {
     right: 0;
     top: 70%;
-    background-image: url("../images/quote/e.png")
+    background-image: url("../images/quote/e.webp")
 }
 
 .shape-30-a::before {
-    background-image: url("../images/quote/quote-red-1.png")
+    background-image: url("../images/quote/quote-red-1.webp")
 }
 
 .shape-30-a::after {
-    background-image: url("../images/quote/quote-red-2.png")
+    background-image: url("../images/quote/quote-red-2.webp")
 }
 
 .shape-31::after {
@@ -42089,7 +42089,7 @@ h6,
     width: 100%;
     height: 100%;
     background-position: center;
-    background-image: url("../images/shape/h1.png")
+    background-image: url("../images/shape/h1.webp")
 }
 
 .shape-32::before,
@@ -42102,7 +42102,7 @@ h6,
     right: 100px;
     width: 3.75rem;
     height: 2.625rem;
-    background-image: url("../images/shape/i1.png")
+    background-image: url("../images/shape/i1.webp")
 }
 
 .shape-32::after {
@@ -42110,7 +42110,7 @@ h6,
     bottom: 70px;
     width: 4.6875rem;
     height: 4.3125rem;
-    background-image: url("../images/shape/j1.png")
+    background-image: url("../images/shape/j1.webp")
 }
 
 .shape-33::after {
@@ -42119,7 +42119,7 @@ h6,
     width: 100%;
     height: 100%;
     background-position: center;
-    background-image: url("../images/shape/o1.png")
+    background-image: url("../images/shape/o1.webp")
 }
 
 .shape-34::before {
@@ -42128,7 +42128,7 @@ h6,
     height: 100%;
     left: calc(-20% - 50px);
     background-position: center;
-    background-image: url("../images/shape/waves-7.png")
+    background-image: url("../images/shape/waves-7.webp")
 }
 
 .shape-34::after {
@@ -42139,7 +42139,7 @@ h6,
     height: 35.625rem;
     background-size: contain;
     background-position: center;
-    background-image: url("../images/shape/dots-row-14.png")
+    background-image: url("../images/shape/dots-row-14.webp")
 }
 
 .shape-35::before,
@@ -42154,13 +42154,13 @@ h6,
 .shape-35::before {
     top: -10px;
     left: calc(-2% + 30px);
-    background-image: url("../images/shape/dots-col-17.png")
+    background-image: url("../images/shape/dots-col-17.webp")
 }
 
 .shape-35::after {
     right: -88px;
     bottom: -80px;
-    background-image: url("../images/shape/dots-col-17.png")
+    background-image: url("../images/shape/dots-col-17.webp")
 }
 
 .shape-36::before {
@@ -42169,7 +42169,7 @@ h6,
     height: 100%;
     left: calc(-20% - 12px);
     background-position: center;
-    background-image: url("../images/shape/waves-7.png")
+    background-image: url("../images/shape/waves-7.webp")
 }
 
 .shape-36::after {
@@ -42180,7 +42180,7 @@ h6,
     background-size: contain;
     transform: translateY(-50%);
     background-position: center;
-    background-image: url("../images/shape/dots-col-18.png")
+    background-image: url("../images/shape/dots-col-18.webp")
 }
 
 .shape-37::before,
@@ -42193,13 +42193,13 @@ h6,
 .shape-37::before {
     left: -110px;
     top: -90px;
-    background: url("../images/shape/dots-row-14.png") center/contain no-repeat
+    background: url("../images/shape/dots-row-14.webp") center/contain no-repeat
 }
 
 .shape-37::after {
     right: -110px;
     bottom: -240px;
-    background: url("../images/shape/dots-row-14.png") center/contain no-repeat
+    background: url("../images/shape/dots-row-14.webp") center/contain no-repeat
 }
 
 .shape-41 {
@@ -42228,13 +42228,13 @@ h6,
     left: 0;
     top: 36%;
     transform: translateY(-50%);
-    background-image: url("../images/quote/quote-red-1.png")
+    background-image: url("../images/quote/quote-red-1.webp")
 }
 
 .shape-42::after {
     right: 0;
     top: 70%;
-    background-image: url("../images/quote/quote-red-2.png")
+    background-image: url("../images/quote/quote-red-2.webp")
 }
 
 .shape-43::before,
@@ -42336,7 +42336,7 @@ h6,
 .bg-masks-6 {
     right: 0px;
     bottom: 0px;
-    background-image: url("../images/shape/b.png")
+    background-image: url("../images/shape/b.webp")
 }
 
 .bg-1 {
@@ -43700,7 +43700,7 @@ h6,
     right: 0;
     width: 160px;
     height: 110px;
-    background-image: url("../images/quote/a.png");
+    background-image: url("../images/quote/a.webp");
     background-repeat: no-repeat;
     background-size: cover;
     z-index: 1
@@ -43711,7 +43711,7 @@ h6,
     content: "";
     top: -145px;
     left: -36px;
-    background-image: url("../images/shape/q.png");
+    background-image: url("../images/shape/q.webp");
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -44882,7 +44882,7 @@ h6,
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-    background-image: url("../images/shape/k1.png");
+    background-image: url("../images/shape/k1.webp");
     top: 0;
     left: 0;
     width: 100%;
@@ -44896,7 +44896,7 @@ h6,
 }
 
 .nk-feature-overview-img .overlay-bg-2::after {
-    background-image: url("../images/shape/l1.png")
+    background-image: url("../images/shape/l1.webp")
 }
 
 .nk-feature-overview-img .overlay-bg-3 {
@@ -44914,7 +44914,7 @@ h6,
 }
 
 .nk-feature-overview-img .overlay-bg-4::after {
-    background-image: url("../images/shape/m1.png")
+    background-image: url("../images/shape/m1.webp")
 }
 
 .nk-feature-overview-img .overlay-bg-5 {
@@ -44923,7 +44923,7 @@ h6,
 }
 
 .nk-feature-overview-img .overlay-bg-5::after {
-    background-image: url("../images/shape/n1.png")
+    background-image: url("../images/shape/n1.webp")
 }
 
 .nk-feature-overview-img .base {
@@ -47249,7 +47249,7 @@ h6,
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    background-image: url("../images/blur/codebase-blur-1.png")
+    background-image: url("../images/blur/codebase-blur-1.webp")
 }
 
 @media(min-width: 768px) {
@@ -47904,6 +47904,41 @@ h6,
     border-top: none!important;
     border:1px solid #6ed9a8;
 }
+
+#accordion .panel-bodypending{
+    background-color:#Fff;
+    color:#8C8C8C;
+    line-height: 25px;
+    padding: 10px 20px 20px 20px ;
+    font-size:14px;
+    position: relative;
+    border-top: none!important;
+    border:1px solid #fcbf0b; 
+}
+
+#accordion .panel-bodypending{
+    background-color:#Fff;
+    color:#8C8C8C;
+    line-height: 25px;
+    padding: 10px 20px 20px 20px ;
+    font-size:14px;
+    position: relative;
+    border-top: none!important;
+    border:1px solid #fcbf0b; 
+}
+
+#accordion .panel-bodyfailed{
+    background-color:#Fff;
+    color:#8C8C8C;
+    line-height: 25px;
+    padding: 10px 20px 20px 20px ;
+    font-size:14px;
+    position: relative;
+    border-top: none!important;
+    border:1px solid #f26e71; 
+}
+
+
 .panel-bodyone .acc-content {
 position: relative;
 display: block;
@@ -48008,4 +48043,33 @@ color: #9a9a9a;
 .fail-color {
 color: #ec5766!important;
 font-weight: 600!important;
+}
+
+.nk-sticky-badge-whatsapp{
+    background-color: #4eea67;
+}
+
+.paymentPending a:after, .paymentPending a.collapsed:after{
+    content: "\2303";
+    font-family: fontawesome;
+    text-align: center;
+    position: absolute;
+    right:-20px;
+    top: 10px;
+    color:#fff;
+    background-color:#6ed9a8;
+    border: 5px solid #fff;
+    font-size: 15px;
+    width: 40px;
+    height:40px;
+    line-height: 30px;
+    border-radius: 50%;
+    transition:all 0.3s ease 0s;
+}
+.paymentPending:hover a:after,
+.paymentPending:hover a.collapsed:after{
+    transform:rotate(360deg);
+}
+.paymentPending a.collapsed:after{
+    content: "\2304";
 }
