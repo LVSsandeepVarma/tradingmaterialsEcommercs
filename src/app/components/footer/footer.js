@@ -139,9 +139,9 @@ export default function Footer() {
                       <li className="col-12 !text-start">
                         <em className="icon ni ni-map-pin-fill text-primary"></em>
                         <span className="capitalize">
-                          35-48, 7th Main, Sanchar Nagar MCECHS Layout, Ashwath
-                          Nagar, HBR Layout, Bengaluru, Geddalahalli, Karnataka
-                          560045
+                          3rd Floor, 31, Door No 301, Maina Apartments, Thillai
+                          Nagar, Vadakuthu, Neyveli, Cuddalore, Tamil Nadu,
+                          607803
                         </span>
                       </li>
                     </ul>
@@ -192,7 +192,7 @@ export default function Footer() {
         <div className="nk-footer-bottom">
           <div className="container">
             <div className="nk-footer-content-2">
-              <div className="row justify-content-between">
+              <div className="row justify-content-between items-center">
                 <div className="col-lg-6 col-md-12 col-sm-12">
                   <p className="nk-footer-copyright-text text-center text-lg-start">
                     Copyrights &copy;
@@ -236,6 +236,14 @@ export default function Footer() {
                         href={`/shipping-policy`}
                       >
                         Shipping Policy
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        className="nk-footer-text !text-sm md:!text-[1rem]"
+                        href={`/disclaimer-policy`}
+                      >
+                        Disclaimer Policy
                       </a>
                     </li>
                   </ul>

@@ -103,6 +103,7 @@ export default function CheckoutLead() {
     const [emailVerificationStatus, setEmailVerificationStatus] =
       useState(false);
   const [emailVerifyLoader, setEmailVerifyLoader] = useState(false);
+  const [zipverifyLoader, setZipVerifyLoader] = useState(false)
   const [codData, setCodData] = useState()
   console.log(paymentFailedStatus, "opatmnbksejtb");
 
@@ -122,7 +123,7 @@ export default function CheckoutLead() {
       document.getElementById("deliveryZip").focus();
     }
     
-  },[paymentType, inputRef])
+  },[paymentType])
 
   // useEffect(() => {
   //   if (billingType == "cod") {
@@ -734,6 +735,10 @@ export default function CheckoutLead() {
       value = value.replace(/[^a-zA-z ]/g, "");
       setState(value);
     } else if (field == "zip") {
+      setZipVerifyLoader(true)
+      setTimeout(() => {
+        setZipVerifyLoader(false)
+      },1000)
       value = value.trimStart();
       value = value.replace(/[^0-9]/g, "");
       setZip(value);
@@ -1058,15 +1063,14 @@ export default function CheckoutLead() {
       ) {
         if (
           (billingType == "differentBillingAddress" &&
-            firstName != "" &&
-        lastName != "" &&
-        email != "" &&
-        mobile != "" &&
-        addOne != "" &&
-        city != "" &&
-        state != "" &&
-        countryInput != "" &&
-        zip != "" &&
+            sFirstName != "" &&
+            sLastName != "" &&
+            sMobile != "" &&
+            sAddOne != "" &&
+            sCity != "" &&
+            sState != "" &&
+            sCountry != "" &&
+            sZip != "" &&
             exceptions.every((element) => errors[element] == "")) ||
           (exceptions.every((element) => errors[element] == "") &&
             billingType != "differentBillingAddress")
@@ -1107,7 +1111,7 @@ export default function CheckoutLead() {
               s_phone: mobile,
               s_last_name: lastName,
               note: note,
-              payment_type: paymentType
+              payment_type: paymentType,
             };
             const response = await axios.post(
               "https://admin.tradingmaterials.com/api/register-client-with-order",
@@ -1119,7 +1123,7 @@ export default function CheckoutLead() {
                 },
               }
             );
-            console.log("rrrrrrrrrrrrr")
+            console.log("rrrrrrrrrrrrr");
             if (response?.data?.status) {
               setSuccessMsg(response?.data?.message);
               localStorage.setItem("client_token", response?.data?.token);
@@ -1143,18 +1147,17 @@ export default function CheckoutLead() {
                   .replace(/\//g, "_")
                   .replace(/\+/g, "-")
               );
-              console.log(response?.data?.token,"tokken")
+              console.log(response?.data?.token, "tokken");
               localStorage.removeItem("client_token");
               localStorage.setItem("client_token", response?.data?.token);
               localStorage.setItem("client_type", response?.data?.type);
-              setSuccessMsg(response?.data?.message)
+              setSuccessMsg(response?.data?.message);
               setTimeout(() => {
-                setSuccessMsg("")
+                setSuccessMsg("");
                 // const newTab = window.open("", "_blank");
                 // newTab.location.href = `https://client.tradingmaterials.com/auto-login/${response.data.token}`;
                 window.location.href = `https://client.tradingmaterials.com/auto-login/${response.data.token}`;
-              },1500)
-             
+              }, 1500);
             }
           } catch (err) {
             const errs = [...errors];
@@ -1249,7 +1252,7 @@ export default function CheckoutLead() {
           cvc: cvv,
           name_on_card: nameOnCard,
           currency: "INR",
-          call_back_url: `http://localhost:3000/payment-status/`,
+          call_back_url: `https://tradingmaterials.com/payment-status/`,
         };
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
@@ -1321,9 +1324,9 @@ export default function CheckoutLead() {
         
           createOrderWithStripe(
             parseInt(cartData?.prices[0]?.INR) * parseInt(qty) -
-            parseInt(cartData?.prices[0]?.INR * 0.1),
+              parseInt(cartData?.prices[0]?.INR * parseInt(qty) * 0.1),
             parseInt(cartData?.prices[0]?.INR) * parseInt(qty) -
-            parseInt(cartData?.prices[0]?.INR * 0.1)
+              parseInt(cartData?.prices[0]?.INR * parseInt(qty) * 0.1)
           );
         } else {
           window.location.href = `/place-order/${CryptoJS?.AES?.encrypt(
@@ -1884,13 +1887,15 @@ export default function CheckoutLead() {
                     className="form-control  customise-checkout-input "
                     placeholder="Pincode"
                     value={zip}
-                    maxLength={11}
+                    maxLength={6}
                     onChange={(e) => {
                       handleFormChange("zip", e?.target?.value);
-                    }}
-                    onBlur={(e) => {
                       handleFormValidation("zip", e?.target?.value);
                     }}
+                    // onBlur={(e) => {
+                    //   handleFormValidation("zip", e?.target?.value);
+                    // }}
+                    autoFocus={true}
                   ></input>
                   {errors[6] != "" && (
                     <p className="text-red-600 text-start text-xs pt-0   pl-4">
@@ -1968,7 +1973,7 @@ export default function CheckoutLead() {
                     onClick={() => {
                       if (paymentType != "cod") {
                         setPaymentType("cod");
-                        inputRef.current.focus()
+                        inputRef.current.focus();
                         console.log("hellllo");
                       }
                     }}
@@ -1979,7 +1984,6 @@ export default function CheckoutLead() {
                           ? "bg-blue-300 !border-blue-700 rounded-t-lg"
                           : ""
                       }`}
-                      
                     >
                       <FormControlLabel
                         className="!w-full text-sm"
@@ -2292,7 +2296,7 @@ export default function CheckoutLead() {
                             className="form-control  customise-checkout-input "
                             placeholder="Pincode"
                             value={sZip}
-                            maxLength={11}
+                            maxLength={6}
                             onChange={(e) => {
                               handleFormChange("sZip", e?.target?.value);
                             }}
@@ -2372,10 +2376,12 @@ export default function CheckoutLead() {
                     (10%)
                   </p>
                 </div>
-                <div className=" capitalize flex justify-between items-center leading-9">
-                  <p className="text-sm">shipping</p>
-                  <p className="text-black font-semibold">Free</p>
-                </div>
+                {paymentType != "cod" && (
+                  <div className=" capitalize flex justify-between items-center leading-9">
+                    <p className="text-sm">shipping</p>
+                    <p className="text-black font-semibold">Free</p>
+                  </div>
+                )}
                 <div
                   className={` capitalize flex ${"!font-bold text-black"} justify-between items-center leading-9`}
                 >
@@ -2648,7 +2654,7 @@ export default function CheckoutLead() {
                     ? `Pay Now  INR    
                       ${
                         parseInt(cartData?.prices[0]?.INR) * parseInt(qty) -
-                        parseInt(cartData?.prices[0]?.INR * 0.1)
+                        parseInt(cartData?.prices[0]?.INR * parseInt(qty) * 0.1)
                       }`
                     : "Place Order"}
                 </Button>
@@ -2662,11 +2668,34 @@ export default function CheckoutLead() {
                   <div>
                     <div className="my-2  shadow-lg border-0 !border-r-0">
                       {zip && errors[6] == "" ? (
-                        <p>Pincode available for delivery</p>
+                        <p className="text-sm p-1 flex items-center justify-center text !text-green-600">
+                          {zipverifyLoader && (
+                            <CircularProgress
+                              className="ml-2 text-sm"
+                              size={15}
+                            />
+                          )}
+                          {!zipverifyLoader && (
+                            <>
+                              <BsCheck2Circle className="mr-1" />
+                              <span>Delivery available</span>
+                            </>
+                          )}
+                        </p>
                       ) : (
-                        <p className="text-sm p-1 flex items-center justify-center text">
-                          <MdOutlineDoNotDisturbOn className="mr-1" />
-                          Enter your delivery pincode
+                        <p className="text-sm p-1 flex items-center justify-center text-red-600">
+                          {zipverifyLoader && (
+                            <CircularProgress
+                              className="ml-2 text-sm"
+                              size={15}
+                            />
+                          )}
+                          {!zipverifyLoader && (
+                            <>
+                              <MdOutlineDoNotDisturbOn className="mr-1" />
+                              <span>Enter your delivery pincode</span>
+                            </>
+                          )}
                         </p>
                       )}
                     </div>

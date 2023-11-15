@@ -1914,7 +1914,7 @@ export default function ProductsDisplay() {
                                           <div
                                             className={`absolute  text-white truncate group-hover:scale-105 transition duration-50 z-[9999] w-full rounded-t-md`}
                                           >
-                                            <div className="float-right flex  flex-col items-end mt-2 gap-1 mr-2 ">
+                                            {/* <div className="float-right flex  flex-col items-end mt-2 gap-1 mr-2 ">
                                               <button
                                                 className="p-1 !flex !flex-row !bg-white drop-shadow-lg rounded-full	 outline-none bg-transparent text-primary !content-center  !text-right"
                                                 onClick={() => {
@@ -1961,11 +1961,10 @@ export default function ProductsDisplay() {
                                                   <em className="icon ni ni-cart text-lg p-1 !bg-white drop-shadow-lg rounded-full"></em>
                                                 )}
                                               </button>
-                                            </div>
+                                            </div> */}
                                           </div>
                                           <div
                                             className="h-[100%]"
-                                            // className={`nk-card-img border rounded-md p-3   relative`}
                                           >
                                             <a
                                               className=" h-[100%] w-full block "
@@ -1985,132 +1984,12 @@ export default function ProductsDisplay() {
                                                 width={"100%"}
                                                 className={` !w-full group-hover:scale-105 transition duration-500 rounded-md h-[100%] bg-cove`}
                                               />
-                                              <div className="flex justify-start items-end">
-                                                <div className="absolute card rounded-xl shadow-sm  mb-1 mx-2 flex justify-start items-end">
-                                                  {product?.prices?.map(
-                                                    (price, ind) => (
-                                                      <p
-                                                        key={ind}
-                                                        className={`text-sm m-0 text-gray-1200 text-start fw-bold px-2  !w-full`}
-                                                      >
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                ₹
-                                                              </sub>
-                                                            )
-                                                          : price?.USD && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                $
-                                                              </sub>
-                                                            )}
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <>
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[0]
-                                                                }
-                                                                .
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[1]
-                                                                }
-                                                                {/* </sub> */}
-                                                              </>
-                                                            )
-                                                          : price?.USD &&
-                                                            `${Number.parseFloat(
-                                                              price?.USD
-                                                            )}`}
-                                                      </p>
-                                                    )
-                                                  )}
-                                                </div>
-                                              </div>
+                                              
                                             </a>
                                             {/* <p className={`truncate`}>
                                               {product?.name}
                                             </p> */}
                                           </div>
-
-                                          <div className="nk-card-info  bg-white ">
-                                            {/* <a
-                                        href={`${userLang}/product-detail/${
-                                          product?.slug
-                                        }/${CryptoJS?.AES?.encrypt(
-                                          `${product?.id}`,
-                                          "trading_materials"
-                                        )
-                                          ?.toString()
-                                          .replace(/\//g, "_")
-                                          .replace(/\+/g, "-")}`}
-                                        className="d-inline-block text-black !text-sm antialiased "
-                                        style={{
-                                          textOverflow: "ellipsis",
-                                          whiteSpace: "nowrap",
-                                          overflow: "hidden",
-                                          width: "95%",
-                                        }}
-                                      >
-                                        {product?.name}
-                                      </a> */}
-                                            {/* <div className="d-flex align-items-center gap-1">
-                                        {ratingStars(product?.rating)}
-
-                                        <span className="fs-14 text-gray-800">
-                                          {" "}
-                                          ({
-                                            product?.total_reviews
-                                          } Reviews){" "}
-                                        </span>
-                                      </div> */}
-                                          </div>
-                                          {/* {product?.discount > 0 && (
-                                      <div className="flex justify-end items-end ">
-                                        <div
-                                          className="flex absolute items-center justify-center img-box !drop-shadow-lg
-
-"
-                                        >
-                                          <img
-                                            src="/images/sale-2.webp"
-                                            alt="ffer_label"
-                                            width={65}
-                                            className="drop-shadow-lg"
-                                          ></img>
-                                          <label className="absolute !font-bold text-white !text-xs right-1">
-                                            {product?.discount}%
-                                          </label>
-                                        </div>
-                                      </div>
-                                    )} */}
                                         </div>
                                       </div>
                                       <div className="col-md-3">
@@ -2118,54 +1997,6 @@ export default function ProductsDisplay() {
                                           <div
                                             className={`absolute  text-white truncate group-hover:scale-105 transition duration-50 z-[9999] w-full rounded-t-md`}
                                           >
-                                            <div className="float-right flex  flex-col items-end mt-2 gap-1 mr-2 ">
-                                              <button
-                                                className="p-1 !flex !flex-row !bg-white drop-shadow-lg rounded-full	 outline-none bg-transparent text-primary !content-center  !text-right"
-                                                onClick={() => {
-                                                  isLoggedIn
-                                                    ? handleAddToWishList(
-                                                        product?.id,
-                                                        product?.img_1
-                                                      )
-                                                    : dispatch(
-                                                        usersignupinModal({
-                                                          showSignupModal: false,
-                                                          showLoginModal: true,
-                                                          showforgotPasswordModal: false,
-                                                          showOtpModal: false,
-                                                          showNewPasswordModal: false,
-                                                          showSignupCartModal: false,
-                                                          showSignupBuyModal: false,
-                                                        })
-                                                      );
-                                                }}
-                                              >
-                                                <FaRegHeart />
-                                              </button>
-
-                                              <button
-                                                className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:animate-shake"
-                                                onClick={(event) => {
-                                                  return isLoggedIn
-                                                    ? (handleAddToCart(
-                                                        product?.id,
-                                                        product?.img_1
-                                                      ),
-                                                      handleCartPosition(event))
-                                                    : handleSignupCart(product);
-                                                }}
-                                              >
-                                                {animateProductId ===
-                                                product?.id ? (
-                                                  <img
-                                                    src="/images/addedtocart.gif"
-                                                    className="max-w-[45px] "
-                                                  />
-                                                ) : (
-                                                  <em className="icon ni ni-cart text-lg p-1 !bg-white drop-shadow-lg rounded-full"></em>
-                                                )}
-                                              </button>
-                                            </div>
                                           </div>
                                           <div
                                             className="h-[100%]"
@@ -2189,132 +2020,12 @@ export default function ProductsDisplay() {
                                                 width={"100%"}
                                                 className={` !w-full group-hover:scale-105 transition duration-500 rounded-md h-[100%] bg-cove`}
                                               />
-                                              <div className="flex justify-start items-end">
-                                                <div className="absolute card rounded-xl shadow-sm  mb-1 mx-2 flex justify-start items-end">
-                                                  {product?.prices?.map(
-                                                    (price, ind) => (
-                                                      <p
-                                                        key={ind}
-                                                        className={`text-sm m-0 text-gray-1200 text-start fw-bold px-2  !w-full`}
-                                                      >
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                ₹
-                                                              </sub>
-                                                            )
-                                                          : price?.USD && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                $
-                                                              </sub>
-                                                            )}
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <>
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[0]
-                                                                }
-                                                                .
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[1]
-                                                                }
-                                                                {/* </sub> */}
-                                                              </>
-                                                            )
-                                                          : price?.USD &&
-                                                            `${Number.parseFloat(
-                                                              price?.USD
-                                                            )}`}
-                                                      </p>
-                                                    )
-                                                  )}
-                                                </div>
-                                              </div>
+                                              
                                             </a>
                                             {/* <p className={`truncate`}>
                                               {product?.name}
                                             </p> */}
                                           </div>
-
-                                          <div className="nk-card-info  bg-white ">
-                                            {/* <a
-                                        href={`${userLang}/product-detail/${
-                                          product?.slug
-                                        }/${CryptoJS?.AES?.encrypt(
-                                          `${product?.id}`,
-                                          "trading_materials"
-                                        )
-                                          ?.toString()
-                                          .replace(/\//g, "_")
-                                          .replace(/\+/g, "-")}`}
-                                        className="d-inline-block text-black !text-sm antialiased "
-                                        style={{
-                                          textOverflow: "ellipsis",
-                                          whiteSpace: "nowrap",
-                                          overflow: "hidden",
-                                          width: "95%",
-                                        }}
-                                      >
-                                        {product?.name}
-                                      </a> */}
-                                            {/* <div className="d-flex align-items-center gap-1">
-                                        {ratingStars(product?.rating)}
-
-                                        <span className="fs-14 text-gray-800">
-                                          {" "}
-                                          ({
-                                            product?.total_reviews
-                                          } Reviews){" "}
-                                        </span>
-                                      </div> */}
-                                          </div>
-                                          {/* {product?.discount > 0 && (
-                                      <div className="flex justify-end items-end ">
-                                        <div
-                                          className="flex absolute items-center justify-center img-box !drop-shadow-lg
-
-"
-                                        >
-                                          <img
-                                            src="/images/sale-2.webp"
-                                            alt="ffer_label"
-                                            width={65}
-                                            className="drop-shadow-lg"
-                                          ></img>
-                                          <label className="absolute !font-bold text-white !text-xs right-1">
-                                            {product?.discount}%
-                                          </label>
-                                        </div>
-                                      </div>
-                                    )} */}
                                         </div>
                                       </div>
                                       <div className="col-md-3">
@@ -2322,54 +2033,6 @@ export default function ProductsDisplay() {
                                           <div
                                             className={`absolute  text-white truncate group-hover:scale-105 transition duration-50 z-[9999] w-full rounded-t-md`}
                                           >
-                                            <div className="float-right flex  flex-col items-end mt-2 gap-1 mr-2 ">
-                                              <button
-                                                className="p-1 !flex !flex-row !bg-white drop-shadow-lg rounded-full	 outline-none bg-transparent text-primary !content-center  !text-right"
-                                                onClick={() => {
-                                                  isLoggedIn
-                                                    ? handleAddToWishList(
-                                                        product?.id,
-                                                        product?.img_1
-                                                      )
-                                                    : dispatch(
-                                                        usersignupinModal({
-                                                          showSignupModal: false,
-                                                          showLoginModal: true,
-                                                          showforgotPasswordModal: false,
-                                                          showOtpModal: false,
-                                                          showNewPasswordModal: false,
-                                                          showSignupCartModal: false,
-                                                          showSignupBuyModal: false,
-                                                        })
-                                                      );
-                                                }}
-                                              >
-                                                <FaRegHeart />
-                                              </button>
-
-                                              <button
-                                                className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:animate-shake"
-                                                onClick={(event) => {
-                                                  return isLoggedIn
-                                                    ? (handleAddToCart(
-                                                        product?.id,
-                                                        product?.img_1
-                                                      ),
-                                                      handleCartPosition(event))
-                                                    : handleSignupCart(product);
-                                                }}
-                                              >
-                                                {animateProductId ===
-                                                product?.id ? (
-                                                  <img
-                                                    src="/images/addedtocart.gif"
-                                                    className="max-w-[45px] "
-                                                  />
-                                                ) : (
-                                                  <em className="icon ni ni-cart text-lg p-1 !bg-white drop-shadow-lg rounded-full"></em>
-                                                )}
-                                              </button>
-                                            </div>
                                           </div>
                                           <div
                                             className="h-[100%]"
@@ -2393,132 +2056,13 @@ export default function ProductsDisplay() {
                                                 width={"100%"}
                                                 className={` !w-full group-hover:scale-105 transition duration-500 rounded-md h-[100%] bg-cove`}
                                               />
-                                              <div className="flex justify-start items-end">
-                                                <div className="absolute card rounded-xl shadow-sm  mb-1 mx-2 flex justify-start items-end">
-                                                  {product?.prices?.map(
-                                                    (price, ind) => (
-                                                      <p
-                                                        key={ind}
-                                                        className={`text-sm m-0 text-gray-1200 text-start fw-bold px-2  !w-full`}
-                                                      >
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                ₹
-                                                              </sub>
-                                                            )
-                                                          : price?.USD && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                $
-                                                              </sub>
-                                                            )}
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <>
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[0]
-                                                                }
-                                                                .
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[1]
-                                                                }
-                                                                {/* </sub> */}
-                                                              </>
-                                                            )
-                                                          : price?.USD &&
-                                                            `${Number.parseFloat(
-                                                              price?.USD
-                                                            )}`}
-                                                      </p>
-                                                    )
-                                                  )}
-                                                </div>
-                                              </div>
+
                                             </a>
                                             {/* <p className={`truncate`}>
                                               {product?.name}
                                             </p> */}
                                           </div>
 
-                                          <div className="nk-card-info  bg-white ">
-                                            {/* <a
-                                        href={`${userLang}/product-detail/${
-                                          product?.slug
-                                        }/${CryptoJS?.AES?.encrypt(
-                                          `${product?.id}`,
-                                          "trading_materials"
-                                        )
-                                          ?.toString()
-                                          .replace(/\//g, "_")
-                                          .replace(/\+/g, "-")}`}
-                                        className="d-inline-block text-black !text-sm antialiased "
-                                        style={{
-                                          textOverflow: "ellipsis",
-                                          whiteSpace: "nowrap",
-                                          overflow: "hidden",
-                                          width: "95%",
-                                        }}
-                                      >
-                                        {product?.name}
-                                      </a> */}
-                                            {/* <div className="d-flex align-items-center gap-1">
-                                        {ratingStars(product?.rating)}
-
-                                        <span className="fs-14 text-gray-800">
-                                          {" "}
-                                          ({
-                                            product?.total_reviews
-                                          } Reviews){" "}
-                                        </span>
-                                      </div> */}
-                                          </div>
-                                          {/* {product?.discount > 0 && (
-                                      <div className="flex justify-end items-end ">
-                                        <div
-                                          className="flex absolute items-center justify-center img-box !drop-shadow-lg
-
-"
-                                        >
-                                          <img
-                                            src="/images/sale-2.webp"
-                                            alt="ffer_label"
-                                            width={65}
-                                            className="drop-shadow-lg"
-                                          ></img>
-                                          <label className="absolute !font-bold text-white !text-xs right-1">
-                                            {product?.discount}%
-                                          </label>
-                                        </div>
-                                      </div>
-                                    )} */}
                                         </div>
                                       </div>
                                       <div className="col-md-3">
@@ -2526,54 +2070,7 @@ export default function ProductsDisplay() {
                                           <div
                                             className={`absolute  text-white truncate group-hover:scale-105 transition duration-50 z-[9999] w-full rounded-t-md`}
                                           >
-                                            <div className="float-right flex  flex-col items-end mt-2 gap-1 mr-2 ">
-                                              <button
-                                                className="p-1 !flex !flex-row !bg-white drop-shadow-lg rounded-full	 outline-none bg-transparent text-primary !content-center  !text-right"
-                                                onClick={() => {
-                                                  isLoggedIn
-                                                    ? handleAddToWishList(
-                                                        product?.id,
-                                                        product?.img_1
-                                                      )
-                                                    : dispatch(
-                                                        usersignupinModal({
-                                                          showSignupModal: false,
-                                                          showLoginModal: true,
-                                                          showforgotPasswordModal: false,
-                                                          showOtpModal: false,
-                                                          showNewPasswordModal: false,
-                                                          showSignupCartModal: false,
-                                                          showSignupBuyModal: false,
-                                                        })
-                                                      );
-                                                }}
-                                              >
-                                                <FaRegHeart />
-                                              </button>
-
-                                              <button
-                                                className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:animate-shake"
-                                                onClick={(event) => {
-                                                  return isLoggedIn
-                                                    ? (handleAddToCart(
-                                                        product?.id,
-                                                        product?.img_1
-                                                      ),
-                                                      handleCartPosition(event))
-                                                    : handleSignupCart(product);
-                                                }}
-                                              >
-                                                {animateProductId ===
-                                                product?.id ? (
-                                                  <img
-                                                    src="/images/addedtocart.gif"
-                                                    className="max-w-[45px] "
-                                                  />
-                                                ) : (
-                                                  <em className="icon ni ni-cart text-lg p-1 !bg-white drop-shadow-lg rounded-full"></em>
-                                                )}
-                                              </button>
-                                            </div>
+                                            
                                           </div>
                                           <div
                                             className="h-[100%]"
@@ -2597,191 +2094,23 @@ export default function ProductsDisplay() {
                                                 width={"100%"}
                                                 className={` !w-full group-hover:scale-105 transition duration-500 rounded-md h-[100%] bg-cove`}
                                               />
-                                              <div className="flex justify-start items-end">
-                                                <div className="absolute card rounded-xl shadow-sm  mb-1 mx-2 flex justify-start items-end">
-                                                  {product?.prices?.map(
-                                                    (price, ind) => (
-                                                      <p
-                                                        key={ind}
-                                                        className={`text-sm m-0 text-gray-1200 text-start fw-bold px-2  !w-full`}
-                                                      >
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                ₹
-                                                              </sub>
-                                                            )
-                                                          : price?.USD && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                $
-                                                              </sub>
-                                                            )}
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <>
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[0]
-                                                                }
-                                                                .
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[1]
-                                                                }
-                                                                {/* </sub> */}
-                                                              </>
-                                                            )
-                                                          : price?.USD &&
-                                                            `${Number.parseFloat(
-                                                              price?.USD
-                                                            )}`}
-                                                      </p>
-                                                    )
-                                                  )}
-                                                </div>
-                                              </div>
+                                              
                                             </a>
-                                            {/* <p className={`truncate`}>
-                                              {product?.name}
-                                            </p> */}
+                                            
                                           </div>
 
-                                          <div className="nk-card-info  bg-white ">
-                                            {/* <a
-                                        href={`${userLang}/product-detail/${
-                                          product?.slug
-                                        }/${CryptoJS?.AES?.encrypt(
-                                          `${product?.id}`,
-                                          "trading_materials"
-                                        )
-                                          ?.toString()
-                                          .replace(/\//g, "_")
-                                          .replace(/\+/g, "-")}`}
-                                        className="d-inline-block text-black !text-sm antialiased "
-                                        style={{
-                                          textOverflow: "ellipsis",
-                                          whiteSpace: "nowrap",
-                                          overflow: "hidden",
-                                          width: "95%",
-                                        }}
-                                      >
-                                        {product?.name}
-                                      </a> */}
-                                            {/* <div className="d-flex align-items-center gap-1">
-                                        {ratingStars(product?.rating)}
-
-                                        <span className="fs-14 text-gray-800">
-                                          {" "}
-                                          ({
-                                            product?.total_reviews
-                                          } Reviews){" "}
-                                        </span>
-                                      </div> */}
-                                          </div>
-                                          {/* {product?.discount > 0 && (
-                                      <div className="flex justify-end items-end ">
-                                        <div
-                                          className="flex absolute items-center justify-center img-box !drop-shadow-lg
-
-"
-                                        >
-                                          <img
-                                            src="/images/sale-2.webp"
-                                            alt="ffer_label"
-                                            width={65}
-                                            className="drop-shadow-lg"
-                                          ></img>
-                                          <label className="absolute !font-bold text-white !text-xs right-1">
-                                            {product?.discount}%
-                                          </label>
+                                         
                                         </div>
                                       </div>
-                                    )} */}
-                                        </div>
-                                      </div>
-                                      <div className="col-md-3">
+                                      {/* <div className="col-md-3">
                                         <div className="h-[100%] relative">
                                           <div
                                             className={`absolute  text-white truncate group-hover:scale-105 transition duration-50 z-[9999] w-full rounded-t-md`}
                                           >
-                                            <div className="float-right flex  flex-col items-end mt-2 gap-1 mr-2 ">
-                                              <button
-                                                className="p-1 !flex !flex-row !bg-white drop-shadow-lg rounded-full	 outline-none bg-transparent text-primary !content-center  !text-right"
-                                                onClick={() => {
-                                                  isLoggedIn
-                                                    ? handleAddToWishList(
-                                                        product?.id,
-                                                        product?.img_1
-                                                      )
-                                                    : dispatch(
-                                                        usersignupinModal({
-                                                          showSignupModal: false,
-                                                          showLoginModal: true,
-                                                          showforgotPasswordModal: false,
-                                                          showOtpModal: false,
-                                                          showNewPasswordModal: false,
-                                                          showSignupCartModal: false,
-                                                          showSignupBuyModal: false,
-                                                        })
-                                                      );
-                                                }}
-                                              >
-                                                <FaRegHeart />
-                                              </button>
-
-                                              <button
-                                                className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:animate-shake"
-                                                onClick={(event) => {
-                                                  return isLoggedIn
-                                                    ? (handleAddToCart(
-                                                        product?.id,
-                                                        product?.img_1
-                                                      ),
-                                                      handleCartPosition(event))
-                                                    : handleSignupCart(product);
-                                                }}
-                                              >
-                                                {animateProductId ===
-                                                product?.id ? (
-                                                  <img
-                                                    src="/images/addedtocart.gif"
-                                                    className="max-w-[45px] "
-                                                  />
-                                                ) : (
-                                                  <em className="icon ni ni-cart text-lg p-1 !bg-white drop-shadow-lg rounded-full"></em>
-                                                )}
-                                              </button>
-                                            </div>
+                                            
                                           </div>
                                           <div
                                             className="h-[100%]"
-                                            // className={`nk-card-img border rounded-md p-3   relative`}
                                           >
                                             <a
                                               className=" h-[100%] w-full block "
@@ -2801,132 +2130,12 @@ export default function ProductsDisplay() {
                                                 width={"100%"}
                                                 className={` !w-full group-hover:scale-105 transition duration-500 rounded-md h-[100%] bg-cove`}
                                               />
-                                              <div className="flex justify-start items-end">
-                                                <div className="absolute card rounded-xl shadow-sm  mb-1 mx-2 flex justify-start items-end">
-                                                  {product?.prices?.map(
-                                                    (price, ind) => (
-                                                      <p
-                                                        key={ind}
-                                                        className={`text-sm m-0 text-gray-1200 text-start fw-bold px-2  !w-full`}
-                                                      >
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                ₹
-                                                              </sub>
-                                                            )
-                                                          : price?.USD && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                $
-                                                              </sub>
-                                                            )}
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <>
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[0]
-                                                                }
-                                                                .
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[1]
-                                                                }
-                                                                {/* </sub> */}
-                                                              </>
-                                                            )
-                                                          : price?.USD &&
-                                                            `${Number.parseFloat(
-                                                              price?.USD
-                                                            )}`}
-                                                      </p>
-                                                    )
-                                                  )}
-                                                </div>
-                                              </div>
+                                              
                                             </a>
-                                            {/* <p className={`truncate`}>
-                                              {product?.name}
-                                            </p> */}
+                                            
                                           </div>
 
-                                          <div className="nk-card-info  bg-white ">
-                                            {/* <a
-                                        href={`${userLang}/product-detail/${
-                                          product?.slug
-                                        }/${CryptoJS?.AES?.encrypt(
-                                          `${product?.id}`,
-                                          "trading_materials"
-                                        )
-                                          ?.toString()
-                                          .replace(/\//g, "_")
-                                          .replace(/\+/g, "-")}`}
-                                        className="d-inline-block text-black !text-sm antialiased "
-                                        style={{
-                                          textOverflow: "ellipsis",
-                                          whiteSpace: "nowrap",
-                                          overflow: "hidden",
-                                          width: "95%",
-                                        }}
-                                      >
-                                        {product?.name}
-                                      </a> */}
-                                            {/* <div className="d-flex align-items-center gap-1">
-                                        {ratingStars(product?.rating)}
-
-                                        <span className="fs-14 text-gray-800">
-                                          {" "}
-                                          ({
-                                            product?.total_reviews
-                                          } Reviews){" "}
-                                        </span>
-                                      </div> */}
-                                          </div>
-                                          {/* {product?.discount > 0 && (
-                                      <div className="flex justify-end items-end ">
-                                        <div
-                                          className="flex absolute items-center justify-center img-box !drop-shadow-lg
-
-"
-                                        >
-                                          <img
-                                            src="/images/sale-2.webp"
-                                            alt="ffer_label"
-                                            width={65}
-                                            className="drop-shadow-lg"
-                                          ></img>
-                                          <label className="absolute !font-bold text-white !text-xs right-1">
-                                            {product?.discount}%
-                                          </label>
-                                        </div>
-                                      </div>
-                                    )} */}
+                                          
                                         </div>
                                       </div>
                                       <div className="col-md-3">
@@ -2934,58 +2143,10 @@ export default function ProductsDisplay() {
                                           <div
                                             className={`absolute  text-white truncate group-hover:scale-105 transition duration-50 z-[9999] w-full rounded-t-md`}
                                           >
-                                            <div className="float-right flex  flex-col items-end mt-2 gap-1 mr-2 ">
-                                              <button
-                                                className="p-1 !flex !flex-row !bg-white drop-shadow-lg rounded-full	 outline-none bg-transparent text-primary !content-center  !text-right"
-                                                onClick={() => {
-                                                  isLoggedIn
-                                                    ? handleAddToWishList(
-                                                        product?.id,
-                                                        product?.img_1
-                                                      )
-                                                    : dispatch(
-                                                        usersignupinModal({
-                                                          showSignupModal: false,
-                                                          showLoginModal: true,
-                                                          showforgotPasswordModal: false,
-                                                          showOtpModal: false,
-                                                          showNewPasswordModal: false,
-                                                          showSignupCartModal: false,
-                                                          showSignupBuyModal: false,
-                                                        })
-                                                      );
-                                                }}
-                                              >
-                                                <FaRegHeart />
-                                              </button>
-
-                                              <button
-                                                className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:animate-shake"
-                                                onClick={(event) => {
-                                                  return isLoggedIn
-                                                    ? (handleAddToCart(
-                                                        product?.id,
-                                                        product?.img_1
-                                                      ),
-                                                      handleCartPosition(event))
-                                                    : handleSignupCart(product);
-                                                }}
-                                              >
-                                                {animateProductId ===
-                                                product?.id ? (
-                                                  <img
-                                                    src="/images/addedtocart.gif"
-                                                    className="max-w-[45px] "
-                                                  />
-                                                ) : (
-                                                  <em className="icon ni ni-cart text-lg p-1 !bg-white drop-shadow-lg rounded-full"></em>
-                                                )}
-                                              </button>
-                                            </div>
+                                            
                                           </div>
                                           <div
                                             className="h-[100%]"
-                                            // className={`nk-card-img border rounded-md p-3   relative`}
                                           >
                                             <a
                                               className=" h-[100%] w-full block "
@@ -3005,134 +2166,14 @@ export default function ProductsDisplay() {
                                                 width={"100%"}
                                                 className={` !w-full group-hover:scale-105 transition duration-500 rounded-md h-[100%] bg-cove`}
                                               />
-                                              <div className="flex justify-start items-end">
-                                                <div className="absolute card rounded-xl shadow-sm  mb-1 mx-2 flex justify-start items-end">
-                                                  {product?.prices?.map(
-                                                    (price, ind) => (
-                                                      <p
-                                                        key={ind}
-                                                        className={`text-sm m-0 text-gray-1200 text-start fw-bold px-2  !w-full`}
-                                                      >
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                ₹
-                                                              </sub>
-                                                            )
-                                                          : price?.USD && (
-                                                              <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              >
-                                                                $
-                                                              </sub>
-                                                            )}
-                                                        {currentUserlang ===
-                                                        "en"
-                                                          ? price?.INR && (
-                                                              <>
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[0]
-                                                                }
-                                                                .
-                                                                {
-                                                                  (
-                                                                    Number.parseFloat(
-                                                                      price?.INR
-                                                                    )?.toFixed(
-                                                                      2
-                                                                    ) + ""
-                                                                  )?.split(
-                                                                    "."
-                                                                  )[1]
-                                                                }
-                                                                {/* </sub> */}
-                                                              </>
-                                                            )
-                                                          : price?.USD &&
-                                                            `${Number.parseFloat(
-                                                              price?.USD
-                                                            )}`}
-                                                      </p>
-                                                    )
-                                                  )}
-                                                </div>
-                                              </div>
+                                              
                                             </a>
-                                            {/* <p className={`truncate`}>
-                                              {product?.name}
-                                            </p> */}
+                                           
                                           </div>
 
-                                          <div className="nk-card-info  bg-white ">
-                                            {/* <a
-                                        href={`${userLang}/product-detail/${
-                                          product?.slug
-                                        }/${CryptoJS?.AES?.encrypt(
-                                          `${product?.id}`,
-                                          "trading_materials"
-                                        )
-                                          ?.toString()
-                                          .replace(/\//g, "_")
-                                          .replace(/\+/g, "-")}`}
-                                        className="d-inline-block text-black !text-sm antialiased "
-                                        style={{
-                                          textOverflow: "ellipsis",
-                                          whiteSpace: "nowrap",
-                                          overflow: "hidden",
-                                          width: "95%",
-                                        }}
-                                      >
-                                        {product?.name}
-                                      </a> */}
-                                            {/* <div className="d-flex align-items-center gap-1">
-                                        {ratingStars(product?.rating)}
-
-                                        <span className="fs-14 text-gray-800">
-                                          {" "}
-                                          ({
-                                            product?.total_reviews
-                                          } Reviews){" "}
-                                        </span>
+                                         
+                                        </div>
                                       </div> */}
-                                          </div>
-                                          {/* {product?.discount > 0 && (
-                                      <div className="flex justify-end items-end ">
-                                        <div
-                                          className="flex absolute items-center justify-center img-box !drop-shadow-lg
-
-"
-                                        >
-                                          <img
-                                            src="/images/sale-2.webp"
-                                            alt="ffer_label"
-                                            width={65}
-                                            className="drop-shadow-lg"
-                                          ></img>
-                                          <label className="absolute !font-bold text-white !text-xs right-1">
-                                            {product?.discount}%
-                                          </label>
-                                        </div>
-                                      </div>
-                                    )} */}
-                                        </div>
-                                      </div>
                                     </div>
                                   {/* </div> */}
                                 </div>
