@@ -1681,17 +1681,7 @@ export default function ProductsDisplay() {
                                             alt="product-image"
                                             className=" !w-full group-hover:scale-105 transition duration-500 rounded-md backdrop-blur-xl bg-white/10"
                                           />
-                                          {/* {product?.stock?.stock < 10 && (
-                                            <GitHubForkRibbon
-                                              className="drop-shadow-xl subpixel-antialiased"
-                                              color="orange"
-                                              position="left"
-                                            >
-                                              Only {product?.stock?.stock} left
-                                              !!
-                                            </GitHubForkRibbon>
-                                          )} */}
-                                          {/* <Badge */}
+                                          
                                         </a>
                                       </div>
                                       <div className="nk-card-info  bg-white p-4 pt-1">
@@ -1766,12 +1756,7 @@ export default function ProductsDisplay() {
                                                                 ""
                                                               )?.split(".")[0]
                                                             }
-                                                            {/* <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            > */}
+                                                            
                                                             .
                                                             {
                                                               (
@@ -1781,7 +1766,6 @@ export default function ProductsDisplay() {
                                                                 ""
                                                               )?.split(".")[1]
                                                             }
-                                                            {/* </sub> */}
                                                           </>
                                                         )
                                                       : price?.USD &&
@@ -1832,12 +1816,7 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                              {/* <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              > */}
+                                                              
                                                               .
                                                               {
                                                                 (
@@ -1853,7 +1832,6 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[1]
                                                               }
-                                                              {/* </sub> */}
                                                             </del>
                                                           </>
                                                         )
@@ -1898,12 +1876,7 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                              {/* <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              > */}
+                                                              
                                                               .
                                                               {
                                                                 (
@@ -1919,7 +1892,6 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[1]
                                                               }
-                                                              {/* </sub> */}
                                                             </del>
                                                           </>
                                                         )}
@@ -1965,12 +1937,7 @@ export default function ProductsDisplay() {
                                                                 .toString()
                                                                 .split(".")[0]
                                                             }
-                                                            {/* <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            > */}
+                                                            
                                                             .
                                                             {
                                                               (
@@ -1982,7 +1949,6 @@ export default function ProductsDisplay() {
                                                                 .toString()
                                                                 .split(".")[1]
                                                             }
-                                                            {/* </sub> */}
                                                           </>
                                                         )
                                                       : price?.USD && (
@@ -1997,12 +1963,7 @@ export default function ProductsDisplay() {
                                                                 .toString()
                                                                 .split(".")[0]
                                                             }
-                                                            {/* <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            > */}
+                                                            
                                                             .
                                                             {
                                                               (
@@ -2014,7 +1975,6 @@ export default function ProductsDisplay() {
                                                                 .toString()
                                                                 .split(".")[1]
                                                             }
-                                                            {/* </sub> */}
                                                           </>
                                                         )}
 
@@ -2311,15 +2271,7 @@ export default function ProductsDisplay() {
                                     className="w-100 group-hover:scale-105 p-3 rounded-md transition duration-500"
                                     // loading="lazy"
                                   />
-                                  {/* {product?.stock?.stock < 10 && (
-                                    <GitHubForkRibbon
-                                      className="drop-shadow-xl subpixel-antialiased"
-                                      color="orange"
-                                      position="left"
-                                    >
-                                      Only {product?.stock?.stock} left !!
-                                    </GitHubForkRibbon>
-                                  )} */}
+                                  
                                 </a>
                               </div>
                               <div className="nk-card-info bg-white p-4 pt-1">
@@ -2389,12 +2341,7 @@ export default function ProductsDisplay() {
                                                         )?.toFixed(2) + ""
                                                       )?.split(".")[0]
                                                     }
-                                                    {/* <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            > */}
+                                                    
                                                     .
                                                     {
                                                       (
@@ -2403,7 +2350,6 @@ export default function ProductsDisplay() {
                                                         )?.toFixed(2) + ""
                                                       )?.split(".")[1]
                                                     }
-                                                    {/* </sub> */}
                                                   </>
                                                 )
                                               : price?.USD &&
@@ -2450,12 +2396,7 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      {/* <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              > */}
+                                                      
                                                       .
                                                       {
                                                         (
@@ -2469,7 +2410,6 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[1]
                                                       }
-                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )
@@ -2510,12 +2450,7 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      {/* <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              > */}
+                                                      
                                                       .
                                                       {
                                                         (
@@ -2529,7 +2464,6 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[1]
                                                       }
-                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )}
@@ -2572,12 +2506,7 @@ export default function ProductsDisplay() {
                                                         .toString()
                                                         .split(".")[0]
                                                     }
-                                                    {/* <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            > */}
+                                                    
                                                     .
                                                     {
                                                       (
@@ -2588,7 +2517,6 @@ export default function ProductsDisplay() {
                                                         .toString()
                                                         .split(".")[1]
                                                     }
-                                                    {/* </sub> */}
                                                   </>
                                                 )
                                               : price?.USD && (
@@ -2602,12 +2530,7 @@ export default function ProductsDisplay() {
                                                         .toString()
                                                         .split(".")[0]
                                                     }
-                                                    {/* <sub
-                                                              style={{
-                                                                verticalAlign:
-                                                                  "super",
-                                                              }}
-                                                            > */}
+                                                  
                                                     .
                                                     {
                                                       (
@@ -2618,7 +2541,6 @@ export default function ProductsDisplay() {
                                                         .toString()
                                                         .split(".")[1]
                                                     }
-                                                    {/* </sub> */}
                                                   </>
                                                 )}
 
@@ -2661,12 +2583,7 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      {/* <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              > */}
+                                                      
                                                       .
                                                       {
                                                         (
@@ -2680,7 +2597,6 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[1]
                                                       }
-                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )
@@ -2721,12 +2637,7 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      {/* <sub
-                                                                style={{
-                                                                  verticalAlign:
-                                                                    "super",
-                                                                }}
-                                                              > */}
+                                                      
                                                       .
                                                       {
                                                         (
@@ -2740,7 +2651,6 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[1]
                                                       }
-                                                      {/* </sub> */}
                                                     </del>
                                                   </>
                                                 )}
@@ -3107,82 +3017,6 @@ export default function ProductsDisplay() {
           </div>
         </section>
       </div>
-      {/* <div className="nk-sticky-badge cursor-pointer">
-        <ul>
-          <li>
-            <a
-              href="/"
-              className="nk-sticky-badge-icon nk-sticky-badge-home"
-              data-bs-toggle="tooltip"
-              data-bs-placement="right"
-              data-bs-custom-class="nk-tooltip"
-              data-bs-title="View Demo"
-            >
-              <em className="icon ni ni-home-fill"></em>
-            </a>
-          </li>
-          <li>
-            <a
-              onClick={() =>
-                isLoggedIn
-                  ? navigate(`/cart`)
-                  : dispatch(
-                      usersignupinModal({
-                        showSignupModal: false,
-                        showLoginModal: true,
-                        showforgotPasswordModal: false,
-                        showOtpModal: false,
-                        showNewPasswordModal: false,
-                      })
-                    )
-              }
-              className="nk-sticky-badge-icon nk-sticky-badge-purchase"
-              data-bs-toggle="tooltip"
-              data-bs-custom-class="nk-tooltip"
-              data-bs-title="Purchase Now"
-              aria-label="Purchase Now"
-            >
-              <em className="icon ni ni-cart-fill"></em>
-            </a>
-          </li>
-          <li>
-            <a
-              onClick={() =>
-                isLoggedIn
-                  ? navigate(`/profile?wishlist`)
-                  : dispatch(
-                      usersignupinModal({
-                        showSignupModal: false,
-                        showLoginModal: true,
-                        showforgotPasswordModal: false,
-                        showOtpModal: false,
-                        showNewPasswordModal: false,
-                      })
-                    )
-              }
-              className="nk-sticky-badge-icon nk-sticky-badge-home"
-              data-bs-toggle="tooltip"
-              data-bs-placement="right"
-              data-bs-custom-class="nk-tooltip"
-              data-bs-title="View Demo"
-            >
-              <em className="icon ni ni-heart"></em>
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://wa.me/+919087080999" target="_blank" rel="noreferrer"
-              className="nk-sticky-badge-icon nk-sticky-badge-whatsapp cursor-pointer"
-              data-bs-toggle="tooltip"
-              data-bs-custom-class="nk-tooltip"
-              data-bs-title="whatsapp"
-              aria-label="whatsapp"
-            >
-              <em className="icon ni ni-whatsapp"></em>
-            </a>
-          </li>
-        </ul>
-      </div> */}
     </>
   );
 }

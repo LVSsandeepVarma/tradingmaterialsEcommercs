@@ -77,6 +77,11 @@ export default function Terms() {
                         Shipping Policy
                       </a>
                     </li>
+                    <li className="">
+                      <a href="/disclaimer-policy" className="fs-16">
+                        Disclaimer Policy
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </div>

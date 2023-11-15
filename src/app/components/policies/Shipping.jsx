@@ -78,6 +78,11 @@ export default function ShippingPolicy() {
                         Shipping Policy
                       </a>
                     </li>
+                    <li className="">
+                      <a href="/disclaimer-policy" className="fs-16">
+                        Disclaimer Policy
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -124,9 +129,10 @@ export default function ShippingPolicy() {
                         times are estimates and may be subject to unexpected
                         delays caused by factors beyond our control.
                       </p>
-                      <br/>
+                      <br />
                       <p className="fs-16">
-                        For delivery across India, the normal shipping duration time will be 3-4 days.
+                        For delivery across India, the normal shipping duration
+                        time will be 3-4 days.
                       </p>
                     </div>
                     <div className="pb-5">
@@ -202,11 +208,19 @@ export default function ShippingPolicy() {
                       </p>
                     </div>
                     <div className="pb-5">
-                      
                       <p className="fs-16">
-                      Thank you for choosing Trading Materials for your trading needs.
+                        Thank you for choosing Trading Materials for your
+                        trading needs.
                       </p>
-                      <p className="mt-2">Last Updated: <b>{moment().clone().startOf('month').format('DD-MM-YYYY')}</b></p>
+                      <p className="mt-2">
+                        Last Updated:{" "}
+                        <b>
+                          {moment()
+                            .clone()
+                            .startOf("month")
+                            .format("DD-MM-YYYY")}
+                        </b>
+                      </p>
                     </div>
                   </div>
                 </div>
