@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import Header from "../../header/header";
 import Footer from "../../footer/footer";
@@ -10,20 +11,30 @@ import {
   showLoader,
 } from "../../../../features/loader/loaderSlice";
 import { useTranslation } from "react-i18next";
-import { FaCrosshairs, FaFileInvoice } from "react-icons/fa";
+import {
+  FaBoxesPacking,
+  FaCartArrowDown,
+  FaCrosshairs,
+  FaFileInvoice,
+  FaMagnifyingGlass,
+  FaPeopleCarryBox,
+  FaTruckFast,
+} from "react-icons/fa6";
 import CryptoJS from "crypto-js";
 
-import {RiSecurePaymentFill} from "react-icons/ri"
+import { RiSecurePaymentFill } from "react-icons/ri";
 import Dashboard from "../../commonDashboard/Dashboard";
 
 export default function ViewOrders() {
   // const userData  =useSelector(state => state?.user?.value)
   // eslint-disable-next-line no-unused-vars
   const [orders, setOrders] = useState();
+  const [orderDataOne, setOrderDataOne] = useState();
+  const [orderDataTwo, setOrderDataTwo] = useState()
   const [orderId, setOrderId] = useState();
   const [activeOrder, setActiveOrder] = useState(0);
   const [orderNumber, setOrderNumber] = useState();
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
   const { t } = useTranslation();
   // eslint-disable-next-line no-unused-vars
   const [viewOrderDetails, setViewOrderDetails] = useState();
@@ -32,50 +43,108 @@ export default function ViewOrders() {
   // const loaderState = useSelector((state) => state?.loader?.value);
 
   useEffect(() => {
-    const getOrderDetails = async () => {
-      try {
-        dispatch(showLoader());
-        const response = await axios.get(
-          `https://admin.tradingmaterials.com/api/client/get-orders?type=${params?.order_type}`,
-          {
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("client_token"),
-            },
-          }
-        );
-        if (response?.data?.status) {
-          console.log(response?.data);
-          setOrderId(response?.data?.data?.orders[0]?.id);
-          setOrders(response?.data?.data?.orders);
-          setOrderNumber(response?.data?.data?.orders[0]?.order_number);
-        }
-      } catch (err) {
-        console.log(err);
-      } finally {
-        dispatch(hideLoader());
-      }
-    };
-    getOrderDetails();
-  }, [params]);
+
+    if (params?.order_type == "unpaid" || params?.order_type == "placed") {
+      const getOrderDetails = async (type, dataCount) => {
+            console.log("orderss", type, )
+            try {
+              dispatch(showLoader());
+              const response = await axios.get(
+                `https://admin.tradingmaterials.com/api/client/get-orders?type=${type}`,
+                {
+                  headers: {
+                    Authorization:
+                      "Bearer " + localStorage.getItem("client_token"),
+                  },
+                }
+              );
+              if (response?.data?.status) {
+                console.log(response?.data);
+                setOrderId(response?.data?.data?.orders[0]?.id);
+                if (dataCount == "one") {
+                  setOrderDataOne(response?.data?.data?.orders);
+                  // setOrders(...orders, response?.data?.data?.orders)
+                  console.log(response?.data?.data?.orders[0]?.order_number,"orderss");
+                  setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+                } else if (dataCount == "two") {
+
+                  setOrderDataTwo(response?.data?.data?.orders);
+
+                  //                   setOrders(
+                  //                     ...orders,
+                  //                     response?.data?.data?.orders
+                  // );
+                  
+                  if (!orderNumber) {
+                    console.log(orderNumber, "orderss");
+                    setOrderNumber(
+                      response?.data?.data?.orders[0]?.order_number
+                    );
+                  }
+
+                }
+                // setOrders(response?.data?.data?.orders);
+                
+              }
+              
+            } catch (err) {
+              console.log(err);
+            } finally {
+              if (dataCount == "one") {
+                getOrderDetails("unpaid", "two");
+              }
+              dispatch(hideLoader());
+            }
+          };
+      getOrderDetails("placed", "one");
+      
+      
+    }
+
+    // const getOrderDetails = async () => {
+    //   try {
+    //     dispatch(showLoader());
+    //     const response = await axios.get(
+    //       `https://admin.tradingmaterials.com/api/client/get-orders?type=${params?.order_type}`,
+    //       {
+    //         headers: {
+    //           Authorization: "Bearer " + localStorage.getItem("client_token"),
+    //         },
+    //       }
+    //     );
+    //     if (response?.data?.status) {
+    //       console.log(response?.data);
+    //       setOrderId(response?.data?.data?.orders[0]?.id);
+    //       setOrders(response?.data?.data?.orders);
+    //       setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+    //     }
+    //   } catch (err) {
+    //     console.log(err);
+    //   } finally {
+    //     dispatch(hideLoader());
+    //   }
+    // };
+    // getOrderDetails();
+  }, []);
 
   useEffect(() => {
     const viewOrderDetails = async () => {
       try {
         dispatch(showLoader());
-        if(orderId != undefined){
-        const response = await axios.get(
-          `https://admin.tradingmaterials.com/api/client/view-order?id=${orderId}`,
-          {
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("client_token"),
-            },
+        if (orderId != undefined) {
+          const response = await axios.get(
+            `https://admin.tradingmaterials.com/api/client/view-order?id=${orderId}`,
+            {
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("client_token"),
+              },
+            }
+          );
+
+          if (response?.data?.status) {
+            setViewOrderDetails(response?.data?.data?.order);
           }
-        );
-        
-        if (response?.data?.status) {
-          setViewOrderDetails(response?.data?.data?.order);
         }
-      }
       } catch (err) {
         console.log(err);
       } finally {
@@ -83,8 +152,7 @@ export default function ViewOrders() {
       }
     };
 
-      viewOrderDetails();
- 
+    viewOrderDetails();
   }, [orderId]);
   return (
     <>
@@ -97,94 +165,276 @@ export default function ViewOrders() {
       )} */}
         <Dashboard />
         <section className="nk-section ">
+          <div className="container">
+            <div className="row">
+              <div className="col mb-5">
+                <div
+                  className="timeline-steps aos-init aos-animate"
+                  data-aos="fade-up"
+                >
+                  <div className="timeline-step order-delivered">
+                    <div
+                      className="timeline-content"
+                      data-toggle="popover"
+                      data-trigger="hover"
+                      data-placement="top"
+                      title=""
+                      data-content="And here's some amazing content. It's very engaging. Right?"
+                      data-original-title="2003"
+                    >
+                      <div className="inner-circle timeline-active">
+                        <img
+                          src="/images/orders/Order-placed.png"
+                          className="!w-[36px]"
+                          width="50px"
+                          alt="placed"
+                        />
+                        {/* <FaCartArrowDown
+                          className="fa-solid fa-cart-arrow-down text-[2em] "
+                          style={{ color: "#1581d2" }}
+                        /> */}
+                      </div>
+                      {/* <!-- <p class="h6 mt-3 mb-1">2003</p> --> */}
+                      <p className="h6 text-muted !font-bold mb-0 mb-lg-0 order-placed">
+                        Order Placed
+                      </p>
+                    </div>
+                  </div>
+                  <div className="timeline-step order-delivered">
+                    <div
+                      className="timeline-content"
+                      data-toggle="popover"
+                      data-trigger="hover"
+                      data-placement="top"
+                      title=""
+                      data-content="And here's some amazing content. It's very engaging. Right?"
+                      data-original-title="2005"
+                    >
+                      <div
+                        className="inner-circle"
+                        style={{ border: "1px solid #4CAF50" }}
+                      >
+                        <img
+                          src="/images/orders/order-confirmed.png"
+                          className="w-[30px] fa-beat-fade"
+                          width="100px"
+                        />
+                        {/* <FaBoxesPacking
+                          className="fa-solid fa-boxes-packing text-[2em] fa-beat-fade"
+                          style={{ color: "#4caf50" }}
+                        /> */}
+                      </div>
+                      {/* <!-- <p class="h6 mt-3 mb-1">2005</p> --> */}
+                      <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-confirmed">
+                        Order Confirmed <br /> & Cancelled
+                      </p>
+                    </div>
+                  </div>
+                  <div className="timeline-step order-delivered">
+                    <div
+                      className="timeline-content"
+                      data-toggle="popover"
+                      data-trigger="hover"
+                      data-placement="top"
+                      title=""
+                      data-content="And here's some amazing content. It's very engaging. Right?"
+                      data-original-title="2010"
+                    >
+                      <div className="inner-circle">
+                        <img
+                          src="/images/orders/order-dispatched.png"
+                          className="w-[36px] "
+                          width="100px"
+                        />{" "}
+                        {/* <FaTruckFast
+                          className="fa-solid fa-truck-fast text-[2em]"
+                          style={{ color: "#ff9800" }}
+                        /> */}
+                      </div>
+                      {/* <!-- <p class="h6 mt-3 mb-1">2010</p> --> */}
+                      <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-dispatched">
+                        Order Dispatched
+                      </p>
+                    </div>
+                  </div>
+                  <div className="timeline-step mb-0">
+                    <div
+                      className="timeline-content"
+                      data-toggle="popover"
+                      data-trigger="hover"
+                      data-placement="top"
+                      title=""
+                      data-content="And here's some amazing content. It's very engaging. Right?"
+                      data-original-title="2020"
+                    >
+                      <div className="inner-circle">
+                        <img
+                          src="/images/orders/order-delivered.png"
+                          className="w-[36px]"
+                          width="100px"
+                        />{" "}
+                        {/* <FaPeopleCarryBox
+                          className="fa-sharp fa-solid fa-people-carry-box text-[2em]"
+                          style={{ color: "#009688" }}
+                        /> */}
+                      </div>
+                      {/* <!-- <p class="h6 mt-3 mb-1">2020</p> --> */}
+                      <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-delivered">
+                        Order Delivered <br /> & Returned
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="nk-mask blur-1 left center"></div>
           <div className="container">
             <div className="row mt-1">
               <div className="col-lg-12">
                 <div className="card">
-                  <div className=" flex items-center card-header px-3 py-1">
-                    <img
-                      className="flex items-center !rounded-none !w-[30px] mr-2 !h-auto"
-                      src={`/images/orders/${params?.order_type}.png`}
-                    />
-                    <h5 className="text-muted text-left capitalize !font-bold mb-0">
-                      Orders {params?.order_type}
-                      {orders?.length > 0 && (
-                        <span className="badge bg-primary ms-2">
-                          {orders?.length}
-                        </span>
-                      )}
-                    </h5>
+                  <div className="card-header px-3 py-1 d-flex items-center justify-between flex-wrap">
+                    <div className=" flex items-center card-header px-3 py-1">
+                      {/* <img
+                        className="flex items-center !rounded-none !w-[30px] mr-2 !h-auto"
+                        src={`/images/orders/${params?.order_type}.png`}
+                      /> */}
+                      <h5 className="text-muted text-left capitalize text-xl !font-bold mb-0">
+                        Orders{" "}
+                        {params?.order_type == "placed" ||
+                          params?.order_type == "unpaid" ? "Placed and unpaid" : ""}
+                        {orders?.length > 0 && (
+                          <span className="badge badge-custom ms-2">
+                            {orderDataOne?.length + orderDataTwo?.length}
+                          </span>
+                        )}
+                      </h5>
+                    </div>
+                    <div
+                      className="input-group mb-0"
+                      style={{ width: "350px" }}
+                    >
+                      <input
+                        type="text"
+                        className="form-control px-2 py-1"
+                        placeholder="Search Orders..."
+                        aria-label="Recipient's username"
+                        aria-describedby="basic-addon2"
+                      />
+                      <span
+                        className="input-group-text px-2 py-1"
+                        id="basic-addon2"
+                      >
+                        <FaMagnifyingGlass className="fa-solid fa-magnifying-glass" />
+                      </span>
+                    </div>
                   </div>
                   <div className="card-body">
                     <div className="row">
                       <div className="col-lg-12">
-                        {orders?.length == 0 && (
-                          <>
-                            <div className="">
-                              <div className="flex justify-center">
-                                <img
-                                  src={`/images/orders/large/${params?.order_type}.png`}
-                                  className="w-22 h-auto"
-                                  alt="orders_large_icons"
-                                  style={{ filter: "blur(3px)" }}
-                                />
-                              </div>
-                              <div
-                                className="nav flex-column nav-pills me-3 !text-sm !font-bold text-[#0082f1]"
-                                id="v-pills-tab"
-                                role="tablist"
-                                aria-orientation="vertical "
-                              >
-                                No Orders Available
-                              </div>
-                            </div>
-                          </>
-                        )}
+                        {orderDataOne?.length == 0 ||
+                          orderDataTwo?.length ==
+                            0 && (
+                              <>
+                                <div className="">
+                                  <div className="flex justify-center">
+                                    <img
+                                      src={`/images/orders/large/${params?.order_type}.png`}
+                                      className="w-22 h-auto"
+                                      alt="orders_large_icons"
+                                      style={{ filter: "blur(3px)" }}
+                                    />
+                                  </div>
+                                  <div
+                                    className="nav flex-column nav-pills me-3 !text-sm !font-bold text-[#0082f1]"
+                                    id="v-pills-tab"
+                                    role="tablist"
+                                    aria-orientation="vertical "
+                                  >
+                                    No Orders Available
+                                  </div>
+                                </div>
+                              </>
+                            )}
                       </div>
                       <div className="col-lg-3">
-                        {orders?.length > 0 && (
-                          <div
-                            className="nav flex-column nav-pills me-3"
-                            id="v-pills-tab"
-                            role="tablist"
-                            aria-orientation="vertical"
-                          >
-                            {orders?.map((order, ind) => (
-                              <button
-                                key={ind}
-                                onClick={() => {
-                                  setOrderId(order?.id),
-                                    setActiveOrder(ind),
-                                    setOrderNumber(order?.order_number);
-                                }}
-                                className={`nav-but-left ${
-                                  ind == 0 ? "!mt-0" : ""
-                                } ${
-                                  activeOrder === ind ? "active" : ""
-                                } hover:drop-shadow-xl shadow-sm`}
-                                id="prod-1-tab"
-                                data-bs-toggle="pill"
-                                data-bs-target="#prod-1"
-                                type="button"
-                                role="tab"
-                                aria-controls="prod-1"
-                                aria-selected="true"
+                        {orderDataOne?.length > 0 ||
+                          orderDataTwo?.length >
+                            0 &&(
+                              <div
+                                className="nav flex-column nav-pills me-3"
+                                id="v-pills-tab"
+                                role="tablist"
+                                aria-orientation="vertical"
                               >
-                                #{order?.order_number} <br />{" "}
-                                <small className="drop-shadow-lg">
-                                  {new Date(
-                                    order?.created_at
-                                  ).toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "numeric",
-                                  })}
-                                </small>
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                                {orderDataOne?.map((order, ind) => (
+                                  <button
+                                    key={ind}
+                                    onClick={() => {
+                                      setOrderId(order?.id),
+                                        setActiveOrder(ind),
+                                        setOrderNumber(order?.order_number);
+                                    }}
+                                    className={`nav-but-left ${
+                                      ind == 0 ? "!mt-0" : ""
+                                    } ${
+                                      activeOrder === ind ? "active" : ""
+                                    } hover:drop-shadow-xl shadow-sm`}
+                                    id="prod-1-tab"
+                                    data-bs-toggle="pill"
+                                    data-bs-target="#prod-1"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="prod-1"
+                                    aria-selected="true"
+                                  >
+                                    #{order?.order_number} <br />{" "}
+                                    <small className="drop-shadow-lg">
+                                      {new Date(
+                                        order?.created_at
+                                      ).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                      })}
+                                    </small>
+                                  </button>
+                                ))}
+                                {orderDataTwo?.map((order, ind) => (
+                                  <button
+                                    key={ind}
+                                    onClick={() => {
+                                      setOrderId(order?.id),
+                                        setActiveOrder(ind),
+                                        setOrderNumber(order?.order_number);
+                                    }}
+                                    className={`nav-but-left ${
+                                      ind == 0 ? "!mt-0" : ""
+                                    } ${
+                                      activeOrder === ind ? "active" : ""
+                                    } hover:drop-shadow-xl shadow-sm`}
+                                    id="prod-1-tab"
+                                    data-bs-toggle="pill"
+                                    data-bs-target="#prod-1"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="prod-1"
+                                    aria-selected="true"
+                                  >
+                                    #{order?.order_number} <br />{" "}
+                                    <small className="drop-shadow-lg">
+                                      {new Date(
+                                        order?.created_at
+                                      ).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                      })}
+                                    </small>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                       </div>
                       <div className="col-lg-9">
                         <div className="tab-content" id="v-pills-tabContent">
@@ -277,7 +527,8 @@ export default function ViewOrders() {
                                               ) : (
                                                 <FaCrosshairs className="mr-1" />
                                               )}
-                                              {params?.order_type == "unpaid"
+                                              {params?.order_type == "unpaid" ||
+                                              viewOrderDetails?.status == "0"
                                                 ? "Pay now"
                                                 : "Track order"}{" "}
                                             </button>

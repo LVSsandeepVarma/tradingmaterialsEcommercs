@@ -277,7 +277,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <Field
                     type="text"
                     name="add_1"
-                    className="form-control"
+                    className=" form-control  addressInput !pl-2"
                     placeholder="House number and street name"
                     disabled
                   />
@@ -285,14 +285,14 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <Field
                     type="text"
                     name="add_1"
-                    className="form-control"
+                    className="form-control addressInput"
                     placeholder="House number and street name"
                   />
                 )}
                 <ErrorMessage
                   name="add_1"
                   component="div"
-                  className="text-red-500"
+                  className="nk-message-error text-xs !pl-[0.7rem]"
                 />
               </div>
               <div className="form-group mt-3 ">
@@ -303,7 +303,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <Field
                     type="text"
                     name="add_2"
-                    className="form-control"
+                    className="form-control form-control addressInput"
                     placeholder="Apartment, suite, unit...."
                     disabled
                   />
@@ -311,7 +311,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <Field
                     type="text"
                     name="add_2"
-                    className="form-control"
+                    className="form-control addressInput"
                     placeholder="Apartment, suite, unit...."
                   />
                 )}
@@ -326,7 +326,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                     <Field
                       type="text"
                       name="city"
-                      className="form-control"
+                      className="form-control addressInput"
                       placeholder="City"
                       disabled
                     />
@@ -334,7 +334,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                     <Field
                       type="text"
                       name="city"
-                      className="form-control"
+                      className="form-control addressInput"
                       placeholder="City"
                       onChange={(e) =>
                         cleanAndSetFieldValue(
@@ -348,7 +348,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <ErrorMessage
                     name="city"
                     component="div"
-                    className="text-red-500"
+                    className="nk-message-error text-xs !pl-[0.7rem]"
                   />
                 </div>
                 <div className="form-group mt-3 ">
@@ -360,7 +360,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                     <Field
                       type="text"
                       name="state"
-                      className="form-control"
+                      className="form-control addressInput"
                       placeholder="State"
                       disabled
                     />
@@ -368,7 +368,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                     <Field
                       type="text"
                       name="state"
-                      className="form-control"
+                      className="form-control addressInput"
                       placeholder="State"
                       onChange={(e) =>
                         cleanAndSetFieldValue(
@@ -382,7 +382,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <ErrorMessage
                     name="state"
                     component="div"
-                    className="text-red-500"
+                    className="nk-message-error text-xs !pl-[0.7rem]"
                   />
                 </div>
               </div>
@@ -445,7 +445,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <ErrorMessage
                     name="country"
                     component="div"
-                    className="nk-message-error text-xs"
+                    className="nk-message-error text-xs !pl-[0.7rem]"
                   />
                 </div>
                 <div className="form-group mt-3 ">
@@ -479,7 +479,7 @@ const AddressForm = ({ type, data, closeModal }) => {
                   <ErrorMessage
                     name="zip"
                     component="div"
-                    className="nk-message-error text-xs"
+                    className="nk-message-error text-xs !pl-[0.7rem]"
                   />
                 </div>
               </div>

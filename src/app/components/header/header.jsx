@@ -418,22 +418,23 @@ export default function Header() {
                             </a>
                           </li>
 
-                          <li className="nk-nav-item has-sub">
-                            <a
-                              className={`nk-nav-link nk-nav-toggle cursor-pointer ${
+                          <li className="nk-nav-item">
+                          <a
+                            href="/view-order/placed"
+                              className={`nk-nav-link  cursor-pointer ${
                                 location.pathname.includes("/view-order")
                                   ? "active"
                                   : ""
                               }`}
-                              onClick={() =>
-                                activeDropDown === "orders"
-                                  ? setActiveDropDown("")
-                                  : setActiveDropDown("orders")
-                              }
+                              // onClick={() =>
+                              //   activeDropDown === "orders"
+                              //     ? setActiveDropDown("")
+                              //     : setActiveDropDown("orders")
+                              // }
                             >
                               <span className="nk-nav-text">Orders</span>
                             </a>
-                            <ul
+                            {/* <ul
                               className={`nk-nav-sub cursor-pointer ${
                                 activeDropDown === "orders" ? "!block " : ""
                               } nk-nav-mega  nk-nav-mega nk-nav-mega-home`}
@@ -443,7 +444,6 @@ export default function Header() {
                                   <>
                                     <li className="col-lg-12 col-xl-12 p-0">
                                       <a
-                                        // href = {`${userLang}/#bundles`}
                                         onClick={() => {
                                           navigate(
                                             `${userLang}/view-order/unpaid`
@@ -462,7 +462,6 @@ export default function Header() {
                                     </li>
                                     <li className="col-lg-12 col-xl-12 p-0">
                                       <a
-                                        // href = {`${userLang}/#bundles`}
                                         onClick={() => {
                                           navigate(
                                             `${userLang}/view-order/placed`
@@ -482,7 +481,6 @@ export default function Header() {
                                     </li>
                                     <li className="col-lg-12 col-xl-12 p-0">
                                       <a
-                                        // href = {`${userLang}/#bundles`}
                                         onClick={() => {
                                           navigate(
                                             `${userLang}/view-order/confirmed`
@@ -502,7 +500,6 @@ export default function Header() {
                                     </li>
                                     <li className="col-lg-12 col-xl-12 p-0">
                                       <a
-                                        // href = {`${userLang}/#bundles`}
                                         onClick={() => {
                                           navigate(
                                             `${userLang}/view-order/dispatched`
@@ -522,7 +519,6 @@ export default function Header() {
                                     </li>
                                     <li className="col-lg-12 col-xl-12 p-0">
                                       <a
-                                        // href = {`${userLang}/#bundles`}
                                         onClick={() => {
                                           navigate(
                                             `${userLang}/view-order/delivered`
@@ -542,7 +538,6 @@ export default function Header() {
                                     </li>
                                     <li className="col-lg-12 col-xl-12 p-0">
                                       <a
-                                        // href = {`${userLang}/#bundles`}
                                         onClick={() => {
                                           navigate(
                                             `${userLang}/view-order/cancelled`
@@ -562,7 +557,6 @@ export default function Header() {
                                     </li>
                                     <li className="col-lg-12 col-xl-12 p-0">
                                       <a
-                                        // href = {`${userLang}/#bundles`}
                                         onClick={() => {
                                           navigate(
                                             `${userLang}/view-order/returned`
@@ -583,7 +577,7 @@ export default function Header() {
                                   </>
                                 </ul>
                               </li>
-                            </ul>
+                            </ul> */}
                           </li>
 
                           <li className="nk-nav-item">
@@ -666,13 +660,14 @@ export default function Header() {
                                       </li>
                                       <li className="col-lg-12 p-0">
                                         <a
-                                          href={`/orders/${CryptoJS?.AES?.encrypt(
-                                            `${userData?.client?.id}`,
-                                            "order_details"
-                                          )
-                                            ?.toString()
-                                            .replace(/\//g, "_")
-                                            .replace(/\+/g, "-")}`}
+                                          // href={`/orders/${CryptoJS?.AES?.encrypt(
+                                          //   `${userData?.client?.id}`,
+                                          //   "order_details"
+                                          // )
+                                          //   ?.toString()
+                                          //   .replace(/\//g, "_")
+                                          //   .replace(/\+/g, "-")}`}
+                                          href="/view-order/placed"
                                           target="_blank"
                                           rel="noreferrer"
                                           className="nk-nav-link"
@@ -970,7 +965,7 @@ export default function Header() {
           </>
         )}
 
-      <div className="container">
+      <div className="container" style={{ "--bs-gutter-x": "0" }}>
         {localStorage.getItem("cookieStatus") == "true" ? (
           <></>
         ) : (localStorage.getItem("cookieStatus") == "false" &&

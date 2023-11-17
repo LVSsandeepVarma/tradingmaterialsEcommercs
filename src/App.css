@@ -2548,3 +2548,16 @@ small{
     height: 14px;
     border-radius: 50%;
 }
+
+
+.addressInput {
+  padding: 0.4rem !important;
+  padding-left: 0.7rem !important;
+  border-radius: 0.1rem !important;
+  font-size: 12px;
+}
+
+
+.reduceModalSize .modal-lg {
+  --bs-modal-width: 700px !important
+}

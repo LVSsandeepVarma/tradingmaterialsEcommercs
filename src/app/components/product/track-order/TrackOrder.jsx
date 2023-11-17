@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../header/header";
 import Footer from "../../footer/footer";
-import { Box, Divider, Chip, CardActionArea } from "@mui/material";
+import { Box, Divider, Chip, CardActionArea, Tooltip } from "@mui/material";
 // import CallIcon from "@mui/icons-material/Call";
 // import DoneSharpIcon from '@mui/icons-material/DoneSharp';
 // import LocalShippingSharpIcon from '@mui/icons-material/LocalShippingSharp';
@@ -102,25 +102,39 @@ export default function OrderTacker() {
 
   return (
     <>
-    <Modal show={showModal} onHide={()=>setShowModal(false)} centered className="!backdrop-blur-[2px]">
-      <Modal.Header closeButton>Track your Order</Modal.Header>
-      <Modal.Body>
-        <>
-          <div className="text-left">
-            <label>Enter your Order id</label>
-            <input className="form-control mt-2 mb-2" placeholder="your order id" value={orderId} onChange={handleOrderIdInput} />
-            <Button variant="primary" onClick={()=>{
-              if(orderId!== "" || orderId !== undefined){
-                fetchOrderData();
-                setShowModal(false)
-              }
-            }} >Track My Order</Button>
-          </div>
-
-        </>
-      </Modal.Body>
-    </Modal>
-    {loaderState && (
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        centered
+        className="!backdrop-blur-[2px]"
+      >
+        <Modal.Header closeButton>Track your Order</Modal.Header>
+        <Modal.Body>
+          <>
+            <div className="text-left">
+              <label>Enter your Order id</label>
+              <input
+                className="form-control mt-2 mb-2"
+                placeholder="your order id"
+                value={orderId}
+                onChange={handleOrderIdInput}
+              />
+              <Button
+                variant="primary"
+                onClick={() => {
+                  if (orderId !== "" || orderId !== undefined) {
+                    fetchOrderData();
+                    setShowModal(false);
+                  }
+                }}
+              >
+                Track My Order
+              </Button>
+            </div>
+          </>
+        </Modal.Body>
+      </Modal>
+      {loaderState && (
         <div className="preloader !backdrop-blur-[1px]">
           <div className="loader"></div>
         </div>
@@ -135,12 +149,42 @@ export default function OrderTacker() {
                 <div className="mb-2">
                   <h2 className="text-xl !font-bold ">My Orders / Tracking</h2>
                   <Divider />
-                  <p className="mt-2 pb-3">
-                    Order No: <b>{orderDetails?.order?.order_number}</b>
-                  </p>
+                  <div className="flex justify-around flex-wrap">
+                    <p className="mt-2">
+                      Order No: <b>{orderDetails?.order?.order_number}</b>
+                    </p>
+                    <p
+                      className="mt-2 pb-3 cursor-pointer hover:!text-blue-600"
+                      onClick={() => {
+                        window.open(
+                          `${orderDetails?.consignment?.tracking_url}`
+                        );
+                      }}
+                    >
+                      Track your order{" "}
+                      <span className="!text-blue-600 text-xs">click here</span>
+                    </p>
+
+                    <p className="mt-2 ">
+                      Consignment No(AWB):{" "}
+                      <Tooltip title="Copy to clipboard">
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              orderDetails?.consignment?.consignment_id
+                            );
+                          }}
+                        >
+                          {orderDetails?.consignment?.consignment_id}
+                        </span>
+                      </Tooltip>
+                    </p>
+                  </div>
+
                   <div className="p-2 border-1 border mb-2">
                     <div className="flex justify-between flex-wrap">
-                      <div className="text-left">
+                      {/* <div className="text-left">
                         <p className="!font-bold"> {orderDetails?.order?.status > 3 ? "Delivered Date" :  "Estimated Delivery Date"}:</p>
                         <span>{orderDetails?.order?.delivered_date != null ? new Date(
                         orderDetails?.order?.delivered_date
@@ -149,25 +193,29 @@ export default function OrderTacker() {
                         month: "long",
                         year: "numeric",
                       }) : null}</span>
-                      </div>
+                      </div> */}
                       <div className="text-left">
                         <p className="!font-bold"> Shipping By:</p>
-                        <span>
-                          Trading Materials
-                        </span>
+                        <span>Trading Materials</span>
                       </div>
                       <div className="text-left">
                         <p className="!font-bold"> Status:</p>
-                        <span>{steps[orderDetails?.order?.status == "0"
-                            ? 0
-                            : orderDetails?.order?.status >= 4
-                            ? 3
-                            : orderDetails?.order?.status-1]} </span>
+                        <span>
+                          {
+                            steps[
+                              orderDetails?.order?.status == "0"
+                                ? 0
+                                : orderDetails?.order?.status >= 4
+                                ? 3
+                                : orderDetails?.order?.status - 1
+                            ]
+                          }{" "}
+                        </span>
                       </div>
-                      <div className="text-left">
+                      {/* <div className="text-left">
                         <p className="!font-bold"> Tracking #:</p>
                         <span>{null} </span>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                   {/* <div className="mb-4">
@@ -217,192 +265,219 @@ export default function OrderTacker() {
                     </div>
                   </div> */}
                   <p> Order Status</p>
-                  <CustomizedSteppers orderStatus={
-                          orderDetails?.order?.status == "0"
-                            ? "0"
-                            : orderDetails?.order?.status >= 4
-                            ? "3"
-                            : orderDetails?.order?.status-1
-                        }/>
-                  
-                </div>
-                <Divider/>
-                  <h2 className="!font-bold text-xl mt-2">Order details</h2>
-                  <div className="">
-              <Box sx={{ borderRadius: "16px", border: 1, borderColor: "#f8f8f8" }}>
-                <Divider />
-                <div className="flex w-full p-3 !items-start">
-                  <div className="w-full">
-                    <h3 className="!font-bold flex items-center text-xs md:text-sm">
-                      Invoice No: <AssignmentIcon style={{ width: "15px" }} />
-                      { orderDetails?.order?.invoice?.number === null
-                        ? 1324567980
-                        : orderDetails?.order?.invoice?.prefix+orderDetails?.order?.invoice?.number}{" "}
-                    </h3>
-                    <small className="!w-full font-semibold">
-                      {new Date(
-                        orderDetails?.order?.created_at
-                      ).toLocaleDateString("en", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}{" "}
-                    </small>
-                  </div>
-                  <div className="flex justify-end w-full items-center">
-                    <SnoozeIcon />
-                    <Chip label={steps[orderDetails?.order?.status == "0"
-                            ? 0
-                            : orderDetails?.order?.status >= 4
-                            ? 3
-                            : orderDetails?.order?.status-1]} variant="outlined"></Chip>
-                  </div>
-                </div>
-                <Divider />
-                <div className="flex justify-between p-3">
-                  <p
-                    className="font-bold" 
-                    
-                  >
-                    <MarkUnreadChatAltIcon
-                      className="mr-1"
-                      style={{ width: "20px" }}
-                    />
-                    Order Comments
-                  </p>
-                  <p className="!truncate text-right w-[30%] md:w-[85%]">
-                    {orderDetails?.order?.note !== null
-                      ? `"${orderDetails?.order?.note}"`
-                      : "no Comments"}
-                  </p>
-                </div>
-                <Divider />
-                <div className="p-3">
-                <p className="font-bold"><ListAltSharpIcon className="mr-1"
-                      style={{ width: "20px" }}/> Order Items</p>
-                {orderData?.map((product, ind) => (
-                  <CardActionArea
-                  key={ind}
-                    onClick={() =>
-                      navigate(
-                        `${userLang}/product-detail/${
-                          product?.product?.slug
-                        }/${CryptoJS?.AES?.encrypt(
-                          `${product?.product?.id}`,
-                          "trading_materials"
-                        )
-                          ?.toString()
-                          .replace(/\//g, "_")
-                          .replace(/\+/g, "-")}`
-                      )
+                  <CustomizedSteppers
+                    orderStatus={
+                      orderDetails?.order?.status == "0"
+                        ? "0"
+                        : orderDetails?.order?.status >= 4
+                        ? "3"
+                        : orderDetails?.order?.status - 1
                     }
+                  />
+                </div>
+                <Divider />
+                <h2 className="!font-bold text-xl mt-2">Order details</h2>
+                <div className="">
+                  <Box
+                    sx={{
+                      borderRadius: "16px",
+                      border: 1,
+                      borderColor: "#f8f8f8",
+                    }}
                   >
-                    <div className="flex w-full  items-center justify-between p-3 flex-wrap">
-                      <div className="flex items-center px-4">
-                        <p className="font-bold mr-1">{ind + 1}.</p>
-                        <img
-                          src={product?.product?.img_1}
-                          alt="product_img"
-                          width={"100"}
-                          height={"100"}
-                        />
-                        <div >
-                          <p className="font-bold ml-2 truncate w-[100px] sm:w-[90%]  md:w-[99%]">
-                            {product?.product?.name}
-                          </p>
-                        </div>
+                    <Divider />
+                    <div className="flex w-full p-3 !items-start">
+                      <div className="w-full">
+                        <h3 className="!font-bold flex items-center text-xs md:text-sm">
+                          Invoice No:{" "}
+                          <AssignmentIcon style={{ width: "15px" }} />
+                          {orderDetails?.order?.invoice?.number === null
+                            ? 1324567980
+                            : orderDetails?.order?.invoice?.prefix +
+                              orderDetails?.order?.invoice?.number}{" "}
+                        </h3>
+                        <small className="!w-full font-semibold">
+                          {new Date(
+                            orderDetails?.order?.created_at
+                          ).toLocaleDateString("en", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}{" "}
+                        </small>
                       </div>
-                      <div className=" justify-end text-right">
-                        <b className="text-sm text-black font-semibold">
-                          {orderDetails?.order?.currency} {parseFloat(product?.price)?.toFixed(2)}
-                        </b>
-                        <p className="text-sm font-bold ">
-                          qty:{" "}
-                          <b className="text-black font-semibold">
-                            {product?.qty}
-                          </b>
+                      <div className="flex justify-end w-full items-center">
+                        <SnoozeIcon />
+                        <Chip
+                          label={
+                            steps[
+                              orderDetails?.order?.status == "0"
+                                ? 0
+                                : orderDetails?.order?.status >= 4
+                                ? 3
+                                : orderDetails?.order?.status - 1
+                            ]
+                          }
+                          variant="outlined"
+                        ></Chip>
+                      </div>
+                    </div>
+                    <Divider />
+                    <div className="flex justify-between p-3">
+                      <p className="font-bold">
+                        <MarkUnreadChatAltIcon
+                          className="mr-1"
+                          style={{ width: "20px" }}
+                        />
+                        Order Comments
+                      </p>
+                      <p className="!truncate text-right w-[30%] md:w-[85%]">
+                        {orderDetails?.order?.note !== null
+                          ? `"${orderDetails?.order?.note}"`
+                          : "no Comments"}
+                      </p>
+                    </div>
+                    <Divider />
+                    <div className="p-3">
+                      <p className="font-bold">
+                        <ListAltSharpIcon
+                          className="mr-1"
+                          style={{ width: "20px" }}
+                        />{" "}
+                        Order Items
+                      </p>
+                      {orderData?.map((product, ind) => (
+                        <CardActionArea
+                          key={ind}
+                          onClick={() =>
+                            navigate(
+                              `${userLang}/product-detail/${
+                                product?.product?.slug
+                              }/${CryptoJS?.AES?.encrypt(
+                                `${product?.product?.id}`,
+                                "trading_materials"
+                              )
+                                ?.toString()
+                                .replace(/\//g, "_")
+                                .replace(/\+/g, "-")}`
+                            )
+                          }
+                        >
+                          <div className="flex w-full  items-center justify-between p-3 flex-wrap">
+                            <div className="flex items-center px-4">
+                              <p className="font-bold mr-1">{ind + 1}.</p>
+                              <img
+                                src={product?.product?.img_1}
+                                alt="product_img"
+                                width={"100"}
+                                height={"100"}
+                              />
+                              <div>
+                                <p className="font-bold ml-2 truncate w-[100px] sm:w-[90%]  md:w-[99%]">
+                                  {product?.product?.name}
+                                </p>
+                              </div>
+                            </div>
+                            <div className=" justify-end text-right">
+                              <b className="text-sm text-black font-semibold">
+                                {orderDetails?.order?.currency}{" "}
+                                {parseFloat(product?.price)?.toFixed(2)}
+                              </b>
+                              <p className="text-sm font-bold ">
+                                qty:{" "}
+                                <b className="text-black font-semibold">
+                                  {product?.qty}
+                                </b>
+                              </p>
+                            </div>
+                          </div>
+                        </CardActionArea>
+                      ))}
+                    </div>
+
+                    <Divider />
+                    <h3 className="!font-bold p-2 pb-0">Order Summary</h3>
+                    <div className="p-2">
+                      <div className="flex !w-full justify-between">
+                        <p className="font-bold">
+                          <RequestQuoteIcon
+                            className="mr-1"
+                            style={{ width: "20px" }}
+                          />{" "}
+                          SubTotal
+                        </p>
+                        <p className="text-black font-semibold">
+                          {orderDetails?.order?.currency}{" "}
+                          {parseFloat(orderDetails?.order?.sub_total)?.toFixed(
+                            2
+                          )}
+                        </p>
+                      </div>
+                      <div className="flex !w-full justify-between">
+                        <p className="font-bold">
+                          {" "}
+                          <CorporateFareIcon
+                            className="mr-1"
+                            style={{ width: "20px" }}
+                          />{" "}
+                          Tax
+                        </p>
+                        <p className="text-black font-semibold">
+                          {orderDetails?.order?.currency}{" "}
+                          {parseFloat(orderDetails?.order?.total_tax)?.toFixed(
+                            2
+                          )}
+                        </p>
+                      </div>
+                      <div className="flex !w-full justify-between">
+                        <p className="font-bold">
+                          <DiscountIcon
+                            className="mr-1"
+                            style={{ width: "20px" }}
+                          />{" "}
+                          Discount
+                        </p>
+                        <p className="text-black font-semibold">
+                          {orderDetails?.order?.currency}{" "}
+                          {parseFloat(
+                            orderDetails?.order?.discount_amount
+                          )?.toFixed(2)}
                         </p>
                       </div>
                     </div>
-                  </CardActionArea>
-                ))}
-                </div>
+                    <Divider />
+                    <div className="flex justify-between p-3">
+                      <p className="font-bold">
+                        <AssignmentTurnedInSharpIcon
+                          className="mr-1"
+                          style={{ width: "20px" }}
+                        />
+                        Total paid
+                      </p>
+                      <p className="text-black font-semibold">
+                        {orderDetails?.order?.currency}{" "}
+                        {parseFloat(orderDetails?.order?.amount_paid)?.toFixed(
+                          2
+                        )}{" "}
+                      </p>
+                    </div>
+                    <div className="flex justify-between p-3 pt-0">
+                      <p className="font-bold">
+                        <PendingActionsSharpIcon
+                          className="mr-1"
+                          style={{ width: "20px" }}
+                        />{" "}
+                        Total Balance
+                      </p>
+                      <p className="text-black font-semibold">
+                        {" "}
+                        {orderDetails?.order?.currency}{" "}
+                        {parseFloat(orderDetails?.order?.balance)?.toFixed(2)}
+                      </p>
+                    </div>
 
-                <Divider />
-                <h3 className="!font-bold p-2 pb-0">Order Summary</h3>
-                <div className="p-2">
-                  <div className="flex !w-full justify-between">
-                    <p className="font-bold">
-                      <RequestQuoteIcon
-                        className="mr-1"
-                        style={{ width: "20px" }}
-                      />{" "}
-                      SubTotal
-                    </p>
-                    <p className="text-black font-semibold">
-                      {orderDetails?.order?.currency}{" "}
-                      {parseFloat(orderDetails?.order?.sub_total)?.toFixed(2)}
-                    </p>
-                  </div>
-                  <div className="flex !w-full justify-between">
-                    <p className="font-bold">
-                      {" "}
-                      <CorporateFareIcon
-                        className="mr-1"
-                        style={{ width: "20px" }}
-                      />{" "}
-                      Tax
-                    </p>
-                    <p className="text-black font-semibold">
-                      {orderDetails?.order?.currency}{" "}
-                      {parseFloat(orderDetails?.order?.total_tax)?.toFixed(2)}
-                    </p>
-                  </div>
-                  <div className="flex !w-full justify-between">
-                    <p className="font-bold">
-                      <DiscountIcon
-                        className="mr-1"
-                        style={{ width: "20px" }}
-                      />{" "}
-                      Discount
-                    </p>
-                    <p className="text-black font-semibold">
-                      {orderDetails?.order?.currency}{" "}
-                      {parseFloat(orderDetails?.order?.discount_amount)?.toFixed(2)}
-                    </p>
-                  </div>
-                </div>
-                <Divider />
-                <div className="flex justify-between p-3">
-                  <p className="font-bold">
-                    <AssignmentTurnedInSharpIcon
-                      className="mr-1"
-                      style={{ width: "20px" }}
-                    />
-                    Total paid
-                  </p>
-                  <p className="text-black font-semibold">
-                    {orderDetails?.order?.currency}{" "}
-                    {parseFloat(orderDetails?.order?.amount_paid)?.toFixed(2)}{" "}
-                  </p>
-                </div>
-                <div className="flex justify-between p-3 pt-0">
-                  <p className="font-bold">
-                    <PendingActionsSharpIcon
-                      className="mr-1"
-                      style={{ width: "20px" }}
-                    />{" "}
-                    Total Balance
-                  </p>
-                  <p className="text-black font-semibold">
-                    {" "}
-                    {orderDetails?.order?.currency}{" "}
-                    {parseFloat(orderDetails?.order?.balance)?.toFixed(2)}
-                  </p>
-                </div>
-
-                <Divider />
-                {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-5">
+                    <Divider />
+                    {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-5">
                 {orderData?.map((product, ind) => (
                   <Card className="mt-5 " sx={{ maxWidth: 345 }}>
                     <CardActionArea>
@@ -481,7 +556,7 @@ export default function OrderTacker() {
                                       }}
                                     />
                                   </span> */}
-                {/* </a>
+                    {/* </a>
                                 <div className="d-flex align-items-center justify-content-start">
                                   <p className="fs-16 m-0 text-gray-900 font-semibold text-start !mr-2 ">
                                     Amount : <b className="text-black">₹{product?.price}</b>
@@ -492,32 +567,32 @@ export default function OrderTacker() {
                                     className="fs-16 m-0 text-gray-900 font-semibold text-start !mr-2 "
                                     
                                   > */}
-                {/* <span className="text-base text-black font-semibold flex !items-left"> */}
-                {/* Qty: <b className="text-black">{product?.qty}</b> */}
-                {/* </span> */}
+                    {/* <span className="text-base text-black font-semibold flex !items-left"> */}
+                    {/* Qty: <b className="text-black">{product?.qty}</b> */}
+                    {/* </span> */}
 
-                {/* </p>
+                    {/* </p>
                                   </div>
                                   <div className="d-flex align-items-center justify-content-start">
                                   <p
                                     className="fs-16 m-0 text-gray-900 font-semibold text-start !mr-2 "
                                   > */}
-                {/* <span className="text-base text-black font-semibold flex !items-center"> */}
-                {/* Total:<b className="text-black">{product?.total}</b> */}
-                {/* </span> */}
+                    {/* <span className="text-base text-black font-semibold flex !items-center"> */}
+                    {/* Total:<b className="text-black">{product?.total}</b> */}
+                    {/* </span> */}
 
-                {/* </p>
+                    {/* </p>
                                 </div>
                               </div> */}
-                {/* </Typography> */}
-                {/* </CardContent> */}
+                    {/* </Typography> */}
+                    {/* </CardContent> */}
 
-                {/* </CardActionArea> */}
-                {/* </Card> */}
-                {/* ))} */}
-                {/* </div> */}
-              </Box>
-            </div>
+                    {/* </CardActionArea> */}
+                    {/* </Card> */}
+                    {/* ))} */}
+                    {/* </div> */}
+                  </Box>
+                </div>
               </div>
             </div>
           </div>

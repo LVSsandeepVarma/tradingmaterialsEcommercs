@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import List from "@mui/material/List";
@@ -39,6 +40,8 @@ import { logoutUser } from "../../../features/login/loginSlice";
 import AddToFav from "../modals/addToFav";
 import { usersignupinModal } from "../../../features/signupinModals/signupinSlice";
 import SessionExpired from "../modals/sessionExpired";
+import EditIcon from "@mui/icons-material/Edit";
+
 // import { logoutUser } from "../../../features/login/loginSlice";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -70,6 +73,7 @@ export default function SideBar() {
   const [showFileInput, setShowFileInput] = useState(false);
   const [profileUploadErr, setProfileUploadErr] = useState("");
   const [showSessionExppiry, setShowSessionExpiry] = useState(false);
+  const [isEditIconVisible, setIsEditIconVisible] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -77,6 +81,14 @@ export default function SideBar() {
   const userLang = useSelector((state) => state?.lang?.value);
   const addressStatus = useSelector((state) => state?.addressStatus?.value);
   const isLoggedIn = useSelector((state) => state?.login?.value);
+
+  const handleMouseEnter = () => {
+    setIsEditIconVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsEditIconVisible(false);
+  };
 
   const imageUpdate = async () => {
     dispatch(showLoader());
@@ -220,16 +232,17 @@ export default function SideBar() {
       setActiveIndex(index);
     } else {
       if (index === 3) {
-        window.open(
-          `/orders/${CryptoJS?.AES?.encrypt(
-            `${userData?.client?.id}`,
-            "order_details"
-          )
-            ?.toString()
-            .replace(/\//g, "_")
-            .replace(/\+/g, "-")}`,
-          "_blank"
-        );
+        // window.open(
+        //   `/orders/${CryptoJS?.AES?.encrypt(
+        //     `${userData?.client?.id}`,
+        //     "order_details"
+        //   )
+        //     ?.toString()
+        //     .replace(/\//g, "_")
+        //     .replace(/\+/g, "-")}`,
+        //   "_blank"
+        // );
+        window.location.href = "/view-order/placed";
       } else if (index === 4) {
         handleLogout();
       } else if (index == 1) {
@@ -347,7 +360,7 @@ export default function SideBar() {
               >
                 <Divider />
                 <div
-                  className="drop-shadow-xl !w-full"
+                  className="drop-shad !w-full"
                   style={{ width: "100% !important" }}
                 >
                   <div
@@ -359,7 +372,7 @@ export default function SideBar() {
                     }}
                   >
                     <p
-                      className="font-bold !text-left w-full ml-3 p-3 flex justify-center w-full cursor-pointer"
+                      className="font-bold !text-left w-full ml-3 p-3 flex justify-center  cursor-pointer"
                       style={{
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -367,39 +380,47 @@ export default function SideBar() {
                         width: "90%",
                       }}
                     >
-                      <label
-                        htmlFor="upload-button"
-                        className="  w-full flex justify-center !w-full !h-auto cursor-pointer"
-                      >
+                      <div className="    justify-center !w-fit !h-auto  relative group">
+                        <label htmlFor="upload-button">
+                        <div className="edit-icon  text-center z-10 !cursor-pointer left-1/2 -translate-x-1/2 hidden group-hover:block justify-center w-full overflow-clip absolute top-[112px] h-14 bg-[rgba(255,255,255,0.5)]  !shadow-none">
+                          <EditIcon className="mx-auto" />
+                        </div>
+
                         <Tooltip title="upload profile" placement="bottom-end">
                           {userData?.client?.profile?.profile_image?.length >
                           0 ? (
-                            <Avatar
-                              alt="user profile"
-                              src={userData?.client?.profile?.profile_image}
-                              sx={{ width: "140px", height: "140px" }}
-                              className=""
-                            ></Avatar>
+                            <>
+                              <Avatar
+                                alt="user profile"
+                                src={userData?.client?.profile?.profile_image}
+                                sx={{ width: "140px", height: "140px" }}
+                                className=""
+                              ></Avatar>
+                            </>
                           ) : (
-                            <Avatar
-                              alt="user profile"
-                              src="/images/blueProfile.webp"
-                              sx={{ width: "50%", height: "100%" }}
-                              className=""
-                            ></Avatar>
+                            <>
+                              <Avatar
+                                alt="user profile"
+                                src="/images/blueProfile.webp"
+                                sx={{ width: "50%", height: "100%" }}
+                                className=""
+                              ></Avatar>
+                            </>
                           )}
                         </Tooltip>
-                      </label>
+                        </label>
+                        <input
+                          type="file"
+                          id="upload-button"
+                          onChange={handleImageUpload}
+                          className="opacity-0 visibility-0 absolute w-full h-full z-50"
+                        />
+                        {profileUploadErr && (
+                          <p className="text-red-600">{profileUploadErr}</p>
+                        )}
+                      </div>
                     </p>
-                    <input
-                      type="file"
-                      id="upload-button"
-                      onChange={handleImageUpload}
-                      className="opacity-0 visibility-0"
-                    />
-                    {profileUploadErr && (
-                      <p className="text-red-600">{profileUploadErr}</p>
-                    )}
+
                     <p
                       className="font-bold text-lg !text-left w-full ml-3 p-1"
                       style={{

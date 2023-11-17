@@ -75,6 +75,9 @@ export default function AddToCart() {
   const [showSessionExpiry, setShowSessionExpiry] = useState(false);
 
   console.log(cartProducts, "gggggggg");
+    useEffect(() => {
+      getUserInfo();
+    }, [addressStatus]);
 
     useEffect(() => {
       if (localStorage.getItem("shipAdd")) {
@@ -106,11 +109,20 @@ export default function AddToCart() {
           setActiveShippingAddress(
             response?.data?.data?.client?.address[0]?.id
           );
+          console.log("shpadd", billingSameAsShipping)
         } else {
           if (userData?.client?.address?.length > 1)
-            setActiveShippingAddress(
-              response?.data?.data?.client?.address[1]?.id
-            );
+            if (activeShippingAddressChecked != 0) {
+              setActiveShippingAddress(
+                response?.data?.data?.client?.address[activeShippingAddressChecked]?.id
+              );
+              console.log("shpadd", activeShippingAddressChecked);
+            } else { 
+          setActiveShippingAddress(
+            response?.data?.data?.client?.address[1]?.id
+              );
+              console.log("shpadd", activeShippingAddressChecked);
+        }
         }
       } else {
         console.log(response?.data);
@@ -227,14 +239,13 @@ export default function AddToCart() {
     }
   };
 
-  const handleShippingAddressChange = (id) => {
-    setActiveShippingAddress(id);
-    setActiveShippingaddressChecked(id);
+  const handleShippingAddressChange = (ind) => {
+    setActiveShippingAddress(userData?.client?.address[ind]?.id);
+    setActiveShippingaddressChecked(ind);
+    console.log(ind, "shpadd")
   };
 
-  useEffect(() => {
-    getUserInfo();
-  }, [addressStatus]);
+
 
   // Set initial quantity for all products to 1 in the useEffect hook
   useEffect(() => {
@@ -362,10 +373,12 @@ export default function AddToCart() {
     setBillingSameAsShipping(!billingSameAsShipping);
     if (!billingSameAsShipping) {
       setActiveShippingAddress(activeBillingAddress);
+      console.log("shpadd", activeShippingAddressChecked);
     } else {
       if (userData?.client?.address?.length > 1)
         setActiveShippingAddress(userData?.client?.address[1]?.id);
       setActiveShippingaddressChecked(1);
+      console.log("shpadd", activeShippingAddressChecked);
     }
   };
 
@@ -400,8 +413,8 @@ export default function AddToCart() {
               disc_percent: discountPercentage,
               discount: discount,
               b_address_id: activeBillingAddress,
-              shipping_address: billingSameAsShipping ? 1 : 0,
-              s_address_id: activeShippingAddress,
+              shipping_address: billingSameAsShipping ? 0 : 1,
+              s_address_id: userData?.client?.address[activeShippingAddressChecked]?.id,
               note: optionalNotes,
               client_id: userData?.client?.id,
             };
@@ -1148,7 +1161,7 @@ export default function AddToCart() {
                                                         }
                                                         onChange={() => {
                                                           handleShippingAddressChange(
-                                                            add?.id
+                                                            ind
                                                           );
                                                           setActiveShippingaddressChecked(
                                                             ind
