@@ -302,12 +302,15 @@ export default function ViewOrders() {
                       <h5 className="text-muted text-left capitalize text-xl !font-bold mb-0">
                         Orders{" "}
                         {params?.order_type == "placed" ||
-                          params?.order_type == "unpaid" ? "Placed and unpaid" : ""}
-                        {orders?.length > 0 && (
-                          <span className="badge badge-custom ms-2">
-                            {orderDataOne?.length + orderDataTwo?.length}
-                          </span>
-                        )}
+                        params?.order_type == "unpaid"
+                          ? "Placed and unpaid"
+                          : ""}
+                        {(orderDataOne?.length > 0 ||
+                          orderDataTwo?.length > 0) && (
+                            <span className="badge badge-custom ms-2">
+                              {orderDataOne?.length + orderDataTwo?.length}
+                            </span>
+                          )}
                       </h5>
                     </div>
                     <div
@@ -332,109 +335,107 @@ export default function ViewOrders() {
                   <div className="card-body">
                     <div className="row">
                       <div className="col-lg-12">
-                        {orderDataOne?.length == 0 ||
-                          orderDataTwo?.length ==
-                            0 && (
-                              <>
-                                <div className="">
-                                  <div className="flex justify-center">
-                                    <img
-                                      src={`/images/orders/large/${params?.order_type}.png`}
-                                      className="w-22 h-auto"
-                                      alt="orders_large_icons"
-                                      style={{ filter: "blur(3px)" }}
-                                    />
-                                  </div>
-                                  <div
-                                    className="nav flex-column nav-pills me-3 !text-sm !font-bold text-[#0082f1]"
-                                    id="v-pills-tab"
-                                    role="tablist"
-                                    aria-orientation="vertical "
-                                  >
-                                    No Orders Available
-                                  </div>
+                        {(orderDataOne?.length == 0 &&
+                          orderDataTwo?.length == 0) && (
+                            <>
+                              <div className="">
+                                <div className="flex justify-center">
+                                  <img
+                                    src={`/images/orders/large/${params?.order_type}.png`}
+                                    className="w-22 h-auto"
+                                    alt="orders_large_icons"
+                                    style={{ filter: "blur(3px)" }}
+                                  />
                                 </div>
-                              </>
-                            )}
+                                <div
+                                  className="nav flex-column nav-pills me-3 !text-sm !font-bold text-[#0082f1]"
+                                  id="v-pills-tab"
+                                  role="tablist"
+                                  aria-orientation="vertical "
+                                >
+                                  No Orders Available
+                                </div>
+                              </div>
+                            </>
+                          )}
                       </div>
                       <div className="col-lg-3">
-                        {orderDataOne?.length > 0 ||
-                          orderDataTwo?.length >
-                            0 &&(
-                              <div
-                                className="nav flex-column nav-pills me-3"
-                                id="v-pills-tab"
-                                role="tablist"
-                                aria-orientation="vertical"
-                              >
-                                {orderDataOne?.map((order, ind) => (
-                                  <button
-                                    key={ind}
-                                    onClick={() => {
-                                      setOrderId(order?.id),
-                                        setActiveOrder(ind),
-                                        setOrderNumber(order?.order_number);
-                                    }}
-                                    className={`nav-but-left ${
-                                      ind == 0 ? "!mt-0" : ""
-                                    } ${
-                                      activeOrder === ind ? "active" : ""
-                                    } hover:drop-shadow-xl shadow-sm`}
-                                    id="prod-1-tab"
-                                    data-bs-toggle="pill"
-                                    data-bs-target="#prod-1"
-                                    type="button"
-                                    role="tab"
-                                    aria-controls="prod-1"
-                                    aria-selected="true"
-                                  >
-                                    #{order?.order_number} <br />{" "}
-                                    <small className="drop-shadow-lg">
-                                      {new Date(
-                                        order?.created_at
-                                      ).toLocaleDateString("en-US", {
-                                        year: "numeric",
-                                        month: "short",
-                                        day: "numeric",
-                                      })}
-                                    </small>
-                                  </button>
-                                ))}
-                                {orderDataTwo?.map((order, ind) => (
-                                  <button
-                                    key={ind}
-                                    onClick={() => {
-                                      setOrderId(order?.id),
-                                        setActiveOrder(ind),
-                                        setOrderNumber(order?.order_number);
-                                    }}
-                                    className={`nav-but-left ${
-                                      ind == 0 ? "!mt-0" : ""
-                                    } ${
-                                      activeOrder === ind ? "active" : ""
-                                    } hover:drop-shadow-xl shadow-sm`}
-                                    id="prod-1-tab"
-                                    data-bs-toggle="pill"
-                                    data-bs-target="#prod-1"
-                                    type="button"
-                                    role="tab"
-                                    aria-controls="prod-1"
-                                    aria-selected="true"
-                                  >
-                                    #{order?.order_number} <br />{" "}
-                                    <small className="drop-shadow-lg">
-                                      {new Date(
-                                        order?.created_at
-                                      ).toLocaleDateString("en-US", {
-                                        year: "numeric",
-                                        month: "short",
-                                        day: "numeric",
-                                      })}
-                                    </small>
-                                  </button>
-                                ))}
-                              </div>
-                            )}
+                        {(orderDataOne?.length > 0 ||
+                          orderDataTwo?.length > 0) && (
+                            <div
+                              className="nav flex-column nav-pills me-3"
+                              id="v-pills-tab"
+                              role="tablist"
+                              aria-orientation="vertical"
+                            >
+                              {orderDataOne?.map((order, ind) => (
+                                <button
+                                  key={ind}
+                                  onClick={() => {
+                                    setOrderId(order?.id),
+                                      setActiveOrder(ind),
+                                      setOrderNumber(order?.order_number);
+                                  }}
+                                  className={`nav-but-left ${
+                                    ind == 0 ? "!mt-0" : ""
+                                  } ${
+                                    activeOrder === ind ? "active" : ""
+                                  } hover:drop-shadow-xl shadow-sm`}
+                                  id="prod-1-tab"
+                                  data-bs-toggle="pill"
+                                  data-bs-target="#prod-1"
+                                  type="button"
+                                  role="tab"
+                                  aria-controls="prod-1"
+                                  aria-selected="true"
+                                >
+                                  #{order?.order_number} <br />{" "}
+                                  <small className="drop-shadow-lg">
+                                    {new Date(
+                                      order?.created_at
+                                    ).toLocaleDateString("en-US", {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                    })}
+                                  </small>
+                                </button>
+                              ))}
+                              {orderDataTwo?.map((order, ind) => (
+                                <button
+                                  key={ind}
+                                  onClick={() => {
+                                    setOrderId(order?.id),
+                                      setActiveOrder(ind),
+                                      setOrderNumber(order?.order_number);
+                                  }}
+                                  className={`nav-but-left ${
+                                    ind == 0 ? "!mt-0" : ""
+                                  } ${
+                                    activeOrder === ind ? "active" : ""
+                                  } hover:drop-shadow-xl shadow-sm`}
+                                  id="prod-1-tab"
+                                  data-bs-toggle="pill"
+                                  data-bs-target="#prod-1"
+                                  type="button"
+                                  role="tab"
+                                  aria-controls="prod-1"
+                                  aria-selected="true"
+                                >
+                                  #{order?.order_number} <br />{" "}
+                                  <small className="drop-shadow-lg">
+                                    {new Date(
+                                      order?.created_at
+                                    ).toLocaleDateString("en-US", {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                    })}
+                                  </small>
+                                </button>
+                              ))}
+                            </div>
+                          )}
                       </div>
                       <div className="col-lg-9">
                         <div className="tab-content" id="v-pills-tabContent">
@@ -444,7 +445,7 @@ export default function ViewOrders() {
                             role="tabpanel"
                             aria-labelledby="prod-1-tab"
                           >
-                            {orders?.length > 0 && (
+                            {(orderDataOne?.length > 0 || orderDataTwo?.length >0 ) && (
                               <div className="card">
                                 <div className="card-body">
                                   <div className="row">
@@ -496,7 +497,8 @@ export default function ViewOrders() {
                                               name="button"
                                               onClick={() => {
                                                 if (
-                                                  params?.order_type == "unpaid"
+                                                  // params?.order_type == "unpaid" 
+                                                  viewOrderDetails?.status == 0
                                                 ) {
                                                   window.open(
                                                     `/checkout/order_id/${CryptoJS?.AES?.encrypt(
