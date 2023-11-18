@@ -324,9 +324,10 @@ export default function AddToCart() {
     }
   };
 
-  const handleShippingAddressChange = (id) => {
-    setActiveShippingAddress(id);
-    setActiveShippingaddressChecked(id);
+  const handleShippingAddressChange = (ind) => {
+    setActiveShippingAddress(userData?.client?.address[ind]?.id);
+    setActiveShippingaddressChecked(ind);
+    console.log(ind, "shpadd");
   };
 
   useEffect(() => {
@@ -463,55 +464,60 @@ export default function AddToCart() {
       dispatch(showLoader());
       setApiErr([]);
       console.log(billingSameAsShipping);
-      const data = billingSameAsShipping
-        ? {
-            total: (subTotal - discount).toFixed(2),
-            subtotal: subTotal,
-            disc_percent: discountPercentage,
-            discount: discount,
-            b_address_id: activeBillingAddress,
-            shipping_address: billingSameAsShipping ? 1 : 0,
-            s_address_id: activeBillingAddress,
-            note: optionalNotes,
-          }
-        : {
-            total: (subTotal - discount).toFixed(2),
-            subtotal: subTotal,
-            disc_percent: discountPercentage,
-            discount: discount,
-            b_address_id: activeBillingAddress,
-            shipping_address: billingSameAsShipping ? 0 : 1,
-            s_address_id: activeShippingAddress,
-            note: optionalNotes,
-          };
+      if (!billingSameAsShipping && activeShippingAddressChecked == 0) {
+        setApiErr(["Please select shipping address"])
+      } else {
+        const data = billingSameAsShipping
+          ? {
+              total: (subTotal - discount).toFixed(2),
+              subtotal: subTotal,
+              disc_percent: discountPercentage,
+              discount: discount,
+              b_address_id: activeBillingAddress,
+              shipping_address: billingSameAsShipping ? 1 : 0,
+              s_address_id: activeBillingAddress,
+              note: optionalNotes,
+            }
+          : {
+              total: (subTotal - discount).toFixed(2),
+              subtotal: subTotal,
+              disc_percent: discountPercentage,
+              discount: discount,
+              b_address_id: activeBillingAddress,
+              shipping_address: billingSameAsShipping ? 0 : 1,
+              s_address_id:
+                userData?.client?.address[activeShippingAddressChecked]?.id,
+              note: optionalNotes,
+            };
 
-      console.log(data);
-      const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/lead/product/checkout/place-order",
-        data,
-        {
-          headers: {
-            "access-token": localStorage.getItem("client_token"),
-          },
-        }
-      );
-      if (response?.data?.status) {
-        localStorage.setItem("order_id", response?.data?.data?.order_id);
-        if (discount > 0) {
-          const expiryDate = new Date(Date.now() + 604800 * 1000); // for 1 week
-          sessionStorage.setItem("expiry", JSON.stringify(expiryDate));
-          sessionStorage.setItem("offerPhone", userData?.client?.phone);
-        }
-        
-        navigate(
-          `/checkout/order_id/${CryptoJS?.AES?.encrypt(
-            `${response?.data?.data?.order_id}`,
-            "trading_materials_order"
-          )
-            ?.toString()
-            .replace(/\//g, "_")
-            .replace(/\+/g, "-")}`
+        console.log(data);
+        const response = await axios.post(
+          "https://admin.tradingmaterials.com/api/lead/product/checkout/place-order",
+          data,
+          {
+            headers: {
+              "access-token": localStorage.getItem("client_token"),
+            },
+          }
         );
+        if (response?.data?.status) {
+          localStorage.setItem("order_id", response?.data?.data?.order_id);
+          if (discount > 0) {
+            const expiryDate = new Date(Date.now() + 604800 * 1000); // for 1 week
+            sessionStorage.setItem("expiry", JSON.stringify(expiryDate));
+            sessionStorage.setItem("offerPhone", userData?.client?.phone);
+          }
+        
+          navigate(
+            `/checkout/order_id/${CryptoJS?.AES?.encrypt(
+              `${response?.data?.data?.order_id}`,
+              "trading_materials_order"
+            )
+              ?.toString()
+              .replace(/\//g, "_")
+              .replace(/\+/g, "-")}`
+          );
+        }
       }
     } catch (err) {
       console.log("err", err);
@@ -1045,7 +1051,7 @@ export default function AddToCart() {
                                               }
                                               onChange={() => {
                                                 handleShippingAddressChange(
-                                                  add?.id
+                                                  ind
                                                 );
                                                 setActiveShippingaddressChecked(
                                                   ind

@@ -192,58 +192,66 @@ export default function Footer() {
         <div className="nk-footer-bottom">
           <div className="container">
             <div className="nk-footer-content-2">
-              <div className="row justify-content-between items-center">
-                <div className="col-lg-6 col-md-12 col-sm-12">
-                  <p className="nk-footer-copyright-text text-center text-lg-start">
+              <div className="row justify-content-between items-end">
+                <div className="col-lg-4 col-md-12 col-sm-12">
+                  <p className=" nk-footer-copyright-text text-center text-xs">
                     Copyrights &copy;
                     <span id="currentYear">{new Date().getFullYear()}</span>
-                    <a className="fs-16 pr-1 !text-blue-600" href="#">
+                    <a className=" pr-1 !text-blue-600" href="#">
                       {" "}
                       Trading&#160;Materials.
                     </a>
                     All&nbsp;Rights&nbsp;Reserved.
-                  </p>
+                  </p> 
                 </div>
-                <div className="col-lg-6 col-md-12 col-sm-12">
-                  <ul className="  nk-footer-copyright justify-content-center items-start sm:items-center justify-content-lg-end !mt-2 sm:!mt-0">
+                <div className="col-lg-8 col-md-12 col-sm-12">
+                  <ul className="  nk-footer-copyright flex flex-auto flex-wrap justify-content-center items-center sm:items-center justify-content-lg-end !mt-2 sm:!mt-0">
                     <li>
                       <a
-                        className=" !text-sm md:!text-[1rem] nk-footer-text w-50% sm:w-auto"
+                        className=" !text-xs nk-footer-text w-50% sm:w-auto"
                         href={`/terms-and-conditions`}
                       >
-                        Terms & conditions
+                        Terms&nbsp;&nbsp;&&nbsp;&nbsp;conditions
                       </a>
                     </li>
                     <li>
                       <a
-                        className="nk-footer-text !text-sm md:!text-[1rem]"
+                        className="nk-footer-text !text-xs"
                         href={`/privacy-policy`}
                       >
-                        Privacy Policy
+                        Privac&nbsp;&nbsp;Policy
                       </a>
                     </li>
                     <li>
                       <a
-                        className="nk-footer-text !text-sm md:!text-[1rem]"
+                        className="nk-footer-text !text-xs"
                         href={`/refund-policy`}
                       >
-                        Cancellation & Refund&nbsp;&nbsp;Policy
+                        Cancellation&nbsp;&nbsp;&&nbsp;&nbsp;Refund&nbsp;&nbsp;Policy
                       </a>
                     </li>
                     <li>
                       <a
-                        className="nk-footer-text !text-sm md:!text-[1rem]"
+                        className="nk-footer-text !text-xs"
                         href={`/shipping-policy`}
                       >
-                        Shipping Policy
+                        Shipping&nbsp;&nbsp;Policy
                       </a>
                     </li>
                     <li>
                       <a
-                        className="nk-footer-text !text-sm md:!text-[1rem]"
+                        className="!text-xs nk-footer-text"
                         href={`/disclaimer-policy`}
                       >
-                        Disclaimer Policy
+                        Disclaimer&nbsp;&nbsp;Policy
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        className="!text-xs nk-footer-text"
+                        href={`/return-policy`}
+                      >
+                        Return&nbsp;&nbsp;Policy
                       </a>
                     </li>
                   </ul>

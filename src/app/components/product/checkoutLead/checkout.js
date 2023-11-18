@@ -105,10 +105,32 @@ export default function CheckoutLead() {
   const [emailVerifyLoader, setEmailVerifyLoader] = useState(false);
   const [zipverifyLoader, setZipVerifyLoader] = useState(false)
   const [codData, setCodData] = useState()
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const texts = [
+    "Registering your account please wait",
+    "Searching product availability",
+    "Product available",
+    "Placing order",
+  ];
   console.log(paymentFailedStatus, "opatmnbksejtb");
 
   const dispatch = useDispatch();
-    const loaderState = useSelector((state) => state?.loader?.value);
+  const loaderState = useSelector((state) => state?.loader?.value);
+useEffect(() => {
+  if (loaderState) {
+    let intervalId; // Define intervalId within the effect hook
+    if (currentTextIndex === texts.length - 1) {
+      clearInterval(intervalId);
+      return;
+    }
+    intervalId = setInterval(() => {
+      setCurrentTextIndex((prevIndex) => prevIndex + 1);
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+}
+}, [currentTextIndex]);
+
     
   useEffect(() => {
         setQty(localStorage.getItem("productQty"))
@@ -1651,7 +1673,7 @@ export default function CheckoutLead() {
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
-          {/* <p className="flex w-full h-full justify-center items-center mt-2 !text-blue-500 font-semibold text-lg">gathering info ...</p> */}
+          <p className="flex w-full h-full justify-center items-center mt-2 !text-blue-500 font-semibold text-lg">{texts[currentTextIndex] }</p>
         </div>
       )}
       <section>

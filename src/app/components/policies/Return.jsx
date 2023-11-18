@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { hideLoader } from "../../../features/loader/loaderSlice";
 import { Divider } from "@mui/material";
 
-export default function Disclaimer() {
+export default function Return() {
   const dispatch = useDispatch();
 
   const loaderState = useSelector((state) => state?.loader?.value);
@@ -39,7 +39,7 @@ export default function Disclaimer() {
                   className="text-[2.5rem] w-full text-center !font-bold"
                   style={{ lineHeight: "50px" }}
                 >
-                  Disclaimer policy
+                  Return policy
                 </h2>
               </div>
               <Divider />
@@ -68,12 +68,12 @@ export default function Disclaimer() {
                         Shipping Policy
                       </a>
                     </li>
-                    <li className="active">
+                    <li>
                       <a href="/disclaimer-policy" className="fs-16">
                         Disclaimer Policy
                       </a>
                     </li>
-                    <li className="">
+                    <li className="active">
                       <a href="/return-policy" className="fs-16">
                         Return Policy
                       </a>
@@ -84,111 +84,63 @@ export default function Disclaimer() {
               <div className="col-lg-9 text-left">
                 <div className="nk-entry-wrap pt-3 ps-lg-5">
                   <div className="nk-entry">
-                    <div className="pb-5">
+                    {/* <div className="pb-5">
                       <p className="fs-16">
                         This Disclaimer policy governs the use of
                         www.tradingmaterials.com (hereinafter referred to as the
                         “Website”).
                       </p>
-                    </div>
+                    </div> */}
                     <div className="pb-5">
                       <h5 className="!font-bold text-xl">
-                        1. Agreement to Disclaimer
+                        When can I return the order?
                       </h5>
                       <p className="fs-16">
-                        By accessing and using the Website, you agree to the
-                        terms of this Disclaimer policy and any other terms and
-                        policies that are applicable to the Website. If you do
-                        not agree to these terms, you must not access or use the
-                        Website.
+                        www.tradingmaterials.com offers a
+                        30-day return policy for most items purchased from the
+                        Website, with the exception of items marked as “Wrong
+                        items in Order”. If you wish to return an item, please
+                        contact us within 30 days of your purchase. We will
+                        provide you with a return shipping label and
+                        instructions on how to return the item.
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="!font-bold text-xl">2. Content</h5>
+                      {/* <h5 className="!font-bold text-xl">2. Content</h5> */}
                       <p className="fs-16">
-                        The Website contains content that is provided for
-                        general information purposes only and is not intended to
-                        constitute professional advice. The content is provided
-                        without any warranties, representations or guarantees of
-                        any kind.
-                      </p>
-                    </div>
-                    <div className="pb-5">
-                      <h5 className="!font-bold text-xl">3. Use of Website</h5>
-                      <p className="fs-16">
-                        The Website is available for your own personal use only.
-                        You may not use the Website for any commercial purpose,
-                        including but not limited to selling products or
-                        services, without the express written consent of
-                        www.tradingmaterials.com.
+                        Once we have received the item and evaluated its
+                        condition, we will process your return and issue a
+                        refund.
                       </p>
                     </div>
                     <div className="pb-5">
                       <h5 className="!font-bold text-xl">
-                        4. Intellectual Property Rights
+                        Which order are not eligible for return?
                       </h5>
                       <p className="fs-16">
-                        All content on the Website, including but not limited to
-                        text, graphics, logos, and images, is the property of
-                        www.tradingmaterials.com or its suppliers and is
-                        protected by copyright and other intellectual property
-                        laws. You may not reproduce, modify, distribute,
-                        republish, or otherwise exploit any content without the
-                        express written consent of www.tradingmaterials.com.
+                        Products that are physically damaged, defective, has
+                        missing parts, or are different from their description
+                        in the product details page are not eligible for return.
                       </p>
                     </div>
                     <div className="pb-5">
                       <h5 className="!font-bold text-xl">
-                        5. Limitation of Liability
+                        what are Condition / term to be noted in any return
+                        order ?
                       </h5>
                       <p className="fs-16">
-                        www.tradingmaterials.com shall not be liable for any
-                        damages or losses arising out of or in connection with
-                        the use of the Website, including but not limited to
-                        direct, indirect, incidental, special, or consequential
-                        damages.
+                        Please note that refunds will be issued in the same form
+                        of payment as the original purchase. Customers are
+                        responsible for return shipping costs and items must be
+                        returned in their original condition, unused and with
+                        all original tags and packaging intact.
                       </p>
                     </div>
                     <div className="pb-5">
-                      <h5 className="!font-bold text-xl">
-                        6. Links to Other Websites
-                      </h5>
+                      {/* <h5 className="!font-bold text-xl">8. Contact Us</h5> */}
                       <p className="fs-16">
-                        The Website may contain links to third-party websites.
-                        The linked sites are not under the control of
-                        www.tradingmaterials.com, and www.tradingmaterials.com
-                        is not responsible for the content of any linked site.
-                        www.tradingmaterials.com provides these links as a
-                        convenience and does not endorse the companies or
-                        contents of any linked sites.
-                      </p>
-                    </div>
-                    <div className="pb-5">
-                      <h5 className="!font-bold text-xl">
-                        7. Changes to Disclaimer
-                      </h5>
-                      <p className="fs-16">
-                        www.tradingmaterials.com reserves the right to change or
-                        modify this Disclaimer policy at any time and for any
-                        reason. Any changes or modifications will be effective
-                        immediately upon posting the updated Disclaimer policy
-                        on the Website. Your continued use of the Website
-                        constitutes your agreement to this Disclaimer policy and
-                        any updates.
-                      </p>
-                    </div>
-                    <div className="pb-5">
-                      <h5 className="!font-bold text-xl">8. Contact Us</h5>
-                      <p className="fs-16">
-                        If you have any questions about this Disclaimer policy,
-                        please contact us at :{" "}
-                        <a
-                          className="text-blue"
-                          href="mailto:support@tradingmaterials.com"
-                        >
-                          support@tradingmaterials.com
-                        </a>
-                        .
+                        We reserve the right to deny any return that does not
+                        meet our return policy requirements.
                       </p>
                     </div>
                   </div>

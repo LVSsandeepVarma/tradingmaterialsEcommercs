@@ -100,7 +100,7 @@ const AddressForm = ({ type, data, closeModal }) => {
     // setIsSuccess(false);
     //   setIsFailure(false);
     try {
-      dispatch(showLoader())
+      dispatch(showLoader());
       setIsFailure(false);
       setIsSuccess(false);
       setApiErr("");
@@ -178,7 +178,7 @@ const AddressForm = ({ type, data, closeModal }) => {
         }
       }
     } finally {
-      dispatch(hideLoader())
+      dispatch(hideLoader());
     }
 
     setTimeout(() => {

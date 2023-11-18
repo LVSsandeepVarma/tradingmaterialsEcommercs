@@ -21,6 +21,7 @@ import LinkExpired from "./app/components/expired/LinkExpired";
 import CodVerify from "./app/components/product/checkoutLead/codVerify";
 import CheckoutLeadWordline from "./app/components/product/checkoutLead/wordlineCheckout";
 import Disclaimer from "./app/components/policies/Disclaimer";
+import Return from "./app/components/policies/Return";
 const About = lazy(() => import("./app/components/about-us/about"));
 // import About from "./app/components/about-us/about";
 const Contact = lazy(() => import("./app/components/contact-us/contact"));
@@ -143,7 +144,8 @@ function App() {
               element={<CheckoutLeadWordline />}
             ></Route>
             <Route path="/place-order/:id" element={<CodVerify />}></Route>
-            <Route path="/disclaimer-policy" element={<Disclaimer/>} />
+            <Route path="/disclaimer-policy" element={<Disclaimer />} />
+            <Route path="/return-policy" element={<Return />} />
             {/* malay */}
 
             <Route path="/ms/" element={<Home />}></Route>
