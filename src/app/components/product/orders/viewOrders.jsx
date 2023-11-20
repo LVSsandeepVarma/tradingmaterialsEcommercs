@@ -304,7 +304,7 @@ export default function ViewOrders() {
                         // style={{ border: "1px solid #4CAF50" }}
                       >
                         <img
-                          src="/images/orders/Order-Confirmed.png"
+                          src="/images/orders/Order-confirmed.png"
                           className={`${
                             params?.order_type == "confirmed" ||
                             params?.order_type == "cancelled"
@@ -345,7 +345,7 @@ export default function ViewOrders() {
                         }}
                       >
                         <img
-                          src="/images/orders/Order-Dispatched.png"
+                          src="/images/orders/Order-dispatched.png"
                           className={`${
                             params?.order_type == "dispatched"
                               ? "w-[30px] fa-beat-fade"
@@ -386,7 +386,7 @@ export default function ViewOrders() {
                         }}
                       >
                         <img
-                          src="/images/orders/Order-Delivered.png"
+                          src="/images/orders/Order-delivered.png"
                           className={`${
                             params?.order_type == "delivered" ||
                             params?.order_type == "returned"
