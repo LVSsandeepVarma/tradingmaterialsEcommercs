@@ -975,41 +975,39 @@ export default function Checkout() {
                               </h4>
 
                               <ul className="d-flex flex-column gap-2 pb-0">
-                                <div className="mb-1">
-                                  <li className="d-flex align-items-center gap-5 text-gray-1200">
-                                    <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                      Full Name:
-                                    </p>
-                                    <p className="m-0 fs-14 text-gray-1200 w-75">
-                                      {orderData?.order?.name === null
-                                        ? userData?.client?.first_name
-                                        : orderData?.order?.name}
-                                    </p>
-                                  </li>
-                                  <li className="d-flex align-items-center gap-5 text-gray-1200">
-                                    <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                      Address:
-                                    </p>
-                                    <p className="m-0 fs-14 text-gray-1200 w-75">
-                                      {orderData?.order?.shipping_add1},{" "}
-                                      {orderData?.order?.shipping_add2 !== null
-                                        ? `${orderData?.order?.shipping_add2},  `
-                                        : ""}
-                                      {orderData?.order?.shipping_city},{" "}
-                                      {orderData?.order?.shipping_state},{" "}
-                                      {orderData?.order?.shipping_country},{" "}
-                                      {orderData?.order?.shipping_zip}
-                                    </p>
-                                  </li>
-                                  <li className="d-flex align-items-center gap-5 text-gray-1200">
-                                    <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                      Shipping Type:
-                                    </p>
-                                    <p className="m-0 fs-14 text-gray-1200 w-75">
-                                      Standard (2-5 business days)
-                                    </p>
-                                  </li>
-                                </div>
+                                <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                  <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                    Full Name:
+                                  </p>
+                                  <p className="m-0 fs-14 text-gray-1200 w-75">
+                                    {orderData?.order?.name === null
+                                      ? userData?.client?.first_name
+                                      : orderData?.order?.name}
+                                  </p>
+                                </li>
+                                <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                  <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                    Address:
+                                  </p>
+                                  <p className="m-0 fs-14 text-gray-1200 w-75">
+                                    {orderData?.order?.shipping_add1},{" "}
+                                    {orderData?.order?.shipping_add2 !== null
+                                      ? `${orderData?.order?.shipping_add2},  `
+                                      : ""}
+                                    {orderData?.order?.shipping_city},{" "}
+                                    {orderData?.order?.shipping_state},{" "}
+                                    {orderData?.order?.shipping_country},{" "}
+                                    {orderData?.order?.shipping_zip}
+                                  </p>
+                                </li>
+                                <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                  <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                    Shipping Type:
+                                  </p>
+                                  <p className="m-0 fs-14 text-gray-1200 w-75">
+                                    Standard (2-5 business days)
+                                  </p>
+                                </li>
                                 {/* // ))} */}
                               </ul>
                             </div>

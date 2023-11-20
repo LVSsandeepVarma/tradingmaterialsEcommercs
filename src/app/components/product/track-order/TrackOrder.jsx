@@ -8,7 +8,10 @@ import { Box, Divider, Chip, CardActionArea, Tooltip } from "@mui/material";
 // import UnarchiveSharpIcon from '@mui/icons-material/UnarchiveSharp';
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { hideLoader, showLoader } from "../../../../features/loader/loaderSlice";
+import {
+  hideLoader,
+  showLoader,
+} from "../../../../features/loader/loaderSlice";
 import axios from "axios";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import DiscountIcon from "@mui/icons-material/Discount";
@@ -17,15 +20,13 @@ import SnoozeIcon from "@mui/icons-material/Snooze";
 import MarkUnreadChatAltIcon from "@mui/icons-material/MarkUnreadChatAlt";
 import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 import PendingActionsSharpIcon from "@mui/icons-material/PendingActionsSharp";
-import ListAltSharpIcon from '@mui/icons-material/ListAltSharp';
+import ListAltSharpIcon from "@mui/icons-material/ListAltSharp";
 import AssignmentTurnedInSharpIcon from "@mui/icons-material/AssignmentTurnedInSharp";
 import CryptoJS from "crypto-js";
 import { Button, Modal } from "react-bootstrap";
 import CustomizedSteppers from "./orderTrackerStepper";
 
-
 export default function OrderTacker() {
-
   const [orderData, setOrderData] = useState([]);
   const [orderDetails, setOrderDetails] = useState();
   const [orderId, setOrderId] = useState("");
@@ -35,36 +36,34 @@ export default function OrderTacker() {
   const loaderState = useSelector((state) => state?.loader?.value);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const params = useParams()
+  const params = useParams();
   const steps = [
     //    "Placed ",
-      "Placed",
-      "Confirmed",
-      "Dispatched",
-      "Delivered",
+    "Placed",
+    "Confirmed",
+    "Dispatched",
+    "Delivered",
     //   "Delivered",
     //   "Delivered",
-    ];
-  
-  const clientId= userData?.client?.id
-  const { order_id } = useParams()
+  ];
+
+  const clientId = userData?.client?.id;
+  const { order_id } = useParams();
   const descryptedId = CryptoJS.AES.decrypt(
     order_id.replace(/_/g, "/").replace(/-/g, "+"),
     "trading_materials"
   ).toString(CryptoJS.enc.Utf8);
-  
-  
 
-  useEffect(()=>{
-    if(!params?.order_id){
-      setShowModal(true)
+  useEffect(() => {
+    if (!params?.order_id) {
+      setShowModal(true);
     }
-  },[])
+  }, []);
 
   //fetching order details
   const fetchOrderData = async () => {
     try {
-      console.log(userData?.client?.id, "ttttttttt")
+      console.log(userData?.client?.id, "ttttttttt");
       dispatch(showLoader());
       const response = await axios.get(
         `https://admin.tradingmaterials.com/api/client/product/checkout/view-order?order_id=${descryptedId}&client_id=${clientId}`,
@@ -87,18 +86,15 @@ export default function OrderTacker() {
   };
 
   useEffect(() => {
-    
     fetchOrderData();
   }, [userData]);
 
-
-  const handleOrderIdInput =async(e)=>{
-    setOrderId(e.target.value)
-    console.log(e.target.value)
+  const handleOrderIdInput = async (e) => {
+    setOrderId(e.target.value);
+    console.log(e.target.value);
     // trackign with bluedart api
     // const response = await axios.get(`https://api.bluedart.com/v1/tracking/?waybillNumber=${orderId}`)
-
-  }
+  };
 
   return (
     <>
@@ -149,37 +145,50 @@ export default function OrderTacker() {
                 <div className="mb-2">
                   <h2 className="text-xl !font-bold ">My Orders / Tracking</h2>
                   <Divider />
-                  <div className="flex justify-around flex-wrap">
+                  <div
+                    className={`flex ${
+                      orderDetails?.consignment?.tracking_url ||
+                      orderDetails?.consignment?.consignment_id
+                        ? "justify-around"
+                        : " justify-start"
+                    } flex-wrap`}
+                  >
                     <p className="mt-2">
                       Order No: <b>{orderDetails?.order?.order_number}</b>
                     </p>
-                    <p
-                      className="mt-2 pb-3 cursor-pointer hover:!text-blue-600"
-                      onClick={() => {
-                        window.open(
-                          `${orderDetails?.consignment?.tracking_url}`
-                        );
-                      }}
-                    >
-                      Track your order{" "}
-                      <span className="!text-blue-600 text-xs">click here</span>
-                    </p>
-
-                    <p className="mt-2 ">
-                      Consignment No(AWB):{" "}
-                      <Tooltip title="Copy to clipboard">
-                        <span
-                          className="cursor-pointer"
-                          onClick={() => {
-                            navigator.clipboard.writeText(
-                              orderDetails?.consignment?.consignment_id
-                            );
-                          }}
-                        >
-                          {orderDetails?.consignment?.consignment_id}
+                    {orderDetails?.consignment?.tracking_url && (
+                      <p
+                        className="mt-2 pb-3 cursor-pointer hover:!text-blue-600"
+                        onClick={() => {
+                          window.open(
+                            `${orderDetails?.consignment?.tracking_url}`
+                          );
+                        }}
+                      >
+                        Track your order{" "}
+                        <span className="!text-blue-600 text-xs">
+                          click here
                         </span>
-                      </Tooltip>
-                    </p>
+                      </p>
+                    )}
+
+                    {orderDetails?.consignment?.consignment_id && (
+                      <p className="mt-2 ">
+                        Consignment No(AWB):{" "}
+                        <Tooltip title="Copy to clipboard">
+                          <span
+                            className="cursor-pointer"
+                            onClick={() => {
+                              navigator.clipboard.writeText(
+                                orderDetails?.consignment?.consignment_id
+                              );
+                            }}
+                          >
+                            {orderDetails?.consignment?.consignment_id}
+                          </span>
+                        </Tooltip>
+                      </p>
+                    )}
                   </div>
 
                   <div className="p-2 border-1 border mb-2">

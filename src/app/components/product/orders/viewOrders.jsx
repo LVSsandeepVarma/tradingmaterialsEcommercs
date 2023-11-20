@@ -30,7 +30,7 @@ export default function ViewOrders() {
   // eslint-disable-next-line no-unused-vars
   const [orders, setOrders] = useState();
   const [orderDataOne, setOrderDataOne] = useState();
-  const [orderDataTwo, setOrderDataTwo] = useState()
+  const [orderDataTwo, setOrderDataTwo] = useState();
   const [orderId, setOrderId] = useState();
   const [activeOrder, setActiveOrder] = useState(0);
   const [orderNumber, setOrderNumber] = useState();
@@ -41,65 +41,131 @@ export default function ViewOrders() {
   const params = useParams();
   const dispatch = useDispatch();
   // const loaderState = useSelector((state) => state?.loader?.value);
-
   useEffect(() => {
+    const getOrderTwoDetails = async (type, dataCount) => {
+      console.log("orderss", type);
+      try {
+        dispatch(showLoader());
+        const response = await axios.get(
+          `https://admin.tradingmaterials.com/api/client/get-orders?type=${type}`,
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("client_token"),
+            },
+          }
+        );
+        if (response?.data?.status) {
+          console.log(response?.data);
+          if (orderDataOne?.length == 0) {
+            setOrderId(response?.data?.data?.orders[0]?.id);
+          }
+          if (dataCount == "one") {
+            setOrderDataOne(response?.data?.data?.orders);
+            // setOrders(...orders, response?.data?.data?.orders)
+            console.log(
+              response?.data?.data?.orders[0]?.order_number,
+              "orderss"
+            );
+            setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+            setActiveOrder(response?.data?.data?.orders[0]?.order_number);
+          } else if (dataCount == "two") {
+            setOrderDataTwo(response?.data?.data?.orders);
+
+            //                   setOrders(
+            //                     ...orders,
+            //                     response?.data?.data?.orders
+            // );
+            if (orderDataOne?.length == 0) {
+              console.log(orderNumber, orderDataOne?.length, "orderss");
+              setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+              setActiveOrder(response?.data?.data?.orders[0]?.order_number);
+              // }
+            }
+            // setOrders(response?.data?.data?.orders);
+          }
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        dispatch(hideLoader());
+      }
+    };
+
+    // if (params?.order_type == "unpaid" || params?.order_type == "placed") {
+
+    const getOrderDetails = async (type, dataCount, secondType) => {
+      console.log("orderss", type);
+      if (type == "dispatched") {
+        setOrderDataTwo([]);
+      }
+      try {
+        dispatch(showLoader());
+        const response = await axios.get(
+          `https://admin.tradingmaterials.com/api/client/get-orders?type=${type}`,
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("client_token"),
+            },
+          }
+        );
+        if (response?.data?.status) {
+          console.log(response?.data);
+          setOrderId(response?.data?.data?.orders[0]?.id);
+          if (dataCount == "one") {
+            setOrderDataOne(response?.data?.data?.orders);
+            // setOrders(...orders, response?.data?.data?.orders)
+            console.log(
+              response?.data?.data?.orders[0]?.order_number,
+              "orderss"
+            );
+            setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+            setActiveOrder(response?.data?.data?.orders[0]?.order_number);
+          } else if (dataCount == "two") {
+            setOrderDataTwo(response?.data?.data?.orders);
+
+            //                   setOrders(
+            //                     ...orders,
+            //                     response?.data?.data?.orders
+            // );
+            // if (orderDataOne?.length) {
+            //   console.log(orderNumber, orderDataOne?.length ,"orderss");
+            //   setOrderNumber(
+            //     response?.data?.data?.orders[0]?.order_number
+            //   );
+            //   setActiveOrder(
+            //     response?.data?.data?.orders[0]?.order_number
+            //   );
+            // }
+          }
+          // setOrders(response?.data?.data?.orders);
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        if (dataCount == "one" && secondType != "") {
+          getOrderTwoDetails(secondType, "two");
+        }
+        dispatch(hideLoader());
+      }
+    };
 
     if (params?.order_type == "unpaid" || params?.order_type == "placed") {
-      const getOrderDetails = async (type, dataCount) => {
-            console.log("orderss", type, )
-            try {
-              dispatch(showLoader());
-              const response = await axios.get(
-                `https://admin.tradingmaterials.com/api/client/get-orders?type=${type}`,
-                {
-                  headers: {
-                    Authorization:
-                      "Bearer " + localStorage.getItem("client_token"),
-                  },
-                }
-              );
-              if (response?.data?.status) {
-                console.log(response?.data);
-                setOrderId(response?.data?.data?.orders[0]?.id);
-                if (dataCount == "one") {
-                  setOrderDataOne(response?.data?.data?.orders);
-                  // setOrders(...orders, response?.data?.data?.orders)
-                  console.log(response?.data?.data?.orders[0]?.order_number,"orderss");
-                  setOrderNumber(response?.data?.data?.orders[0]?.order_number);
-                } else if (dataCount == "two") {
-
-                  setOrderDataTwo(response?.data?.data?.orders);
-
-                  //                   setOrders(
-                  //                     ...orders,
-                  //                     response?.data?.data?.orders
-                  // );
-                  
-                  if (!orderNumber) {
-                    console.log(orderNumber, "orderss");
-                    setOrderNumber(
-                      response?.data?.data?.orders[0]?.order_number
-                    );
-                  }
-
-                }
-                // setOrders(response?.data?.data?.orders);
-                
-              }
-              
-            } catch (err) {
-              console.log(err);
-            } finally {
-              if (dataCount == "one") {
-                getOrderDetails("unpaid", "two");
-              }
-              dispatch(hideLoader());
-            }
-          };
-      getOrderDetails("placed", "one");
-      
-      
+      getOrderDetails("placed", "one", "unpaid");
+    } else if (
+      params?.order_type == "confirmed" ||
+      params?.order_type == "cancelled"
+    ) {
+      getOrderDetails("confirmed", "one", "cancelled");
+    } else if (
+      params?.order_type == "delivered" ||
+      params?.order_type == "returned"
+    ) {
+      getOrderDetails("delivered", "one", "returned");
+    } else if (params?.order_type == "dispatched") {
+      getOrderDetails("dispatched", "one", "");
     }
+
+    // }
 
     // const getOrderDetails = async () => {
     //   try {
@@ -182,10 +248,25 @@ export default function ViewOrders() {
                       data-content="And here's some amazing content. It's very engaging. Right?"
                       data-original-title="2003"
                     >
-                      <div className="inner-circle timeline-active">
+                      <div
+                        className={`inner-circle timeline-active ${
+                          params?.order_type == "placed" ||
+                          params?.order_type == "unpaid"
+                            ? "border !border-blue-500 border-solid"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          window.location.href = "/view-order/placed";
+                        }}
+                      >
                         <img
                           src="/images/orders/Order-placed.png"
-                          className="!w-[36px]"
+                          className={`${
+                            params?.order_type == "placed" ||
+                            params?.order_type == "unpaid"
+                              ? "w-[30px] fa-beat-fade"
+                              : "!w-[36px]"
+                          }`}
                           width="50px"
                           alt="placed"
                         />
@@ -211,12 +292,25 @@ export default function ViewOrders() {
                       data-original-title="2005"
                     >
                       <div
-                        className="inner-circle"
-                        style={{ border: "1px solid #4CAF50" }}
+                        className={`inner-circle timeline-active ${
+                          params?.order_type == "confirmed" ||
+                          params?.order_type == "cancelled"
+                            ? "border !border-green-500 border-solid"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          window.location.href = "/view-order/confirmed";
+                        }}
+                        // style={{ border: "1px solid #4CAF50" }}
                       >
                         <img
                           src="/images/orders/order-confirmed.png"
-                          className="w-[30px] fa-beat-fade"
+                          className={`${
+                            params?.order_type == "confirmed" ||
+                            params?.order_type == "cancelled"
+                              ? "w-[30px] fa-beat-fade"
+                              : "!w-[36px]"
+                          }`}
                           width="100px"
                         />
                         {/* <FaBoxesPacking
@@ -240,10 +334,23 @@ export default function ViewOrders() {
                       data-content="And here's some amazing content. It's very engaging. Right?"
                       data-original-title="2010"
                     >
-                      <div className="inner-circle">
+                      <div
+                        className={`inner-circle timeline-active ${
+                          params?.order_type == "dispatched"
+                            ? "border !border-[#ff9800] border-solid"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          window.location.href = "/view-order/dispatched";
+                        }}
+                      >
                         <img
                           src="/images/orders/order-dispatched.png"
-                          className="w-[36px] "
+                          className={`${
+                            params?.order_type == "dispatched"
+                              ? "w-[30px] fa-beat-fade"
+                              : "!w-[36px]"
+                          }`}
                           width="100px"
                         />{" "}
                         {/* <FaTruckFast
@@ -267,10 +374,25 @@ export default function ViewOrders() {
                       data-content="And here's some amazing content. It's very engaging. Right?"
                       data-original-title="2020"
                     >
-                      <div className="inner-circle">
+                      <div
+                        className={`inner-circle timeline-active ${
+                          params?.order_type == "delivered" ||
+                          params?.order_type == "returned"
+                            ? "border !border-[#009688] border-solid"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          window.location.href = "/view-order/delivered";
+                        }}
+                      >
                         <img
                           src="/images/orders/order-delivered.png"
-                          className="w-[36px]"
+                          className={`${
+                            params?.order_type == "delivered" ||
+                            params?.order_type == "returned"
+                              ? "w-[30px] fa-beat-fade"
+                              : "!w-[36px]"
+                          }`}
                           width="100px"
                         />{" "}
                         {/* <FaPeopleCarryBox
@@ -303,14 +425,14 @@ export default function ViewOrders() {
                         Orders{" "}
                         {params?.order_type == "placed" ||
                         params?.order_type == "unpaid"
-                          ? "Placed and unpaid"
+                          ? "Placed"
                           : ""}
                         {(orderDataOne?.length > 0 ||
                           orderDataTwo?.length > 0) && (
-                            <span className="badge badge-custom ms-2">
-                              {orderDataOne?.length + orderDataTwo?.length}
-                            </span>
-                          )}
+                          <span className="badge badge-custom ms-2">
+                            {orderDataOne?.length + orderDataTwo?.length}
+                          </span>
+                        )}
                       </h5>
                     </div>
                     <div
@@ -335,8 +457,8 @@ export default function ViewOrders() {
                   <div className="card-body">
                     <div className="row">
                       <div className="col-lg-12">
-                        {(orderDataOne?.length == 0 &&
-                          orderDataTwo?.length == 0) && (
+                        {orderDataOne?.length == 0 &&
+                          orderDataTwo?.length == 0 && (
                             <>
                               <div className="">
                                 <div className="flex justify-center">
@@ -362,80 +484,130 @@ export default function ViewOrders() {
                       <div className="col-lg-3">
                         {(orderDataOne?.length > 0 ||
                           orderDataTwo?.length > 0) && (
-                            <div
-                              className="nav flex-column nav-pills me-3"
-                              id="v-pills-tab"
-                              role="tablist"
-                              aria-orientation="vertical"
-                            >
-                              {orderDataOne?.map((order, ind) => (
-                                <button
-                                  key={ind}
-                                  onClick={() => {
-                                    setOrderId(order?.id),
-                                      setActiveOrder(ind),
-                                      setOrderNumber(order?.order_number);
-                                  }}
-                                  className={`nav-but-left ${
-                                    ind == 0 ? "!mt-0" : ""
-                                  } ${
-                                    activeOrder === ind ? "active" : ""
-                                  } hover:drop-shadow-xl shadow-sm`}
-                                  id="prod-1-tab"
-                                  data-bs-toggle="pill"
-                                  data-bs-target="#prod-1"
-                                  type="button"
-                                  role="tab"
-                                  aria-controls="prod-1"
-                                  aria-selected="true"
-                                >
-                                  #{order?.order_number} <br />{" "}
-                                  <small className="drop-shadow-lg">
-                                    {new Date(
-                                      order?.created_at
-                                    ).toLocaleDateString("en-US", {
-                                      year: "numeric",
-                                      month: "short",
-                                      day: "numeric",
-                                    })}
-                                  </small>
-                                </button>
-                              ))}
-                              {orderDataTwo?.map((order, ind) => (
-                                <button
-                                  key={ind}
-                                  onClick={() => {
-                                    setOrderId(order?.id),
-                                      setActiveOrder(ind),
-                                      setOrderNumber(order?.order_number);
-                                  }}
-                                  className={`nav-but-left ${
-                                    ind == 0 ? "!mt-0" : ""
-                                  } ${
-                                    activeOrder === ind ? "active" : ""
-                                  } hover:drop-shadow-xl shadow-sm`}
-                                  id="prod-1-tab"
-                                  data-bs-toggle="pill"
-                                  data-bs-target="#prod-1"
-                                  type="button"
-                                  role="tab"
-                                  aria-controls="prod-1"
-                                  aria-selected="true"
-                                >
-                                  #{order?.order_number} <br />{" "}
-                                  <small className="drop-shadow-lg">
-                                    {new Date(
-                                      order?.created_at
-                                    ).toLocaleDateString("en-US", {
-                                      year: "numeric",
-                                      month: "short",
-                                      day: "numeric",
-                                    })}
-                                  </small>
-                                </button>
-                              ))}
-                            </div>
-                          )}
+                          <div
+                            className="nav flex-column nav-pills me-3"
+                            id="v-pills-tab"
+                            role="tablist"
+                            aria-orientation="vertical"
+                          >
+                            {orderDataOne?.map((order, ind) => (
+                              <button
+                                key={ind}
+                                onClick={() => {
+                                  setOrderId(order?.id),
+                                    setActiveOrder(order?.order_number),
+                                    setOrderNumber(order?.order_number);
+                                }}
+                                className={`nav-but-left ${
+                                  ind == 0 ? "!mt-0" : ""
+                                } ${
+                                  activeOrder === order?.order_number
+                                    ? "active"
+                                    : ""
+                                } hover:drop-shadow-xl shadow-sm`}
+                                id="prod-1-tab"
+                                data-bs-toggle="pill"
+                                data-bs-target="#prod-1"
+                                type="button"
+                                role="tab"
+                                aria-controls="prod-1"
+                                aria-selected="true"
+                              >
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    #{order?.order_number} <br />{" "}
+                                    <small className="drop-shadow-lg">
+                                      {new Date(
+                                        order?.created_at
+                                      ).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                      })}
+                                    </small>
+                                  </div>
+                                  <div>
+                                    <img
+                                      src={
+                                        params?.order_type == "placed"
+                                          ? "/images/orders/placed.png"
+                                          : params?.order_type == "confirmed" ||
+                                            params?.order_type == "cancelled"
+                                          ? "/images/orders/confirmed.png"
+                                          : params?.order_type == "delivered" ||
+                                            params?.order_type == "returned"
+                                          ? "/images/orders/delivered.png"
+                                          : params?.order_type == "dispatched"
+                                          ? "/images/orders/dispatched.png"
+                                          : ""
+                                      }
+                                      className="w-[20px]"
+                                      alt="placed"
+                                    />
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                            {orderDataTwo?.map((order, ind) => (
+                              <button
+                                key={ind}
+                                onClick={() => {
+                                  setOrderId(order?.id),
+                                    setActiveOrder(order?.order_number),
+                                    setOrderNumber(order?.order_number);
+                                }}
+                                className={`nav-but-left ${
+                                  ind == 0 ? "!mt-0" : ""
+                                } ${
+                                  activeOrder === order?.order_number
+                                    ? "active"
+                                    : ""
+                                } hover:drop-shadow-xl shadow-sm`}
+                                id="prod-1-tab"
+                                data-bs-toggle="pill"
+                                data-bs-target="#prod-1"
+                                type="button"
+                                role="tab"
+                                aria-controls="prod-1"
+                                aria-selected="true"
+                              >
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    #{order?.order_number} <br />{" "}
+                                    <small className="drop-shadow-lg">
+                                      {new Date(
+                                        order?.created_at
+                                      ).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                      })}
+                                    </small>
+                                  </div>
+                                  <div>
+                                    <img
+                                      src={
+                                        params?.order_type == "placed"
+                                          ? "/images/orders/unpaid.png"
+                                          : params?.order_type == "confirmed" ||
+                                            params?.order_type == "cancelled"
+                                          ? "/images/orders/cancelled.png"
+                                          : params?.order_type == "delivered" ||
+                                            params?.order_type == "returned"
+                                          ? "/images/orders/returned.png"
+                                          : params?.order_type == "dispatched"
+                                          ? "/images/orders/dispatched.png"
+                                          : ""
+                                      }
+                                      className="w-[20px]"
+                                      alt="placed"
+                                    />
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="col-lg-9">
                         <div className="tab-content" id="v-pills-tabContent">
@@ -445,7 +617,8 @@ export default function ViewOrders() {
                             role="tabpanel"
                             aria-labelledby="prod-1-tab"
                           >
-                            {(orderDataOne?.length > 0 || orderDataTwo?.length >0 ) && (
+                            {(orderDataOne?.length > 0 ||
+                              orderDataTwo?.length > 0) && (
                               <div className="card">
                                 <div className="card-body">
                                   <div className="row">
@@ -497,7 +670,7 @@ export default function ViewOrders() {
                                               name="button"
                                               onClick={() => {
                                                 if (
-                                                  // params?.order_type == "unpaid" 
+                                                  // params?.order_type == "unpaid"
                                                   viewOrderDetails?.status == 0
                                                 ) {
                                                   window.open(
