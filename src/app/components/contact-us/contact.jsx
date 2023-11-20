@@ -33,7 +33,7 @@ export default function Contact() {
   }
 
   function validEmail(email) {
-    const emailPattern = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailPattern = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailErr("Email is required");
       return false;
@@ -70,8 +70,8 @@ export default function Contact() {
     if (desc?.length === 0) {
       setDescErr("description is required");
       return false;
-    }else if(desc?.length > 255){
-      setDescErr("description should contain maximum 255 charecters only")
+    } else if (desc?.length > 255) {
+      setDescErr("description should contain maximum 255 characters only");
     } else {
       setDescErr("");
       return true;
@@ -101,7 +101,12 @@ export default function Contact() {
     validEmail(email);
     phoneValidation(phone);
     descValidation(desc);
-    if (nameErr === "" && emailErr === "" &&  phoneError === "" && descErr === "") {
+    if (
+      nameErr === "" &&
+      emailErr === "" &&
+      phoneError === "" &&
+      descErr === ""
+    ) {
       console.log(name, email, phone, desc);
     }
   }
@@ -121,8 +126,8 @@ export default function Contact() {
           )}
 
           <Header />
-          <main className="nk-pages">
-            <section className="nk-section pt-120 pt-lg-160">
+          <main className="nk-pages mt-40 sm:mt-60 md:mt-40">
+            <section className="nk-section ">
               <div className="nk-mask blur-1 left center"></div>
               <div className="container">
                 <div className="row justify-content-center">
@@ -159,10 +164,7 @@ export default function Contact() {
                             payment processes.
                           </p>
                         </div>
-                        <a
-                          href="help-center.html"
-                          className="btn-link text-primary "
-                        >
+                        <a href="/contact" className="btn-link text-primary ">
                           <span>See Pricing Questions</span>
                           <em className="icon ni ni-arrow-right"></em>
                         </a>
@@ -187,10 +189,7 @@ export default function Contact() {
                             team with our user-centric features.
                           </p>
                         </div>
-                        <a
-                          href="help-center.html"
-                          className="btn-link text-primary "
-                        >
+                        <a href="/contact" className="btn-link text-primary ">
                           <span>All Documentations</span>
                           <em className="icon ni ni-arrow-right"></em>
                         </a>
@@ -218,10 +217,7 @@ export default function Contact() {
                             productivity.
                           </p>
                         </div>
-                        <a
-                          href="help-center.html"
-                          className="btn-link text-primary "
-                        >
+                        <a href="/contact" className="btn-link text-primary ">
                           <span>See All Questions</span>
                           <em className="icon ni ni-arrow-right"></em>
                         </a>
@@ -262,10 +258,19 @@ export default function Contact() {
                           <div className="row g-gs !text-left">
                             <div className="col-12 ">
                               <div className="form-group">
-                                <label className="form-label">Full Name <sup className="text-red-800 !font-bold">*</sup></label>
+                                <label className="form-label">
+                                  Full Name{" "}
+                                  <sup className="text-red-800 !font-bold">
+                                    *
+                                  </sup>
+                                </label>
                                 <div className="form-control-">
                                   <input
-                                    className={`form-control ${nameErr?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
+                                    className={`form-control ${
+                                      nameErr?.length > 0
+                                        ? "bg-red-100 drop-shadow-md"
+                                        : ""
+                                    }`}
                                     placeholder="Enter your name"
                                     value={name}
                                     onChange={handleNameChange}
@@ -280,11 +285,20 @@ export default function Contact() {
                             </div>
                             <div className="col-lg-6">
                               <div className="form-group">
-                                <label className="form-label">Email <sup className="text-red-800 !font-bold">*</sup></label>
+                                <label className="form-label">
+                                  Email{" "}
+                                  <sup className="text-red-800 !font-bold">
+                                    *
+                                  </sup>
+                                </label>
                                 <div className="">
                                   <input
                                     type="email"
-                                    className={`form-control ${emailErr?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
+                                    className={`form-control ${
+                                      emailErr?.length > 0
+                                        ? "bg-red-100 drop-shadow-md"
+                                        : ""
+                                    }`}
                                     placeholder="Enter your email"
                                     value={email}
                                     onChange={handleEmailChange}
@@ -299,11 +313,20 @@ export default function Contact() {
                             </div>
                             <div className="col-lg-6">
                               <div className="form-group">
-                                <label className="form-label">Phone <sup className="text-red-800 !font-bold">*</sup></label>
+                                <label className="form-label">
+                                  Phone{" "}
+                                  <sup className="text-red-800 !font-bold">
+                                    *
+                                  </sup>
+                                </label>
                                 <div className="">
                                   <input
                                     type="text"
-                                    className={`form-control ${phoneError?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
+                                    className={`form-control ${
+                                      phoneError?.length > 0
+                                        ? "bg-red-100 drop-shadow-md"
+                                        : ""
+                                    }`}
                                     placeholder="mobile number"
                                     value={phone}
                                     onChange={handlePhoneChange}
@@ -320,7 +343,10 @@ export default function Contact() {
                               <div className="form-group">
                                 <div className="form-label-group">
                                   <label className="form-label">
-                                    Tell us a bit about your query <sup className="text-red-800 !font-bold">*</sup>
+                                    Tell us a bit about your query{" "}
+                                    <sup className="text-red-800 !font-bold">
+                                      *
+                                    </sup>
                                   </label>
                                   <span>
                                     <span id="char-count">{desc?.length}</span>/{" "}
@@ -332,7 +358,11 @@ export default function Contact() {
                                 <div className="form-control-wrap">
                                   <textarea
                                     id="textarea-box"
-                                    className={`form-control ${descErr?.length >0 ? "bg-red-100 drop-shadow-md" : ""}`}
+                                    className={`form-control ${
+                                      descErr?.length > 0
+                                        ? "bg-red-100 drop-shadow-md"
+                                        : ""
+                                    }`}
                                     placeholder="Enter your message"
                                     value={desc}
                                     onChange={handleDescChange}

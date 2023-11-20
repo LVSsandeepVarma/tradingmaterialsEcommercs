@@ -23,7 +23,7 @@ export default function About() {
           )}
 
           <Header />
-          <main className="nk-pages">
+          <main className="nk-pages mt-40 sm:mt-60 md:mt-40">
             <section className="nk-section pt-120 pt-lg-160">
               <div className="nk-mask blur-1 left center"></div>
               <div className="container">
@@ -638,7 +638,7 @@ export default function About() {
                                 </a>
                               </div>
                               <h4 className="card-title text-capitalize mb-3 mb-md-5 !font-bold text-2xl !text-left !leading-relaxed">
-                                <a href="blog-single.html">
+                                <a href="/about">
                                   NioLand claims to be the #1 player in the
                                   analytics industry
                                 </a>
@@ -667,7 +667,7 @@ export default function About() {
                                 </a>
                               </div>
                               <h4 className="card-title text-capitalize mb-3 mb-md-5 !font-bold text-2xl !text-left !leading-relaxed">
-                                <a href="blog-single.html">
+                                <a href="about">
                                   NioLand CEO steps-back, new CEO comes in
                                   September after the board decisions
                                 </a>
@@ -710,7 +710,7 @@ export default function About() {
                     </div>
                     <div className="col-lg-4 text-center text-lg-end">
                       <a
-                        href={`${userLang}/contact`}
+                        href={`https://stage.tradingmaterials.com/contact`}
                         className="btn btn-white fw-semiBold"
                       >
                         Contact Support

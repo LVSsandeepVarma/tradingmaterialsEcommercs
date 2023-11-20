@@ -64,7 +64,7 @@ data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           )}
     {showModal && <ViewOrderModal show={showModal} onHide={hideModal} orderId={orderId}/>}
     {orders?.length ===0 && <p>Your Orders are empty</p>}
-    <main className="nk-pages">
+    <main className="nk-pages mt-40 sm:mt-60 md:mt-40">
             <section className="nk-banner nk-banner-career-job-details  bg-gray">
                 <div className="nk-banner-wrap pt-120 pt-lg-180 pb-lg-320">
                     <div className="container">

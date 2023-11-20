@@ -12,7 +12,6 @@ import { updateclientType } from "../../../features/clientType/clientType";
 import { Alert } from "@mui/material";
 
 export default function Login() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -23,6 +22,7 @@ export default function Login() {
   const loaderState = useSelector((state) => state.loader?.value);
   const [showPassword, setShowPassword] = useState(false);
   const [saveCredentials, setSavecredentials] = useState(false);
+  const [timerId, setTimerId] = useState(null);
   console.log(loginStatus);
 
   const dispatch = useDispatch();
@@ -46,12 +46,11 @@ export default function Login() {
       dispatch(userLanguage("/ms"));
     } else {
       dispatch(userLanguage(""));
-      
     }
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -60,6 +59,21 @@ export default function Login() {
       setEmailError("");
     }
   }
+
+  const startTimer = () => {
+    const timeout = 1000 * 60 * 60 * 8; // 10 minutes
+    console.log("timer function")
+    setTimerId(
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, timeout)
+    );
+  };
+
+  const resetTimer = () => {
+    clearTimeout(timerId);
+    setTimerId(null);
+  };
 
   function passwordValidation(password) {
     if (password?.length === 0) {
@@ -115,9 +129,13 @@ export default function Login() {
               localStorage.removeItem("phone", password);
             }
           }
-          setLoginsuccessMsg(response?.data?.message);
+
           localStorage.removeItem("client_token");
           localStorage.setItem("client_token", response?.data?.token);
+          if (timerId != null) {
+            resetTimer();
+          }
+          startTimer();
           // localStorage
           console.log(response?.data?.first_name);
           dispatch(
@@ -131,9 +149,16 @@ export default function Login() {
           dispatch(updateclientType(response?.data?.type));
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
-          // if (response?.data?.type === "client") {
-            navigate(`${userLang}/profile`);
-          // }
+          if (response?.data?.type === "client") {
+            setLoginsuccessMsg(response?.data?.message);
+            window.location.href = `/auto-login/${localStorage.getItem(
+              "client_token"
+            )}`;
+          }
+          if (response?.data?.type === "lead") {
+            setApiError["Unauthorized"];
+            window.location.href = `http://tradingmaterials.com`;
+          }
           setTimeout(() => {
             localStorage.removeItem("token");
             dispatch(
@@ -142,18 +167,17 @@ export default function Login() {
                 message: "Oops!",
               })
             );
-            navigate(`${userLang}/?login`);
+            navigate(`${userLang}/login`);
           }, 3600000);
         }
       } catch (err) {
-        
         console.log("err", err);
         if (err?.response?.data?.errors) {
           setEmailError(err?.response?.data?.errors["email"]);
           setPasswordError(err?.response?.data?.errors["password"]);
           // setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
-          console.log(err?.response)
+          console.log(err?.response);
           setApiError([err?.response?.data?.message]);
         }
         setTimeout(() => {
@@ -179,7 +203,7 @@ export default function Login() {
             <div className="nk-split-col nk-auth-col">
               <div
                 className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-md-9 mx-xl-auto"
-                // data-aos="fade-up"
+                data-aos="fade-up"
               >
                 <div className="card-body p-5">
                   <div className="nk-form-card-head !text-center pb-5">
@@ -204,7 +228,7 @@ export default function Login() {
                     <p className="text">
                       Not a member yet?{" "}
                       <a
-                        href={`${userLang}/signup`}
+                        href={`https://stage.tradingmaterials.com/signup`}
                         className="btn-link text-primary"
                       >
                         Sign Up
@@ -322,7 +346,7 @@ export default function Login() {
                             apiError?.map((err, ind) => {
                               return (
                                 <Alert
-                                key={ind}
+                                  key={ind}
                                   variant="outlined"
                                   severity="error"
                                   className="mt-2"
@@ -340,7 +364,6 @@ export default function Login() {
                       </div>
                     </div>
                   </Form>
-                  
                 </div>
               </div>
             </div>

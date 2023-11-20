@@ -13,11 +13,16 @@ import axios from "axios";
 import { Divider } from "@mui/material";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCart } from "../../../../features/cartItems/cartSlice";
-import { updateCartCount } from "../../../../features/cartWish/focusedCount";
+import {
+  updateCartCount,
+  updateWishListCount,
+} from "../../../../features/cartWish/focusedCount";
 // import { showPopup } from "../../../../features/popups/popusSlice";
 import ShippingAddressModal from "../../modals/address";
 import { usersignupinModal } from "../../../../features/signupinModals/signupinSlice";
 import AddToFav from "../../modals/addToFav";
+import { updateUsers } from "../../../../features/users/userSlice";
+import { logoutUser } from "../../../../features/login/loginSlice";
 
 export default function Orders() {
   const navigate = useNavigate();
@@ -32,9 +37,11 @@ export default function Orders() {
   const isLoggedIn = useSelector((state) => state?.login?.value);
   const [showModal, setShowModal] = useState(false);
   const [orderShippingAddress, setOrderShippingAddress] = useState([]);
-  const [addedToFavImg, setAddedToFavImg] = useState("")
-  const [showFavModal, setShowFavModal] = useState(false)
-  const [modalMessage, setModalMessage] = useState("")
+  const [addedToFavImg, setAddedToFavImg] = useState("");
+  const [showFavModal, setShowFavModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
+
   const userData = useSelector((state) => state?.user?.value);
 
   const [currentUserlang, setCurrentUserLang] = useState(
@@ -75,35 +82,84 @@ export default function Orders() {
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
 
-    // function for handling add to cart animation
-	async function handleAddToCart(productId, productImg) {
-		try {
-		//   setAnimateProductId(productId);
-		const response = await axios?.post(
-			"https://admin.tradingmaterials.com/api/client/product/add-to-cart",
-			{
-			product_id: productId,
-			qty: 1,
-			client_id: userData?.client?.id
-			},
-			{
-			headers: {
-        Authorization: "Bearer "+localStorage.getItem("client_token"),
-			},
-			}
-		);
-		if (response?.data?.status) {
-      setAddedToFavImg(productImg)
-      setShowFavModal(true)
-      setModalMessage("Added to your cart successfully")
+  const getUserInfo = async () => {
+    try {
+      setShowWishlistRemoveMsg(false)
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/client/get-user-info",
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
+      if (response?.data?.status) {
+        console.log(response?.data);
+        dispatch(updateUsers(response?.data?.data));
+        dispatch(updateCart(response?.data?.data?.client?.cart));
+        dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
+        dispatch(
+          updateWishListCount(response?.data?.data?.client?.wishlist_count)
+        );
+      } else {
+        console.log(response?.data);
 
-      dispatch(updateCart(response?.data?.data?.cart_details));
-      dispatch(updateCartCount(response?.data?.data?.cart_count));
-		}
-		} catch (err) {
-		console.log(err);
-		}
-	}
+        dispatch(logoutUser());
+        localStorage.removeItem("client_token");
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
+    }
+  };
+
+  // function for handling add to cart animation
+  async function handleAddToCart(productId, productImg) {
+    try {
+      //   setAnimateProductId(productId);
+      const response = await axios?.post(
+        "https://admin.tradingmaterials.com/api/client/product/add-to-cart",
+        {
+          product_id: productId,
+          qty: 1,
+          client_id: userData?.client?.id,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("client_token"),
+          },
+        }
+      );
+      if (response?.data?.status) {
+        setAddedToFavImg(productImg);
+        setShowFavModal(true);
+        setModalMessage("Added to your cart successfully");
+
+        dispatch(updateCart(response?.data?.data?.cart_details));
+        dispatch(updateCartCount(response?.data?.data?.cart_count));
+        getUserInfo()
+        if (userData?.client?.wishlist?.length > 0) {
+          const ids = userData?.client?.wishlist?.map(
+            (item) => item?.product_id
+          );
+          const isPresent = ids?.includes(productId);
+          console.log(isPresent, ids, productId, "prest");
+          if (isPresent) {
+            dispatch(
+              updateWishListCount(userData?.client?.wishlist?.length - 1)
+            );
+            setShowWishlistRemoveMsg(true);
+          } else {
+            setShowWishlistRemoveMsg(false);
+          }
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   console.log(decryptedId);
   useEffect(() => {
@@ -128,6 +184,7 @@ export default function Orders() {
           data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
           setOrders(data);
+          setFilteredOrders(data)
         }
       } catch (err) {
         console.log(err);
@@ -137,7 +194,7 @@ export default function Orders() {
     };
     fetchOrders();
   }, [userData]);
-  
+
   const handleViewAddress = (address) => {
     setOrderShippingAddress(address);
     setShowModal(true);
@@ -174,17 +231,22 @@ export default function Orders() {
       }
       console.log(order_date?.target?.value?.replaceAll("-", `/`), "ttttt");
       const date = new Date(order_date?.target?.value);
-const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date.getDate().toString().padStart(2, "0")}/${date.getFullYear()}`;
+      const formattedDate = `${(date.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}/${date
+        .getDate()
+        .toString()
+        .padStart(2, "0")}/${date.getFullYear()}`;
       const filterOrders = orders?.filter((order) => {
         console.log(
           new Date(order?.created_at).toLocaleDateString("en-US", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
-            
-            
-          }), formattedDate
-        , "ttttt");
+          }),
+          formattedDate,
+          "ttttt"
+        );
         return (
           new Date(order?.created_at).toLocaleDateString("en-US", {
             year: "numeric",
@@ -202,11 +264,11 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
     }
   };
 
-  const closeModal=()=>{
+  const closeModal = () => {
     setShowFavModal(false);
-    setModalMessage("")
-    setAddedToFavImg("")
-  }
+    setModalMessage("");
+    setAddedToFavImg("");
+  };
 
   return (
     <>
@@ -215,9 +277,15 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
           <div className="loader"></div>
         </div>
       )}
-      {addedToFavImg!== "" && 
-        <AddToFav showModal={showFavModal} closeModal={closeModal} modalMessage={modalMessage} addedToFavImg={addedToFavImg} />
-      }
+      {addedToFavImg !== "" && (
+        <AddToFav
+          showModal={showFavModal}
+          closeModal={closeModal}
+          modalMessage={modalMessage}
+          addedToFavImg={addedToFavImg}
+          wishMsg={showWishlistRemoveMsg}
+        />
+      )}
       <ShippingAddressModal
         show={showModal}
         onHide={() => setShowModal(false)}
@@ -228,7 +296,7 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
       />
       <div className="nk-app-root careers">
         <Header />
-        <main className="nk-pages">
+        <main className="nk-pages mt-40 sm:mt-60 md:mt-40">
           <section className="nk-banner nk-banner-career-job-details  bg-gray">
             <div className="nk-banner-wrap pt-120 pt-lg-180 pb-lg-320">
               <div className="container">
@@ -282,16 +350,19 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
                         />
                       </div>
                     </div>
-                   
 
                     {/* <input type='search' onChange={handleOrderSearchByNumber} className='w-[65%]  form-control  !py-2 !ps-10 border' placeholder='Search your orders with order number'/> */}
                     {/* <input type='search' onChange={handleOrderSearchByDate} className='w-[30%] form-control  !py-2 !ps-10 border' placeholder='Search your orders with order date'/> */}
                   </div>
-                  
                 </div>
-                {orders?.length >0 && <div>
-                      <p className="text-start mt-2 font-semibold">Showing {orders?.length }  {orders?.length > 1 ? "orders" : "order" }</p>
-                      </div>}
+                {filteredOrders?.length > 0 && (
+                  <div>
+                    <p className="text-start mt-2 font-semibold">
+                      Showing {filteredOrders?.length}{" "}
+                      {filteredOrders?.length > 1 ? "orders" : "order"}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </section>
@@ -308,8 +379,8 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
                       </p>
                     )}
                     <div className="table-responsive">
-                      {orders?.length > 0 &&
-                        orders?.map((order, ind) => (
+                      {filteredOrders?.length > 0 &&
+                        filteredOrders?.map((order, ind) => (
                           <>
                             <div className=" border-1 shadow-lg ">
                               <table className="table ">
@@ -402,17 +473,19 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
                                               </span>
                                             </a>
                                             <div>
-                                            <a
-                                              
-                                              className={`btn btn-outline-success border mt-2 `}
-                                              rel="noreferrer"
-                                            >
-                                              <span
-                                                style={{ fontSize: "12px" }}
+                                              <a
+                                                className={`btn btn-outline-success border mt-2 `}
+                                                rel="noreferrer"
                                               >
-                                                Dispatched on <br/>{new Date(order?.updated_at).toLocaleDateString()}
-                                              </span>
-                                            </a>
+                                                <span
+                                                  style={{ fontSize: "12px" }}
+                                                >
+                                                  Dispatched on <br />
+                                                  {new Date(
+                                                    order?.updated_at
+                                                  ).toLocaleDateString()}
+                                                </span>
+                                              </a>
                                             </div>
                                           </td>
                                         </tr>
@@ -424,7 +497,10 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
                                           handleViewAddress([
                                             {
                                               add_1: order?.shipping_add1,
-                                              add_2: order?.shipping_add2 !== null ? order?.shipping_add2 : "",
+                                              add_2:
+                                                order?.shipping_add2 !== null
+                                                  ? order?.shipping_add2
+                                                  : "",
                                               city: order?.shipping_city,
                                               state: order?.shipping_state,
                                               country: order?.shipping_country,
@@ -439,7 +515,17 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
                                         </span>
                                       </a>
                                       <br />
-                                      <a href={`/track-order/${order?.id}`} rel="noreferrer" target="_blank" className="btn btn-outline-dark border w-100 mt-2 margin-space"><span style={{fontSize:"12px"}}>Track Order</span></a><br/>
+                                      <a
+                                        href={`/track-order/${order?.id}`}
+                                        rel="noreferrer"
+                                        target="_blank"
+                                        className="btn btn-outline-dark border w-100 mt-2 margin-space"
+                                      >
+                                        <span style={{ fontSize: "12px" }}>
+                                          Track Order
+                                        </span>
+                                      </a>
+                                      <br />
                                       <a
                                         href="#"
                                         className="btn btn-outline-dark border w-100 mt-2 margin-space"
@@ -551,7 +637,7 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
 
                                   <div className="col-lg-7 ps-lg-0 !drop-shadow-lg">
                                     <div className="gap-5">
-                                      <p className="m-0 fs-16 w-100 td-text-3 group-hover:!font-bold group-hover:!text-black">
+                                      <p className="m-0 fs-16 w-100 td-text-3 group-hover:!font-bold group-hover:!text-black text-left">
                                         {product?.name}
                                       </p>
                                     </div>
@@ -965,15 +1051,19 @@ const formattedDate = `${(date.getMonth()+1).toString().padStart(2, "0")}/${date
                                         style={{ fontSize: "12px" }}
                                         onClick={(event) => {
                                           return isLoggedIn
-                                            ? handleAddToCart(product?.id, product?.img_1)
+                                            ? handleAddToCart(
+                                                product?.id,
+                                                product?.img_1
+                                              )
                                             : dispatch(
-                                              usersignupinModal({
-                                                showSignupModal: false,
-                                                showLoginModal: true,
-                                                showforgotPasswordModal: false,
-                                                showOtpModal: false,
-                                                showNewPasswordModal: false,
-                                              }))
+                                                usersignupinModal({
+                                                  showSignupModal: false,
+                                                  showLoginModal: true,
+                                                  showforgotPasswordModal: false,
+                                                  showOtpModal: false,
+                                                  showNewPasswordModal: false,
+                                                })
+                                              );
                                         }}
                                       >
                                         Addto Cart

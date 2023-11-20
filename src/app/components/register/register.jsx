@@ -44,7 +44,7 @@ export default function Register() {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -73,8 +73,12 @@ export default function Register() {
     const nameRegex = /^[a-zA-Z. ]+$/;
     if (name === "") {
       setFirstNameError("First name is required");
+    } else if (name?.length < 3) {
+      setFirstNameError("Min 3 characters are required");
+    } else if (name?.length > 25) {
+      setFirstNameError("Max 25 characters are allowed");
     } else if (!nameRegex.test(name)) {
-      setFirstNameError("Invalid first name, only charecters are allowed");
+      setFirstNameError("Invalid first name, only characters are allowed");
     } else {
       setFirstNameError("");
     }
@@ -84,8 +88,12 @@ export default function Register() {
     const nameRegex = /^[a-zA-Z. ]+$/;
     if (name === "") {
       setLastNameError("Last name is required");
+    } else if (name?.length < 3) {
+      setLastNameError("Min 3 characters are required");
+    } else if (name?.length > 25) {
+      setLastNameError("Max 25 characters are allowed");
     } else if (!nameRegex.test(name)) {
-      setLastNameError("Invalid last name, only charecters are allowed");
+      setLastNameError("Invalid last name");
     } else {
       setLastNameError("");
     }
@@ -202,13 +210,13 @@ export default function Register() {
         </div>
       )}
       <div className="nk-app-root !text-left">
-        <main className="nk-pages">
+        <main className="nk-pages mt-40 sm:mt-60 md:mt-40">
           <div className="nk-split-page flex-column flex-xl-row">
             <div className="nk-split-col nk-auth-col">
               <div
                 className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-md-9 mx-xl-auto"
                 style={{ opacity: "1 !important" }}
-                // data-aos="fade-up"
+                data-aos="fade-up"
               >
                 <div className="card-body p-5">
                   <div className="nk-form-card-head text-center pb-5">

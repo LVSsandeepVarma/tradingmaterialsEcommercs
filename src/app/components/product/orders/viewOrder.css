@@ -1,0 +1,74 @@
+.active {
+  color: #2b5cfd !important;
+}
+.card-body {
+  padding: 10px !important;
+}
+.media-lg .icon {
+  font-size: 1.5rem !important;
+}
+.media-lg {
+  z-index: 1;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.3333333333rem;
+}
+.cards h6 {
+  font-size: 15px;
+  color: grey !important;
+}
+.cards h3 {
+  font-size: 22px;
+  color: #757575 !important;
+}
+.nav-pills .nav-link {
+  text-align: left !important;
+  border-radius: 1px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  padding: 5px 10px !important;
+  border: 1px solid #e9e9e9 !important;
+  margin: 0.25rem !important;
+  color: #636161 !important;
+}
+small {
+  color: gray !important;
+}
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  color: #2b5cfd !important;
+  background-color: #d9e2ff !important;
+}
+.custom-btn {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+}
+.bd-breadcrumb span {
+  font-size: 12px !important;
+}
+.order-date {
+  font-size: 13px !important;
+}
+.text-right {
+  text-align: right !important;
+}
+.badge-light {
+  color: #424242 !important;
+  font-weight: 200 !important;
+  font-size: 12px !important;
+  border: 1px solid #b6b6b6 !important;
+  border-radius: 20px !important;
+  padding: 5px 10px !important;
+}
+.products-row {
+  padding: 10px !important;
+  box-shadow: 0 0.1rem 0.25rem 0 rgba(0, 0, 0, 0.15) !important;
+}
+.product-title {
+  color: #424242 !important;
+}
+@media only screen and (max-width: 600px) {
+  .addresses div {
+    text-align: left !important;
+  }
+}

@@ -47,7 +47,7 @@ const SignupModal = ({ show }) => {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -76,8 +76,12 @@ const SignupModal = ({ show }) => {
     const nameRegex = /^[a-zA-Z. ]+$/;
     if (name === "") {
       setFirstNameError("First name is required");
+    } else if (name?.length < 3) {
+      setFirstNameError("Min 3 characters are required");
+    } else if (name?.length > 25) {
+      setFirstNameError("Max 25 characters are allowed");
     } else if (!nameRegex.test(name)) {
-      setFirstNameError("Invalid first name, only charecters are allowed");
+      setFirstNameError("Invalid first name, only characters are allowed");
     } else {
       setFirstNameError("");
     }
@@ -87,8 +91,12 @@ const SignupModal = ({ show }) => {
     const nameRegex = /^[a-zA-Z. ]+$/;
     if (name === "") {
       setLastNameError("Last name is required");
+    } else if (name?.length < 3) {
+      setLastNameError("Min 3 characters are required");
+    } else if (name?.length > 25) {
+      setLastNameError("Max 25 characters are allowed");
     } else if (!nameRegex.test(name)) {
-      setLastNameError("Invalid last name, only charecters are allowed");
+      setLastNameError("Invalid last name");
     } else {
       setLastNameError("");
     }
@@ -245,7 +253,7 @@ const SignupModal = ({ show }) => {
             style={{
               border: 0,
             }}
-            // data-aos="fade-up"
+            data-aos="fade-up"
           >
             <div className="account-steps">
               <div className="step"></div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Countdown from "./countdown";
+// import Countdown from "./countdown";
 import { useDispatch, useSelector } from "react-redux";
 import { filteredProductsByIds } from "../../../features/products/productsSlice";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -7,7 +7,7 @@ import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { loginUser, logoutUser } from "../../../features/login/loginSlice";
 import { updatePositions } from "../../../features/positions/positionsSlice";
 import axios from "axios";
-import moment from "moment";
+// import moment from "moment";
 import { updateUsers } from "../../../features/users/userSlice";
 import { updateCart } from "../../../features/cartItems/cartSlice";
 import {
@@ -38,8 +38,10 @@ export default function ProductsDisplay() {
   const subId = useSelector((state) => state?.subId?.value);
   const userData = useSelector((state) => state?.user?.value);
 
+  const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
+
   // eslint-disable-next-line no-unused-vars
-  const [megaDealTime, setMegaDealTime] = useState("2023-09-12T00:00:00");
+  // const [megaDealTime, setMegaDealTime] = useState("2023-09-12T00:00:00");
   const [singleProductsCount, setSingleProductsCount] = useState(0);
   // eslint-disable-next-line no-unused-vars
   const [bundleProductCount, setBundleProductCount] = useState(0);
@@ -77,19 +79,18 @@ export default function ProductsDisplay() {
     setCurrentUserLang(localStorage.getItem("i18nextLng"));
   }, [userLang]);
 
-  useEffect(() => {
-    const incrementDate = () => {
-      const today = new Date();
-      const nextDate = moment(today).add(5, "days");
-      console.log(today.toISOString(), megaDealTime, "ttttt");
-      // if (today.toISOString().split("T")[0] >= megaDealTime.toString().split("T")[0]) {
-      //   console.log(nextDate, "datee")
-      setMegaDealTime(nextDate);
-      // }
-    };
+  // useEffect(() => {
+  //   const incrementDate = () => {
+  //     const today = new Date();
+  //     const nextDate = moment(today).add(5, "days");
+  //     console.log(today.toISOString(), megaDealTime, "ttttt");
 
-    incrementDate();
-  }, []);
+  //     setMegaDealTime(nextDate);
+  //     // }
+  //   };
+
+  //   incrementDate();
+  // }, []);
 
   useEffect(() => {
     const hash = location.hash;
@@ -106,6 +107,8 @@ export default function ProductsDisplay() {
 
   const getUserInfo = async () => {
     try {
+      dispatch(showLoader())
+      setShowWishlistRemoveMsg(false)
       const response = await axios.get(
         "https://admin.tradingmaterials.com/api/client/get-user-info",
         {
@@ -119,6 +122,8 @@ export default function ProductsDisplay() {
         console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
+        dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
+        dispatch(updateWishListCount(response?.data?.data?.client?.wishlist_count));
       } else {
         console.log(response?.data);
 
@@ -423,7 +428,7 @@ export default function ProductsDisplay() {
     // eslint-disable-next-line no-unsafe-optional-chaining
     const combinedProducts = [...products?.products];
     console.log(combinedProducts[0], typeof combinedProducts);
-    console.log(value);
+    console.log(combinedProducts, value, "comb-prods");
 
     // const res = combinedProducts?.sort((a, b) => new Date(a.added_at) - new Date(b.added_at));
 
@@ -437,7 +442,7 @@ export default function ProductsDisplay() {
         (b, a) => new Date(a.added_at) - new Date(b.added_at)
       );
       setAllProducts(res);
-      console.log(res);
+      console.log(res, "comb-prods");
     } else if (value === "Newest") {
       const res = combinedProducts?.sort(
         (b, a) => new Date(b.added_at) - new Date(a.added_at)
@@ -450,6 +455,7 @@ export default function ProductsDisplay() {
 
   async function handleAddToWishList(id, productImg) {
     console.log(id);
+    setShowWishlistRemoveMsg(false)
     try {
       dispatch(showLoader());
       const response = await axios.post(
@@ -483,6 +489,7 @@ export default function ProductsDisplay() {
   async function handleAddToCart(productId, productImg) {
     try {
       // setAnimateProductId(productId);
+      dispatch(showLoader());
       const response = await axios?.post(
         "https://admin.tradingmaterials.com/api/client/product/add-to-cart",
         {
@@ -503,9 +510,23 @@ export default function ProductsDisplay() {
         dispatch(updateWishListCount(response?.data?.data?.wishlist_count));
         dispatch(updateCart(response?.data?.data?.cart_details));
         dispatch(updateCartCount(response?.data?.data?.cart_count));
+        getUserInfo(productId);
+        if(userData?.client?.wishlist?.length >0){
+          const ids = userData?.client?.wishlist?.map(item =>item?.product_id)
+          const isPresent = ids?.includes(productId)
+          console.log(isPresent,ids,productId,"prest")
+          if(isPresent){
+            dispatch(updateWishListCount(userData?.client?.wishlist?.length -1))
+            setShowWishlistRemoveMsg(true)
+          }else{
+            setShowWishlistRemoveMsg(false)
+          }
+        }
       }
     } catch (err) {
       console.log(err);
+    }finally{
+      dispatch(hideLoader())
     }
   }
 
@@ -537,17 +558,65 @@ export default function ProductsDisplay() {
           <div className="loader"></div>
         </div>
       )}
+      {isLoggedIn && <section className="pt-100">
+          <div className="container">
+            <div className="row flex items-center">
+              <div className="col-lg-12 sbreadcrumb">
+                <div className="row flex items-center">
+                  <div className="col-lg-6 lcard text-left">
+                    <div className="flex  items-center gap-3 mb-3">
+                    {userData?.client?.profile?.profile_image?.length > 0 ? (
+                      <img src={userData?.client?.profile?.profile_image} alt="profile-pic" />
+                    ) : (
+                      <img src="/images/blueProfile.png" alt="profile-pic" />
+                    )}
+                      <div>
+                        <span>
+                        <strong>{userData?.client?.first_name} {userData?.client?.last_name}</strong>
+                      </span>
+                      <div>
+                      <span className="s-color"> {userData?.client?.email}</span>
+                      </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-6 rcard">
+                    <div className="">
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
+                        name="button"
+                      >
+                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
+                        Message
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
+                        name="button"
+                      >
+                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
+                        Setting
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>}
       {addedToFavImg !== "" && (
         <AddToFav
           showModal={showModal}
           closeModal={closeModal}
           modalMessage={modalMessage}
           addedToFavImg={addedToFavImg}
+          wishMsg={showWishlistRemoveMsg}
         />
       )}
       {}
       <div className="nk-pages">
-        <section className="nk-banner nk-banner-shop">
+        {/* <section className="nk-banner nk-banner-shop">
           <div className="container">
             <div className="nk-banner-wrap">
               <div className="nk-banner-content position-relative">
@@ -581,7 +650,7 @@ export default function ProductsDisplay() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
         <section className="nk-section nk-section-products" id="products">
           <div className="container">
             <div className="nk-section-content">
@@ -835,6 +904,9 @@ export default function ProductsDisplay() {
                                   <li
                                     className="nk-dropdown-select-option py-2"
                                     role="option"
+                                    onClick={() => {
+                                      handleSortingProducts("Popular");
+                                    }}
                                   >
                                     <span
                                       className="fs-14 text-gray-1200"
@@ -848,6 +920,9 @@ export default function ProductsDisplay() {
                                   <li
                                     className="nk-dropdown-select-option py-2"
                                     role="option"
+                                    onClick={() => {
+                                      handleSortingProducts("Newest");
+                                    }}
                                   >
                                     <span
                                       className="fs-14 text-gray-1200"
@@ -861,6 +936,9 @@ export default function ProductsDisplay() {
                                   <li
                                     className="nk-dropdown-select-option py-2"
                                     role="option"
+                                    onClick={() => {
+                                      handleSortingProducts("Oldest");
+                                    }}
                                   >
                                     <span
                                       className="fs-14 text-gray-1200"
@@ -878,150 +956,151 @@ export default function ProductsDisplay() {
                         </div>
                       </div>
                     </div>
-                    {isNoProducts || !allProducts?.length && (
+                    {isNoProducts ||
+                      (!allProducts?.length && (
                         <>
-                        <div className="row gy-5">
-                          <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
-                          <Box sx={{ pt: 0.5 }}>
-                            <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
-                              <Skeleton
-                                animation="wave"
-                                variant="rectangular"
-                                className="!w-full !h-[250px] sm:!h-[300px] "
-                                width="100%"
-                              />
-                              {/* <Skeleton animation="wave" /> */}
-                              <Skeleton
-                                animation="wave"
-                                width="80%"
-                                className="!mt-[2.5vh]"
-                              />
-                              <div className="flex !mt-[2.5vh]">
-                                <Skeleton
-                                  animation="wave"
-                                  width="30%"
-                                  className="mr-3"
-                                />
-                                <Skeleton animation="wave" width="20%" />
-                              </div>
-                              <div className="flex mt-2 mb-2  !w-full">
-                                <Skeleton
-                                  className="mr-2"
-                                  animation="wave"
-                                  width="50%"
-                                />
-                                <Skeleton
-                                  className="mr-2"
-                                  animation="wave"
-                                  width="50%"
-                                />
-                                <div className="flex !justify-end !w-full">
+                          <div className="row gy-5">
+                            <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                              <Box sx={{ pt: 0.5 }}>
+                                <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
                                   <Skeleton
                                     animation="wave"
-                                    width="20%"
-                                    className="mr-2 ml-4"
+                                    variant="rectangular"
+                                    className="!w-full !h-[250px] sm:!h-[300px] "
+                                    width="100%"
                                   />
-                                  <Skeleton animation="wave" width="20%" />
+                                  {/* <Skeleton animation="wave" /> */}
+                                  <Skeleton
+                                    animation="wave"
+                                    width="80%"
+                                    className="!mt-[2.5vh]"
+                                  />
+                                  <div className="flex !mt-[2.5vh]">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="30%"
+                                      className="mr-3"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                  <div className="flex mt-2 mb-2  !w-full">
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <div className="flex !justify-end !w-full">
+                                      <Skeleton
+                                        animation="wave"
+                                        width="20%"
+                                        className="mr-2 ml-4"
+                                      />
+                                      <Skeleton animation="wave" width="20%" />
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
+                              </Box>
                             </div>
-                          </Box>
-                        </div>
-                        <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
-                        <Box sx={{ pt: 0.5 }}>
-                          <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
-                            <Skeleton
-                              animation="wave"
-                              variant="rectangular"
-                              className="!w-full !h-[250px] sm:!h-[300px] "
-                              width="100%"
-                            />
-                            {/* <Skeleton animation="wave" /> */}
-                            <Skeleton
-                              animation="wave"
-                              width="80%"
-                              className="!mt-[2.5vh]"
-                            />
-                            <div className="flex !mt-[2.5vh]">
-                              <Skeleton
-                                animation="wave"
-                                width="30%"
-                                className="mr-3"
-                              />
-                              <Skeleton animation="wave" width="20%" />
+                            <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                              <Box sx={{ pt: 0.5 }}>
+                                <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                  <Skeleton
+                                    animation="wave"
+                                    variant="rectangular"
+                                    className="!w-full !h-[250px] sm:!h-[300px] "
+                                    width="100%"
+                                  />
+                                  {/* <Skeleton animation="wave" /> */}
+                                  <Skeleton
+                                    animation="wave"
+                                    width="80%"
+                                    className="!mt-[2.5vh]"
+                                  />
+                                  <div className="flex !mt-[2.5vh]">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="30%"
+                                      className="mr-3"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                  <div className="flex mt-2 mb-2  !w-full">
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <div className="flex !justify-end !w-full">
+                                      <Skeleton
+                                        animation="wave"
+                                        width="20%"
+                                        className="mr-2 ml-4"
+                                      />
+                                      <Skeleton animation="wave" width="20%" />
+                                    </div>
+                                  </div>
+                                </div>
+                              </Box>
                             </div>
-                            <div className="flex mt-2 mb-2  !w-full">
-                              <Skeleton
-                                className="mr-2"
-                                animation="wave"
-                                width="50%"
-                              />
-                              <Skeleton
-                                className="mr-2"
-                                animation="wave"
-                                width="50%"
-                              />
-                              <div className="flex !justify-end !w-full">
-                                <Skeleton
-                                  animation="wave"
-                                  width="20%"
-                                  className="mr-2 ml-4"
-                                />
-                                <Skeleton animation="wave" width="20%" />
-                              </div>
+                            <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
+                              <Box sx={{ pt: 0.5 }}>
+                                <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
+                                  <Skeleton
+                                    animation="wave"
+                                    variant="rectangular"
+                                    className="!w-full !h-[250px] sm:!h-[300px] "
+                                    width="100%"
+                                  />
+                                  {/* <Skeleton animation="wave" /> */}
+                                  <Skeleton
+                                    animation="wave"
+                                    width="80%"
+                                    className="!mt-[2.5vh]"
+                                  />
+                                  <div className="flex !mt-[2.5vh]">
+                                    <Skeleton
+                                      animation="wave"
+                                      width="30%"
+                                      className="mr-3"
+                                    />
+                                    <Skeleton animation="wave" width="20%" />
+                                  </div>
+                                  <div className="flex mt-2 mb-2  !w-full">
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <Skeleton
+                                      className="mr-2"
+                                      animation="wave"
+                                      width="50%"
+                                    />
+                                    <div className="flex !justify-end !w-full">
+                                      <Skeleton
+                                        animation="wave"
+                                        width="20%"
+                                        className="mr-2 ml-4"
+                                      />
+                                      <Skeleton animation="wave" width="20%" />
+                                    </div>
+                                  </div>
+                                </div>
+                              </Box>
                             </div>
                           </div>
-                        </Box>
-                      </div>
-                      <div className="col-md-6 col-lg-5 col-xl-4 !gap-x-[5px]">
-                      <Box sx={{ pt: 0.5 }}>
-                        <div className="nk-card overflow-hidden rounded-3 h-100 border text-left">
-                          <Skeleton
-                            animation="wave"
-                            variant="rectangular"
-                            className="!w-full !h-[250px] sm:!h-[300px] "
-                            width="100%"
-                          />
-                          {/* <Skeleton animation="wave" /> */}
-                          <Skeleton
-                            animation="wave"
-                            width="80%"
-                            className="!mt-[2.5vh]"
-                          />
-                          <div className="flex !mt-[2.5vh]">
-                            <Skeleton
-                              animation="wave"
-                              width="30%"
-                              className="mr-3"
-                            />
-                            <Skeleton animation="wave" width="20%" />
-                          </div>
-                          <div className="flex mt-2 mb-2  !w-full">
-                            <Skeleton
-                              className="mr-2"
-                              animation="wave"
-                              width="50%"
-                            />
-                            <Skeleton
-                              className="mr-2"
-                              animation="wave"
-                              width="50%"
-                            />
-                            <div className="flex !justify-end !w-full">
-                              <Skeleton
-                                animation="wave"
-                                width="20%"
-                                className="mr-2 ml-4"
-                              />
-                              <Skeleton animation="wave" width="20%" />
-                            </div>
-                          </div>
-                        </div>
-                      </Box>
-                    </div>
-                    </div>
                         </>
-                      )}
+                      ))}
                     <div className="row gy-5">
                       {isNoProducts ||
                         (allProducts?.length === 0 && (

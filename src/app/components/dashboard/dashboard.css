@@ -1,0 +1,23 @@
+.active {
+  color: #2b5cfd;
+}
+.card-body {
+  padding: 10px;
+}
+.media-lg .icon {
+  font-size: 1.5rem;
+}
+.media-lg {
+  z-index: 1;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.3333333333rem;
+}
+.cards h6 {
+  font-size: 15px;
+  color: grey;
+}
+.cards h3 {
+  font-size: 22px;
+  color: #757575;
+}

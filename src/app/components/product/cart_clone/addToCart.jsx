@@ -16,6 +16,7 @@ import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
 import CryptoJS from "crypto-js";
+import { Divider } from "@mui/material";
 
 export default function AddToCart() {
   const dispatch = useDispatch();
@@ -197,11 +198,6 @@ export default function AddToCart() {
     setActiveShippingAddress(id);
     setActiveShippingaddressChecked(id);
   };
-
-
-  // useEffect(() => {
-  //   getUserInfo();
-  // }, []);
 
   useEffect(() => {
     getUserInfo();
@@ -401,6 +397,53 @@ export default function AddToCart() {
           <div className="loader"></div>
         </div>
       )}
+      <section className="pt-100">
+          <div className="container">
+            <div className="row flex items-center">
+              <div className="col-lg-12 sbreadcrumb">
+                <div className="row flex items-center">
+                  <div className="col-lg-6 lcard text-left">
+                    <div className="flex  items-center gap-3 mb-3">
+                    {userData?.client?.profile?.profile_image?.length > 0 ? (
+                      <img src={userData?.client?.profile?.profile_image} alt="profile-pic" />
+                    ) : (
+                      <img src="/images/blueProfile.png" alt="profile-pic" />
+                    )}
+                      <div>
+                        <span>
+                        <strong>{userData?.client?.first_name} {userData?.client?.last_name}</strong>
+                      </span>
+                      <div>
+                      <span className="s-color"> {userData?.client?.email}</span>
+                      </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-6 rcard">
+                    <div className="">
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
+                        name="button"
+                      >
+                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
+                        Message
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
+                        name="button"
+                      >
+                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
+                        Setting
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       <ShippingAddressModal
         show={showModal}
         onHide={() => setShowModal(false)}
@@ -436,48 +479,172 @@ export default function AddToCart() {
         </div>
       )}
       <Header />
-      <div className="nk-pages text-left ">
-        <section className="nk-banner nk-banner-career-job-details bg-gray">
-          <div className="nk-banner-wrap  pb-[100px] lg:!pb-[300px]">
-            <div className="container">
-              <div className="row">
-                <div className="col-lg-8 col-xxl-5 text-left">
-                  <div>
-                    <a
-                      href={`${userLang}/`}
-                      className="btn-link mb-2 !inline-flex !items-center !text-large !font-semibold"
-                    >
-                      <em className="icon ni ni-arrow-left  !inline-flex !items-center !text-large !font-semibold"></em>
-                      <span>Back to Home</span>
-                    </a>
-                    <h1 className="mb-3 font-bold !text-4xl">Your Cart</h1>
-                    {/* <!-- <ul className="d-flex align-items-center gap-5 mb-5">
-                                        <li>
-                                            <p className="fs-14 text-gray-1200 fw-semibold text-uppercase"><em className="icon ni ni-clock-fill"></em><span className="ms-1">Full Time</span></p>
-                                        </li>
-                                        <li>
-                                            <p className="fs-14 text-gray-1200 fw-semibold text-uppercase"><em className="icon ni ni-map-pin-fill"></em><span className="ms-1">San Francisco</span></p>
-                                        </li>
-                                    </ul>
-                                    <a href="#" className="btn btn-primary"> Apply Now </a> --> */}
+      <div className="nk-pages text-left !border-0 drop-shadow-lg">
+      <section className="nk-section pt-0">
+          <div className="nk-mask blur-1 left center"></div>
+          <div className="container">
+            <div className="row mt-1">
+              <div className="col-lg-12">
+                <div className="card">
+                  <div className="card-header px-3 py-1">
+                    <h5 className="text-muted text-left capitalize !font-bold">
+                      Cart Summary 
+                    </h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="row">
+                    {cartProducts?.length > 0 && (
+                <div className="col-lg-3">
+                  <div className="nav flex-column  nav-pills me-3">
+                    <div className="nav-but-left drop-shadow-lg">
+                      <h4 className="mb-3 !font-bold">Order Summary</h4>
+                      <div className="pt-0 mb-3">
+                        {/* <!-- <h6 className="fs-18 mb-0">Promocode</h6> --> */}
+                        <div className="d-flex w-75">
+                          {clientType === "client" && (
+                            <input
+                              type="text"
+                              className="form-control rounded-0 py-0 px-2"
+                              placeholder="Promocode"
+                              name=""
+                              value={promocode}
+                              onChange={handlePromoCodeChange}
+                            />
+                          )}
+                          {clientType === "client" && (
+                            <button
+                              type="button"
+                              className="btn btn-success rounded-0 px-3 py-1 fs-14 bg-[rgba(34,197,94,1)]"
+                              name="button"
+                            >
+                              Apply
+                            </button>
+                          )}
+                          {clientType !== "client" && (
+                            <p className="text-green-900 font-semibold">
+                              Promocode applied{" "}
+                              {discountPercentage !== null
+                                ? discountPercentage + "%"
+                                : ""}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <ul className="d-flex flex-column gap-2 pb-5">
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Sub Total:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            ₹ {subTotal?.toFixed(2)}
+                          </p>
+                        </li>
+                        {/* <li className="d-flex align-items-center gap-5 text-gray-1200">
+                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                          Shipping:
+                        </p>
+                        <p className="m-0 fs-14 text-gray-1200 w-75">{allProducts?.length> 0 ? "₹ 10.00" : "₹ 0.00"}</p>
+                      </li> */}
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Tax:
+                          </p>
+                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                            {allProducts?.length > 0 ? "₹ 0.00" : "₹ 0.00"}
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                            Discount:
+                          </p>
+                          <p className="m-0 fs-14 text-danger w-75">
+                            {discount} ({discountPercentage}%)
+                          </p>
+                        </li>
+                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                          <p className="m-0 fs-16 fw-semibold text-uppercase w-25">
+                            Total:
+                          </p>
+                          <p className="m-0 fs-16 fw-semibold text-dark w-75">
+                            {allProducts?.length > 0
+                              ? `₹ ${(subTotal - discount).toFixed(2)}`
+                              : "0.00"}
+                          </p>
+                        </li>
+                      </ul>
+                      <label>
+                        <h4 className="mb-1"> Comments:</h4>
+                      </label>
+                      <textarea
+                        className="form-control rounded-0  px-2 mb-2 !min-h-[auto]"
+                        rows={"2"}
+                        value={optionalNotes}
+                        onChange={handleAdditionalComments}
+                        placeholder="Please mention comments on your order here."
+                      ></textarea>
+
+                      <button
+                        disabled={
+                          allProducts?.length > 0 &&
+                          userData?.client?.primary_address?.length !== 0 &&
+                          subTotal > 0
+                            ? false
+                            : true
+                        }
+                        onClick={handlePlaceOrder}
+                        className="btn btn-primary w-100"
+                      >
+                        Place Order
+                      </button>
+                      {userData?.client?.primary_address?.length === 0 && (
+                        <span className="text-red-800 font-semibold">
+                          Please add Address before placing order.
+                        </span>
+                      )}
+                      {apiErr?.length > 0 &&
+                        apiErr?.map((err, ind) => (
+                          <span key={ind} className="text-red-800 font-semibold">
+                            {err}
+                          </span>
+                        ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="nk-section nk-section-job-details pt-lg-0">
-          <div className="container">
-            <div className="nk-section-content row px-lg-5">
-              <div className="col-lg-8 pe-lg-0">
+              )}
+              <div className={`${cartProducts?.length > 0 ? "col-lg-9" : "col-lg-12"} `}>
                 <div
-                  className={`nk-entry pe-lg-5 py-lg-5 ${
-                    allProducts?.length ? "max-h-[50%]" : ""
-                  }  overflow-y-auto`}
+                  className={`tab-content overflow-y-auto  `}
                 >
-                  <div className="mb-5">
+                  <div className="mb-5 !w-[max-content] lg:!w-[99%]">
                     {allProducts?.length > 0 ? (
-                      <table className="table">
+                      <>
+                      <div className="card ">
+                        <div className="card-body">
+                          <div className="row">
+                            <div className="col-12 drop-shadow-lg">
+                              <div className="bd-breadcrumb d-flex align-items-center gap-3 mb-3" >
+                                <span className="cursor-pointer hover:text-blue-600" onClick={()=>navigate("/")}>Home</span>
+                                <span>Cart</span>
+                              </div>
+                              <div className="mt-2 text-left">
+                                          <p className="order-date">
+                                            <span className="text-muted">
+                                              Date :{" "}
+                                            </span>{" "}
+                                            <span className="text-dark">
+                                              {new Date(
+                                                
+                                              ).toLocaleDateString("en-US", {
+                                                year: "numeric",
+                                                month: "short",
+                                                day: "numeric",
+                                              })}
+                                            </span>
+                                            
+                                          </p>
+                                        </div>
+                                        <Divider/>
+                                        <table className="table">
                         <tbody>
                           {allProducts?.length &&
                             allProducts?.map((product, ind) => {
@@ -641,6 +808,13 @@ export default function AddToCart() {
                             })}
                         </tbody>
                       </table>
+                                        
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      </>
                     ) : (
                       <div className="text-center font-bold text-gray-700 ">
                         <p>no products found in cart</p>
@@ -890,189 +1064,14 @@ export default function AddToCart() {
                   </div>
                 )}
               </div>
-              {cartProducts?.length > 0 && (
-                <div className="col-lg-4 ps-lg-0">
-                  <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
-                    {/* {userData ? (
-                    <div className="nk-section-blog-details mt-3">
-                      <h4 className="mb-3">Shipping To</h4>
-                      <ul className="d-flex flex-column gap-2 pb-0">
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Full Name:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {userData?.client?.first_name}
-                          </p>
-                        </li>
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Address:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {userData?.client?.primary_address[0]?.add_1},{" "}
-                            {userData?.client?.primary_address[0]?.add_2 !== null
-                              ? `${userData?.client?.primary_address[0]?.add_2},  `
-                              : ""}
-                            {userData?.client?.primary_address[0]?.city}, {userData?.client?.primary_address[0]?.state},{" "}
-                            {userData?.client?.primary_address[0]?.country}, {userData?.client?.primary_address[0]?.zip}
-                          </p>
-                        </li>
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Shipping Type:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            Standard (2-5 business days)
-                          </p>
-                        </li>
-                      </ul>
-                      <button
-                        className="btn btn-warning mt-2 mb-2"
-                        variant="warning"
-                        color="warning"
-                        onClick={() => {
-                          setShowModal(true);
-                          setFormType("update")
-                        }}
-                      >
-                        Update address
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="nk-section-blog-details mt-3">
-                      <Button
-                        className="btn btn-warning mb-2"
-                        variant="warning"
-                        color="warning"
-                        onClick={() => {
-                          setShowModal(true);
-                          setFormType("add")
-                        }}
-                      >
-                        Add address
-                      </Button>
-                    </div>
-                  )}
-                  <hr /> */}
-                    <div className="nk-section-blog-details">
-                      <h4 className="mb-3 !font-bold">Order Summary</h4>
-                      <div className="pt-0 mb-3">
-                        {/* <!-- <h6 className="fs-18 mb-0">Promocode</h6> --> */}
-                        <div className="d-flex w-75">
-                          {clientType === "client" && (
-                            <input
-                              type="text"
-                              className="form-control rounded-0 py-0 px-2"
-                              placeholder="Promocode"
-                              name=""
-                              value={promocode}
-                              onChange={handlePromoCodeChange}
-                            />
-                          )}
-                          {clientType === "client" && (
-                            <button
-                              type="button"
-                              className="btn btn-success rounded-0 px-3 py-1 fs-14 bg-[rgba(34,197,94,1)]"
-                              name="button"
-                            >
-                              Apply
-                            </button>
-                          )}
-                          {clientType !== "client" && (
-                            <p className="text-green-900 font-semibold">
-                              Promocode applied{" "}
-                              {discountPercentage !== null
-                                ? discountPercentage + "%"
-                                : ""}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <ul className="d-flex flex-column gap-2 pb-5">
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Sub Total:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            ₹ {subTotal?.toFixed(2)}
-                          </p>
-                        </li>
-                        {/* <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                          Shipping:
-                        </p>
-                        <p className="m-0 fs-14 text-gray-1200 w-75">{allProducts?.length> 0 ? "₹ 10.00" : "₹ 0.00"}</p>
-                      </li> */}
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Tax:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {allProducts?.length > 0 ? "₹ 0.00" : "₹ 0.00"}
-                          </p>
-                        </li>
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Discount:
-                          </p>
-                          <p className="m-0 fs-14 text-danger w-75">
-                            {discount} ({discountPercentage}%)
-                          </p>
-                        </li>
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-16 fw-semibold text-uppercase w-25">
-                            Total:
-                          </p>
-                          <p className="m-0 fs-16 fw-semibold text-dark w-75">
-                            {allProducts?.length > 0
-                              ? `₹ ${(subTotal - discount).toFixed(2)}`
-                              : "0.00"}
-                          </p>
-                        </li>
-                      </ul>
-                      <label>
-                        <h4 className="mb-1"> Comments:</h4>
-                      </label>
-                      <textarea
-                        className="form-control rounded-0  px-2 mb-2 !min-h-[auto]"
-                        rows={"2"}
-                        value={optionalNotes}
-                        onChange={handleAdditionalComments}
-                        placeholder="Please mention comments on your order here."
-                      ></textarea>
-
-                      <button
-                        disabled={
-                          allProducts?.length > 0 &&
-                          userData?.client?.primary_address?.length !== 0 &&
-                          subTotal > 0
-                            ? false
-                            : true
-                        }
-                        onClick={handlePlaceOrder}
-                        className="btn btn-primary w-100"
-                      >
-                        Place Order
-                      </button>
-                      {userData?.client?.primary_address?.length === 0 && (
-                        <span className="text-red-800 font-semibold">
-                          Please add Address before placing order.
-                        </span>
-                      )}
-                      {apiErr?.length > 0 &&
-                        apiErr?.map((err, ind) => (
-                          <span key={ind} className="text-red-800 font-semibold">
-                            {err}
-                          </span>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+              
             </div>
           </div>
-        </section>
+          </div>
+          </div>
+          </div>
+          </div>
+          </section>
         <section class="nk-section nk-cta-section">
           <div class="container">
             <div

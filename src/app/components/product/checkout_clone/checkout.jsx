@@ -548,6 +548,53 @@ export default function Checkout() {
           <div className="loader"></div>
         </div>
       )}
+            <section className="pt-100">
+          <div className="container">
+            <div className="row flex items-center">
+              <div className="col-lg-12 sbreadcrumb">
+                <div className="row flex items-center">
+                  <div className="col-lg-6 lcard text-left">
+                    <div className="flex  items-center gap-3 mb-3">
+                    {userData?.client?.profile?.profile_image?.length > 0 ? (
+                      <img src={userData?.client?.profile?.profile_image} alt="profile-pic" />
+                    ) : (
+                      <img src="/images/blueProfile.png" alt="profile-pic" />
+                    )}
+                      <div>
+                        <span>
+                        <strong>{userData?.client?.first_name} {userData?.client?.last_name}</strong>
+                      </span>
+                      <div>
+                      <span className="s-color"> {userData?.client?.email}</span>
+                      </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-6 rcard">
+                    <div className="">
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
+                        name="button"
+                      >
+                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
+                        Message
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
+                        name="button"
+                      >
+                        <i className="fa-solid fa-file-invoice me-1"></i>{" "}
+                        Setting
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       {addressUpdateType === "shipping" && (
         <ShippingAddressModal
           show={showModal}
@@ -608,41 +655,62 @@ export default function Checkout() {
         </div>
       )}
       <Header />
-      <div className="nk-pages text-left mt-80 sm:mt-60 md:mt-40">
-        <section className="nk-banner nk-banner-career-job-details bg-gray">
-          <div className="nk-banner-wrap pt-120 pt-lg-180 pb-[100px] lg:!pb-[300px]">
-            <div className="container">
-              <div className="row">
-                <div className="col-lg-8 col-xxl-5 text-left">
-                  <div>
-                    <a
-                      href={`${userLang}/`}
-                      className="btn-link mb-2 !inline-flex !items-center !text-large !font-semibold cursor-pointer"
-                    >
-                      <em className="icon ni ni-arrow-left  !inline-flex !items-center !text-large !font-semibold"></em>
-                      <span>Back to Home</span>
-                    </a>
-                    <h1 className="mb-3 font-bold !text-4xl">Order Summary</h1>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="nk-section nk-section-job-details pt-lg-0">
+<div className="nk-pages text-left !border-0 drop-shadow-lg">
+      <section className="nk-section pt-0">
+          <div className="nk-mask blur-1 left center"></div>
           <div className="container">
-            <div className="nk-section-content row px-lg-5">
-              <div className="col-lg-8 pe-lg-0">
-                <div className="nk-entry pe-lg-5 py-lg-5 max-h-[50%] overflow-y-auto">
-                  <div className="mb-5">
+            <div className="row mt-1">
+              <div className="col-lg-12">
+                <div className="card">
+                  <div className="card-header px-3 py-1">
+                    <h5 className="text-muted text-left capitalize !font-bold">
+                    Your Order 
+                    </h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="row">
+                    
+              <div className="col-lg-9 col-md-8">
+                <div
+                  className={`tab-content   `}
+                >
+                  <div className="mb-5 ">
                     {allProducts?.length > 0 ? (
-                      <table className="table">
+                      <>
+                      <div className="card w-[98%]">
+                        <div className="card-body">
+                          <div className="row">
+                            <div className="col-12 drop-shadow-lg">
+                              <div className="bd-breadcrumb d-flex align-items-center gap-3 mb-3" >
+                                <span className="cursor-pointer hover:text-blue-600 overflow-auto" onClick={()=>navigate("/")}>Home</span>
+                                <span>Order</span>
+                              </div>
+                              <div className="mt-2 text-left">
+                                          <p className="order-date">
+                                            <span className="text-muted">
+                                              Date :{" "}
+                                            </span>{" "}
+                                            <span className="text-dark">
+                                              {new Date(
+                                                
+                                              ).toLocaleDateString("en-US", {
+                                                year: "numeric",
+                                                month: "short",
+                                                day: "numeric",
+                                              })}
+                                            </span>
+                                            
+                                          </p>
+                                        </div>
+                                        <Divider/>
+                                        {allProducts?.length > 0 ? (
+                      <table className="table responsive ">
                         <tbody>
                           {allProducts?.length &&
                             allProducts?.map((product, ind) => {
                               return (
                                 <tr key={ind}>
-                                  <td className="w-50">
+                                  <td className="w-auto">
                                     <div className="d-flex align-items-start">
                                       <img
                                         src={product?.product?.img_1}
@@ -683,7 +751,7 @@ export default function Checkout() {
                                           </div>
                                         </div>
                                       </div>
-                                      <div className="d-flex align-items-center w-25">
+                                      {/* <div className="d-flex align-items-center w-25">
                                         <img
                                           src="https://cdn-icons-png.flaticon.com/512/2203/2203145.png"
                                           className="mb-0 mr-1"
@@ -696,7 +764,7 @@ export default function Checkout() {
                                         >
                                           Quick Delivery
                                         </p>
-                                      </div>
+                                      </div> */}
                                     </div>
                                   </td>
                                 </tr>
@@ -709,6 +777,25 @@ export default function Checkout() {
                         <p>No products found in cart</p>
                         <p
                           className="nav-link text-green-900"
+                          onClick={() => navigate("/")}
+                        >
+                          {" "}
+                          Click here to add items
+                        </p>
+                      </div>
+                    )}
+                                        
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      </>
+                    ) : (
+                      <div className="text-center font-bold text-gray-700 ">
+                        <p>no products found in cart</p>
+                        <p
+                          className="nav-link text-green-900 cursor-pointer"
                           onClick={() => navigate("/")}
                         >
                           {" "}
@@ -821,10 +908,11 @@ export default function Checkout() {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="col-lg-4 ps-lg-0 mt-5 md:mt-0">
+                </div>
+                <div className="col-lg-3 col-md-4 col-12">
                 {paymentStatus === "" && paymentVerification === false && (
-                  <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
+                  <div className="nav flex-column nav-pills drop-shadow-lg !mt-[5rem] md:!mt-0 ">
+                    <div className="p-2 border-1" >
                     <h4 className="!font-bold">Payment Method</h4>
                     <div className="flex flex-wrap items-center">
                       {userData?.client?.payment_types?.map(
@@ -844,7 +932,7 @@ export default function Checkout() {
                             {paymentType?.name === "Razor_Pay" && (
                               <img
                                 src={`https://admin.tradingmaterials.com/assets/images/payment-images/razorpay.png`}
-                                className="ml-2 mr-2 "
+                                className="ml-2 mr-2 w-[90px] "
                                 alt={`${paymentType?.name}`}
                               />
                             )}
@@ -859,6 +947,7 @@ export default function Checkout() {
                         )
                       )}
                     </div>
+                    {/* </div> */}
 
                     {activePaymentMethod === "Stripe" && (
                       <>
@@ -1095,14 +1184,22 @@ export default function Checkout() {
                           </span>
                         ))}
                       <Divider className="mt-2" />
-                      <div className="flex  w-full mt-3">
+                      <div className="flex justify-around items-center w-full mt-3">
                         <img
-                          className="flex justify-start"
+                          className=""
                           src="/images/paymentMethods.jpg"
                           alt="payment methods"
                           style={{ width: "45%" }}
                         ></img>
-                        <div className="w-full flex justify-end">
+                        <div>
+                        <img
+                                src={`https://admin.tradingmaterials.com/assets/images/payment-images/razorpay.png`}
+                                className="ml-2 mr-2 w-[70px] "
+                                alt={`razor pay`}
+                              />
+                        </div>
+
+                        <div className="">
                           <img
                             className=" "
                             src="/images/stripe.png"
@@ -1110,6 +1207,7 @@ export default function Checkout() {
                           ></img>
                         </div>
                       </div>
+                    </div>
                     </div>
                   </div>
                 )}
@@ -1220,9 +1318,13 @@ export default function Checkout() {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-        </section>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+          </section>
         <section className="nk-section nk-cta-section">
           <div className="container">
             <div

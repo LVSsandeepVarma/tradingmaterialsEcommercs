@@ -28,15 +28,22 @@ export default function OrderTacker() {
   const [orderData, setOrderData] = useState([]);
   const [orderDetails, setOrderDetails] = useState();
   const [orderId, setOrderId] = useState("");
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const userLang = useSelector((state) => state?.lang?.value);
   const userData = useSelector((state) => state?.user?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const params = useParams()
   
   const clientId= userData?.client?.id
   const {order_id} = useParams()
+
+  useEffect(()=>{
+    if(!params?.order_id){
+      setShowModal(true)
+    }
+  },[])
 
   //fetching order details
   const fetchOrderData = async () => {
@@ -104,7 +111,7 @@ export default function OrderTacker() {
       )}
       <Header />
 
-      <div className="nk-pages text-left">
+      <div className="nk-pages text-left mt-80 sm:mt-60 md:mt-40">
         <section className="nk-banner nk-banner-career-job-details bg-gray">
           <div className="nk-banner-wrap pt-120 pt-lg-80 pb-[100px]">
             <div className="container">
@@ -113,7 +120,7 @@ export default function OrderTacker() {
                   <h2 className="text-xl !font-bold ">My Orders / Tracking</h2>
                   <Divider />
                   <p className="mt-2 pb-3">
-                    Order ID: <b>ORD123456789</b>
+                    Order ID: <b>{orderData?.order?.order_number}</b>
                   </p>
                   <div className="p-2 border-1 border mb-6">
                     <div className="flex justify-between">

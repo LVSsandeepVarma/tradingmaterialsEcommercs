@@ -54,7 +54,7 @@ const LoginModal = ({ show, onHide }) => {
   }, []);
 
   function emailValidaiton(email) {
-    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
     if (email === "") {
       setEmailError("Email is required");
     } else if (!emailRegex.test(email)) {
@@ -147,7 +147,7 @@ const LoginModal = ({ show, onHide }) => {
                 message: "Oops!",
               })
             );
-            navigate(`${userLang}/?login`);
+            navigate(`${userLang}/login`);
           }, 3600000);
         }
       } catch (err) {
@@ -217,7 +217,7 @@ const LoginModal = ({ show, onHide }) => {
             style={{
               border: 0,
             }}
-            // data-aos="fade-up"
+            data-aos="fade-up"
           >
             <div className="account-steps">
               <div className="step"></div>
