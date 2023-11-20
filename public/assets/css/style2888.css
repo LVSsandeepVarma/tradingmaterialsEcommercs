@@ -2632,17 +2632,17 @@ progress {
 .form-control {
     display: block;
     width: 100%;
-    padding: .688rem 1.5rem;
-    font-size: 1rem;
+    padding: 0.5625rem 1.125rem;
+    font-size: 0.875rem;
     font-weight: 400;
-    line-height: 1.75;
-    color: #495057;
+    line-height: 1.5rem;
+    color: #43476b !important;
     background-color: #fff;
     background-clip: padding-box;
-    border: 1px solid #e5e7eb;
+    border: 0.0625rem solid #d2d4e4 !important;
     appearance: none;
-    border-radius: .5rem;
-    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
+    border-radius: 0.375rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out !important;
 }
 
 @media(prefers-reduced-motion: reduce) {
@@ -2660,11 +2660,11 @@ progress {
 }
 
 .form-control:focus {
-    color: #495057;
+color: #43476b !important;
     background-color: #fff;
-    border-color: rgba(43, 92, 253, .65);
+    border-color: rgba(95,56,249,.65) !important;
     outline: 0;
-    box-shadow: 0 0 5px 0px rgba(95, 56, 249, .2)
+    box-shadow: 0 0 5px 0px rgba(95,56,249,.2) !important
 }
 
 .form-control::-webkit-date-and-time-value {
@@ -27568,8 +27568,8 @@ a:hover .btn-zoom:before {
 }
 
 .form-group .form-control-wrap input {
-    border: 1px solid #e5e7eb;
-    border-radius: .5rem;
+    /* border: 1px solid #e5e7eb;
+    border-radius: .5rem; */
     background-color: rgba(0, 0, 0, 0)
 }
 

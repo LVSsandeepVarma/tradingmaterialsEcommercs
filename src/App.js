@@ -22,6 +22,9 @@ import ShippingPolicy from "./app/components/policies/Shipping";
 import LinkExpired from "./app/components/expired/LinkExpired";
 import Disclaimer from "./app/components/policies/Disclaimer";
 import Return from "./app/components/policies/Return";
+import ViewInvoice from "./app/components/invoice/ViewInvoice";
+import InvoiceList from "./app/components/invoice/InvoiceList";
+import Logs from "./app/components/logs/Logs";
  const UserProfile = lazy(()=>import("./app/components/protectedRoutes/profile"))
 // import OrderProfile from "./app/components/protectedRoutes/viewOrders";
 const OrderProfile = lazy(()=> import("./app/components/protectedRoutes/viewOrders"))
@@ -102,11 +105,14 @@ function App() {
               path="/auto-login/:access_token"
               element={<AutoLogin />}
             ></Route>
+            <Route path="/view-invoice/:order_id/:pdf_filelink" element={<ViewInvoice />}></Route>
+            <Route path="/invoices" element={<InvoiceList/>}></Route>
             <Route
               path="/payment-status/:id"
               element={<PaymentVerifyStripe />}
             ></Route>
             <Route path="/orders/:client_id" element={<Orders />}></Route>
+            <Route path="/logs" element={<Logs/>}></Route>
             <Route
               path="/view-order/:order_type"
               element={<OrderView />}

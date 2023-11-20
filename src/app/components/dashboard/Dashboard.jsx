@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
 import React, { useEffect, useState } from "react";
 import Header from "../header/header";
@@ -6,6 +7,7 @@ import Header from "../header/header";
 // import { BsArrowLeftRight } from "react-icons/bs";
 // import {MdOutlinePendingActions} from "react-icons/md"
 import "../dashboard/dashboard.css";
+import { IoLocationOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -13,11 +15,21 @@ import Footer from "../footer/footer";
 import { Avatar, Divider } from "@mui/material";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import axios from "axios";
+import ShippingAddressModal from "../modals/address";
+import { MdOutlineMyLocation } from "react-icons/md";
+import ViewOrdersDashboard from "./Orders";
+import PaymentDetails from "../payments/PaymentDetails";
+
+
 export default function Dashboard() {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector((state) => state?.login?.value);
   const userData = useSelector((state) => state?.user?.value);
   console.log(userData);
+  const [showModal, setShowModal] = useState(false);
+  const [addressUpdateType, setAddressUpdateType] = useState();
+  const [addressData, setAddressData] = useState();
+  const [formType, setFormType] = useState("add");
   const [userIp, setUserIp] = useState("");
   // eslint-disable-next-line no-unused-vars
   const [orders, setOrders] = useState();
@@ -78,6 +90,13 @@ export default function Dashboard() {
     <>
       <div className="nk-app-root">
         <Header />
+        <ShippingAddressModal
+          show={showModal}
+          onHide={() => setShowModal(false)}
+          addressType={addressUpdateType}
+          data={addressData}
+          type={formType}
+        />
 
         <main className="nk-pages mt-10 sm:mt-40 md:mt-[6rem]">
           <section className="nk-section ">
@@ -141,6 +160,126 @@ export default function Dashboard() {
                         IP Address: <span>{userIp}</span>
                       </h4>
                       <hr className="mt-[1rem] mb-[1rem]" />
+                    </div>
+                    <div className="activitys !max-h-[80%]">
+                      <h3 className="!font-bold flex items-center">
+                        <IoLocationOutline className="mr-1" />
+                        Primary Address :
+                      </h3>
+                      {userData?.client?.primary_address?.length > 0 ? (
+                        <div className=" group  hover:shadow-sm ">
+                          <div className="pl-4 group-hover:bg-blue-50">
+                            <p className="flex items-center">
+                              {/* <IoLocationOutline className="mr-1" /> */}
+                              {userData?.client?.primary_address[0]?.add_1},
+                            </p>
+                            {userData?.client?.primary_address[0]?.add_2 !=
+                              null && (
+                              <p className="flex items-center">
+                                {/* <IoLocationOutline className="mr-1" /> */}
+                                {userData?.client?.primary_address[0]?.add_2},
+                              </p>
+                            )}
+                            <p className="flex items-center">
+                              {/* <IoLocationOutline className="mr-1" /> */}
+                              {userData?.client?.primary_address[0]?.city},
+                            </p>
+                            <p className="flex items-center">
+                              {/* <IoLocationOutline className="mr-1" /> */}
+                              {userData?.client?.primary_address[0]?.state},
+                            </p>
+
+                            <p className="flex items-center">
+                              {userData?.client?.primary_address[0]?.country},
+                              {userData?.client?.primary_address[0]?.zip}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div>
+                            <p>
+                              No Address Found,{" "}
+                              <b
+                                className="hover:!text-blue-600 cursor-pointer !font-bold"
+                                onClick={() => {
+                                  setAddressUpdateType("");
+                                  setShowModal(true);
+                                  setAddressData([]);
+                                  setFormType("add");
+                                }}
+                              >
+                                Click here to add
+                              </b>
+                            </p>
+                          </div>
+                        </>
+                      )}
+                      <h3 className="!font-bold flex items-center">
+                        <IoLocationOutline className="mr-1" />
+                        Secondary Address
+                        {/* {userData?.client?.address?.length > 2
+                          ? "es"
+                          : userData?.client?.address?.length== 2 ? "" : ""} */}
+                        :
+                      </h3>
+                      {userData?.client?.address?.length > 1 ? (
+                        <div>
+                          {userData?.client?.address?.length > 1 &&
+                            userData?.client?.address?.map((address, ind) => (
+                              <div
+                                key={ind}
+                                className=" group  hover:shadow-sm "
+                              >
+                                <div className="pl-4 group-hover:bg-blue-50">
+                                  <p className="flex items-center">
+                                    <MdOutlineMyLocation className="mr-1" />
+                                    {address?.add_1},
+                                  </p>
+                                  {address?.add_2 != null && (
+                                    <p className="flex items-center">
+                                      {/* <IoLocationOutline className="mr-1" /> */}
+                                      {address?.add_2},
+                                    </p>
+                                  )}
+                                  <p className="flex items-center">
+                                    {/* <IoLocationOutline className="mr-1" /> */}
+                                    {address?.city},
+                                  </p>
+                                  <p className="flex items-center">
+                                    {/* <IoLocationOutline className="mr-1" /> */}
+                                    {address?.state},
+                                  </p>
+
+                                  <p className="flex items-center">
+                                    {address?.country},{address?.zip}
+                                  </p>
+                                  <Divider className="my-2" />
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      ) : (
+                        // </div>
+                        <>
+                          <div>
+                            <p>
+                              No Address Found,{" "}
+                              <b
+                                className="hover:!text-blue-600 cursor-pointer !font-bold"
+                                onClick={() => {
+                                  setAddressUpdateType("");
+                                  setShowModal(true);
+                                  setAddressData([]);
+                                  setFormType("add");
+                                }}
+                              >
+                                Click here to add
+                              </b>
+                            </p>
+                          </div>
+                        </>
+                      )}
                     </div>
                     {/* <div class="activitys">
                     <h3>Activity</h3>
@@ -207,7 +346,7 @@ export default function Dashboard() {
                   data-aos-delay="200"
                 >
                   <div class="row">
-                    <div
+                    {/* <div
                       class="col-md-6 col-xl-3  !pl-[0px] !pr-[0px]"
                       data-aos="fade-up"
                       data-aos-delay="150"
@@ -219,7 +358,6 @@ export default function Dashboard() {
                         <div class="card-content flex-column justify-content-between  g-5">
                           <div class="d-flex !items-center gap-2 group-hover:!text-blue-600">
                             <div className="!flex justify-en w-full !items-center">
-                              {/* <MdOutlinePendingActions className="w-fit h-[30px]"/> */}
                               <img
                                 className="flex !rounded-none !w-[30px] !h-auto"
                                 src="/images/orders/unpaid.png"
@@ -244,251 +382,147 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div
-                      class="col-md-6 col-xl-3  !pl-[0px] !pr-[0px]"
-                      data-aos="fade-up"
-                      data-aos-delay="150"
-                    >
-                      <div
-                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
-                        onClick={() => navigate("/view-order/placed")}
-                      >
-                        <div class="card-content flex-column justify-content-between  g-5">
-                          <div class="d-flex items-center gap-2 group-hover:!text-blue-600">
-                            <div className="!flex justify-en w-full">
-                              {/* <FaBoxes className="w-fit h-[30px]"/> */}
-                              <img
-                                className="flex !rounded-none !w-[30px] !h-auto"
-                                src="/images/orders/placed.png"
-                                alt="placed"
-                              />
-                              <h3 className="group-hover:!text-blue-600 !m-0 !relative !font-bold">
+                    </div> */}
+                    <div class="col-lg-4">
+                      <div class="card shadow border-0 px-3 m-[10px]">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center db-cards">
+                            <div class="">
+                              <h3 class="mb-0 !font-bold text-muted text-[16px]">
                                 Order Placed
                               </h3>
+                              <h5 class="mb-0 mt-1! text-[16px]  !font-bold text-start text-muted">
+                                {userData?.client?.order_pending +
+                                  userData?.client?.order_placed}
+                              </h5>
                             </div>
-                            <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
-                                {userData?.client?.order_placed}
-                              </span>
-                            </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
-                              {new Date().toLocaleDateString("en-US", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </p>
+                            <img
+                              src="/images/orders/placed.png"
+                              alt="profile-pic"
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div
-                      class="col-md-6 col-xl-3   !pl-[0px] !pr-[0px]"
-                      data-aos="fade-up"
-                      data-aos-delay="150"
-                    >
-                      <div
-                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
-                        onClick={() => navigate("/view-order/confirmed")}
-                      >
-                        <div class="card-content flex-column justify-content-between g-5">
-                          <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="flex justify-star w-full">
-                              {/* <BsFillFileEarmarkCheckFill className="w-fit h-[30px]"/> */}
-                              <h3 className=" group-hover:!text-blue-600 !text-start !w-[85%] !m-0 !relative !font-bold">
+                    <div class="col-lg-4">
+                      <div class="card shadow border-0 px-3 m-[10px]">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center db-cards">
+                            <div class="">
+                              <h3 class="mb-0 !font-bold text-muted text-[16px]">
                                 Order Confirmed
                               </h3>
-                              <img
-                                className="flex !rounded-none !w-[30px] !h-auto"
-                                src="/images/orders/confirmed.png"
-                                alt="order_confirmed"
-                              />
-                            </div>
-
-                            <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
+                              <h5 class="mb-0 mt-1! text-[16px]  !font-bold text-start text-muted">
                                 {userData?.client?.order_confirmed}
-                              </span>
-                            </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
-                              {new Date().toLocaleDateString("en-US", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      class="col-md-6 col-xl-3   !pl-[0px] !pr-[0px]"
-                      data-aos="fade-up"
-                      data-aos-delay="150"
-                    >
-                      <div
-                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
-                        onClick={() => navigate("/view-order/dispatched")}
-                      >
-                        <div class="card-content flex-column justify-content-between g-5">
-                          <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="flex justify-en w-full">
-                              <div className="flex justify-en w-full">
-                                {/* <TbTruckDelivery className="w-fit h-[30px] "/> */}
-                                <img
-                                  src="/images/orders/dispatched.png"
-                                  alt="order-dispatched"
-                                  className="flex !rounded-none !w-[30px] !h-auto"
-                                />
-                                <h3 className="group-hover:!text-blue-600 !m-0 !relative !font-bold">
-                                  Order Dispatched
-                                </h3>
-                              </div>
+                              </h5>
                             </div>
-
-                            <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
-                                {userData?.client?.order_dispatched}
-                              </span>
-                            </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
-                              {new Date().toLocaleDateString("en-US", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </p>
+                            <img
+                              src="/images/orders/confirmed.png"
+                              alt="profile-pic"
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div class="row">
-                    <div
-                      class="col-md-6 col-xl-4   !pl-[0px] !pr-[0px]"
-                      data-aos="fade-up"
-                      data-aos-delay="150"
-                    >
-                      <div
-                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
-                        onClick={() => navigate("/view-order/delivered")}
-                      >
-                        <div class="card-content flex-column justify-content-between g-5">
-                          <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="flex w-full">
-                              {/* <FaBoxOpen className="w-fit h-[30px] flex justify-end"/> */}
-                              <h3 className="group-hover:!text-blue-600 !m-0 !text-left !relative !font-bold">
-                                Order Completed
+                    <div class="col-lg-4">
+                      <div class="card shadow border-0 px-3 m-[10px]">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center db-cards">
+                            <div class="">
+                              <h3 class="mb-0 !font-bold text-muted text-[16px]">
+                                Order Dispatched
                               </h3>
-
-                              <img
-                                className="flex !rounded-none !w-[30px] !h-auto"
-                                src="/images/orders/delivered.png"
-                                alt="order_delivered"
-                              />
+                              <h5 class="mb-0 mt-1! text-[16px]  !font-bold text-start text-muted">
+                                {userData?.client?.order_dispatched}
+                              </h5>
                             </div>
-
-                            <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
-                                {userData?.client?.order_completed}
-                              </span>
-                            </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
-                              {new Date().toLocaleDateString("en-US", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </p>
+                            <img
+                              src="images/orders/dispatched.png"
+                              alt="profile-pic"
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div
-                      class="col-md-6 col-xl-4   !pl-[0px] !pr-[0px]"
-                      data-aos="fade-up"
-                      data-aos-delay="150"
-                    >
-                      <div
-                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
-                        onClick={() => navigate("/view-order/cancelled")}
-                      >
-                        <div class="card-content flex-column justify-content-between g-5">
-                          <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="flex w-full">
-                              {/* <FaWindowClose className="w-fit h-[30px]"/> */}
-                              <img
-                                className="flex !rounded-none !w-[30px] !h-auto"
-                                src="/images/orders/cancelled.png"
-                                alt="order_cancelled"
-                              />
-                              <h3 className="group-hover:!text-blue-600 !m-0 !relative !font-bold">
+                    <div class="col-lg-4">
+                      <div class="card shadow border-0 px-3 m-[10px]">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center db-cards">
+                            <div class="">
+                              <h3 class="mb-0 !font-bold text-muted text-[16px]">
+                                Order Delivered
+                              </h3>
+                              <h5 class="mb-0 mt-1! text-[16px]  !font-bold text-start text-muted">
+                                {userData?.client?.order_completed}
+                              </h5>
+                            </div>
+                            <img
+                              src="/images/orders/delivered.png"
+                              alt="profile-pic"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                      <div class="card shadow border-0 px-3 m-[10px]">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center db-cards">
+                            <div class="">
+                              <h3 class="mb-0 !font-bold text-muted text-[16px]">
                                 Order Cancelled
                               </h3>
-                            </div>
-
-                            <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
+                              <h5 class="mb-0 mt-1! text-[16px]  !font-bold text-start text-muted">
                                 {userData?.client?.order_cancelled}
-                              </span>
-                            </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
-                              {new Date().toLocaleDateString("en-US", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </p>
+                              </h5>
+                            </div>
+                            <img
+                              src="/images/orders/cancelled.png"
+                              alt="profile-pic"
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div
-                      class="col-md-6 col-xl-4   !pl-[0px] !pr-[0px]"
-                      data-aos="fade-up"
-                      data-aos-delay="150"
-                    >
-                      <div
-                        class="card-rs mt-0 mb-5 group cursor-pointer !border hover:drop-shadow-lg hover:shadow-lg hover:border-blue-200"
-                        onClick={() => navigate("/view-order/returned")}
-                      >
-                        <div class="card-content flex-column justify-content-between g-5">
-                          <div class="d-flex align-items-center gap-2 group-hover:!text-blue-600">
-                            <div className="flex w-full">
-                              {/* <BsArrowLeftRight className="w-fit h-[30px]"/> */}
-                              <img
-                                className="flex !rounded-none !w-[30px] !h-auto"
-                                src="/images/orders/returned.png"
-                                alt="orders_returned"
-                              />
-                              <h3 className="group-hover:!text-blue-600 !m-0 !relative !font-bold">
+                    <div class="col-lg-4">
+                      <div class="card shadow border-0 px-3 m-[10px]">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-center db-cards">
+                            <div class="">
+                              <h3 class="mb-0 !font-bold text-muted text-[16px]">
                                 Order Returned
                               </h3>
+                              <h5 class="mb-0 mt-1! text-[16px]  !font-bold text-start text-muted">
+                                {userData?.client?.order_confirmed}
+                              </h5>
                             </div>
-
-                            <h4>
-                              <span className="group-hover:!text-blue-600 group-hover:!font-bold">
-                                {userData?.client?.order_returned}
-                              </span>
-                            </h4>
-                            <p className="group-hover:!text-blue-600 group-hover:!font-bold">
-                              {new Date().toLocaleDateString("en-US", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </p>
+                            <img
+                              src="/images/orders/returned.png"
+                              alt="profile-pic"
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
+
+                  <div className="row">
+                    <div className="col-12 col-xl-12 ">
+                      <h3 className="text-left text-xl !font-bold text-[#6d6d6d]">
+                        Your Orders:
+                      </h3>
+                      <div className="">
+                        <ViewOrdersDashboard ordType={"placed"} />
+                      </div>
+                    </div>
+                  </div>
+                  {/* payments */}
+                  <PaymentDetails/>
                 </div>
               </div>
             </div>

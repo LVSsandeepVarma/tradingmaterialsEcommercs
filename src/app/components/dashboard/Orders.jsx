@@ -1,15 +1,12 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
-import Header from "../../header/header";
-import Footer from "../../footer/footer";
-import "./viewOrder.css";
+
+import "../product/orders/viewOrder.css";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import {
-  hideLoader,
-  showLoader,
-} from "../../../../features/loader/loaderSlice";
+
 import { useTranslation } from "react-i18next";
 import {
   FaBoxesPacking,
@@ -18,14 +15,19 @@ import {
   FaFileInvoice,
   FaMagnifyingGlass,
   FaPeopleCarryBox,
+  FaRegCircleCheck,
+  FaRegCircleXmark,
   FaTruckFast,
 } from "react-icons/fa6";
 import CryptoJS from "crypto-js";
 
 import { RiSecurePaymentFill } from "react-icons/ri";
-import Dashboard from "../../commonDashboard/Dashboard";
+import Header from "../header/header";
+import Footer from "../footer/footer";
+import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
+// import Dashboard from "../../commonDashboard/Dashboard";
 
-export default function ViewOrders() {
+export default function ViewOrdersDashboard({ ordType}) {
   // const userData  =useSelector(state => state?.user?.value)
   // eslint-disable-next-line no-unused-vars
   const [orders, setOrders] = useState();
@@ -33,14 +35,18 @@ export default function ViewOrders() {
   const [orderDataTwo, setOrderDataTwo] = useState();
   const [orderId, setOrderId] = useState();
   const [activeOrder, setActiveOrder] = useState(0);
-  const [orderNumber, setOrderNumber] = useState();
+    const [orderNumber, setOrderNumber] = useState();
+    const [orderType, setOrderType] = useState("placed")
   const [showModal, setShowModal] = useState(false);
   const { t } = useTranslation();
   // eslint-disable-next-line no-unused-vars
   const [viewOrderDetails, setViewOrderDetails] = useState();
   const params = useParams();
   const dispatch = useDispatch();
-  // const loaderState = useSelector((state) => state?.loader?.value);
+    // const loaderState = useSelector((state) => state?.loader?.value);
+      useEffect(() => {
+        setOrderType(ordType);
+      }, []);
   useEffect(() => {
     const getOrderTwoDetails = async (type, dataCount) => {
       console.log("orderss", type);
@@ -91,7 +97,7 @@ export default function ViewOrders() {
       }
     };
 
-    // if (params?.order_type == "unpaid" || params?.order_type == "placed") {
+    // if (orderType == "unpaid" || orderType == "placed") {
 
     const getOrderDetails = async (type, dataCount, secondType) => {
       console.log("orderss", type);
@@ -149,19 +155,13 @@ export default function ViewOrders() {
       }
     };
 
-    if (params?.order_type == "unpaid" || params?.order_type == "placed") {
+    if (orderType == "unpaid" || orderType == "placed") {
       getOrderDetails("placed", "one", "unpaid");
-    } else if (
-      params?.order_type == "confirmed" ||
-      params?.order_type == "cancelled"
-    ) {
+    } else if (orderType == "confirmed" || orderType == "cancelled") {
       getOrderDetails("confirmed", "one", "cancelled");
-    } else if (
-      params?.order_type == "delivered" ||
-      params?.order_type == "returned"
-    ) {
+    } else if (orderType == "delivered" || orderType == "returned") {
       getOrderDetails("delivered", "one", "returned");
-    } else if (params?.order_type == "dispatched") {
+    } else if (orderType == "dispatched") {
       getOrderDetails("dispatched", "one", "");
     }
 
@@ -171,7 +171,7 @@ export default function ViewOrders() {
     //   try {
     //     dispatch(showLoader());
     //     const response = await axios.get(
-    //       `https://admin.tradingmaterials.com/api/client/get-orders?type=${params?.order_type}`,
+    //       `https://admin.tradingmaterials.com/api/client/get-orders?type=${orderType}`,
     //       {
     //         headers: {
     //           Authorization: "Bearer " + localStorage.getItem("client_token"),
@@ -191,7 +191,7 @@ export default function ViewOrders() {
     //   }
     // };
     // getOrderDetails();
-  }, []);
+  }, [orderType]);
 
   useEffect(() => {
     const viewOrderDetails = async () => {
@@ -222,14 +222,13 @@ export default function ViewOrders() {
   }, [orderId]);
   return (
     <>
-      <Header />
-      <main className="nk-pages drop-shadow-lg">
+      <main className="nk-pages drop-shadow-lg ">
         {/* {loaderState && (
         <div className="preloader !backdrop-blur-[1px] ">
           <div className="loader"></div>
         </div>
       )} */}
-        <Dashboard />
+        {/* <Dashboard /> */}
         <section className="nk-section ">
           <div className="container">
             <div className="row">
@@ -239,6 +238,9 @@ export default function ViewOrders() {
                   data-aos="fade-up"
                 >
                   <div className="timeline-step order-delivered">
+                    <span className="absolute left-[85%] text-sm">
+                      {orderNumber}
+                    </span>
                     <div
                       className="timeline-content"
                       data-toggle="popover"
@@ -250,30 +252,32 @@ export default function ViewOrders() {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          params?.order_type == "placed" ||
-                          params?.order_type == "unpaid"
+                          orderType == "placed" || orderType == "unpaid"
                             ? "border !border-blue-500 border-solid"
                             : ""
                         }`}
                         onClick={() => {
-                          window.location.href = "/view-order/placed";
+                          setOrderType("placed");
                         }}
                       >
-                        <img
+                        {/* <img
                           src="/images/orders/Order-placed.png"
                           className={`${
-                            params?.order_type == "placed" ||
-                            params?.order_type == "unpaid"
+                            orderType == "placed" || orderType == "unpaid"
                               ? "w-[30px] fa-beat-fade"
                               : "!w-[36px]"
                           }`}
                           width="50px"
                           alt="placed"
-                        />
-                        {/* <FaCartArrowDown
-                          className="fa-solid fa-cart-arrow-down text-[2em] "
-                          style={{ color: "#1581d2" }}
                         /> */}
+                        <FaCartArrowDown
+                          className={`fa-solid fa-cart-arrow-down text-[2em] ${
+                            orderType == "placed" || orderType == "unpaid"
+                              ? "text-[1.5em] fa-beat-fade"
+                              : ""
+                          } `}
+                          style={{ color: "#1581d2" }}
+                        />
                       </div>
                       {/* <!-- <p class="h6 mt-3 mb-1">2003</p> --> */}
                       <p className="h6 text-muted !font-bold mb-0 mb-lg-0 order-placed">
@@ -293,34 +297,46 @@ export default function ViewOrders() {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          params?.order_type == "confirmed" ||
-                          params?.order_type == "cancelled"
+                          orderType == "confirmed" || orderType == "cancelled"
                             ? "border !border-green-500 border-solid"
                             : ""
                         }`}
                         onClick={() => {
-                          window.location.href = "/view-order/confirmed";
+                          setOrderType("confirmed");
                         }}
                         // style={{ border: "1px solid #4CAF50" }}
                       >
-                        <img
+                        {/* <img
                           src="/images/orders/order-confirmed.png"
                           className={`${
-                            params?.order_type == "confirmed" ||
-                            params?.order_type == "cancelled"
+                            orderType == "confirmed" || orderType == "cancelled"
                               ? "w-[30px] fa-beat-fade"
                               : "!w-[36px]"
                           }`}
                           width="100px"
-                        />
-                        {/* <FaBoxesPacking
-                          className="fa-solid fa-boxes-packing text-[2em] fa-beat-fade"
-                          style={{ color: "#4caf50" }}
                         /> */}
+                        <FaBoxesPacking
+                          className={`fa-solid fa-boxes-packing text-[2em] ${
+                            orderType == "confirmed" || orderType == "cancelled"
+                              ? "text-[1.5em] fa-beat-fade"
+                              : ""
+                          } `}
+                          style={{ color: "#4caf50" }}
+                        />
                       </div>
                       {/* <!-- <p class="h6 mt-3 mb-1">2005</p> --> */}
                       <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-confirmed">
-                        Order Confirmed <br /> & Cancelled
+                        {/* Order Confirmed <br /> & Cancelled */}
+                        {orderType == "placed" || orderType == "unpaid" ? (
+                          <span>
+                            Waiting for <br />
+                            order confirmation
+                          </span>
+                        ) : (
+                          <span>
+                            Order Confirmed <br /> & Cancelled
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -336,31 +352,45 @@ export default function ViewOrders() {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          params?.order_type == "dispatched"
+                          orderType == "dispatched"
                             ? "border !border-[#ff9800] border-solid"
                             : ""
                         }`}
                         onClick={() => {
-                          window.location.href = "/view-order/dispatched";
+                          setOrderType("dispatched");
                         }}
                       >
-                        <img
+                        {/* <img
                           src="/images/orders/order-dispatched.png"
                           className={`${
-                            params?.order_type == "dispatched"
+                            orderType == "dispatched"
                               ? "w-[30px] fa-beat-fade"
                               : "!w-[36px]"
                           }`}
                           width="100px"
-                        />{" "}
-                        {/* <FaTruckFast
-                          className="fa-solid fa-truck-fast text-[2em]"
-                          style={{ color: "#ff9800" }}
                         /> */}
+                        <FaTruckFast
+                          className={`fa-solid fa-truck-fast text-[2em] ${
+                            orderType == "dispatched"
+                              ? "text-[1.5em] fa-beat-fade"
+                              : ""
+                          } `}
+                          style={{ color: "#ff9800" }}
+                        />
                       </div>
                       {/* <!-- <p class="h6 mt-3 mb-1">2010</p> --> */}
                       <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-dispatched">
-                        Order Dispatched
+                        {orderType == "confirmed" ? (
+                          <span>
+                            Waiting for <br /> Order Dispatch
+                          </span>
+                        ) : orderType == "cancelled" ? (
+                          <span>
+                            Waiting for <br /> Order Pickup
+                          </span>
+                        ) : (
+                          "Order Dispatch"
+                        )}
                       </p>
                     </div>
                   </div>
@@ -376,33 +406,45 @@ export default function ViewOrders() {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          params?.order_type == "delivered" ||
-                          params?.order_type == "returned"
+                          orderType == "delivered" || orderType == "returned"
                             ? "border !border-[#009688] border-solid"
                             : ""
                         }`}
                         onClick={() => {
-                          window.location.href = "/view-order/delivered";
+                          setOrderType("delivered");
                         }}
                       >
-                        <img
+                        {/* <img
                           src="/images/orders/order-delivered.png"
                           className={`${
-                            params?.order_type == "delivered" ||
-                            params?.order_type == "returned"
+                            orderType == "delivered" || orderType == "returned"
                               ? "w-[30px] fa-beat-fade"
                               : "!w-[36px]"
                           }`}
                           width="100px"
-                        />{" "}
-                        {/* <FaPeopleCarryBox
-                          className="fa-sharp fa-solid fa-people-carry-box text-[2em]"
-                          style={{ color: "#009688" }}
                         /> */}
+                        <FaPeopleCarryBox
+                          className={`fa-sharp fa-solid fa-people-carry-box text-[2em] ${
+                            orderType == "returned" || orderType == "delivered"
+                              ? "text-[1.5em] fa-beat-fade"
+                              : ""
+                          } `}
+                          style={{ color: "#009688" }}
+                        />
                       </div>
                       {/* <!-- <p class="h6 mt-3 mb-1">2020</p> --> */}
                       <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-delivered">
-                        Order Delivered <br /> & Returned
+                        {orderType == "dispatched" ? (
+                          <span>
+                            Waiting for <br /> Order delivery
+                          </span>
+                        ) : orderType == "cancelled" ? (
+                          <span>
+                            Waiting for <br /> Order to return
+                          </span>
+                        ) : (
+                          "Order delivery"
+                        )}
                       </p>
                     </div>
                   </div>
@@ -414,25 +456,22 @@ export default function ViewOrders() {
           <div className="container">
             <div className="row mt-1">
               <div className="col-lg-12">
-                <div className="card">
+                <div className="card ">
                   <div className="card-header px-3 py-1 d-flex items-center justify-between flex-wrap">
                     <div className=" flex items-center card-header px-3 py-1">
                       {/* <img
                         className="flex items-center !rounded-none !w-[30px] mr-2 !h-auto"
-                        src={`/images/orders/${params?.order_type}.png`}
+                        src={`/images/orders/${orderType}.png`}
                       /> */}
                       <h5 className="text-muted text-left capitalize text-xl !font-bold mb-0">
                         {" "}
-                        {params?.order_type == "placed" ||
-                        params?.order_type == "unpaid"
+                        {orderType == "placed" || orderType == "unpaid"
                           ? "Placed & Pending Orders"
-                          : params?.order_type == "confirmed" ||
-                            params?.order_type == "cancelled"
+                          : orderType == "confirmed" || orderType == "cancelled"
                           ? "Confirmed & Cancelled Orders"
-                          : params?.order_type == "delivered" ||
-                            params?.order_type == "returned"
+                          : orderType == "delivered" || orderType == "returned"
                           ? "Delivered & Returned Orders"
-                          : params?.order_type == "dispatched"
+                          : orderType == "dispatched"
                           ? "Dispatched Orders"
                           : ""}
                         {(orderDataOne?.length > 0 ||
@@ -462,16 +501,16 @@ export default function ViewOrders() {
                       </span>
                     </div>
                   </div>
-                  <div className="card-body">
-                    <div className="row">
-                      <div className="col-lg-12">
+                  <div className="card-body ">
+                    <div className="row max-h-[500px] overflow-y-auto">
+                      <div className="col-lg-12 ">
                         {orderDataOne?.length == 0 &&
                           orderDataTwo?.length == 0 && (
                             <>
                               <div className="">
                                 <div className="flex justify-center">
                                   <img
-                                    src={`/images/orders/large/${params?.order_type}.png`}
+                                    src={`/images/orders/large/${orderType}.png`}
                                     className="w-22 h-auto"
                                     alt="orders_large_icons"
                                     style={{ filter: "blur(3px)" }}
@@ -535,24 +574,30 @@ export default function ViewOrders() {
                                     </small>
                                   </div>
                                   <div>
-                                    <img
-                                      src={
-                                        params?.order_type == "placed" ||
-                                        params?.order_type == "unpaid"
-                                          ? "/images/orders/placed.png"
-                                          : params?.order_type == "confirmed" ||
-                                            params?.order_type == "cancelled"
-                                          ? "/images/orders/confirmed.png"
-                                          : params?.order_type == "delivered" ||
-                                            params?.order_type == "returned"
-                                          ? "/images/orders/delivered.png"
-                                          : params?.order_type == "dispatched"
-                                          ? "/images/orders/dispatched.png"
-                                          : ""
-                                      }
-                                      className="w-[20px]"
-                                      alt="placed"
-                                    />
+                                    {orderType != "confirmed" &&
+                                      orderType != "cancelled" && (
+                                        <img
+                                          src={
+                                            orderType == "placed"
+                                              ? "/images/orders/placed.png"
+                                              : orderType == "confirmed" ||
+                                                orderType == "cancelled"
+                                              ? "/images/orders/confirmed.png"
+                                              : orderType == "delivered" ||
+                                                orderType == "returned"
+                                              ? "/images/orders/delivered.png"
+                                              : orderType == "dispatched"
+                                              ? "/images/orders/dispatched.png"
+                                              : ""
+                                          }
+                                          className="w-[20px]"
+                                          alt="placed"
+                                        />
+                                      )}
+                                    {(orderType == "confirmed" ||
+                                      orderType == "cancelled") && (
+                                      <FaRegCircleCheck color="green" />
+                                    )}
                                   </div>
                                 </div>
                               </button>
@@ -594,24 +639,31 @@ export default function ViewOrders() {
                                     </small>
                                   </div>
                                   <div>
-                                    <img
-                                      src={
-                                        params?.order_type == "placed" ||
-                                        params?.order_type == "unpaid"
-                                          ? "/images/orders/unpaid.png"
-                                          : params?.order_type == "confirmed" ||
-                                            params?.order_type == "cancelled"
-                                          ? "/images/orders/cancelled.png"
-                                          : params?.order_type == "delivered" ||
-                                            params?.order_type == "returned"
-                                          ? "/images/orders/returned.png"
-                                          : params?.order_type == "dispatched"
-                                          ? "/images/orders/dispatched.png"
-                                          : ""
-                                      }
-                                      className="w-[20px]"
-                                      alt="placed"
-                                    />
+                                    {orderType != "confirmed" &&
+                                      orderType != "cancelled" && (
+                                        <img
+                                          src={
+                                            orderType == "placed"
+                                              ? "/images/orders/unpaid.png"
+                                              : orderType == "confirmed" ||
+                                                orderType == "cancelled"
+                                              ? "/images/orders/cancelled.png"
+                                              : orderType == "delivered" ||
+                                                orderType == "returned"
+                                              ? "/images/orders/returned.png"
+                                              : orderType == "dispatched"
+                                              ? "/images/orders/dispatched.png"
+                                              : ""
+                                          }
+                                          className="w-[20px]"
+                                          alt="placed"
+                                        />
+                                      )}
+
+                                    {orderType == "cancelled" ||
+                                      (orderType == "confirmed" && (
+                                        <FaRegCircleXmark color="red" />
+                                      ))}
                                   </div>
                                 </div>
                               </button>
@@ -645,9 +697,7 @@ export default function ViewOrders() {
                                             Home
                                           </span>
                                           <span>Orders</span>
-                                          <span>
-                                            Orders {params?.order_type}
-                                          </span>
+                                          <span>Orders {orderType}</span>
                                           <span>
                                             Order No:{" "}
                                             <b className="!text-blue-600">
@@ -665,28 +715,10 @@ export default function ViewOrders() {
                                               className="btn btn-light btn-sm shadow me-2 rounded custom-btn"
                                               name="button"
                                               onClick={() => {
-                                                // window.open(
-                                                //   `${viewOrderDetails?.invoice?.invoicefile?.invoice_pdf}`,
-                                                //   "_blank"
-                                                // );
-                                               window.open(
-                                                 `/view-invoice/${CryptoJS?.AES?.encrypt(
-                                                   `${orderId}`,
-                                                   "trading_materials_order"
-                                                 )
-                                                   ?.toString()
-                                                   .replace(/\//g, "_")
-                                                   .replace(
-                                                     /\+/g,
-                                                     "-"
-                                                   )}/${CryptoJS?.AES?.encrypt(
-                                                   `${viewOrderDetails?.invoice?.invoicefile?.invoice_pdf}`,
-                                                   "trading_materials_invoice_pdf"
-                                                 )
-                                                   ?.toString()
-                                                   .replace(/\//g, "_")
-                                                   .replace(/\+/g, "-")}`
-                                               );
+                                                window.open(
+                                                  `${viewOrderDetails?.invoice?.invoicefile?.invoice_pdf}`,
+                                                  "_blank"
+                                                );
                                               }}
                                             >
                                               <FaFileInvoice className="mr-1" />{" "}
@@ -698,7 +730,7 @@ export default function ViewOrders() {
                                               name="button"
                                               onClick={() => {
                                                 if (
-                                                  // params?.order_type == "unpaid"
+                                                  // orderType == "unpaid"
                                                   viewOrderDetails?.status == 0
                                                 ) {
                                                   window.open(
@@ -724,13 +756,12 @@ export default function ViewOrders() {
                                                 }
                                               }}
                                             >
-                                              {params?.order_type ==
-                                              "unpaid" ? (
+                                              {orderType == "unpaid" ? (
                                                 <RiSecurePaymentFill />
                                               ) : (
                                                 <FaCrosshairs className="mr-1" />
                                               )}
-                                              {params?.order_type == "unpaid" ||
+                                              {orderType == "unpaid" ||
                                               viewOrderDetails?.status == "0"
                                                 ? "Pay now"
                                                 : "Track order"}{" "}
@@ -757,7 +788,7 @@ export default function ViewOrders() {
                                               Order Status :{" "}
                                             </span>{" "}
                                             <span className="text-primary">
-                                              Order {params?.order_type}
+                                              Order {orderType}
                                             </span>
                                           </p>
                                         </div>
@@ -776,8 +807,7 @@ export default function ViewOrders() {
                                                     ?.sub_total
                                                 }
                                               </span>
-                                              {params?.order_type !=
-                                                "unpaid" && (
+                                              {orderType != "unpaid" && (
                                                 <span className="badge badge-light">
                                                   <a
                                                     onClick={() =>
@@ -1015,43 +1045,8 @@ export default function ViewOrders() {
             </div>
           </div>
         </section>
-        <section className="nk-section nk-cta-section nk-section-content-1">
-          <div className="container">
-            <div
-              className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
-              data-aos="fade-up"
-              data-aos-delay="100"
-            >
-              <div className="row g-gs align-items-center">
-                <div className="col-lg-8">
-                  <div className="media-group flex-column flex-lg-row align-items-center">
-                    <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
-                      <em className="icon ni ni-chat-fill"></em>
-                    </div>
-                    <div className="text-center text-lg-start">
-                      <h3 className="text-capitalize m-0 !text-3xl !font-bold">
-                        {t("Chat_With_Our_Support_Team")}
-                      </h3>
-                      <p className="fs-16 opacity-75 !text-lg mt-1">
-                        {t("chat_team_desc")}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`https://tradingmaterials.com/contact`}
-                    className="btn btn-white fw-semiBold"
-                  >
-                    {t("Contact_support")}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
-      <Footer />
+
       {/* <!--Paid modal -->								 */}
       <div
         id="popup1"

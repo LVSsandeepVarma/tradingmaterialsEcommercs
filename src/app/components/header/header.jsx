@@ -419,8 +419,8 @@ export default function Header() {
                           </li>
 
                           <li className="nk-nav-item">
-                          <a
-                            href="/view-order/placed"
+                            <a
+                              href="/view-order/placed"
                               className={`nk-nav-link  cursor-pointer ${
                                 location.pathname.includes("/view-order")
                                   ? "active"
@@ -582,7 +582,7 @@ export default function Header() {
 
                           <li className="nk-nav-item">
                             <a
-                              href={`https://tradingmaterials.com/tracking`}
+                              href={`/profile`}
                               className={`nk-nav-link ${
                                 location.pathname === "/track-order"
                                   ? "active"
@@ -591,9 +591,7 @@ export default function Header() {
                               target="_blank"
                               rel="noreferrer"
                             >
-                              <span className="nk-nav-text">
-                                Order Tracking
-                              </span>
+                              <span className="nk-nav-text">Profile</span>
                             </a>
                           </li>
                           <li className="nk-nav-item">
@@ -606,6 +604,30 @@ export default function Header() {
                               }`}
                             >
                               <span className="nk-nav-text">Payments</span>
+                            </a>
+                          </li>
+                          <li className="nk-nav-item">
+                            <a
+                              href={`${userLang}/invoices`}
+                              className={`nk-nav-link ${
+                                location.pathname === "/invoices"
+                                  ? "active"
+                                  : ""
+                              }`}
+                            >
+                              <span className="nk-nav-text">Invoices</span>
+                            </a>
+                          </li>
+                          <li className="nk-nav-item">
+                            <a
+                              href={`${userLang}/logs`}
+                              className={`nk-nav-link ${
+                                location.pathname === "/logs"
+                                  ? "active"
+                                  : ""
+                              }`}
+                            >
+                              <span className="nk-nav-text">Logs</span>
                             </a>
                           </li>
 

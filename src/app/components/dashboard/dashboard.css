@@ -21,3 +21,116 @@
   font-size: 22px;
   color: #757575;
 }
+
+.nav-pills .nav-link{
+         text-align: left;
+         border-radius: 1px;
+         font-size: 15px;
+         font-weight: 600;
+         padding: 5px 10px;
+         border: 1px solid #e9e9e9;
+         margin: 0.25rem;
+         color: #636161;
+         }
+         small{
+         color: gray;
+         }
+         .nav-pills .nav-link.active, .nav-pills .show>.nav-link{
+         color: #2b5cfd;
+         background-color: #d9e2ff;
+         }
+         .custom-btn{
+         font-size: 13px;
+         font-weight: 400;
+         }
+         .bd-breadcrumb span{
+         font-size: 12px;
+         }
+         .order-date{
+         font-size: 13px;
+         }
+         .text-right {
+         text-align: right;
+         }
+         .badge-light{
+         color: #424242;
+         font-weight: 200;
+         font-size: 12px;
+         border: 1px solid #b6b6b6;
+         border-radius: 20px;
+         padding: 5px 10px;
+         }
+         .products-row {
+         padding: 10px;
+         box-shadow: 0 0.1rem 0.25rem 0 rgba(0,0,0,.15) !important;
+         }
+         .product-title {
+         color: #424242;
+         }
+         @media only screen and (max-width: 600px) {
+         .addresses div {
+         text-align: left;
+         }
+         }
+         /* CSS Start */
+         .db-cards img {
+         width: 30px;
+         }
+         .db-cards h3 {
+         font-size: 16px;
+         }
+         .card {
+         /* background: linear-gradient(45deg, #e0f0f7, transparent); */
+         background: #fff;
+         }
+         .left-side-bar{
+         height: auto;
+         }
+         .card-success .card-header{
+           background: linear-gradient(45deg, #009688, #16312e);
+         }
+         .card-success .card-header h6 {
+              font-size: 16px;
+              font-weight: 600;
+          }
+          .card-success .card-body {
+               font-size: 14px;
+           }
+           .accordion-item .accordion-button {
+             background: linear-gradient(45deg, #f9f9f9, #eeeeee);
+             color: #787878;
+             line-height: 3 !important;
+          }
+          .accordion-success:not(.collapsed){
+            background: linear-gradient(45deg, #009688, #75bfb7);
+            color: #fff;
+           line-height: 3 !important;
+            font-size: 14px;
+            font-weight: 600;
+          }
+          .accordion-failed:not(.collapsed){
+            background: linear-gradient(45deg, #dc0e0e, #a22222);
+            color: #fff;
+            line-height: 3 !important;
+            font-size: 14px;
+            font-weight: 600;
+          }
+          .accordion-pending:not(.collapsed){
+            background: linear-gradient(45deg, #FF9800, #FFC107);
+            color: #fff;
+            line-height: 3 !important;
+            font-size: 14px;
+            font-weight: 600;
+          }
+          .accordion-item {
+              margin-bottom: 0.75rem;
+          }
+          .accordion-button:not(.collapsed)::after{
+            background-image: none!important;
+          }
+          .accordion-body {
+              font-size: 14px;
+          }
+          .nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link {
+            border-color: #e8e8e8!important;
+          }
