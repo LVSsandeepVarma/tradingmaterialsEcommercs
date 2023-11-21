@@ -372,7 +372,7 @@ export default function SideBar() {
                     }}
                   >
                     <p
-                      className="font-bold !text-left w-full ml-3 p-3 flex justify-center  cursor-pointer"
+                      className="font-bold !text-left w-full ml-3 p-3 flex justify-center  "
                       style={{
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -381,39 +381,42 @@ export default function SideBar() {
                       }}
                     >
                       <div className="    justify-center !w-fit !h-auto  relative group">
-                        <label htmlFor="upload-button">
-                        <div className="edit-icon  text-center z-10 !cursor-pointer left-1/2 -translate-x-1/2 hidden group-hover:block justify-center w-full overflow-clip absolute top-[112px] h-14 bg-[rgba(255,255,255,0.5)]  !shadow-none">
-                          <EditIcon className="mx-auto" />
-                        </div>
+                        <label htmlFor="upload-button ">
+                          <div className="edit-icon  text-center z-10 !cursor-pointer left-1/2 -translate-x-1/2 hidden group-hover:block justify-center w-full overflow-clip absolute top-[112px] h-14 bg-[rgba(255,255,255,0.5)]  !shadow-none">
+                            <EditIcon className="mx-auto" />
+                          </div>
 
-                        <Tooltip title="upload profile" placement="bottom-end">
-                          {userData?.client?.profile?.profile_image?.length >
-                          0 ? (
-                            <>
-                              <Avatar
-                                alt="user profile"
-                                src={userData?.client?.profile?.profile_image}
-                                sx={{ width: "140px", height: "140px" }}
-                                className=""
-                              ></Avatar>
-                            </>
-                          ) : (
-                            <>
-                              <Avatar
-                                alt="user profile"
-                                src="/images/blueProfile.webp"
-                                sx={{ width: "50%", height: "100%" }}
-                                className=""
-                              ></Avatar>
-                            </>
-                          )}
-                        </Tooltip>
+                          <Tooltip
+                            title="upload profile"
+                            placement="bottom-end"
+                          >
+                            {userData?.client?.profile?.profile_image?.length >
+                            0 ? (
+                              <>
+                                <Avatar
+                                  alt="user profile"
+                                  src={userData?.client?.profile?.profile_image}
+                                  sx={{ width: "140px", height: "140px" }}
+                                  className=""
+                                ></Avatar>
+                              </>
+                            ) : (
+                              <>
+                                <Avatar
+                                  alt="user profile"
+                                  src="/images/blueProfile.webp"
+                                  sx={{ width: "50%", height: "100%" }}
+                                  className=""
+                                ></Avatar>
+                              </>
+                            )}
+                          </Tooltip>
                         </label>
                         <input
                           type="file"
                           id="upload-button"
                           onChange={handleImageUpload}
-                          className="opacity-0 visibility-0 absolute w-full h-full z-50"
+                          className="opacity-0 visibility-0 absolute w-full h-full z-50 right-0 cursor-pointer"
                         />
                         {profileUploadErr && (
                           <p className="text-red-600">{profileUploadErr}</p>

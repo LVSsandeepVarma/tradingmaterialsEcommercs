@@ -9,13 +9,13 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import { FaDownload, FaEye } from "react-icons/fa6";
 export default function InvoiceList() {
-  const [viewOrderDetails, setViewOrderDetails] = useState();
-  const [orderData, setOrderData] = useState()
+  const [viewInvoiceDetails, setViewInvoiceDetails] = useState();
+  const [invoiceData, setInvoiceData] = useState()
   const dispatch = useDispatch();
   const loaderState = useSelector((state) => state?.loader?.value);
 
   useEffect(() => {
-    const viewOrderDetails = async () => {
+    const viewInvoiceDetails = async () => {
       try {
         dispatch(showLoader());
           const response = await axios.get(
@@ -28,8 +28,8 @@ export default function InvoiceList() {
           );
 
           if (response?.data?.status) {
-            setViewOrderDetails(response?.data?.data?.invoices);
-            setOrderData(response?.data?.data?.invoices)
+            setViewInvoiceDetails(response?.data?.data?.invoices);
+            setInvoiceData(response?.data?.data?.invoices)
           }
         
       } catch (err) {
@@ -39,17 +39,17 @@ export default function InvoiceList() {
       }
     };
 
-    viewOrderDetails();
+    viewInvoiceDetails();
   }, []);
 
   function handleSearch(value)
   {
     if (value == "") {
-      setOrderData(viewOrderDetails)
+      setInvoiceData(viewInvoiceDetails)
     } else {
-      const filteredData = viewOrderDetails?.filter((invoice) => String(invoice?.number)?.startsWith(value))
+      const filteredData = viewInvoiceDetails?.filter((invoice) => String(invoice?.number)?.startsWith(value))
       console.log(filteredData, value, "texxxt")
-      setOrderData([...filteredData])
+      setInvoiceData([...filteredData])
     }
   }
 
@@ -74,7 +74,7 @@ export default function InvoiceList() {
                       <div className="card-header px-3 py-1 d-flex align-items-center justify-content-between flex-wrap">
                         <div className="d-flex align-items-center">
                           <h5 className="text-muted mb-0">Invoices</h5>
-                          <span className="badge badge-custom ms-2">4</span>
+                          <span className="badge badge-custom ms-2">{ invoiceData?.length}</span>
                         </div>
                         <div
                           className="input-group mb-0"
@@ -170,8 +170,8 @@ export default function InvoiceList() {
                                 </tr>
                               </thead>
                               <tbody className="">
-                                {orderData?.length > 0 &&
-                                  orderData?.map((invoice, ind) => (
+                                {invoiceData?.length > 0 &&
+                                  invoiceData?.map((invoice, ind) => (
                                     <tr
                                       className="invoice_list border-b"
                                       key={ind}
@@ -223,7 +223,7 @@ export default function InvoiceList() {
                                           className="cursor-pointer"
                                           onClick={() => {
                                             // window.open(
-                                            //   `${viewOrderDetails?.invoice?.invoicefile?.invoice_pdf}`,
+                                            //   `${viewInvoiceDetails?.invoice?.invoicefile?.invoice_pdf}`,
                                             //   "_blank"
                                             // );
                                             window.open(
@@ -260,7 +260,7 @@ export default function InvoiceList() {
                                   ))}
                               </tbody>
                             </table>
-                            {!orderData?.length && (
+                            {!invoiceData?.length && (
                               <p className="text-center w-full">
                                 Invoices Not found
                               </p>

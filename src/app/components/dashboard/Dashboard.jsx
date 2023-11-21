@@ -375,7 +375,7 @@ export default function Dashboard() {
                       <h4>
                         IP Address: <span>{userIp}</span>
                       </h4>
-                      <hr className="mt-[1rem] mb-[1rem]" />
+                      <Divider className="mt-[1rem] mb-[1rem]" />
                     </div>
                     <div className="activitys !max-h-[80%]">
                       <h3 className="!font-bold flex items-center">
@@ -431,6 +431,7 @@ export default function Dashboard() {
                           </div>
                         </>
                       )}
+                      <Divider className="my-2"/>
                       <h3 className="!font-bold flex items-center">
                         <IoLocationOutline className="mr-1" />
                         Secondary Address
@@ -470,7 +471,7 @@ export default function Dashboard() {
                                   <p className="flex items-center">
                                     {address?.country},{address?.zip}
                                   </p>
-                                  <Divider className="my-2" />
+                                  {userData?.client?.address?.length != ind+1 && <Divider  className="my-2" />}
                                 </div>
                               </div>
                             ))}
@@ -496,6 +497,7 @@ export default function Dashboard() {
                           </div>
                         </>
                       )}
+                      <Divider className="my-2"/>
                     </div>
                     {/* <div class="activitys">
                     <h3>Activity</h3>

@@ -452,13 +452,13 @@ export default function ViewOrdersDashboard({ ordType}) {
               </div>
             </div>
           </div>
-          <div className="nk-mask blur-1 left center"></div>
+          <div className="nk-mask left center"></div>
           <div className="container">
             <div className="row mt-1">
-              <div className="col-lg-12">
+              <div className="col-lg-12 px-0">
                 <div className="card ">
                   <div className="card-header px-3 py-1 d-flex items-center justify-between flex-wrap">
-                    <div className=" flex items-center card-header px-3 py-1">
+                    <div className=" flex items-center card-header px-3 py-1 bg-transparent border-none">
                       {/* <img
                         className="flex items-center !rounded-none !w-[30px] mr-2 !h-auto"
                         src={`/images/orders/${orderType}.png`}
@@ -502,7 +502,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                     </div>
                   </div>
                   <div className="card-body ">
-                    <div className="row max-h-[500px] overflow-y-auto">
+                    <div className="row ">
                       <div className="col-lg-12 ">
                         {orderDataOne?.length == 0 &&
                           orderDataTwo?.length == 0 && (
@@ -528,11 +528,11 @@ export default function ViewOrdersDashboard({ ordType}) {
                             </>
                           )}
                       </div>
-                      <div className="col-lg-3">
+                      <div className="col-lg-3 mr-0 pr-0 orders-scrollbar max-h-[500px] overflow-y-auto">
                         {(orderDataOne?.length > 0 ||
                           orderDataTwo?.length > 0) && (
                           <div
-                            className="nav flex-column nav-pills me-3"
+                            className="nav flex-column nav-pills "
                             id="v-pills-tab"
                             role="tablist"
                             aria-orientation="vertical"
@@ -880,7 +880,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                                           {viewOrderDetails?.items?.map(
                                             (order, ind) => (
                                               <div
-                                                className="products-row d-flex align-items-center justify-content-between flex-wrap mt-2"
+                                                className="products-row d-flex align-items-center justify-content-between  mt-2"
                                                 key={ind}
                                               >
                                                 <img
@@ -921,7 +921,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                                                     </span>
                                                   </p>
                                                 </div>
-                                                <h6 className="!font-bold text-lg">
+                                                <h6 className="!font-bold text-lg text-right">
                                                   <small>
                                                     {viewOrderDetails?.currency ===
                                                     "INR"

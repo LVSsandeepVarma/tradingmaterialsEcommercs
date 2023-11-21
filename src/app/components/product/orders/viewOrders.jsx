@@ -416,7 +416,7 @@ export default function ViewOrders() {
               <div className="col-lg-12">
                 <div className="card">
                   <div className="card-header px-3 py-1 d-flex items-center justify-between flex-wrap">
-                    <div className=" flex items-center card-header px-3 py-1">
+                    <div className=" flex items-center card-header px-3 py-1 bg-transparent border-none">
                       {/* <img
                         className="flex items-center !rounded-none !w-[30px] mr-2 !h-auto"
                         src={`/images/orders/${params?.order_type}.png`}
@@ -463,7 +463,7 @@ export default function ViewOrders() {
                     </div>
                   </div>
                   <div className="card-body ">
-                    <div className="row max-h-[500px] overflow-y-auto">
+                    <div className="row ">
                       <div className="col-lg-12">
                         {orderDataOne?.length == 0 &&
                           orderDataTwo?.length == 0 && (
@@ -489,11 +489,11 @@ export default function ViewOrders() {
                             </>
                           )}
                       </div>
-                      <div className="col-lg-3">
+                      <div className="col-lg-3 mr-0 pr-0 orders-scrollbar max-h-[500px] overflow-y-auto">
                         {(orderDataOne?.length > 0 ||
                           orderDataTwo?.length > 0) && (
                           <div
-                            className="nav flex-column nav-pills me-3"
+                            className="nav flex-column nav-pills "
                             id="v-pills-tab"
                             role="tablist"
                             aria-orientation="vertical"
