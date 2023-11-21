@@ -580,7 +580,7 @@ export default function Header() {
                             </ul> */}
                           </li>
 
-                          <li className="nk-nav-item">
+                          {isLoggedIn && <li className="nk-nav-item">
                             <a
                               href={`/profile`}
                               className={`nk-nav-link ${
@@ -593,8 +593,8 @@ export default function Header() {
                             >
                               <span className="nk-nav-text">Profile</span>
                             </a>
-                          </li>
-                          <li className="nk-nav-item">
+                          </li>}
+                          {/* <li className="nk-nav-item">
                             <a
                               href={`${userLang}/payments`}
                               className={`nk-nav-link ${
@@ -605,7 +605,7 @@ export default function Header() {
                             >
                               <span className="nk-nav-text">Payments</span>
                             </a>
-                          </li>
+                          </li> */}
                           <li className="nk-nav-item">
                             <a
                               href={`${userLang}/invoices`}

@@ -7,7 +7,7 @@
 }
 .invoice-box {
   background: #ffffff;
-  /*max-width: 900px;*/
+  max-width: 1000px;
   margin: 60px auto;
   padding: 30px;
   /* border: 1px solid #002336; */
@@ -99,7 +99,7 @@ table.table {
   padding: 0.25em;
 }
 
-button:hover {
+.inv-button:hover {
   box-shadow: 0 0 4px rgba(3, 3, 3, 0.8);
   opacity: 0.9;
 }

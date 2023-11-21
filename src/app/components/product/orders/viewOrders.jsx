@@ -462,8 +462,8 @@ export default function ViewOrders() {
                       </span>
                     </div>
                   </div>
-                  <div className="card-body">
-                    <div className="row">
+                  <div className="card-body ">
+                    <div className="row max-h-[500px] overflow-y-auto">
                       <div className="col-lg-12">
                         {orderDataOne?.length == 0 &&
                           orderDataTwo?.length == 0 && (
@@ -669,24 +669,24 @@ export default function ViewOrders() {
                                                 //   `${viewOrderDetails?.invoice?.invoicefile?.invoice_pdf}`,
                                                 //   "_blank"
                                                 // );
-                                               window.open(
-                                                 `/view-invoice/${CryptoJS?.AES?.encrypt(
-                                                   `${orderId}`,
-                                                   "trading_materials_order"
-                                                 )
-                                                   ?.toString()
-                                                   .replace(/\//g, "_")
-                                                   .replace(
-                                                     /\+/g,
-                                                     "-"
-                                                   )}/${CryptoJS?.AES?.encrypt(
-                                                   `${viewOrderDetails?.invoice?.invoicefile?.invoice_pdf}`,
-                                                   "trading_materials_invoice_pdf"
-                                                 )
-                                                   ?.toString()
-                                                   .replace(/\//g, "_")
-                                                   .replace(/\+/g, "-")}`
-                                               );
+                                                window.open(
+                                                  `/view-invoice/${CryptoJS?.AES?.encrypt(
+                                                    `${orderId}`,
+                                                    "trading_materials_order"
+                                                  )
+                                                    ?.toString()
+                                                    .replace(/\//g, "_")
+                                                    .replace(
+                                                      /\+/g,
+                                                      "-"
+                                                    )}/${CryptoJS?.AES?.encrypt(
+                                                    `${viewOrderDetails?.invoice?.invoicefile?.invoice_pdf}`,
+                                                    "trading_materials_invoice_pdf"
+                                                  )
+                                                    ?.toString()
+                                                    .replace(/\//g, "_")
+                                                    .replace(/\+/g, "-")}`
+                                                );
                                               }}
                                             >
                                               <FaFileInvoice className="mr-1" />{" "}

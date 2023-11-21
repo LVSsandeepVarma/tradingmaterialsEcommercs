@@ -78,6 +78,10 @@ export default function ProductsDisplay() {
   }, [userLang]);
 
   useEffect(() => {
+    setCurrentUserLang(localStorage.getItem("i18nextLng"));
+  }, [userLang]);
+
+  useEffect(() => {
     const hash = location.hash;
     if (hash) {
       const element = document.querySelector(hash);

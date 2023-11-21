@@ -6,6 +6,7 @@ import "./viewInvoice.css";
 import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import axios from "axios";
+import CryptoJS from "crypto-js";
 import { FaDownload, FaEye } from "react-icons/fa6";
 export default function InvoiceList() {
   const [viewOrderDetails, setViewOrderDetails] = useState();
@@ -18,7 +19,7 @@ export default function InvoiceList() {
       try {
         dispatch(showLoader());
           const response = await axios.get(
-            `https://admin.tradingmaterials.com/api/client/get-orders?type=${"placed"}`,
+            `https://admin.tradingmaterials.com/api/client/get-invoices`,
             {
               headers: {
                 Authorization: "Bearer " + localStorage.getItem("client_token"),
@@ -27,8 +28,8 @@ export default function InvoiceList() {
           );
 
           if (response?.data?.status) {
-            setViewOrderDetails(response?.data?.data);
-            setOrderData(response?.data?.data?.orders)
+            setViewOrderDetails(response?.data?.data?.invoices);
+            setOrderData(response?.data?.data?.invoices)
           }
         
       } catch (err) {
@@ -44,9 +45,9 @@ export default function InvoiceList() {
   function handleSearch(value)
   {
     if (value == "") {
-      setOrderData(viewOrderDetails?.orders)
+      setOrderData(viewOrderDetails)
     } else {
-      const filteredData = viewOrderDetails?.orders?.filter((order) => order?.email?.includes(value))
+      const filteredData = viewOrderDetails?.filter((invoice) => String(invoice?.number)?.startsWith(value))
       console.log(filteredData, value, "texxxt")
       setOrderData([...filteredData])
     }
@@ -81,7 +82,7 @@ export default function InvoiceList() {
                         >
                           <input
                             type="text"
-                            className="form-control px-2 py-1"
+                            className="form-control px-2 py-1 my-2 sm:my-0"
                             placeholder="Search Orders..."
                             aria-label="Recipient's username"
                             aria-describedby="basic-addon2"
@@ -97,10 +98,10 @@ export default function InvoiceList() {
                           </span>
                         </div>
                       </div>
-                      <div className="card-body">
+                      <div className="card-body ">
                         <div className="row">
-                          <div className="col-lg-12">
-                            <table className="table table-responsive w-full">
+                          <div className="col-lg-12 !max-h-[60vh] overflow-y-auto">
+                            <table className="table table-responsive w-full ">
                               <thead>
                                 <tr>
                                   <th
@@ -110,7 +111,7 @@ export default function InvoiceList() {
                                       color: "grey!important",
                                     }}
                                   >
-                                    Order No
+                                    Invoice No
                                   </th>
                                   <th
                                     style={{
@@ -119,7 +120,7 @@ export default function InvoiceList() {
                                       color: "grey!important",
                                     }}
                                   >
-                                    Email
+                                    Order Id
                                   </th>
                                   {/* <th
                                     style={{
@@ -155,7 +156,7 @@ export default function InvoiceList() {
                                       color: "grey!important",
                                     }}
                                   >
-                                    Status
+                                    banance
                                   </th>
                                   <th
                                     style={{
@@ -168,9 +169,9 @@ export default function InvoiceList() {
                                   </th>
                                 </tr>
                               </thead>
-                              <tbody>
+                              <tbody className="">
                                 {orderData?.length > 0 &&
-                                  orderData?.map((order, ind) => (
+                                  orderData?.map((invoice, ind) => (
                                     <tr
                                       className="invoice_list border-b"
                                       key={ind}
@@ -179,13 +180,13 @@ export default function InvoiceList() {
                                         style={{ padding: "10px" }}
                                         className="text-primary border-none"
                                       >
-                                        #{order?.order_number}
+                                        { invoice?.prefix}{invoice?.number}
                                       </td>
                                       <td
                                         className="border-none"
                                         style={{ padding: "10px" }}
                                       >
-                                        {order?.email}
+                                        {invoice?.order_id}
                                       </td>
                                       {/* <td style={{ padding: "10px" }}>
                                       Trading Material
@@ -195,31 +196,65 @@ export default function InvoiceList() {
                                         style={{ padding: "10px" }}
                                       >
                                         <span className="badge bg-warning">
-                                          ₹{order?.sub_total}
+                                          ₹{invoice?.sub_total}
                                         </span>
                                       </td>
                                       <td
                                         className="border-none"
                                         style={{ padding: "10px" }}
                                       >
-                                        {new Date(
-                                          order?.created_at
-                                        ).toLocaleDateString()}
+                                        {
+                                          invoice?.date_added
+                                        }
                                       </td>
                                       <td
                                         className="border-none"
                                         style={{ padding: "10px" }}
                                       >
                                         <span className="badge bg-success">
-                                          {viewOrderDetails?.type}
+                                          {invoice?.balance}
                                         </span>{" "}
                                       </td>
                                       <td
-                                        className="flex justify-center gap-2 items-center border-none"
+                                        className="flex justify-start gap-2 items-center border-none"
                                         style={{ padding: "10px" }}
                                       >
-                                        <FaEye />
-                                        <FaDownload />
+                                        <FaEye
+                                          className="cursor-pointer"
+                                          onClick={() => {
+                                            // window.open(
+                                            //   `${viewOrderDetails?.invoice?.invoicefile?.invoice_pdf}`,
+                                            //   "_blank"
+                                            // );
+                                            window.open(
+                                              `/view-invoice/${CryptoJS?.AES?.encrypt(
+                                                `${invoice?.order_id}`,
+                                                "trading_materials_order"
+                                              )
+                                                ?.toString()
+                                                .replace(/\//g, "_")
+                                                .replace(
+                                                  /\+/g,
+                                                  "-"
+                                                )}/${CryptoJS?.AES?.encrypt(
+                                                `${invoice?.invoice_pdf}`,
+                                                "trading_materials_invoice_pdf"
+                                              )
+                                                ?.toString()
+                                                .replace(/\//g, "_")
+                                                .replace(/\+/g, "-")}`
+                                            );
+                                          }}
+                                        />
+                                        <FaDownload
+                                          className="cursor-pointer"
+                                          onClick={() => {
+                                            window.open(
+                                              `${invoice?.invoice_pdf}`,
+                                              "_blank"
+                                            );
+                                          }}
+                                        />
                                       </td>
                                     </tr>
                                   ))}

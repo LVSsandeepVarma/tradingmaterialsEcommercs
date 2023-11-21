@@ -8,6 +8,8 @@ import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import axios from "axios";
+import {  Divider } from "@mui/material";
+import { FaDownload } from "react-icons/fa6";
 export default function ViewInvoice() {
     const params = useParams()
     const [viewOrderDetails, setViewOrderDetails] = useState();
@@ -62,10 +64,24 @@ export default function ViewInvoice() {
                   WATERMARK
                 </span>
               </div>
+              <div></div>
               <div className="invoice-box">
                 <div className="container">
+                  <div className="flex justify-end">
+                    <button
+                      className="bg-light p-2 rounded flex items-center inv-button"
+                      onClick={() => {
+                        window.open(
+                          `${viewOrderDetails?.invoice?.invoicefile?.invoice_pdf}`,
+                          "_blank"
+                        );
+                      }}
+                    >
+                      Download <FaDownload className="ml-2" />
+                    </button>
+                  </div>
                   <div className="row">
-                    <table className="table">
+                    <table className="table mb-0">
                       <tr
                         className="item"
                         style={{ background: "transparent", border: "none" }}
@@ -114,11 +130,18 @@ export default function ViewInvoice() {
                             {/* <!-- <p style="color:red;font-family: 'Lato', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;border: 1px solid red;width: fit-content;text-align: right;float: right;padding: 0 5px;border-radius: 5px;font-size: 14px;">UNPAID</p> --> */}
 
                             <p
+                              className={`border ${
+                                viewOrderDetails?.amount_paid == 0
+                                  ? "text-red-600 !border-red-600"
+                                  : viewOrderDetails?.balance == 0
+                                  ? "text-green-600 !border-green-600"
+                                  : "text-orange-600  !border-orange-600"
+                              }  `}
                               style={{
-                                color: "green",
+                                // color: "green",
                                 fontFamily:
                                   "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                                border: "1px solid green",
+                                // border: "1px solid green",
                                 width: "fit-content",
                                 textAlign: "right",
                                 float: "right",
@@ -127,49 +150,25 @@ export default function ViewInvoice() {
                                 fontSize: "14px",
                               }}
                             >
-                              PAID
+                              {viewOrderDetails?.amount_paid == 0
+                                ? "Unpaid"
+                                : viewOrderDetails?.balance == 0
+                                ? "Paid"
+                                : "Partially paid"}
                             </p>
                           </div>
                         </td>
                       </tr>
                     </table>
+                    <Divider />
                   </div>
 
                   <div className="row ">
-                    <table className="table">
-                      <tr
-                        className="item"
-                        style={{ background: "transparent", border: "none" }}
+                    <div className=" !px-0 !w-[100%] !max-w-[100%]">
+                      <table
+                        className="table my-0"
+                        style={{ marginTop: "0px" }}
                       >
-                        <td
-                          style={{
-                            fontFamily:
-                              "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#333447",
-                            lineHeight: "1.5",
-                          }}
-                        >
-                          {/* <!--<div className="equalHW eq nomargin-nopadding title" style="margin-left: 10px;margin-right: 10px;font-weight: bold;border-bottom: 1px solid #8B8B8B;">-->
-                <!--  From-->
-                <!--</div>--> */}
-                        </td>
-                        <td
-                          style={{
-                            fontFamily:
-                              "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#333447",
-                            lineHeight: "1.5",
-                            textAlign: "right",
-                          }}
-                        >
-                          {/* <!--<div className="equalHW eq nomargin-nopadding title" style="margin-left: 10px;margin-right: 10px;font-weight: bold;border-bottom: 1px solid #8B8B8B;">-->
-                <!--  To-->
-                <!--</div>--> */}
-                        </td>
-                      </tr>
-                    </table>
-                    <div className="row !pr-0 !w-[101%] !max-w-[103%]">
-                      <table className="table" style={{ marginTop: "5px" }}>
                         <tr
                           className="item"
                           style={{ background: "transparent", border: "none" }}
@@ -268,6 +267,7 @@ export default function ViewInvoice() {
                               color: "#333447",
                               lineHeight: "1.5",
                               textAlign: "right",
+                              verticalAlign: "top",
                             }}
                           >
                             <div className="equalHW eq infoblock info-block border-none">
@@ -337,7 +337,7 @@ export default function ViewInvoice() {
                         </tr>
                       </table>
                     </div>
-                    <table className="table ">
+                    <table className="table mt-0 responsive">
                       <tr
                         className="titles border-none"
                         style={{
@@ -394,6 +394,7 @@ export default function ViewInvoice() {
                               "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
                             color: "#fff",
                             lineHeight: "1.5",
+                            width: "160px",
                           }}
                         >
                           Tax
@@ -404,6 +405,7 @@ export default function ViewInvoice() {
                               "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
                             color: "#fff",
                             lineHeight: "1.5",
+                            width: "70px",
                           }}
                         >
                           Amount
@@ -412,7 +414,7 @@ export default function ViewInvoice() {
                       {viewOrderDetails?.items?.map((item, ind) => (
                         <tr
                           key={ind}
-                          className="item border-none"
+                          className="item border-none "
                           style={{
                             fontFamily:
                               "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
@@ -422,6 +424,7 @@ export default function ViewInvoice() {
                           }}
                         >
                           <td
+                            className="!py-[10px]"
                             style={{
                               fontFamily:
                                 "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
@@ -491,9 +494,136 @@ export default function ViewInvoice() {
                           </td>
                         </tr>
                       ))}
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td className="text-right border-0">
+                          <span
+                            style={{
+                              display: "inline-block",
+                              fontFamily:
+                                "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                              color: "#333447",
+                              lineHeight: "1",
+                            }}
+                            className="border-none py-0"
+                          >
+                            <strong>Subtotal:</strong>
+                          </span>
+                        </td>
+                        <td className="text-right border-0">
+                          <span id="InvoiceCurrency1" className="border-0 py-0">
+                            ₹{viewOrderDetails?.sub_total}
+                          </span>
+                          <br />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td className="text-right border-0 mr-0">
+                          <span
+                            className="border-0 py-0"
+                            style={{
+                              display: "inline-block",
+                              fontFamily:
+                                "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                              color: "#333447",
+                              lineHeight: "1",
+                            }}
+                          >
+                            <strong>Discount:</strong>
+                          </span>
+                        </td>
+                        <td className="text-right border-0">
+                          <span id="InvoiceCurrency1" className="border-0 py-0">
+                            ₹{viewOrderDetails?.discount_amount}
+                          </span>
+                          <br />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td className="text-right border-0">
+                          <span
+                            className="border-0 py-0"
+                            style={{
+                              display: "inline-block",
+                              fontFamily:
+                                "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                              color: "#333447",
+                              lineHeight: "1",
+                            }}
+                          >
+                            <strong>Total:</strong>
+                          </span>
+                        </td>
+                        <td className="text-right border-0">
+                          <span id="InvoiceCurrency2" className="border-0">
+                            ₹{viewOrderDetails?.total}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td className="text-right border-0">
+                          <span
+                            className="border-0 py-0"
+                            style={{
+                              display: "inline-block",
+                              fontFamily:
+                                "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                              color: "#333447",
+                              lineHeight: "1",
+                            }}
+                          >
+                            <strong>Total Paid:</strong>
+                          </span>
+                        </td>
+                        <td className="text-right border-0">
+                          <span id="InvoiceCurrency3" className="border-0 py-0">
+                            ₹{viewOrderDetails?.amount_paid}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td className="text-right border-0">
+                          <span
+                            className="border-0"
+                            style={{
+                              display: "inline-block",
+                              fontFamily:
+                                "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                              color: "#333447",
+                              lineHeight: "1",
+                            }}
+                          >
+                            <strong>Amount Due:</strong>
+                          </span>
+                        </td>
+                        <td className="text-right border-0">
+                          <span id="InvoiceCurrency3" className="border-0 py-0">
+                            ₹{viewOrderDetails?.balance}
+                          </span>
+                        </td>
+                      </tr>
                     </table>
                   </div>
-                  <div className="row ">
+                  {/* <div className="row ">
                     <table className="table">
                       <tr
                         className="item"
@@ -533,121 +663,12 @@ export default function ViewInvoice() {
                             <table
                               className=""
                               style={{ textAlign: "right", float: "right" }}
-                            >
-                              <tr>
-                                <td>
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      marginRight: "10px",
-                                      fontFamily:
-                                        "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                                      color: "#333447",
-                                      lineHeight: "1.5",
-                                    }}
-                                    className="border-none"
-                                  >
-                                    <strong>Subtotal:</strong>
-                                  </span>
-                                </td>
-                                <td>
-                                  <span id="InvoiceCurrency1">
-                                    ₹{viewOrderDetails?.sub_total}
-                                  </span>
-                                  <br />
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      marginRight: "10px",
-                                      fontFamily:
-                                        "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                                      color: "#333447",
-                                      lineHeight: "1.5",
-                                    }}
-                                  >
-                                    <strong>Discount:</strong>
-                                  </span>
-                                </td>
-                                <td>
-                                  <span id="InvoiceCurrency1">
-                                    ₹{viewOrderDetails?.discount_amount}
-                                  </span>
-                                  <br />
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      marginRight: "10px",
-                                      fontFamily:
-                                        "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                                      color: "#333447",
-                                      lineHeight: "1.5",
-                                    }}
-                                  >
-                                    <strong>Total:</strong>
-                                  </span>
-                                </td>
-                                <td>
-                                  <span id="InvoiceCurrency2">
-                                    ₹{viewOrderDetails?.total}
-                                  </span>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      marginRight: "10px",
-                                      fontFamily:
-                                        "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                                      color: "#333447",
-                                      lineHeight: "1.5",
-                                    }}
-                                  >
-                                    <strong>Total Paid:</strong>
-                                  </span>
-                                </td>
-                                <td>
-                                  <span id="InvoiceCurrency3">
-                                    ₹{viewOrderDetails?.amount_paid}
-                                  </span>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      marginRight: "10px",
-                                      fontFamily:
-                                        "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                                      color: "#333447",
-                                      lineHeight: "1.5",
-                                    }}
-                                  >
-                                    <strong>Amount Due:</strong>
-                                  </span>
-                                </td>
-                                <td>
-                                  <span id="InvoiceCurrency3">
-                                    ₹{viewOrderDetails?.balance}
-                                  </span>
-                                </td>
-                              </tr>
-                            </table>
+                            ></table>
                           </div>
                         </td>
                       </tr>
                     </table>
-                  </div>
+                  </div> */}
                   <div className="row">
                     <div
                       className=""

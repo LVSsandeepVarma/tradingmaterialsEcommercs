@@ -86,7 +86,7 @@ export default function Logs() {
                           <h5 className="text-muted mb-0">Logs</h5>
                         </div>
                       </div>
-                      <div className="card-body">
+                      <div className="card-body max-h-[75vh] overflow-y-auto">
                                               <div className="timeline text-left">
                                                   {logs?.map((logInfo, ind) => (
                                                       
@@ -105,7 +105,8 @@ export default function Logs() {
                                                               <p className="timeline-subtitle">{ TimeAgo(logInfo?.created_at)}</p>
                             </div>
                                                       </div>
-                                                      ))}
+                                                  ))}
+                          {logs?.length ==0 && <p>No logs found</p>}
                         </div>
                       </div>
                     </div>

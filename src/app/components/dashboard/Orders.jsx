@@ -238,7 +238,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                   data-aos="fade-up"
                 >
                   <div className="timeline-step order-delivered">
-                    <span className="absolute left-[85%] text-sm">
+                    <span className="hidden md:block absolute left-[85%] text-sm">
                       {orderNumber}
                     </span>
                     <div
