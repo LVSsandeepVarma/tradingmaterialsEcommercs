@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import axios from "axios";
 import CryptoJS from "crypto-js";
-import { FaDownload, FaEye } from "react-icons/fa6";
+import { FaDownload, FaEye, FaMagnifyingGlass } from "react-icons/fa6";
 export default function InvoiceList() {
   const [viewInvoiceDetails, setViewInvoiceDetails] = useState();
   const [invoiceData, setInvoiceData] = useState()
@@ -74,7 +74,9 @@ export default function InvoiceList() {
                       <div className="card-header px-3 py-1 d-flex align-items-center justify-content-between flex-wrap">
                         <div className="d-flex align-items-center">
                           <h5 className="text-muted mb-0">Invoices</h5>
-                          <span className="badge badge-custom ms-2">{ invoiceData?.length}</span>
+                          <span className="badge badge-custom ms-2">
+                            {invoiceData?.length}
+                          </span>
                         </div>
                         <div
                           className="input-group mb-0"
@@ -82,8 +84,8 @@ export default function InvoiceList() {
                         >
                           <input
                             type="text"
-                            className="form-control px-2 py-1 my-2 sm:my-0"
-                            placeholder="Search Orders..."
+                            className="form-control px-2 py-1 sm:my-0"
+                            placeholder="Invoice no"
                             aria-label="Recipient's username"
                             aria-describedby="basic-addon2"
                             onChange={(e) => {
@@ -94,7 +96,7 @@ export default function InvoiceList() {
                             className="input-group-text px-2 py-1"
                             id="basic-addon2"
                           >
-                            <i className="fa-solid fa-magnifying-glass"></i>
+                            <FaMagnifyingGlass />
                           </span>
                         </div>
                       </div>
@@ -156,7 +158,7 @@ export default function InvoiceList() {
                                       color: "grey!important",
                                     }}
                                   >
-                                    banance
+                                    Balance
                                   </th>
                                   <th
                                     style={{
@@ -180,7 +182,8 @@ export default function InvoiceList() {
                                         style={{ padding: "10px" }}
                                         className="text-primary border-none"
                                       >
-                                        { invoice?.prefix}{invoice?.number}
+                                        {invoice?.prefix}
+                                        {invoice?.number}
                                       </td>
                                       <td
                                         className="border-none"
@@ -203,16 +206,14 @@ export default function InvoiceList() {
                                         className="border-none"
                                         style={{ padding: "10px" }}
                                       >
-                                        {
-                                          invoice?.date_added
-                                        }
+                                        {invoice?.date_added}
                                       </td>
                                       <td
                                         className="border-none"
                                         style={{ padding: "10px" }}
                                       >
                                         <span className="badge bg-success">
-                                          {invoice?.balance}
+                                          ₹{invoice?.balance}
                                         </span>{" "}
                                       </td>
                                       <td

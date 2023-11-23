@@ -405,7 +405,7 @@ export default function SideBar() {
                                 <Avatar
                                   alt="user profile"
                                   src="/images/blueProfile.webp"
-                                  sx={{ width: "50%", height: "100%" }}
+                                  sx={{ width: "140px", height: "140px" }}
                                   className=""
                                 ></Avatar>
                               </>
@@ -416,7 +416,7 @@ export default function SideBar() {
                           type="file"
                           id="upload-button"
                           onChange={handleImageUpload}
-                          className="opacity-0 visibility-0 absolute w-full h-full z-50 right-0 cursor-pointer"
+                          className="opacity-0 visibility-0 absolute w-full h-full z-50 right-0 "
                         />
                         {profileUploadErr && (
                           <p className="text-red-600">{profileUploadErr}</p>

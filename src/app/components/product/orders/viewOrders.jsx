@@ -55,9 +55,14 @@ export default function ViewOrders() {
           }
         );
         if (response?.data?.status) {
-          console.log(response?.data);
-          if (orderDataOne?.length == 0) {
+          console.log(response?.data, orderDataOne?.length, "ordone");
+          if (
+            (orderDataOne == undefined || orderDataOne?.length == 0) &&
+            response?.data?.data?.order?.length > 0
+          ) {
             setOrderId(response?.data?.data?.orders[0]?.id);
+            setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+            setActiveOrder(response?.data?.data?.orders[0]?.order_number);
           }
           if (dataCount == "one") {
             setOrderDataOne(response?.data?.data?.orders);
@@ -66,8 +71,6 @@ export default function ViewOrders() {
               response?.data?.data?.orders[0]?.order_number,
               "orderss"
             );
-            setOrderNumber(response?.data?.data?.orders[0]?.order_number);
-            setActiveOrder(response?.data?.data?.orders[0]?.order_number);
           } else if (dataCount == "two") {
             setOrderDataTwo(response?.data?.data?.orders);
 
@@ -91,7 +94,7 @@ export default function ViewOrders() {
       }
     };
 
-    // if (params?.order_type == "unpaid" || params?.order_type == "placed") {
+    // if (orderType == "unpaid" || orderType == "placed") {
 
     const getOrderDetails = async (type, dataCount, secondType) => {
       console.log("orderss", type);
@@ -110,7 +113,7 @@ export default function ViewOrders() {
         );
         if (response?.data?.status) {
           console.log(response?.data);
-          setOrderId(response?.data?.data?.orders[0]?.id);
+
           if (dataCount == "one") {
             setOrderDataOne(response?.data?.data?.orders);
             // setOrders(...orders, response?.data?.data?.orders)
@@ -118,8 +121,11 @@ export default function ViewOrders() {
               response?.data?.data?.orders[0]?.order_number,
               "orderss"
             );
-            setOrderNumber(response?.data?.data?.orders[0]?.order_number);
-            setActiveOrder(response?.data?.data?.orders[0]?.order_number);
+            if (response?.data?.data?.orders?.length) {
+              setOrderId(response?.data?.data?.orders[0]?.id);
+              setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+              setActiveOrder(response?.data?.data?.orders[0]?.order_number);
+            }
           } else if (dataCount == "two") {
             setOrderDataTwo(response?.data?.data?.orders);
 
@@ -447,7 +453,7 @@ export default function ViewOrders() {
                       className="input-group mb-0"
                       style={{ width: "350px" }}
                     >
-                      <input
+                      {/* <input
                         type="text"
                         className="form-control px-2 py-1"
                         placeholder="Search Orders..."
@@ -459,7 +465,7 @@ export default function ViewOrders() {
                         id="basic-addon2"
                       >
                         <FaMagnifyingGlass className="fa-solid fa-magnifying-glass" />
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                   <div className="card-body ">

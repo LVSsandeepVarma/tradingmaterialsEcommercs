@@ -31,24 +31,26 @@ export default function ViewOrdersDashboard({ ordType}) {
   // const userData  =useSelector(state => state?.user?.value)
   // eslint-disable-next-line no-unused-vars
   const [orders, setOrders] = useState();
-  const [orderDataOne, setOrderDataOne] = useState();
-  const [orderDataTwo, setOrderDataTwo] = useState();
+  const [orderDataOne, setOrderDataOne] = useState([]);
+  const [orderDataTwo, setOrderDataTwo] = useState([]);
   const [orderId, setOrderId] = useState();
   const [activeOrder, setActiveOrder] = useState(0);
-    const [orderNumber, setOrderNumber] = useState();
+  const [orderNumber, setOrderNumber] = useState();
+  const [statusCode, setStatusCode] = useState()
     const [orderType, setOrderType] = useState("placed")
   const [showModal, setShowModal] = useState(false);
   const { t } = useTranslation();
   // eslint-disable-next-line no-unused-vars
   const [viewOrderDetails, setViewOrderDetails] = useState();
   const params = useParams();
+  const orderStatus = ["unpaid", "placed", "confirmed", "dispatched", "delivered", "returned"]
   const dispatch = useDispatch();
     // const loaderState = useSelector((state) => state?.loader?.value);
       useEffect(() => {
         setOrderType(ordType);
       }, []);
   useEffect(() => {
-    const getOrderTwoDetails = async (type, dataCount) => {
+    const getOrderTwoDetails = async (type, dataCount, orderOneID) => {
       console.log("orderss", type);
       try {
         dispatch(showLoader());
@@ -61,31 +63,37 @@ export default function ViewOrdersDashboard({ ordType}) {
           }
         );
         if (response?.data?.status) {
-          console.log(response?.data);
-          if (orderDataOne?.length == 0) {
-            setOrderId(response?.data?.data?.orders[0]?.id);
-          }
-          if (dataCount == "one") {
-            setOrderDataOne(response?.data?.data?.orders);
-            // setOrders(...orders, response?.data?.data?.orders)
-            console.log(
-              response?.data?.data?.orders[0]?.order_number,
-              "orderss"
-            );
-            setOrderNumber(response?.data?.data?.orders[0]?.order_number);
-            setActiveOrder(response?.data?.data?.orders[0]?.order_number);
-          } else if (dataCount == "two") {
+          
+          
+          if (dataCount == "two") {
             setOrderDataTwo(response?.data?.data?.orders);
 
             //                   setOrders(
             //                     ...orders,
             //                     response?.data?.data?.orders
             // );
-            if (orderDataOne?.length == 0) {
-              console.log(orderNumber, orderDataOne?.length, "orderss");
-              setOrderNumber(response?.data?.data?.orders[0]?.order_number);
-              setActiveOrder(response?.data?.data?.orders[0]?.order_number);
-              // }
+            console.log(
+              response?.data?.data?.orders[0]?.id,
+              !orderDataOne[0]?.id,
+              "ordone"
+            );
+            if (!orderOneID && response?.data?.data?.orders[0]?.id) {
+              console.log(
+                response?.data?.data?.orders[0]?.id,
+                orderDataOne,
+                "ordone"
+              );
+
+              if (!orderOneID && response?.data?.data?.orders[0]?.id) {
+                console.log(
+                  response?.data?.data?.orders[0]?.id,
+                  orderDataOne,
+                  "ordone"
+                );
+                setOrderId(response?.data?.data?.orders[0]?.id);
+                setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+                setActiveOrder(response?.data?.data?.orders[0]?.order_number);
+              }
             }
             // setOrders(response?.data?.data?.orders);
           }
@@ -116,53 +124,46 @@ export default function ViewOrdersDashboard({ ordType}) {
         );
         if (response?.data?.status) {
           console.log(response?.data);
-          setOrderId(response?.data?.data?.orders[0]?.id);
+          
           if (dataCount == "one") {
             setOrderDataOne(response?.data?.data?.orders);
             // setOrders(...orders, response?.data?.data?.orders)
             console.log(
-              response?.data?.data?.orders[0]?.order_number,
-              "orderss"
+              response?.data?.data?.orders,
+              "ordone"
             );
-            setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+            // if (response?.data?.data?.orders?.length) {
+              setOrderId(response?.data?.data?.orders[0]?.id);
+              setOrderNumber(response?.data?.data?.orders[0]?.order_number);
             setActiveOrder(response?.data?.data?.orders[0]?.order_number);
-          } else if (dataCount == "two") {
-            setOrderDataTwo(response?.data?.data?.orders);
-
-            //                   setOrders(
-            //                     ...orders,
-            //                     response?.data?.data?.orders
-            // );
-            // if (orderDataOne?.length) {
-            //   console.log(orderNumber, orderDataOne?.length ,"orderss");
-            //   setOrderNumber(
-            //     response?.data?.data?.orders[0]?.order_number
-            //   );
-            //   setActiveOrder(
-            //     response?.data?.data?.orders[0]?.order_number
-            //   );
+            setStatusCode(response?.data?.data?.orders[0]?.status)
             // }
-          }
+
+            // if (dataCount == "one" && secondType != "") {
+            //   console.log(orderDataOne, "ordone");
+            //   getOrderTwoDetails(secondType, "two", response?.data?.data?.orders[0]?.id);
+            // }
+            
+          } 
           // setOrders(response?.data?.data?.orders);
         }
       } catch (err) {
         console.log(err);
+        
       } finally {
-        if (dataCount == "one" && secondType != "") {
-          getOrderTwoDetails(secondType, "two");
-        }
+        
         dispatch(hideLoader());
       }
     };
 
     if (orderType == "unpaid" || orderType == "placed") {
-      getOrderDetails("placed", "one", "unpaid");
+      getOrderDetails("all", "one", "unpaid");
     } else if (orderType == "confirmed" || orderType == "cancelled") {
-      getOrderDetails("confirmed", "one", "cancelled");
+      getOrderDetails("all", "one", "cancelled");
     } else if (orderType == "delivered" || orderType == "returned") {
-      getOrderDetails("delivered", "one", "returned");
+      getOrderDetails("all", "one", "returned");
     } else if (orderType == "dispatched") {
-      getOrderDetails("dispatched", "one", "");
+      getOrderDetails("all", "one", "");
     }
 
     // }
@@ -220,6 +221,7 @@ export default function ViewOrdersDashboard({ ordType}) {
 
     viewOrderDetails();
   }, [orderId]);
+
   return (
     <>
       <main className="nk-pages drop-shadow-lg ">
@@ -250,37 +252,29 @@ export default function ViewOrdersDashboard({ ordType}) {
                       data-content="And here's some amazing content. It's very engaging. Right?"
                       data-original-title="2003"
                     >
+                      {/* "border !border-blue-500 border-solid" */}
                       <div
-                        className={`inner-circle timeline-active ${
-                          orderType == "placed" || orderType == "unpaid"
-                            ? "border !border-blue-500 border-solid"
-                            : ""
-                        }`}
-                        onClick={() => {
-                          setOrderType("placed");
-                        }}
+                        className={`inner-circle timeline-active 
+                        
+                        `}
                       >
-                        {/* <img
-                          src="/images/orders/Order-placed.png"
-                          className={`${
-                            orderType == "placed" || orderType == "unpaid"
-                              ? "w-[30px] fa-beat-fade"
-                              : "!w-[36px]"
-                          }`}
-                          width="50px"
-                          alt="placed"
-                        /> */}
                         <FaCartArrowDown
                           className={`fa-solid fa-cart-arrow-down text-[2em] ${
-                            orderType == "placed" || orderType == "unpaid"
-                              ? "text-[1.5em] fa-beat-fade"
-                              : ""
-                          } `}
-                          style={{ color: "#1581d2" }}
+                            orderStatus[statusCode] == "placed" ||
+                            orderStatus[statusCode] == "unpaid"
+                              ? "text-gray-500"
+                              : "text-gray-500"
+                          } 
+                          
+                          `}
+                          // style={{ color: "#1581d2" }}
                         />
                       </div>
                       {/* <!-- <p class="h6 mt-3 mb-1">2003</p> --> */}
-                      <p className="h6 text-muted !font-bold mb-0 mb-lg-0 order-placed">
+                      <p
+                        className={`h6 text-muted !font-bold mb-0 mb-lg-0 order-placed !text-gray-500 `}
+                        // style={{ color: "#1581d2" }}
+                      >
                         Order Placed
                       </p>
                     </div>
@@ -297,13 +291,13 @@ export default function ViewOrdersDashboard({ ordType}) {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          orderType == "confirmed" || orderType == "cancelled"
+                          statusCode == "0" || statusCode == "1"
                             ? "border !border-green-500 border-solid"
                             : ""
                         }`}
-                        onClick={() => {
-                          setOrderType("confirmed");
-                        }}
+                        // onClick={() => {
+                        //   setOrderType("confirmed");
+                        // }}
                         // style={{ border: "1px solid #4CAF50" }}
                       >
                         {/* <img
@@ -317,9 +311,14 @@ export default function ViewOrdersDashboard({ ordType}) {
                         /> */}
                         <FaBoxesPacking
                           className={`fa-solid fa-boxes-packing text-[2em] ${
-                            orderType == "confirmed" || orderType == "cancelled"
-                              ? "text-[1.5em] fa-beat-fade"
+                            orderStatus[statusCode] == "placed" ||
+                            orderStatus[statusCode] == "unpaid"
+                              ? "text-[1.5em] fa-beat-fade "
                               : ""
+                          } ${
+                            statusCode < 2 || statusCode == "5"
+                              ? "#4caf50"
+                              : "text-gray-500"
                           } `}
                           style={{ color: "#4caf50" }}
                         />
@@ -327,14 +326,24 @@ export default function ViewOrdersDashboard({ ordType}) {
                       {/* <!-- <p class="h6 mt-3 mb-1">2005</p> --> */}
                       <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-confirmed">
                         {/* Order Confirmed <br /> & Cancelled */}
-                        {orderType == "placed" || orderType == "unpaid" ? (
-                          <span>
+                        {statusCode == "0" || statusCode == "1" ? (
+                          <span
+                            className={`${
+                              statusCode < "2" ? "" : "text-gray-500"
+                            } `}
+                          >
                             Waiting for <br />
                             order confirmation
                           </span>
                         ) : (
-                          <span>
-                            Order Confirmed <br /> & Cancelled
+                          <span
+                            className={`${
+                              statusCode < "2" || statusCode == "5"
+                                ? "#4caf50"
+                                : "!text-gray-500"
+                            } `}
+                          >
+                            Order Confirmed
                           </span>
                         )}
                       </p>
@@ -352,13 +361,13 @@ export default function ViewOrdersDashboard({ ordType}) {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          orderType == "dispatched"
+                          orderStatus[statusCode] == "confirmed"
                             ? "border !border-[#ff9800] border-solid"
                             : ""
                         }`}
-                        onClick={() => {
-                          setOrderType("dispatched");
-                        }}
+                        // onClick={() => {
+                        //   setOrderType("dispatched");
+                        // }}
                       >
                         {/* <img
                           src="/images/orders/order-dispatched.png"
@@ -371,25 +380,49 @@ export default function ViewOrdersDashboard({ ordType}) {
                         /> */}
                         <FaTruckFast
                           className={`fa-solid fa-truck-fast text-[2em] ${
-                            orderType == "dispatched"
-                              ? "text-[1.5em] fa-beat-fade"
-                              : ""
+                            orderStatus[statusCode] == "confirmed"
+                              ? "text-[1.5em] fa-beat-fade text-[#ff9800]"
+                              : "text-gray-500"
                           } `}
                           style={{ color: "#ff9800" }}
                         />
                       </div>
                       {/* <!-- <p class="h6 mt-3 mb-1">2010</p> --> */}
-                      <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-dispatched">
-                        {orderType == "confirmed" ? (
-                          <span>
+                      <p
+                        className={`h6 text-muted mb-0 !font-bold mb-lg-0 order-dispatched ${
+                          statusCode == "3" ? "#ff9800" : "text-gray-500"
+                        }`}
+                      >
+                        {orderStatus[statusCode] == "confirmed" ? (
+                          <span
+                            className={`${
+                              orderStatus[statusCode] == "confirmed"
+                                ? " text-[#ff9800]"
+                                : "text-gray-500"
+                            }`}
+                          >
                             Waiting for <br /> Order Dispatch
                           </span>
-                        ) : orderType == "cancelled" ? (
-                          <span>
+                        ) : orderStatus[statusCode] == "cancelled" ? (
+                          <span
+                            className={`${
+                              orderStatus[statusCode] == "dispatched"
+                                ? " text-[#ff9800]"
+                                : "text-gray-500"
+                            }`}
+                          >
                             Waiting for <br /> Order Pickup
                           </span>
                         ) : (
-                          "Order Dispatch"
+                          <span
+                            className={`${
+                              orderStatus[statusCode] == "dispatched"
+                                ? " text-[#ff9800]"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            Order Dispatch
+                          </span>
                         )}
                       </p>
                     </div>
@@ -406,7 +439,8 @@ export default function ViewOrdersDashboard({ ordType}) {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          orderType == "delivered" || orderType == "returned"
+                          orderStatus[statusCode] == "delivered" ||
+                          orderStatus[statusCode] == "returned"
                             ? "border !border-[#009688] border-solid"
                             : ""
                         }`}
@@ -425,25 +459,46 @@ export default function ViewOrdersDashboard({ ordType}) {
                         /> */}
                         <FaPeopleCarryBox
                           className={`fa-sharp fa-solid fa-people-carry-box text-[2em] ${
-                            orderType == "returned" || orderType == "delivered"
-                              ? "text-[1.5em] fa-beat-fade"
-                              : ""
+                            statusCode >= "3"
+                              ? "text-[1.5em] fa-beat-fade #009688"
+                              : "text-gray-500"
                           } `}
                           style={{ color: "#009688" }}
                         />
                       </div>
                       {/* <!-- <p class="h6 mt-3 mb-1">2020</p> --> */}
                       <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-delivered">
-                        {orderType == "dispatched" ? (
-                          <span>
+                        {orderStatus[statusCode] == "dispatched" ? (
+                          <span
+                            className={`${
+                              orderStatus[statusCode] == "dispatched"
+                                ? " "
+                                : "text-gray-500"
+                            }`}
+                          >
                             Waiting for <br /> Order delivery
                           </span>
-                        ) : orderType == "cancelled" ? (
-                          <span>
+                        ) : orderStatus[statusCode] == "cancelled" ? (
+                          <span
+                            className={`${
+                              orderStatus[statusCode] == "cancelled"
+                                ? " "
+                                : "text-gray-500"
+                            }`}
+                          >
                             Waiting for <br /> Order to return
                           </span>
                         ) : (
-                          "Order delivery"
+                          <span
+                            className={`${
+                              orderStatus[statusCode] == "dispatched" ||
+                              orderStatus[statusCode] == "delivered"
+                                ? "text-[1.5em] fa-beat-fade text-[#009688]"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            Order delivery
+                          </span>
                         )}
                       </p>
                     </div>
@@ -465,15 +520,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                       /> */}
                       <h5 className="text-muted text-left capitalize text-xl !font-bold mb-0">
                         {" "}
-                        {orderType == "placed" || orderType == "unpaid"
-                          ? "Placed & Pending Orders"
-                          : orderType == "confirmed" || orderType == "cancelled"
-                          ? "Confirmed & Cancelled Orders"
-                          : orderType == "delivered" || orderType == "returned"
-                          ? "Delivered & Returned Orders"
-                          : orderType == "dispatched"
-                          ? "Dispatched Orders"
-                          : ""}
+                        {orderStatus[statusCode]}
                         {(orderDataOne?.length > 0 ||
                           orderDataTwo?.length > 0) && (
                           <span className="badge badge-custom ms-2">
@@ -486,19 +533,20 @@ export default function ViewOrdersDashboard({ ordType}) {
                       className="input-group mb-0"
                       style={{ width: "350px" }}
                     >
-                      <input
+                      {/* <input
                         type="text"
                         className="form-control px-2 py-1"
                         placeholder="Search Orders..."
                         aria-label="Recipient's username"
                         aria-describedby="basic-addon2"
-                      />
-                      <span
+                        onChange={(e)=>{handleSearch(e?.target?.value)}}
+                      /> 
+                       <span
                         className="input-group-text px-2 py-1"
                         id="basic-addon2"
                       >
                         <FaMagnifyingGlass className="fa-solid fa-magnifying-glass" />
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                   <div className="card-body ">
@@ -510,7 +558,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                               <div className="">
                                 <div className="flex justify-center">
                                   <img
-                                    src={`/images/orders/large/${orderType}.png`}
+                                    src={`/images/orders/large/${orderStatus[statusCode]}.png`}
                                     className="w-22 h-auto"
                                     alt="orders_large_icons"
                                     style={{ filter: "blur(3px)" }}
@@ -544,6 +592,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                                   setOrderId(order?.id),
                                     setActiveOrder(order?.order_number),
                                     setOrderNumber(order?.order_number);
+                                  setStatusCode(order?.status);
                                 }}
                                 className={`nav-but-left ${
                                   ind == 0 ? "!mt-0" : ""
@@ -574,19 +623,25 @@ export default function ViewOrdersDashboard({ ordType}) {
                                     </small>
                                   </div>
                                   <div>
-                                    {orderType != "confirmed" &&
-                                      orderType != "cancelled" && (
+                                    {orderStatus[statusCode] != "confirmed" &&
+                                      orderStatus[statusCode] !=
+                                        "cancelled" && (
                                         <img
                                           src={
-                                            orderType == "placed"
+                                            orderStatus[statusCode] == "placed"
                                               ? "/images/orders/placed.png"
-                                              : orderType == "confirmed" ||
-                                                orderType == "cancelled"
+                                              : orderStatus[statusCode] ==
+                                                  "confirmed" ||
+                                                orderStatus[statusCode] ==
+                                                  "cancelled"
                                               ? "/images/orders/confirmed.png"
-                                              : orderType == "delivered" ||
-                                                orderType == "returned"
+                                              : orderStatus[statusCode] ==
+                                                  "delivered" ||
+                                                orderStatus[statusCode] ==
+                                                  "returned"
                                               ? "/images/orders/delivered.png"
-                                              : orderType == "dispatched"
+                                              : orderStatus[statusCode] ==
+                                                "dispatched"
                                               ? "/images/orders/dispatched.png"
                                               : ""
                                           }
@@ -594,8 +649,9 @@ export default function ViewOrdersDashboard({ ordType}) {
                                           alt="placed"
                                         />
                                       )}
-                                    {(orderType == "confirmed" ||
-                                      orderType == "cancelled") && (
+                                    {(orderStatus[statusCode] == "confirmed" ||
+                                      orderStatus[statusCode] ==
+                                        "cancelled") && (
                                       <FaRegCircleCheck color="green" />
                                     )}
                                   </div>
@@ -788,7 +844,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                                               Order Status :{" "}
                                             </span>{" "}
                                             <span className="text-primary">
-                                              Order {orderType}
+                                              Order {orderStatus[statusCode]}
                                             </span>
                                           </p>
                                         </div>
