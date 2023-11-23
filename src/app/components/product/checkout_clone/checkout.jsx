@@ -611,7 +611,7 @@ export default function Checkout() {
           cvc: cvv,
           name_on_card: nameOnCard,
           currency: "INR",
-          call_back_url: "https://client.tradingmaterials.com/payment-status/",
+          call_back_url: "http://localhost:3001/payment-status/",
         };
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/product/checkout/create-order",

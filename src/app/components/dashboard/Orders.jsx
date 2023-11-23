@@ -259,20 +259,15 @@ export default function ViewOrdersDashboard({ ordType}) {
                         `}
                       >
                         <FaCartArrowDown
-                          className={`fa-solid fa-cart-arrow-down text-[2em] ${
-                            orderStatus[statusCode] == "placed" ||
-                            orderStatus[statusCode] == "unpaid"
-                              ? "text-gray-500"
-                              : "text-gray-500"
-                          } 
+                          className={`fa-solid fa-cart-arrow-down text-[2em] 
                           
                           `}
-                          // style={{ color: "#1581d2" }}
+                          style={{ color: "#1581d2" }}
                         />
                       </div>
-                      {/* <!-- <p class="h6 mt-3 mb-1">2003</p> --> */}
                       <p
-                        className={`h6 text-muted !font-bold mb-0 mb-lg-0 order-placed !text-gray-500 `}
+                        className={`h6 text-muted !font-bold mb-0 mb-lg-0 order-placed !text-[#1581d2]
+                        }`}
                         // style={{ color: "#1581d2" }}
                       >
                         Order Placed
@@ -291,36 +286,25 @@ export default function ViewOrdersDashboard({ ordType}) {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          statusCode == "0" || statusCode == "1"
+                          statusCode < 2 || statusCode == 5
                             ? "border !border-green-500 border-solid"
                             : ""
                         }`}
-                        // onClick={() => {
-                        //   setOrderType("confirmed");
-                        // }}
-                        // style={{ border: "1px solid #4CAF50" }}
+                        
                       >
-                        {/* <img
-                          src="/images/orders/order-confirmed.png"
-                          className={`${
-                            orderType == "confirmed" || orderType == "cancelled"
-                              ? "w-[30px] fa-beat-fade"
-                              : "!w-[36px]"
-                          }`}
-                          width="100px"
-                        /> */}
+                        
                         <FaBoxesPacking
                           className={`fa-solid fa-boxes-packing text-[2em] ${
-                            orderStatus[statusCode] == "placed" ||
-                            orderStatus[statusCode] == "unpaid"
+                            statusCode < 2 ||
+                            statusCode == 5
                               ? "text-[1.5em] fa-beat-fade "
                               : ""
                           } ${
-                            statusCode < 2 || statusCode == "5"
-                              ? "#4caf50"
-                              : "text-gray-500"
+                            statusCode >=0  || statusCode == 5
+                              ? "!text-[#4caf50]"
+                              : "!text-gray-500"
                           } `}
-                          style={{ color: "#4caf50" }}
+                          // style={{ color: "#4caf50" }}
                         />
                       </div>
                       {/* <!-- <p class="h6 mt-3 mb-1">2005</p> --> */}
@@ -335,15 +319,25 @@ export default function ViewOrdersDashboard({ ordType}) {
                             Waiting for <br />
                             order confirmation
                           </span>
-                        ) : (
+                        ) : statusCode >= 2 || statusCode !=5 ? (
                           <span
                             className={`${
-                              statusCode < "2" || statusCode == "5"
-                                ? "#4caf50"
+                              statusCode >= 2
+                                ? "!text-[#4caf50]"
                                 : "!text-gray-500"
                             } `}
                           >
                             Order Confirmed
+                          </span>
+                        ) : (
+                          <span
+                            className={`${
+                              statusCode == 5
+                                ? "!text-[#4caf50]"
+                                : "!text-gray-500"
+                            } `}
+                          >
+                            Order Cancelled
                           </span>
                         )}
                       </p>
@@ -361,36 +355,26 @@ export default function ViewOrdersDashboard({ ordType}) {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          orderStatus[statusCode] == "confirmed"
+                          statusCode == 2
                             ? "border !border-[#ff9800] border-solid"
                             : ""
                         }`}
-                        // onClick={() => {
-                        //   setOrderType("dispatched");
-                        // }}
+                        
                       >
-                        {/* <img
-                          src="/images/orders/order-dispatched.png"
-                          className={`${
-                            orderType == "dispatched"
-                              ? "w-[30px] fa-beat-fade"
-                              : "!w-[36px]"
-                          }`}
-                          width="100px"
-                        /> */}
+                        
                         <FaTruckFast
                           className={`fa-solid fa-truck-fast text-[2em] ${
-                            orderStatus[statusCode] == "confirmed"
-                              ? "text-[1.5em] fa-beat-fade text-[#ff9800]"
-                              : "text-gray-500"
-                          } `}
-                          style={{ color: "#ff9800" }}
+                            statusCode ==2
+                              ? "text-[1.5em] fa-beat-fade "
+                              : ""
+                          } ${statusCode >=2 ?  "!text-[#ff9800]" : "text-gray-500"} `} 
+                          // style={{ color: "#ff9800" }}
                         />
                       </div>
                       {/* <!-- <p class="h6 mt-3 mb-1">2010</p> --> */}
                       <p
                         className={`h6 text-muted mb-0 !font-bold mb-lg-0 order-dispatched ${
-                          statusCode == "3" ? "#ff9800" : "text-gray-500"
+                          statusCode >= 2 ? "#ff9800" : "text-gray-500"
                         }`}
                       >
                         {orderStatus[statusCode] == "confirmed" ? (
@@ -416,12 +400,12 @@ export default function ViewOrdersDashboard({ ordType}) {
                         ) : (
                           <span
                             className={`${
-                              orderStatus[statusCode] == "dispatched"
+                              statusCode >= 3
                                 ? " text-[#ff9800]"
                                 : "text-gray-500"
                             }`}
                           >
-                            Order Dispatch
+                            Order Dispatched
                           </span>
                         )}
                       </p>
@@ -439,27 +423,16 @@ export default function ViewOrdersDashboard({ ordType}) {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          orderStatus[statusCode] == "delivered" ||
-                          orderStatus[statusCode] == "returned"
+                          statusCode >= 3
                             ? "border !border-[#009688] border-solid"
                             : ""
                         }`}
-                        onClick={() => {
-                          setOrderType("delivered");
-                        }}
+                       
                       >
-                        {/* <img
-                          src="/images/orders/order-delivered.png"
-                          className={`${
-                            orderType == "delivered" || orderType == "returned"
-                              ? "w-[30px] fa-beat-fade"
-                              : "!w-[36px]"
-                          }`}
-                          width="100px"
-                        /> */}
+                        
                         <FaPeopleCarryBox
                           className={`fa-sharp fa-solid fa-people-carry-box text-[2em] ${
-                            statusCode >= "3"
+                            statusCode >= 3
                               ? "text-[1.5em] fa-beat-fade #009688"
                               : "text-gray-500"
                           } `}
@@ -493,7 +466,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                             className={`${
                               orderStatus[statusCode] == "dispatched" ||
                               orderStatus[statusCode] == "delivered"
-                                ? "text-[1.5em] fa-beat-fade text-[#009688]"
+                                ? "text-[#009688]"
                                 : "text-gray-500"
                             }`}
                           >
@@ -611,7 +584,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                               >
                                 <div className="flex justify-between items-center">
                                   <div>
-                                    #{order?.order_number} <br />{" "}
+                                    #{order?.order_number} {statusCode} <br />{" "}
                                     <small className="drop-shadow-lg">
                                       {new Date(
                                         order?.created_at
@@ -628,7 +601,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                                         "cancelled" && (
                                         <img
                                           src={
-                                            orderStatus[statusCode] == "placed"
+                                            statusCode == "0"|| statusCode=="1"
                                               ? "/images/orders/placed.png"
                                               : orderStatus[statusCode] ==
                                                   "confirmed" ||
@@ -753,7 +726,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                                             Home
                                           </span>
                                           <span>Orders</span>
-                                          <span>Orders {orderType}</span>
+                                          <span>Orders {orderStatus[statusCode]}</span>
                                           <span>
                                             Order No:{" "}
                                             <b className="!text-blue-600">
