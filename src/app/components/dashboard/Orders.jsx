@@ -243,6 +243,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                     <span className="hidden md:block absolute left-[85%] text-sm">
                       {orderNumber}
                     </span>
+
                     <div
                       className="timeline-content"
                       data-toggle="popover"
@@ -290,17 +291,14 @@ export default function ViewOrdersDashboard({ ordType}) {
                             ? "border !border-green-500 border-solid"
                             : ""
                         }`}
-                        
                       >
-                        
                         <FaBoxesPacking
                           className={`fa-solid fa-boxes-packing text-[2em] ${
-                            statusCode < 2 ||
-                            statusCode == 5
+                            statusCode < 2 || statusCode == 5
                               ? "text-[1.5em] fa-beat-fade "
                               : ""
                           } ${
-                            statusCode >=0  || statusCode == 5
+                            statusCode >= 0 || statusCode == 5
                               ? "!text-[#4caf50]"
                               : "!text-gray-500"
                           } `}
@@ -319,7 +317,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                             Waiting for <br />
                             order confirmation
                           </span>
-                        ) : statusCode >= 2 || statusCode !=5 ? (
+                        ) : statusCode >= 2 || statusCode != 5 ? (
                           <span
                             className={`${
                               statusCode >= 2
@@ -359,15 +357,15 @@ export default function ViewOrdersDashboard({ ordType}) {
                             ? "border !border-[#ff9800] border-solid"
                             : ""
                         }`}
-                        
                       >
-                        
                         <FaTruckFast
                           className={`fa-solid fa-truck-fast text-[2em] ${
-                            statusCode ==2
-                              ? "text-[1.5em] fa-beat-fade "
-                              : ""
-                          } ${statusCode >=2 ?  "!text-[#ff9800]" : "text-gray-500"} `} 
+                            statusCode == 2 ? "text-[1.5em] fa-beat-fade " : ""
+                          } ${
+                            statusCode >= 2
+                              ? "!text-[#ff9800]"
+                              : "text-gray-500"
+                          } `}
                           // style={{ color: "#ff9800" }}
                         />
                       </div>
@@ -410,6 +408,16 @@ export default function ViewOrdersDashboard({ ordType}) {
                         )}
                       </p>
                     </div>
+                    {statusCode >= 3 && (
+                      <a
+                        className="hidden md:block absolute left-[85%] text-sm"
+                        href={viewOrderDetails?.consignment?.tracking_url}
+                      >
+                        <span>
+                          {viewOrderDetails?.consignment?.consignment_id}
+                        </span>
+                      </a>
+                    )}
                   </div>
                   <div className="timeline-step mb-0">
                     <div
@@ -427,9 +435,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                             ? "border !border-[#009688] border-solid"
                             : ""
                         }`}
-                       
                       >
-                        
                         <FaPeopleCarryBox
                           className={`fa-sharp fa-solid fa-people-carry-box text-[2em] ${
                             statusCode >= 3
@@ -470,7 +476,7 @@ export default function ViewOrdersDashboard({ ordType}) {
                                 : "text-gray-500"
                             }`}
                           >
-                            Order delivery
+                            Order delivered
                           </span>
                         )}
                       </p>
@@ -601,7 +607,8 @@ export default function ViewOrdersDashboard({ ordType}) {
                                         "cancelled" && (
                                         <img
                                           src={
-                                            statusCode == "0"|| statusCode=="1"
+                                            statusCode == "0" ||
+                                            statusCode == "1"
                                               ? "/images/orders/placed.png"
                                               : orderStatus[statusCode] ==
                                                   "confirmed" ||
@@ -726,7 +733,9 @@ export default function ViewOrdersDashboard({ ordType}) {
                                             Home
                                           </span>
                                           <span>Orders</span>
-                                          <span>Orders {orderStatus[statusCode]}</span>
+                                          <span>
+                                            Orders {orderStatus[statusCode]}
+                                          </span>
                                           <span>
                                             Order No:{" "}
                                             <b className="!text-blue-600">
