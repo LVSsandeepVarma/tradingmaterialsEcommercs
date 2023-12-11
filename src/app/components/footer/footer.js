@@ -87,7 +87,7 @@ export default function Footer() {
                         <a href="/products">Trading Materials</a>
                       </li>
                       <li className="col-12">
-                        <a href="https://tradingmaterials.com/contact">
+                        <a href="/contactus">
                           Contact
                         </a>
                       </li>

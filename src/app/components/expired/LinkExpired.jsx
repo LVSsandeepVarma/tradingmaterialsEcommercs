@@ -64,7 +64,7 @@ export default function LinkExpired() {
                     </div>
                     <div className="col-lg-4 text-center text-lg-end">
                       <a
-                        href={`https://tradingmaterials.com/contact`}
+                        href={`/contactus`}
                         className="btn btn-white fw-semiBold"
                       >
                         Contact Support

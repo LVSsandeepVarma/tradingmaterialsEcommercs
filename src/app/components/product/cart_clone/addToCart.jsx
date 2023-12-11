@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,7 +18,15 @@ import { updateCart } from "../../../../features/cartItems/cartSlice";
 import { updateNotifications } from "../../../../features/notifications/notificationSlice";
 import { updateCartCount } from "../../../../features/cartWish/focusedCount";
 import CryptoJS from "crypto-js";
-import { CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider } from "@mui/material";
+import {
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+} from "@mui/material";
 import SessionExpired from "../../modals/sessionExpired";
 import Dashboard from "../../commonDashboard/Dashboard";
 import { useTranslation } from "react-i18next";
@@ -31,7 +40,8 @@ export default function AddToCart() {
   const userData = useSelector((state) => state?.user?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
   const userLang = useSelector((state) => state?.lang?.value);
-  const clientType = useSelector((state) => state?.clientType?.value);
+  const clientType = "client";
+  // useSelector((state) => state?.clientType?.value);
   const addressStatus = useSelector((state) => state?.addressStatus?.value);
 
   const [showModal, setShowModal] = useState(false);
@@ -42,12 +52,14 @@ export default function AddToCart() {
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
   const [promocode, setPromocode] = useState("");
+  const [promocodeApplied, setPromocodeApplied] = useState(false);
+  const [promocodeErr, setPromocodeErr] = useState("");
   const [activeBillingAddressChecked, setActiveBillingAddressChecked] =
     useState(0);
   const [apiErr, setApiErr] = useState([]);
-  const [activeProductId, setActiveProductId] = useState()
+  const [activeProductId, setActiveProductId] = useState();
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const [deleteProductId, setDeleteProductId] = useState()
+  const [deleteProductId, setDeleteProductId] = useState();
   const [increamentDecreamentLoader, setIncreamentDecreamentLoader] =
     useState(false);
   const [activeShippingAddress, setActiveShippingAddress] = useState(
@@ -75,16 +87,16 @@ export default function AddToCart() {
   const [showSessionExpiry, setShowSessionExpiry] = useState(false);
 
   console.log(cartProducts, "gggggggg");
-    useEffect(() => {
-      getUserInfo();
-    }, [addressStatus]);
+  useEffect(() => {
+    getUserInfo();
+  }, [addressStatus]);
 
-    useEffect(() => {
-      if (localStorage.getItem("shipAdd")) {
-        handleShippingAddressChange(parseInt(localStorage.getItem("shipAdd")));
-        setBillingSameAsShipping(false);
-      }
-    }, []);
+  useEffect(() => {
+    if (localStorage.getItem("shipAdd")) {
+      handleShippingAddressChange(parseInt(localStorage.getItem("shipAdd")));
+      setBillingSameAsShipping(false);
+    }
+  }, []);
 
   const getUserInfo = async () => {
     try {
@@ -109,20 +121,22 @@ export default function AddToCart() {
           setActiveShippingAddress(
             response?.data?.data?.client?.address[0]?.id
           );
-          console.log("shpadd", billingSameAsShipping)
+          console.log("shpadd", billingSameAsShipping);
         } else {
           if (userData?.client?.address?.length > 1)
             if (activeShippingAddressChecked != 0) {
               setActiveShippingAddress(
-                response?.data?.data?.client?.address[activeShippingAddressChecked]?.id
+                response?.data?.data?.client?.address[
+                  activeShippingAddressChecked
+                ]?.id
               );
               console.log("shpadd", activeShippingAddressChecked);
-            } else { 
-          setActiveShippingAddress(
-            response?.data?.data?.client?.address[1]?.id
+            } else {
+              setActiveShippingAddress(
+                response?.data?.data?.client?.address[1]?.id
               );
               console.log("shpadd", activeShippingAddressChecked);
-        }
+            }
         }
       } else {
         console.log(response?.data);
@@ -136,11 +150,6 @@ export default function AddToCart() {
       dispatch(hideLoader());
     }
   };
-
-  useEffect(() => {
-    applyPromoCode();
-    console.log(activeBillingAddress, activeShippingAddress, userData);
-  }, []);
 
   async function handleAddToCart(productId, status) {
     // setAnimateProductId(productId)
@@ -212,40 +221,44 @@ export default function AddToCart() {
     try {
       const token = localStorage.getItem("client_token");
       const response = await axios.get(
-        "https://admin.tradingmaterials.com/api/lead/product/apply-register-promo-code",
-        {
-          params: {
-            client_id: userData?.client_id,
-          },
-        },
+        `https://admin.tradingmaterials.com/api/client/apply-promo-code?amount=${(
+          subTotal - discount
+        ).toFixed(2)}&promocode=${promocode}`,
         {
           headers: {
-            "access-token": token,
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
           },
         }
       );
       if (response?.data?.status) {
+        setPromocodeApplied(true);
         console.log(response?.data?.data);
-        setSubTotal(response?.data?.data?.subtotal);
+        setSubTotal(response?.data?.data?.originalAmount);
         setDiscount(response?.data?.data?.discount);
-        setDiscountPercentage(
-          response?.data?.data?.percentage !== null
-            ? response?.data?.data?.percentage
-            : 0
-        );
+        setDiscountPercentage(response?.data?.data?.discount_rate);
       }
     } catch (err) {
       console.log(err, "err");
+      if (err?.response?.data?.errors) {
+        setPromocodeErr(
+          Object.values(err?.response?.data?.errors?.promocode[0])?.join("")
+        );
+      } else {
+        setPromocodeErr(err?.response?.data?.message);
+      }
+      setTimeout(() => {
+        setPromocodeErr("");
+        setPromocode("");
+      }, 2000);
     }
   };
 
   const handleShippingAddressChange = (ind) => {
     setActiveShippingAddress(userData?.client?.address[ind]?.id);
     setActiveShippingaddressChecked(ind);
-    console.log(ind, "shpadd")
+    console.log(ind, "shpadd");
   };
-
-
 
   // Set initial quantity for all products to 1 in the useEffect hook
   useEffect(() => {
@@ -299,7 +312,7 @@ export default function AddToCart() {
   };
 
   //deleting from the cart
-  const handleDeleteFromCart = async(id, clientId) => {
+  const handleDeleteFromCart = async (id, clientId) => {
     try {
       dispatch(showLoader());
       const response = await axios.post(
@@ -324,7 +337,7 @@ export default function AddToCart() {
       }
     } catch (err) {
       console.log(err);
-      const errMsg = err?.response?.data?.message?.toLowerCase()
+      const errMsg = err?.response?.data?.message?.toLowerCase();
       if (
         errMsg?.includes("token") ||
         errMsg?.includes("expired") ||
@@ -414,7 +427,8 @@ export default function AddToCart() {
               discount: discount,
               b_address_id: activeBillingAddress,
               shipping_address: billingSameAsShipping ? 0 : 1,
-              s_address_id: userData?.client?.address[activeShippingAddressChecked]?.id,
+              s_address_id:
+                userData?.client?.address[activeShippingAddressChecked]?.id,
               note: optionalNotes,
               client_id: userData?.client?.id,
             };
@@ -431,16 +445,25 @@ export default function AddToCart() {
         );
         if (response?.data?.status) {
           localStorage.removeItem("shipAdd");
-          localStorage.setItem("order_id", response?.data?.data?.order_id);
-          navigate(
-            `/checkout/order_id/${CryptoJS?.AES?.encrypt(
-              `${response?.data?.data?.order_id}`,
-              "trading_materials_order"
-            )
-              ?.toString()
-              .replace(/\//g, "_")
-              .replace(/\+/g, "-")}`
-          );
+          // localStorage.setItem("order_id", response?.data?.data?.order_id);
+          // navigate(
+          //   `/checkout/order_id/${CryptoJS?.AES?.encrypt(
+          //     `${response?.data?.data?.order_id}`,
+          //     "trading_materials_order"
+          //   )
+          //     ?.toString()
+          //     .replace(/\//g, "_")
+          //     .replace(/\+/g, "-")}`
+          // );
+          window.location.href = `https://tradingmaterials.com/client/checkout/${CryptoJS?.AES?.encrypt(
+            `${response?.data?.data?.order_id}`,
+            "trading_materials_order"
+          )
+            ?.toString()
+            .replace(/\//g, "_")
+            .replace(/\+/g, "-")}/${localStorage.getItem("client_token")}/${
+            userData?.client?.id
+          }`;
         }
       }
     } catch (err) {
@@ -532,14 +555,335 @@ export default function AddToCart() {
                   <div className="card-body">
                     <div className="row">
                       {cartProducts?.length > 0 && (
-                        <div className="col-lg-4">
+                        <div className="col-lg-4 order-lg-1 order-2">
+                          {/* addressess  start*/}
+                          <div className="nav-but-left  mb-2">
+                            {userData?.client?.primary_address?.length === 0 &&
+                              allProducts?.length > 0 && (
+                                <span className="text-danger !mt-2 !text-xs ">
+                                  Please add Address before placing order.
+                                </span>
+                              )}
+                            {cartProducts?.length > 0 && (
+                              <div className="mt-2  drop-shadow-lg">
+                                {userData ? (
+                                  <div className="nk-section-blog-details mt-2">
+                                    <h4 className=" !font-bold">
+                                      Billing Address :
+                                      {userData?.client?.primary_address
+                                        ?.length === 0 && (
+                                        <ErrorOutlineIcon
+                                          fontSize="md"
+                                          className="!font-bold text-danger"
+                                        />
+                                      )}
+                                    </h4>
+
+                                    {userData?.client?.primary_address?.length >
+                                      0 && (
+                                      <ul className="d-flex flex-column gap-2 pb-0">
+                                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                            Full Name:
+                                          </p>
+                                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                                            {userData?.client?.first_name}&nbsp;
+                                            {userData?.client?.last_name}
+                                          </p>
+                                        </li>
+                                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                            Address:
+                                          </p>
+                                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                                            {
+                                              userData?.client
+                                                ?.primary_address[0]?.add_1
+                                            }
+                                            ,{" "}
+                                            {userData?.client
+                                              ?.primary_address[0]?.add_2 !==
+                                            null
+                                              ? `${userData?.client?.primary_address[0]?.add_2},  `
+                                              : ""}
+                                            {
+                                              userData?.client
+                                                ?.primary_address[0]?.city
+                                            }
+                                            ,{" "}
+                                            {
+                                              userData?.client
+                                                ?.primary_address[0]?.state
+                                            }
+                                            ,{" "}
+                                            {
+                                              userData?.client
+                                                ?.primary_address[0]?.country
+                                            }
+                                            ,{" "}
+                                            {
+                                              userData?.client
+                                                ?.primary_address[0]?.zip
+                                            }
+                                          </p>
+                                        </li>
+                                        <li className="d-flex align-items-center gap-5 text-gray-1200">
+                                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                            Shipping Type:
+                                          </p>
+                                          <p className="m-0 fs-14 text-gray-1200 w-75">
+                                            Standard (2-5 business days)
+                                          </p>
+                                        </li>
+                                      </ul>
+                                    )}
+                                    {userData?.client?.primary_address?.length >
+                                    0 ? (
+                                      <div>
+                                        <button
+                                          className="btn btn-sm btn-warning mt-2 mb-2"
+                                          variant="warning"
+                                          color="warning"
+                                          onClick={() => {
+                                            setActiveBillingAddressChecked(0);
+                                            setShowModal(true);
+                                            setFormType("update");
+                                            setAddressUpdateType("Billing");
+                                          }}
+                                          style={{
+                                            background: "#54a8c7",
+                                            border: "#54a8c7",
+                                            color: "#fff",
+                                          }}
+                                        >
+                                          Update address
+                                        </button>
+                                        <div className="form-check">
+                                          <input
+                                            type="checkbox"
+                                            checked={
+                                              billingSameAsShipping === true
+                                            }
+                                            onChange={
+                                              handleBillingSameAsShipping
+                                            }
+                                            className="form-check-input"
+                                          />
+                                          <label className="ml-3 form-check-label">
+                                            Billing address same as Shipping
+                                            address
+                                          </label>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        className="btn btn-sm btn-warning mt-2 mb-2"
+                                        variant="warning"
+                                        color="warning"
+                                        onClick={() => {
+                                          setShowModal(true);
+                                          setFormType("add");
+                                          setAddressUpdateType("Billing");
+                                        }}
+                                        style={{
+                                          background: "#54a8c7",
+                                          border: "#54a8c7",
+                                          color: "#fff",
+                                        }}
+                                      >
+                                        Add address
+                                      </button>
+                                    )}
+
+                                    <div>
+                                      <hr className="mr-2" />
+                                    </div>
+                                    <div className="nk-section-blog-details mt-3"></div>
+                                  </div>
+                                ) : (
+                                  <div className="nk-section-blog-details mt-3">
+                                    <Button
+                                      className="btn btn-warning mb-2"
+                                      variant="warning"
+                                      color="warning"
+                                      onClick={() => {
+                                        setShowModal(true);
+                                        setFormType("add");
+                                        setAddressUpdateType("shipping");
+                                      }}
+                                      style={{
+                                        background: "#54a8c7 ",
+                                        border: "#54a8c7",
+                                        color: "#fff",
+                                      }}
+                                    >
+                                      Add address
+                                    </Button>
+                                  </div>
+                                )}
+                                {!billingSameAsShipping && (
+                                  <>
+                                    {userData?.client?.address?.length == 1 &&
+                                      allProducts?.length > 0 && (
+                                        <span className="text-danger !mt-1  !text-xs ">
+                                          Please add Address before placing
+                                          order.
+                                        </span>
+                                      )}
+                                    <div className="nk-section-blog-details mt-1">
+                                      <div className="max-h-[350px] md:max-h-[500px] overflow-y-auto">
+                                        <h4 className="mb-3 !font-bold">
+                                          Shipping Address{" "}
+                                          {userData?.client?.address?.length ==
+                                            1 &&
+                                            !billingSameAsShipping && (
+                                              <ErrorOutlineIcon
+                                                fontSize="md"
+                                                className="!font-bold text-danger"
+                                              />
+                                            )}
+                                        </h4>
+
+                                        <ul className="d-flex flex-column gap-2 pb-0 overflow-y-auto max-h-[350px]">
+                                          {userData?.client?.address?.length >
+                                            0 &&
+                                            userData?.client?.address?.map(
+                                              (add, ind) => {
+                                                // console.log(add?.id, activeBillingAddress)
+                                                if (
+                                                  add?.id !==
+                                                  activeBillingAddress
+                                                ) {
+                                                  return (
+                                                    <div className="" key={ind}>
+                                                      <li className="d-flex align-items-center pb-1">
+                                                        <div className="!block">
+                                                          <input
+                                                            type="checkbox"
+                                                            checked={
+                                                              activeShippingAddressChecked ===
+                                                              ind
+                                                            }
+                                                            onChange={() => {
+                                                              handleShippingAddressChange(
+                                                                ind
+                                                              );
+                                                              setActiveShippingaddressChecked(
+                                                                ind
+                                                              );
+                                                              localStorage.setItem(
+                                                                "shipAdd",
+                                                                ind
+                                                              );
+                                                            }}
+                                                            className="form-check-input"
+                                                          />
+                                                          <span
+                                                            className="ml-3  font-semibold fs-14"
+                                                            style={{
+                                                              color: "#0167f3",
+                                                            }}
+                                                          >
+                                                            {activeShippingAddressChecked ===
+                                                            ind
+                                                              ? "[Selected]"
+                                                              : ""}
+                                                          </span>
+                                                        </div>
+                                                      </li>
+
+                                                      <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
+                                                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                                          Full Name:
+                                                        </p>
+                                                        <p className="m-0 fs-14 text-gray-1200 w-75">
+                                                          {
+                                                            userData?.client
+                                                              ?.first_name
+                                                          }
+                                                        </p>
+                                                      </li>
+                                                      <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
+                                                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                                          Address:
+                                                        </p>
+                                                        <p className="m-0 fs-14 text-gray-1200 w-75">
+                                                          {add.add_1},{" "}
+                                                          {add?.add_2 !== null
+                                                            ? `${add?.add_2},  `
+                                                            : ""}
+                                                          {add?.city},{" "}
+                                                          {add?.state},{" "}
+                                                          {add?.country},{" "}
+                                                          {add?.zip}
+                                                        </p>
+                                                      </li>
+                                                      <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
+                                                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
+                                                          Shipping Type:
+                                                        </p>
+                                                        <p className="m-0 fs-14 text-gray-1200 w-75">
+                                                          Standard (2-5 business
+                                                          days)
+                                                        </p>
+                                                      </li>
+                                                    </div>
+                                                  );
+                                                }
+                                              }
+                                            )}
+                                        </ul>
+                                      </div>
+
+                                      {userData?.client?.address?.length >
+                                        1 && (
+                                        <button
+                                          className="btn btn-sm btn-warning mt-2 mb-2 "
+                                          onClick={() => {
+                                            setShowModal(true);
+                                            setFormType("update");
+                                            setAddressUpdateType("shipping");
+                                          }}
+                                          style={{
+                                            backgroundColor: "#54a8c7",
+                                            border: "#54a8c7",
+                                            color: "#fff",
+                                          }}
+                                        >
+                                          Update address
+                                        </button>
+                                      )}
+                                      <button
+                                        className="btn btn-sm btn-warning mb-2 mt-2 ml-2"
+                                        variant="warning"
+                                        color="warning"
+                                        onClick={() => {
+                                          setShowModal(true);
+                                          setFormType("add");
+                                          setAddressUpdateType("shipping");
+                                        }}
+                                        style={{
+                                          background: "#54a8c7",
+                                          border: "#54a8c7",
+                                          color: "#fff",
+                                        }}
+                                      >
+                                        Add address
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          {/* addressess end */}
                           <div className="nav flex-column  nav-pills">
                             <div className="nav-but-left drop-shadow-lg mt-0">
                               <h4 className="mb-3 !font-bold">Order Summary</h4>
                               <div className="pt-0 mb-3">
                                 {/* <!-- <h6 className="fs-18 mb-0">Promocode</h6> --> */}
                                 <div className="d-flex w-75">
-                                  {clientType === "client" && (
+                                  {!promocodeApplied && (
                                     <input
                                       type="text"
                                       className="form-control rounded-0 py-0 px-2"
@@ -549,21 +893,29 @@ export default function AddToCart() {
                                       onChange={handlePromoCodeChange}
                                     />
                                   )}
-                                  {clientType === "client" && (
+                                  {!promocodeApplied && (
                                     <button
-                                      type="button"
+                                      type="submit"
                                       className="btn btn-success rounded-0 px-3 py-1 fs-14 bg-[rgba(34,197,94,1)]"
                                       name="button"
+                                      onClick={applyPromoCode}
                                     >
                                       Apply
                                     </button>
                                   )}
-                                  {clientType !== "client" && (
+                                  {promocodeApplied && (
                                     <p className="text-green-900 font-semibold">
                                       Promocode applied{" "}
                                       {discountPercentage !== null
                                         ? discountPercentage + "%"
                                         : ""}
+                                    </p>
+                                  )}
+                                </div>
+                                <div>
+                                  {promocodeErr && (
+                                    <p className="text-red-600 text-xs text-start">
+                                      {promocodeErr}
                                     </p>
                                   )}
                                 </div>
@@ -574,15 +926,10 @@ export default function AddToCart() {
                                     Sub Total:
                                   </p>
                                   <p className="m-0 fs-14 text-gray-1200 w-75">
-                                    ₹ {subTotal?.toFixed(2)}
+                                    ₹ {subTotal}
                                   </p>
                                 </li>
-                                {/* <li className="d-flex align-items-center gap-5 text-gray-1200">
-                        <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                          Shipping:
-                        </p>
-                        <p className="m-0 fs-14 text-gray-1200 w-75">{allProducts?.length> 0 ? "₹ 10.00" : "₹ 0.00"}</p>
-                      </li> */}
+
                                 <li className="d-flex align-items-center text-gray-1200">
                                   <p className="m-0 fs-12 fw-semibold text-uppercase w-40">
                                     Tax:
@@ -657,11 +1004,11 @@ export default function AddToCart() {
                         </div>
                       )}
                       <div
-                        className={`${
+                        className={`order-1 ${
                           cartProducts?.length > 0 ? "col-lg-8" : "col-lg-12"
                         } `}
                       >
-                        <div className={`tab-content overflow-y-auto `}>
+                        <div className={`tab-content `}>
                           <div className="mb-5 !w-full lg:!w-[99%]">
                             {allProducts?.length > 0 ? (
                               <>
@@ -699,14 +1046,14 @@ export default function AddToCart() {
                                         </div>
                                         <Divider />
                                         <div>
-                                          <div>
+                                          <div className="overflow-y-auto max-h-[600px]">
                                             {allProducts?.length &&
                                               allProducts?.map(
                                                 (product, ind) => {
                                                   return (
                                                     <div key={ind}>
-                                                      <div className="  drop-shadow-lg">
-                                                        <div className="grid grid-cols-2 md:grid-cols-3 hover:!shadow-lg align-items-center">
+                                                      <div className="">
+                                                        <div className="grid grid-cols-2 md:grid-cols-3  align-items-center">
                                                           <div className="w-[75%] lg:w-[50%]">
                                                             <img
                                                               src={
@@ -925,7 +1272,7 @@ export default function AddToCart() {
                                                               alt=""
                                                             />
                                                             <p
-                                                              className="prod-desc mb-0 text-success"
+                                                              className="prod-desc mb-0 pr-2 text-success"
                                                               style={{
                                                                 marginRight:
                                                                   "5px",
@@ -950,7 +1297,7 @@ export default function AddToCart() {
                               </>
                             ) : (
                               <div className="text-center font-bold text-gray-700 ">
-                                <p>no products found in cart</p>
+                                <p>No products found in cart</p>
                                 <p
                                   className="nav-link text-green-900 cursor-pointer"
                                   onClick={() => navigate("/products")}
@@ -962,388 +1309,13 @@ export default function AddToCart() {
                             )}
                           </div>
                         </div>
-                        <hr className="mt-2" />
-                        {userData?.client?.primary_address?.length === 0 &&
-                          allProducts?.length > 0 && (
-                            <span className="text-danger !mt-2 !text-xs ">
-                              Please add Address before placing order.
-                            </span>
-                          )}
-                        {cartProducts?.length > 0 && (
-                          <div className="mt-2  drop-shadow-lg">
-                            {userData ? (
-                              <div className="nk-section-blog-details mt-2">
-                                <h4 className=" !font-bold">
-                                  Billing Address :
-                                  {userData?.client?.primary_address?.length ===
-                                    0 && (
-                                    <ErrorOutlineIcon
-                                      fontSize="md"
-                                      className="!font-bold text-danger"
-                                    />
-                                  )}
-                                </h4>
-
-                                {userData?.client?.primary_address?.length >
-                                  0 && (
-                                  <ul className="d-flex flex-column gap-2 pb-0">
-                                    <li className="d-flex align-items-center gap-5 text-gray-1200">
-                                      <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                        Full Name:
-                                      </p>
-                                      <p className="m-0 fs-14 text-gray-1200 w-75">
-                                        {userData?.client?.first_name}&nbsp;
-                                        {userData?.client?.last_name}
-                                      </p>
-                                    </li>
-                                    <li className="d-flex align-items-center gap-5 text-gray-1200">
-                                      <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                        Address:
-                                      </p>
-                                      <p className="m-0 fs-14 text-gray-1200 w-75">
-                                        {
-                                          userData?.client?.primary_address[0]
-                                            ?.add_1
-                                        }
-                                        ,{" "}
-                                        {userData?.client?.primary_address[0]
-                                          ?.add_2 !== null
-                                          ? `${userData?.client?.primary_address[0]?.add_2},  `
-                                          : ""}
-                                        {
-                                          userData?.client?.primary_address[0]
-                                            ?.city
-                                        }
-                                        ,{" "}
-                                        {
-                                          userData?.client?.primary_address[0]
-                                            ?.state
-                                        }
-                                        ,{" "}
-                                        {
-                                          userData?.client?.primary_address[0]
-                                            ?.country
-                                        }
-                                        ,{" "}
-                                        {
-                                          userData?.client?.primary_address[0]
-                                            ?.zip
-                                        }
-                                      </p>
-                                    </li>
-                                    <li className="d-flex align-items-center gap-5 text-gray-1200">
-                                      <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                        Shipping Type:
-                                      </p>
-                                      <p className="m-0 fs-14 text-gray-1200 w-75">
-                                        Standard (2-5 business days)
-                                      </p>
-                                    </li>
-                                  </ul>
-                                )}
-                                {userData?.client?.primary_address?.length >
-                                0 ? (
-                                  <div>
-                                    <button
-                                      className="btn btn-sm btn-warning mt-2 mb-2"
-                                      variant="warning"
-                                      color="warning"
-                                      onClick={() => {
-                                        setActiveBillingAddressChecked(0);
-                                        setShowModal(true);
-                                        setFormType("update");
-                                        setAddressUpdateType("Billing");
-                                      }}
-                                      style={{
-                                        background: "#54a8c7",
-                                        border: "#54a8c7",
-                                        color: "#fff",
-                                      }}
-                                    >
-                                      Update address
-                                    </button>
-                                    <div className="form-check">
-                                      <input
-                                        type="checkbox"
-                                        checked={billingSameAsShipping === true}
-                                        onChange={handleBillingSameAsShipping}
-                                        className="form-check-input"
-                                      />
-                                      <label className="ml-3 form-check-label">
-                                        Billing address same as Shipping address
-                                      </label>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <button
-                                    className="btn btn-sm btn-warning mt-2 mb-2"
-                                    variant="warning"
-                                    color="warning"
-                                    onClick={() => {
-                                      setShowModal(true);
-                                      setFormType("add");
-                                      setAddressUpdateType("Billing");
-                                    }}
-                                    style={{
-                                      background: "#54a8c7",
-                                      border: "#54a8c7",
-                                      color: "#fff",
-                                    }}
-                                  >
-                                    Add address
-                                  </button>
-                                )}
-
-                                <div>
-                                  <hr className="mr-2" />
-                                </div>
-                                <div className="nk-section-blog-details mt-3"></div>
-                              </div>
-                            ) : (
-                              <div className="nk-section-blog-details mt-3">
-                                <Button
-                                  className="btn btn-warning mb-2"
-                                  variant="warning"
-                                  color="warning"
-                                  onClick={() => {
-                                    setShowModal(true);
-                                    setFormType("add");
-                                    setAddressUpdateType("shipping");
-                                  }}
-                                  style={{
-                                    background: "#54a8c7 ",
-                                    border: "#54a8c7",
-                                    color: "#fff",
-                                  }}
-                                >
-                                  Add address
-                                </Button>
-                              </div>
-                            )}
-                            {!billingSameAsShipping && (
-                              <>
-                                {userData?.client?.address?.length == 1 &&
-                                  allProducts?.length > 0 && (
-                                    <span className="text-danger !mt-1  !text-xs ">
-                                      Please add Address before placing order.
-                                    </span>
-                                  )}
-                                <div className="nk-section-blog-details mt-1">
-                                  <div className="max-h-[350px] md:max-h-[500px] overflow-y-auto">
-                                    <h4 className="mb-3 !font-bold">
-                                      Shipping Address{" "}
-                                      {userData?.client?.address?.length == 1 &&
-                                        !billingSameAsShipping && (
-                                          <ErrorOutlineIcon
-                                            fontSize="md"
-                                            className="!font-bold text-danger"
-                                          />
-                                        )}
-                                    </h4>
-
-                                    <ul className="d-flex flex-column gap-2 pb-0">
-                                      {userData?.client?.address?.length > 0 &&
-                                        userData?.client?.address?.map(
-                                          (add, ind) => {
-                                            // console.log(add?.id, activeBillingAddress)
-                                            if (
-                                              add?.id !== activeBillingAddress
-                                            ) {
-                                              return (
-                                                <div className="" key={ind}>
-                                                  <li className="d-flex align-items-center pb-1">
-                                                    <div className="!block">
-                                                      <input
-                                                        type="checkbox"
-                                                        checked={
-                                                          activeShippingAddressChecked ===
-                                                          ind
-                                                        }
-                                                        onChange={() => {
-                                                          handleShippingAddressChange(
-                                                            ind
-                                                          );
-                                                          setActiveShippingaddressChecked(
-                                                            ind
-                                                          );
-                                                          localStorage.setItem(
-                                                            "shipAdd",
-                                                            ind
-                                                          );
-                                                        }}
-                                                        className="form-check-input"
-                                                      />
-                                                      <span
-                                                        className="ml-3  font-semibold fs-14"
-                                                        style={{
-                                                          color: "#0167f3",
-                                                        }}
-                                                      >
-                                                        {activeShippingAddressChecked ===
-                                                        ind
-                                                          ? "[Selected]"
-                                                          : ""}
-                                                      </span>
-                                                    </div>
-                                                  </li>
-
-                                                  <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
-                                                    <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                                      Full Name:
-                                                    </p>
-                                                    <p className="m-0 fs-14 text-gray-1200 w-75">
-                                                      {
-                                                        userData?.client
-                                                          ?.first_name
-                                                      }
-                                                    </p>
-                                                  </li>
-                                                  <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
-                                                    <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                                      Address:
-                                                    </p>
-                                                    <p className="m-0 fs-14 text-gray-1200 w-75">
-                                                      {add.add_1},{" "}
-                                                      {add?.add_2 !== null
-                                                        ? `${add?.add_2},  `
-                                                        : ""}
-                                                      {add?.city}, {add?.state},{" "}
-                                                      {add?.country}, {add?.zip}
-                                                    </p>
-                                                  </li>
-                                                  <li className="d-flex align-items-center gap-5 text-gray-1200 py-1">
-                                                    <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                                                      Shipping Type:
-                                                    </p>
-                                                    <p className="m-0 fs-14 text-gray-1200 w-75">
-                                                      Standard (2-5 business
-                                                      days)
-                                                    </p>
-                                                  </li>
-                                                </div>
-                                              );
-                                            }
-                                          }
-                                        )}
-                                    </ul>
-                                  </div>
-
-                                  {userData?.client?.address?.length > 1 && (
-                                    <button
-                                      className="btn btn-sm btn-warning mt-2 mb-2 "
-                                      onClick={() => {
-                                        setShowModal(true);
-                                        setFormType("update");
-                                        setAddressUpdateType("shipping");
-                                      }}
-                                      style={{
-                                        backgroundColor: "#54a8c7",
-                                        border: "#54a8c7",
-                                        color: "#fff",
-                                      }}
-                                    >
-                                      Update address
-                                    </button>
-                                  )}
-                                  <button
-                                    className="btn btn-sm btn-warning mb-2 mt-2 ml-2"
-                                    variant="warning"
-                                    color="warning"
-                                    onClick={() => {
-                                      setShowModal(true);
-                                      setFormType("add");
-                                      setAddressUpdateType("shipping");
-                                    }}
-                                    style={{
-                                      background: "#54a8c7",
-                                      border: "#54a8c7",
-                                      color: "#fff",
-                                    }}
-                                  >
-                                    Add address
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        )}
                       </div>
-                      {cartProducts?.length > 0 && (
-                        <div className="col-lg-4 ps-lg-0 ">
-                          <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
-                            {/* {userData ? (
-                    <div className="nk-section-blog-details mt-3">
-                      <h4 className="mb-3">Shipping To</h4>
-                      <ul className="d-flex flex-column gap-2 pb-0">
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Full Name:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {userData?.client?.first_name}
-                          </p>
-                        </li>
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Address:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            {userData?.client?.primary_address[0]?.add_1},{" "}
-                            {userData?.client?.primary_address[0]?.add_2 !== null
-                              ? `${userData?.client?.primary_address[0]?.add_2},  `
-                              : ""}
-                            {userData?.client?.primary_address[0]?.city}, {userData?.client?.primary_address[0]?.state},{" "}
-                            {userData?.client?.primary_address[0]?.country}, {userData?.client?.primary_address[0]?.zip}
-                          </p>
-                        </li>
-                        <li className="d-flex align-items-center gap-5 text-gray-1200">
-                          <p className="m-0 fs-12 fw-semibold text-uppercase w-25">
-                            Shipping Type:
-                          </p>
-                          <p className="m-0 fs-14 text-gray-1200 w-75">
-                            Standard (2-5 business days)
-                          </p>
-                        </li>
-                      </ul>
-                      <button
-                        className="btn btn-warning mt-2 mb-2"
-                        variant="warning"
-                        color="warning"
-                        onClick={() => {
-                          setShowModal(true);
-                          setFormType("update")
-                        }}
-                      >
-                        Update address
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="nk-section-blog-details mt-3">
-                      <Button
-                        className="btn btn-warning mb-2"
-                        variant="warning"
-                        color="warning"
-                        onClick={() => {
-                          setShowModal(true);
-                          setFormType("add")
-                        }}
-                      >
-                        Add address
-                      </Button>
-                    </div>
-                  )}
-                  <hr /> */}
-                            
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          {/* </div> */}
         </section>
         <section className="nk-section nk-cta-section nk-section-content-1">
           <div className="container">
@@ -1369,10 +1341,7 @@ export default function AddToCart() {
                   </div>
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`https://tradingmaterials.com/contact`}
-                    className="btn btn-white fw-semiBold"
-                  >
+                  <a href={`/contactus`} className="btn btn-white fw-semiBold">
                     {t("Contact_support")}
                   </a>
                 </div>

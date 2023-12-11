@@ -12,7 +12,6 @@ export const addressStatusSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     updateaddressStatus : (state, action)  =>{
-        console.log(action.payload)
         state.value = action?.payload
     }
   },

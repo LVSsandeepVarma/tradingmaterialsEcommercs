@@ -12,7 +12,6 @@ export const cartlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     updateCart : (state, action)  =>{
-        console.log(action.payload)
         state.value = action?.payload
     }
   },

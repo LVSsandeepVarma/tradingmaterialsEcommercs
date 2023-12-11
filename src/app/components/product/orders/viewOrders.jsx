@@ -5,28 +5,35 @@ import Footer from "../../footer/footer";
 import "./viewOrder.css";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { LuPackageCheck } from "react-icons/lu";
 import {
   hideLoader,
   showLoader,
 } from "../../../../features/loader/loaderSlice";
 import { useTranslation } from "react-i18next";
-import {
-  FaBoxesPacking,
-  FaCartArrowDown,
-  FaCrosshairs,
-  FaFileInvoice,
-  FaMagnifyingGlass,
-  FaPeopleCarryBox,
-  FaTruckFast,
-} from "react-icons/fa6";
+import { FaClock, FaCrosshairs, FaFileInvoice } from "react-icons/fa6";
 import CryptoJS from "crypto-js";
-
+import Timeline from "@mui/lab/Timeline";
+import TimelineItem, { timelineItemClasses } from "@mui/lab/TimelineItem";
+import TimelineSeparator from "@mui/lab/TimelineSeparator";
+import TimelineConnector from "@mui/lab/TimelineConnector";
+import TimelineContent from "@mui/lab/TimelineContent";
+import TimelineDot from "@mui/lab/TimelineDot";
 import { RiSecurePaymentFill } from "react-icons/ri";
 import Dashboard from "../../commonDashboard/Dashboard";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  CardContent,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Card } from "react-bootstrap";
+import ProductReviewModal from "./reviewProducts/ProductReview";
 
 export default function ViewOrders() {
-  // const userData  =useSelector(state => state?.user?.value)
+  const userData = useSelector((state) => state?.user?.value);
   // eslint-disable-next-line no-unused-vars
   const [orders, setOrders] = useState();
   const [orderDataOne, setOrderDataOne] = useState();
@@ -40,6 +47,37 @@ export default function ViewOrders() {
   const [viewOrderDetails, setViewOrderDetails] = useState();
   const params = useParams();
   const dispatch = useDispatch();
+
+  const orderStatus = {
+    0: "Pending",
+    1: "Placed",
+    2: "Confirmed",
+    3: "Dispatched",
+    4: "Delivered",
+    5: "Cancelled",
+    6: "Returned",
+  };
+
+  const orderStatusSmall = {
+    0: "pending",
+    1: "placed",
+    2: "confirmed",
+    3: "dispatched",
+    4: "delivered",
+    5: "cancelled",
+    6: "returned",
+  };
+
+  const orderCounts = {
+    0: orderDataTwo?.length,
+    1: orderDataOne?.length,
+    2: orderDataOne?.length,
+    3: orderDataOne?.length,
+    4: orderDataOne?.length,
+    5: orderDataTwo?.length,
+    6: orderDataTwo?.length,
+  };
+
   // const loaderState = useSelector((state) => state?.loader?.value);
   useEffect(() => {
     const getOrderTwoDetails = async (type, dataCount) => {
@@ -170,33 +208,6 @@ export default function ViewOrders() {
     } else if (params?.order_type == "dispatched") {
       getOrderDetails("dispatched", "one", "");
     }
-
-    // }
-
-    // const getOrderDetails = async () => {
-    //   try {
-    //     dispatch(showLoader());
-    //     const response = await axios.get(
-    //       `https://admin.tradingmaterials.com/api/client/get-orders?type=${params?.order_type}`,
-    //       {
-    //         headers: {
-    //           Authorization: "Bearer " + localStorage.getItem("client_token"),
-    //         },
-    //       }
-    //     );
-    //     if (response?.data?.status) {
-    //       console.log(response?.data);
-    //       setOrderId(response?.data?.data?.orders[0]?.id);
-    //       setOrders(response?.data?.data?.orders);
-    //       setOrderNumber(response?.data?.data?.orders[0]?.order_number);
-    //     }
-    //   } catch (err) {
-    //     console.log(err);
-    //   } finally {
-    //     dispatch(hideLoader());
-    //   }
-    // };
-    // getOrderDetails();
   }, []);
 
   useEffect(() => {
@@ -256,13 +267,27 @@ export default function ViewOrders() {
                     >
                       <div
                         className={`inner-circle timeline-active ${
-                          params?.order_type == "placed" ||
-                          params?.order_type == "unpaid"
-                            ? "border !border-blue-500 border-solid"
+                          userData?.client?.order_placed == 0 &&
+                          userData?.client?.order_pending == 0
+                            ? "!cursor-no-drop"
                             : ""
+                        } ${
+                          userData?.client?.order_placed > 0 ||
+                          userData?.client?.order_pending > 0
+                            ? `${
+                                params?.order_type == "placed"
+                                  ? "border !border-blue-500 border-solid"
+                                  : ""
+                              }`
+                            : "grayscale"
                         }`}
                         onClick={() => {
-                          window.location.href = "/view-order/placed";
+                          if (
+                            userData?.client?.order_placed > 0 ||
+                            userData?.client?.order_pending > 0
+                          ) {
+                            window.location.href = "/view-order/placed";
+                          }
                         }}
                       >
                         <img
@@ -276,13 +301,28 @@ export default function ViewOrders() {
                           width="50px"
                           alt="placed"
                         />
-                        {/* <FaCartArrowDown
-                          className="fa-solid fa-cart-arrow-down text-[2em] "
-                          style={{ color: "#1581d2" }}
-                        /> */}
                       </div>
-                      {/* <!-- <p class="h6 mt-3 mb-1">2003</p> --> */}
-                      <p className="h6 text-muted !font-bold mb-0 mb-lg-0 order-placed">
+                      <p
+                        className={`h6 text-muted ${
+                          userData?.client?.order_placed == 0 &&
+                          userData?.client?.order_pending == 0
+                            ? "!cursor-no-drop"
+                            : ""
+                        } !font-bold mb-0 mb-lg-0 ${
+                          userData?.client?.order_placed > 0 ||
+                          userData?.client?.order_pending > 0
+                            ? "order-placed"
+                            : "grayscale"
+                        }`}
+                        onClick={() => {
+                          if (
+                            userData?.client?.order_placed > 0 ||
+                            userData?.client?.order_pending > 0
+                          ) {
+                            window.location.href = "/view-order/placed";
+                          }
+                        }}
+                      >
                         Order Placed
                       </p>
                     </div>
@@ -298,16 +338,32 @@ export default function ViewOrders() {
                       data-original-title="2005"
                     >
                       <div
-                        className={`inner-circle timeline-active ${
-                          params?.order_type == "confirmed" ||
-                          params?.order_type == "cancelled"
-                            ? "border !border-green-500 border-solid"
+                        className={` inner-circle timeline-active
+                        ${
+                          userData?.client?.order_confirmed == 0 &&
+                          userData?.client?.order_cancelled == 0
+                            ? "!cursor-no-drop"
                             : ""
+                        }
+                        ${
+                          userData?.client?.order_confirmed > 0 ||
+                          userData?.client?.order_cancelled > 0
+                            ? `  ${
+                                params?.order_type == "confirmed" ||
+                                params?.order_type == "cancelled"
+                                  ? "border !border-green-500 border-solid"
+                                  : ""
+                              }`
+                            : "grayscale"
                         }`}
                         onClick={() => {
-                          window.location.href = "/view-order/confirmed";
+                          if (
+                            userData?.client?.order_confirmed > 0 ||
+                            userData?.client?.order_cancelled > 0
+                          ) {
+                            window.location.href = "/view-order/confirmed";
+                          }
                         }}
-                        // style={{ border: "1px solid #4CAF50" }}
                       >
                         <img
                           src="/images/orders/Order-confirmed.png"
@@ -319,14 +375,33 @@ export default function ViewOrders() {
                           }`}
                           width="100px"
                         />
-                        {/* <FaBoxesPacking
-                          className="fa-solid fa-boxes-packing text-[2em] fa-beat-fade"
-                          style={{ color: "#4caf50" }}
-                        /> */}
                       </div>
-                      {/* <!-- <p class="h6 mt-3 mb-1">2005</p> --> */}
-                      <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-confirmed">
-                        Order Confirmed <br /> & Cancelled
+                      <p
+                        className={`h6 text-muted mb-0 !font-bold mb-lg-0
+                        ${
+                          (userData?.client?.order_confirmed == 0 &&
+                          userData?.client?.order_cancelled == 0)
+                            ? "!cursor-no-drop"
+                            : ""
+                        }
+                        ${
+                          (userData?.client?.order_confirmed > 0 ||
+                          userData?.client?.order_cancelled > 0)
+                            ? "order-confirmed"
+                            : "grayscale"
+                        }`}
+                        onClick={() => {
+                          if (
+                            userData?.client?.order_confirmed > 0 ||
+                            userData?.client?.order_cancelled > 0
+                          ) {
+                            window.location.href = "/view-order/confirmed";
+                          }
+                        }}
+                      >
+                        {viewOrderDetails?.status == 5
+                          ? "Order Cancelled"
+                          : "Order Confirmed"}
                       </p>
                     </div>
                   </div>
@@ -341,13 +416,25 @@ export default function ViewOrders() {
                       data-original-title="2010"
                     >
                       <div
-                        className={`inner-circle timeline-active ${
-                          params?.order_type == "dispatched"
-                            ? "border !border-[#ff9800] border-solid"
+                        className={`inner-circle timeline-active 
+                        ${
+                          userData?.client?.order_dispatched == 0
+                            ? "!cursor-no-drop"
                             : ""
+                        }
+                        ${
+                          userData?.client?.order_dispatched > 0
+                            ? `${
+                                params?.order_type == "dispatched"
+                                  ? "border !border-[#ff9800] border-solid"
+                                  : ""
+                              }`
+                            : "grayscale"
                         }`}
                         onClick={() => {
-                          window.location.href = "/view-order/dispatched";
+                          if (userData?.client?.order_dispatched > 0) {
+                            window.location.href = "/view-order/dispatched";
+                          }
                         }}
                       >
                         <img
@@ -359,13 +446,25 @@ export default function ViewOrders() {
                           }`}
                           width="100px"
                         />{" "}
-                        {/* <FaTruckFast
-                          className="fa-solid fa-truck-fast text-[2em]"
-                          style={{ color: "#ff9800" }}
-                        /> */}
                       </div>
-                      {/* <!-- <p class="h6 mt-3 mb-1">2010</p> --> */}
-                      <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-dispatched">
+                      <p
+                        className={`h6 text-muted mb-0 !font-bold mb-lg-0 
+                        ${
+                          userData?.client?.order_dispatched == 0
+                            ? "!cursor-no-drop"
+                            : ""
+                        }
+                        ${
+                          userData?.client?.order_dispatched > 0
+                            ? "order-dispatched"
+                            : "grayscale"
+                        }`}
+                        onClick={() => {
+                          if (userData?.client?.order_dispatched > 0) {
+                            window.location.href = "/view-order/dispatched";
+                          }
+                        }}
+                      >
                         Order Dispatched
                       </p>
                     </div>
@@ -381,14 +480,26 @@ export default function ViewOrders() {
                       data-original-title="2020"
                     >
                       <div
-                        className={`inner-circle timeline-active ${
-                          params?.order_type == "delivered" ||
-                          params?.order_type == "returned"
-                            ? "border !border-[#009688] border-solid"
+                        className={`inner-circle timeline-active 
+                        ${
+                          (userData?.client?.order_completed == 0 && userData?.client?.order_returned == 0)
+                            ? "!cursor-no-drop"
                             : ""
+                        }
+                        ${
+                          (userData?.client?.order_completed > 0 || userData?.client?.order_returned > 0)
+                            ? `${
+                                params?.order_type == "delivered" ||
+                                params?.order_type == "returned"
+                                  ? "border !border-[#009688] border-solid"
+                                  : ""
+                              }`
+                            : "grayscale"
                         }`}
                         onClick={() => {
-                          window.location.href = "/view-order/delivered";
+                          if (userData?.client?.order_completed > 0 || userData?.client?.order_returned >0) {
+                            window.location.href = "/view-order/delivered";
+                          }
                         }}
                       >
                         <img
@@ -401,14 +512,32 @@ export default function ViewOrders() {
                           }`}
                           width="100px"
                         />{" "}
-                        {/* <FaPeopleCarryBox
-                          className="fa-sharp fa-solid fa-people-carry-box text-[2em]"
-                          style={{ color: "#009688" }}
-                        /> */}
                       </div>
-                      {/* <!-- <p class="h6 mt-3 mb-1">2020</p> --> */}
-                      <p className="h6 text-muted mb-0 !font-bold mb-lg-0 order-delivered">
-                        Order Delivered <br /> & Returned
+                      <p
+                        className={`h6 text-muted mb-0 !font-bold mb-lg-0 
+                        ${
+                          (userData?.client?.order_completed == 0 && userData?.client?.order_returned == 0)
+                            ? "!cursor-no-drop"
+                            : ""
+                        }
+                        ${
+                          (userData?.client?.order_completed > 0 || userData?.client?.order_returned > 0)
+                            ? "order-delivered"
+                            : "grayscale"
+                        } `}
+                        onClick={() => {
+                          if (
+                            userData?.client?.order_completed > 0 ||
+                            userData?.client?.order_returned > 0
+                          ) {
+                            window.location.href = "/view-order/delivered";
+                          }
+                        }}
+                      >
+                        {viewOrderDetails?.status == "6"
+                          ? "Order Returned"
+                          : "Order delivered"}{" "}
+                        <br />
                       </p>
                     </div>
                   </div>
@@ -428,23 +557,12 @@ export default function ViewOrders() {
                         src={`/images/orders/${params?.order_type}.png`}
                       /> */}
                       <h5 className="text-muted text-left capitalize text-xl !font-bold mb-0">
-                        {" "}
-                        {params?.order_type == "placed" ||
-                        params?.order_type == "unpaid"
-                          ? "Placed & Pending Orders"
-                          : params?.order_type == "confirmed" ||
-                            params?.order_type == "cancelled"
-                          ? "Confirmed & Cancelled Orders"
-                          : params?.order_type == "delivered" ||
-                            params?.order_type == "returned"
-                          ? "Delivered & Returned Orders"
-                          : params?.order_type == "dispatched"
-                          ? "Dispatched Orders"
-                          : ""}
+                        {orderStatus[viewOrderDetails?.status]}
+                        &nbsp;Orders
                         {(orderDataOne?.length > 0 ||
                           orderDataTwo?.length > 0) && (
                           <span className="badge badge-custom ms-2">
-                            {orderDataOne?.length + orderDataTwo?.length}
+                            {orderCounts[viewOrderDetails?.status]}
                           </span>
                         )}
                       </h5>
@@ -477,7 +595,9 @@ export default function ViewOrders() {
                               <div className="">
                                 <div className="flex justify-center">
                                   <img
-                                    src={`/images/orders/large/${params?.order_type}.png`}
+                                    src={`/images/orders/large/${
+                                      orderStatusSmall[viewOrderDetails?.status]
+                                    }.png`}
                                     className="w-22 h-auto"
                                     alt="orders_large_icons"
                                     style={{ filter: "blur(3px)" }}
@@ -495,7 +615,17 @@ export default function ViewOrders() {
                             </>
                           )}
                       </div>
-                      <div className="col-lg-3 mr-0 pr-0 orders-scrollbar max-h-[500px] overflow-y-auto">
+                      <div
+                        className={`col-lg-3 mr-0 pr-0 orders-scrollbar ${
+                          viewOrderDetails?.items?.length < 2
+                            ? "max-h-[500px]"
+                            : viewOrderDetails?.items?.length < 6
+                            ? "max-h-[800px]"
+                            : viewOrderDetails?.items?.length < 8
+                            ? "max-h-[1000px]"
+                            : "max-h-[100%]"
+                        } overflow-y-auto`}
+                      >
                         {(orderDataOne?.length > 0 ||
                           orderDataTwo?.length > 0) && (
                           <div
@@ -652,7 +782,12 @@ export default function ViewOrders() {
                                           </span>
                                           <span>Orders</span>
                                           <span>
-                                            Orders {params?.order_type}
+                                            Orders{" "}
+                                            {viewOrderDetails?.status
+                                              ? orderStatus[
+                                                  viewOrderDetails?.status
+                                                ]
+                                              : params?.order_type}
                                           </span>
                                           <span>
                                             Order No:{" "}
@@ -698,49 +833,74 @@ export default function ViewOrders() {
                                               <FaFileInvoice className="mr-1" />{" "}
                                               Invoice
                                             </button>
-                                            <button
-                                              type="button"
-                                              className="btn btn-primary btn-sm rounded custom-btn"
-                                              name="button"
-                                              onClick={() => {
-                                                if (
-                                                  // params?.order_type == "unpaid"
-                                                  viewOrderDetails?.status == 0
-                                                ) {
-                                                  window.open(
-                                                    `/checkout/order_id/${CryptoJS?.AES?.encrypt(
-                                                      `${orderId}`,
-                                                      "trading_materials_order"
-                                                    )
-                                                      ?.toString()
-                                                      .replace(/\//g, "_")
-                                                      .replace(/\+/g, "-")}`
-                                                  );
-                                                } else {
-                                                  window.open(
-                                                    `/track-order/${CryptoJS?.AES?.encrypt(
-                                                      `${orderId}`,
-                                                      "trading_materials"
-                                                    )
-                                                      ?.toString()
-                                                      .replace(/\//g, "_")
-                                                      .replace(/\+/g, "-")}`,
-                                                    "_blank"
-                                                  );
-                                                }
-                                              }}
-                                            >
-                                              {params?.order_type ==
-                                              "unpaid" ? (
-                                                <RiSecurePaymentFill />
-                                              ) : (
-                                                <FaCrosshairs className="mr-1" />
+                                            {viewOrderDetails?.status != "5" &&
+                                              viewOrderDetails?.status !=
+                                                "6" && (
+                                                <button
+                                                  type="button"
+                                                  className="btn btn-primary btn-sm rounded custom-btn"
+                                                  name="button"
+                                                  onClick={() => {
+                                                    if (
+                                                      // params?.order_type == "unpaid"
+                                                      viewOrderDetails?.status ==
+                                                      0
+                                                    ) {
+                                                      window.location.href = `https://tradingmaterials.com/client/checkout/${CryptoJS?.AES?.encrypt(
+                                                        `${orderId}`,
+                                                        "trading_materials_order"
+                                                      )
+                                                        ?.toString()
+                                                        .replace(/\//g, "_")
+                                                        .replace(
+                                                          /\+/g,
+                                                          "-"
+                                                        )}/${localStorage.getItem(
+                                                        "client_token"
+                                                      )}/${
+                                                        userData?.client?.id
+                                                      }`;
+                                                    } else {
+                                                      window.open(
+                                                        `/track-order/${CryptoJS?.AES?.encrypt(
+                                                          `${orderId}`,
+                                                          "trading_materials"
+                                                        )
+                                                          ?.toString()
+                                                          .replace(/\//g, "_")
+                                                          .replace(
+                                                            /\+/g,
+                                                            "-"
+                                                          )}`,
+                                                        "_blank"
+                                                      );
+                                                    }
+                                                  }}
+                                                >
+                                                  {params?.order_type ==
+                                                  "unpaid" ? (
+                                                    <RiSecurePaymentFill />
+                                                  ) : viewOrderDetails?.status !=
+                                                      "5" &&
+                                                    viewOrderDetails?.status !=
+                                                      "6" ? (
+                                                    <FaCrosshairs className="mr-1" />
+                                                  ) : (
+                                                    ""
+                                                  )}
+                                                  {params?.order_type ==
+                                                    "unpaid" ||
+                                                  viewOrderDetails?.status ==
+                                                    "0"
+                                                    ? "Pay now"
+                                                    : viewOrderDetails?.status ==
+                                                        "5" &&
+                                                      viewOrderDetails?.status ==
+                                                        "6"
+                                                    ? ""
+                                                    : "Track order"}{" "}
+                                                </button>
                                               )}
-                                              {params?.order_type == "unpaid" ||
-                                              viewOrderDetails?.status == "0"
-                                                ? "Pay now"
-                                                : "Track order"}{" "}
-                                            </button>
                                           </div>
                                         </div>
 
@@ -760,10 +920,10 @@ export default function ViewOrders() {
                                             </span>
                                             <span className="mx-2">|</span>
                                             <span className="text-muted">
-                                              Order Status :{" "}
-                                            </span>{" "}
-                                            <span className="text-primary">
-                                              Order {params?.order_type}
+                                              Payment Type :&nbsp;
+                                            </span>
+                                            <span className=" uppercase font-bold">
+                                              {viewOrderDetails?.payment_type}
                                             </span>
                                           </p>
                                         </div>
@@ -853,82 +1013,569 @@ export default function ViewOrders() {
                                         <hr className="!mt-[1rem] !mb-[1rem]" />
 
                                         <div className="px-2">
-                                          {viewOrderDetails?.items?.map(
-                                            (order, ind) => (
-                                              <div
-                                                className="products-row d-flex align-items-center justify-content-between flex-wrap mt-2"
-                                                key={ind}
-                                              >
-                                                <img
-                                                  src={
-                                                    order?.product_details
-                                                      ?.img_1
-                                                  }
-                                                  className="img-thumbnail"
-                                                  width="75px"
-                                                  alt=""
-                                                />
-                                                <div className="">
-                                                  <h6 className="mb-1 text-[#424242] !font-bold">
-                                                    {
+                                          {viewOrderDetails?.status != "0" &&
+                                            viewOrderDetails?.items?.map(
+                                              (order, ind) => {
+                                                if (
+                                                  viewOrderDetails
+                                                    ?.shiprocketorders?.length >
+                                                    0 &&
+                                                  viewOrderDetails?.shiprocketorders?.find(
+                                                    (item) =>
+                                                      item?.product_id ==
+                                                      order?.product_id
+                                                  )
+                                                ) {
+                                                  const shItem =
+                                                    viewOrderDetails?.shiprocketorders?.find(
+                                                      (item) =>
+                                                        item?.product_id ==
+                                                        order?.product_id
+                                                    );
+                                                  return (
+                                                    <>
+                                                      <Accordion
+                                                        key={ind}
+                                                        sx={{
+                                                          margin:
+                                                            "10px 0 !important",
+                                                        }}
+                                                        defaultExpanded={
+                                                          ind == 0
+                                                        }
+                                                        className=""
+                                                      >
+                                                        <AccordionSummary
+                                                          sx={{
+                                                            margin:
+                                                              "0 !important",
+                                                            border:
+                                                              "none !important",
+                                                          }}
+                                                          expandIcon={
+                                                            <ExpandMoreIcon />
+                                                          }
+                                                          className=" !m-0 !pr-2 hover:bg-stone-300 !border-none"
+                                                        >
+                                                          <div
+                                                            className="products-ro mr-2 d-flex align-items-center justify-content-between flex-wrap w-full "
+                                                            key={ind}
+                                                          >
+                                                            <img
+                                                              src={
+                                                                order
+                                                                  ?.product_details
+                                                                  ?.img_1
+                                                              }
+                                                              className="img-thumbnail"
+                                                              width="75px"
+                                                              alt=""
+                                                            />
+                                                            <div className="">
+                                                              <h6 className="mb-1 text-[#424242] !font-bold truncate max-w-[135px] lg:max-w-[100%]">
+                                                                {
+                                                                  order
+                                                                    ?.product_details
+                                                                    ?.name
+                                                                }
+                                                              </h6>
+                                                              <p className="order-date justify-content-center d-flex align-items-center">
+                                                                <span className="text-muted">
+                                                                  Qty :{" "}
+                                                                </span>{" "}
+                                                                <span className="text-dark">
+                                                                  {order?.qty}
+                                                                </span>{" "}
+                                                                <span className="mx-1">
+                                                                  |
+                                                                </span>
+                                                                <span className="text-muted">
+                                                                  Price :{" "}
+                                                                </span>{" "}
+                                                                <span className="text-dark">
+                                                                  {viewOrderDetails?.currency ===
+                                                                  "INR"
+                                                                    ? "₹"
+                                                                    : "$"}
+                                                                  {order?.total}
+                                                                </span>
+                                                              </p>
+                                                            </div>
+                                                            {params?.order_type !=
+                                                            "delivered" ? (
+                                                              <h6 className=" text-lg flex items-center gap-1 mb-0">
+                                                                <img
+                                                                  src="/images/order-status.png"
+                                                                  className="w-6 h-6"
+                                                                  alt="ord-status"
+                                                                />
+                                                                <span className="text-sm font-semibold">
+                                                                  {
+                                                                    shItem
+                                                                      ?.orderstatus
+                                                                      ?.status
+                                                                  }
+                                                                </span>
+                                                              </h6>
+                                                            ) : (
+                                                              <ProductReviewModal
+                                                                product_id={
+                                                                  order
+                                                                    ?.product_details
+                                                                    ?.id
+                                                                }
+                                                                name={
+                                                                  order
+                                                                    ?.product_details
+                                                                    ?.name
+                                                                }
+                                                              />
+                                                            )}
+                                                          </div>
+                                                        </AccordionSummary>
+                                                        <AccordionDetails
+                                                          className="  !border border-t-2 border-t-gray-300  "
+                                                          sx={{
+                                                            paddingBottom:
+                                                              "0px",
+                                                          }}
+                                                        >
+                                                          <>
+                                                            <div className="row p-2">
+                                                              <div className="row">
+                                                                <div className="col-md-8">
+                                                                  <div className="flex justify-around gap-2 mx-4 mb-2 p-2 flex-wrap shadow-sm bg-[#EBF5FB] hover:bg-[#b6d8f5]">
+                                                                    <div className="text-xs truncate my-1">
+                                                                      <p className="text-xs !font-bold text-start">
+                                                                        Order
+                                                                        Date
+                                                                      </p>
+                                                                      <p className="text-xs text-start">
+                                                                        {
+                                                                          shItem?.order_date
+                                                                        }
+                                                                      </p>
+                                                                    </div>
+                                                                    <div className="text-xs truncate my-1">
+                                                                      <p className="text-xs !font-bold text-start">
+                                                                        Payment
+                                                                        Type
+                                                                      </p>
+                                                                      <p className="text-xs !font-bold text-start">
+                                                                        {
+                                                                          shItem?.payment_method
+                                                                        }
+                                                                      </p>
+                                                                    </div>
+                                                                    <div className=" truncate my-1">
+                                                                      <p className="text-xs !font-bold text-start">
+                                                                        AWB No
+                                                                      </p>
+                                                                      <p className="text-xs text-start">
+                                                                        {shItem
+                                                                          ?.orderstatus
+                                                                          ?.awd_code !=
+                                                                        null
+                                                                          ? shItem
+                                                                              ?.orderstatus
+                                                                              ?.awd_code
+                                                                          : "Not available"}
+                                                                      </p>
+                                                                    </div>
+                                                                    {shItem
+                                                                      ?.orderstatus
+                                                                      ?.courier !=
+                                                                      "" && (
+                                                                      <div className=" truncate my-1">
+                                                                        <p className="text-xs  !font-bold">
+                                                                          Courier
+                                                                        </p>
+                                                                        <p className="text-xs">
+                                                                          {
+                                                                            shItem
+                                                                              ?.orderstatus
+                                                                              ?.courier
+                                                                          }
+                                                                        </p>
+                                                                      </div>
+                                                                    )}
+                                                                  </div>
+                                                                  <p className="text-start text-sm font-bold mx-4  my-2">
+                                                                    Product
+                                                                    Dimensions :
+                                                                  </p>
+                                                                  <div className="text-start flex justify-around mx-4 p-2 mb-2 flex-wrap shadow-sm bg-[#EBF5FB] hover:bg-[#b6d8f5]">
+                                                                    <div className="truncate my-1">
+                                                                      <p className="text-xs !font-bold">
+                                                                        Dead
+                                                                        Weight:
+                                                                      </p>
+                                                                      <p className="text-xs">
+                                                                        {
+                                                                          shItem
+                                                                            ?.orderstatus
+                                                                            ?.package
+                                                                            ?.weight
+                                                                        }
+                                                                        kg
+                                                                      </p>
+                                                                    </div>
+                                                                    <div className="truncate my-1">
+                                                                      <p className="text-xs !font-bold">
+                                                                        Measurements
+                                                                      </p>
+                                                                      <p className="text-xs">
+                                                                        {
+                                                                          shItem
+                                                                            ?.orderstatus
+                                                                            ?.package
+                                                                            ?.length
+                                                                        }
+                                                                        x
+                                                                        {
+                                                                          shItem
+                                                                            .orderstatus
+                                                                            ?.package
+                                                                            ?.breadth
+                                                                        }
+                                                                        x
+                                                                        {
+                                                                          shItem
+                                                                            ?.orderstatus
+                                                                            ?.package
+                                                                            ?.height
+                                                                        }
+                                                                        (cm)
+                                                                      </p>
+                                                                    </div>
+                                                                    <div className="truncate my-1">
+                                                                      <p className="text-xs !font-bold">
+                                                                        Volumetric
+                                                                        Weight
+                                                                      </p>
+                                                                      <p className="text-xs">
+                                                                        {
+                                                                          shItem
+                                                                            ?.orderstatus
+                                                                            ?.package
+                                                                            ?.volumetric_weight
+                                                                        }
+                                                                        kg
+                                                                      </p>
+                                                                    </div>
+                                                                  </div>
+                                                                </div>
+                                                                <div className="col-md-4 px-0 max-h-[200px] overflow-y-auto !text-start">
+                                                                  {shItem
+                                                                    ?.orderstatus
+                                                                    ?.timeline
+                                                                    ?.timeline
+                                                                    ?.scans
+                                                                    ?.length >
+                                                                  0 ? (
+                                                                    shItem?.orderstatus?.timeline?.timeline?.scans?.map(
+                                                                      (
+                                                                        timeline,
+                                                                        ind
+                                                                      ) => (
+                                                                        <>
+                                                                          <Timeline
+                                                                            sx={{
+                                                                              [`& .${timelineItemClasses.root}:before`]:
+                                                                                {
+                                                                                  flex: 0,
+                                                                                  padding: 0,
+                                                                                  width:
+                                                                                    "fit-content",
+                                                                                },
+                                                                              paddingTop: 0,
+                                                                              paddingBottom: 0,
+                                                                            }}
+                                                                          >
+                                                                            <TimelineItem
+                                                                              sx={{
+                                                                                paddingTop: 0,
+                                                                                paddingBottom: 0,
+                                                                              }}
+                                                                            >
+                                                                              {/* <TimelineOppositeContent
+                                                                              sx={{
+                                                                                paddingLeft:
+                                                                                  "0",
+                                                                                flex: "none",
+                                                                                paddingTop:
+                                                                                  "0",
+                                                                                paddingBottom:
+                                                                                  "0",
+                                                                              }}
+                                                                              className="px-0 !pr-[5px] text-start  !w-fit break-words truncate"
+                                                                              color="textSecondary"
+                                                                            >
+                                                                              2022-05-16
+                                                                              <br />
+                                                                              9:30
+                                                                              am
+                                                                            </TimelineOppositeContent> */}
+                                                                              <TimelineSeparator>
+                                                                                <TimelineDot
+                                                                                  variant="filled"
+                                                                                  color="primary"
+                                                                                  sx={{
+                                                                                    margin:
+                                                                                      "0",
+                                                                                  }}
+                                                                                />
+                                                                                {shItem
+                                                                                  ?.orderstatus
+                                                                                  ?.timeline
+                                                                                  ?.timeline
+                                                                                  ?.scans
+                                                                                  ?.length !=
+                                                                                  ind +
+                                                                                    1 && (
+                                                                                  <TimelineConnector
+                                                                                    sx={{
+                                                                                      bgcolor:
+                                                                                        "primary.main",
+                                                                                    }}
+                                                                                  />
+                                                                                )}
+                                                                              </TimelineSeparator>
+                                                                              <TimelineContent
+                                                                                sx={{
+                                                                                  paddingTop:
+                                                                                    "0",
+                                                                                }}
+                                                                              >
+                                                                                <>
+                                                                                  <p className="text-xs text-capitalize">
+                                                                                    <b>
+                                                                                      status:
+                                                                                    </b>
+                                                                                    {timeline?.status?.replaceAll(
+                                                                                      "_",
+                                                                                      " "
+                                                                                    )}
+                                                                                  </p>
+
+                                                                                  <p className="text-xs">
+                                                                                    {
+                                                                                      timeline?.activity
+                                                                                    }
+                                                                                  </p>
+                                                                                  <p className="text-xs">
+                                                                                    {timeline?.location?.replaceAll(
+                                                                                      "_",
+                                                                                      " "
+                                                                                    )}
+                                                                                  </p>
+                                                                                  <p className="text-xs flex items-center gap-1">
+                                                                                    <FaClock color="gray" />
+                                                                                    {new Date(
+                                                                                      timeline?.date
+                                                                                    ).toLocaleString(
+                                                                                      "en-US",
+                                                                                      {
+                                                                                        day: "numeric",
+                                                                                        month:
+                                                                                          "short",
+                                                                                        year: "numeric",
+                                                                                        hour: "numeric",
+                                                                                        minute:
+                                                                                          "numeric",
+                                                                                        hour12: true,
+                                                                                      }
+                                                                                    )}
+                                                                                  </p>
+                                                                                </>
+                                                                              </TimelineContent>
+                                                                            </TimelineItem>
+                                                                          </Timeline>
+                                                                        </>
+                                                                      )
+                                                                    )
+                                                                  ) : (
+                                                                    <div className="p-2 pt-0 text-capitalize !h-[100%]">
+                                                                      <Card className="!h-[100%]">
+                                                                        <CardContent className=" !h-[100%]">
+                                                                          <div className="h-full grid grid-cols-1 content-center">
+                                                                            <LuPackageCheck
+                                                                              className="text-center w-full "
+                                                                              size={
+                                                                                50
+                                                                              }
+                                                                            />
+
+                                                                            <p className="text-center w-full text-sm">
+                                                                              Your
+                                                                              order
+                                                                              is
+                                                                              packed
+                                                                              and
+                                                                              ready
+                                                                              for
+                                                                              pick
+                                                                              up
+                                                                            </p>
+                                                                          </div>
+                                                                        </CardContent>
+                                                                      </Card>
+                                                                    </div>
+                                                                  )}
+                                                                </div>
+                                                              </div>
+                                                            </div>
+                                                          </>
+                                                        </AccordionDetails>
+                                                      </Accordion>
+                                                    </>
+                                                  );
+                                                } else {
+                                                  return (
+                                                    <div
+                                                      className="products-row d-flex align-items-center justify-content-between flex-wrap mt-2"
+                                                      key={ind}
+                                                    >
+                                                      <img
+                                                        src={
+                                                          order?.product_details
+                                                            ?.img_1
+                                                        }
+                                                        className="img-thumbnail"
+                                                        width="75px"
+                                                        alt=""
+                                                      />
+                                                      <div className="">
+                                                        <h6 className="mb-1 text-[#424242] !font-bold truncate max-w-[135px] lg:max-w-[100%]">
+                                                          {
+                                                            order
+                                                              ?.product_details
+                                                              ?.name
+                                                          }
+                                                        </h6>
+                                                        <p className="order-date justify-content-center d-flex align-items-center">
+                                                          <span className="text-muted">
+                                                            Qty :{" "}
+                                                          </span>{" "}
+                                                          <span className="text-dark">
+                                                            {order?.qty}
+                                                          </span>{" "}
+                                                          <span className="mx-1">
+                                                            |
+                                                          </span>
+                                                          <span className="text-muted">
+                                                            Price :{" "}
+                                                          </span>{" "}
+                                                          <span className="text-dark">
+                                                            {viewOrderDetails?.currency ===
+                                                            "INR"
+                                                              ? "₹"
+                                                              : "$"}
+                                                            {order?.total}
+                                                          </span>
+                                                        </p>
+                                                      </div>
+                                                      <h6 className="!font-bold text-lg">
+                                                        {viewOrderDetails?.status ==
+                                                        "4" ? (
+                                                          <ProductReviewModal
+                                                            product_id={
+                                                              order
+                                                                ?.product_details
+                                                                ?.id
+                                                            }
+                                                            name={
+                                                              order
+                                                                ?.product_details
+                                                                ?.name
+                                                            }
+                                                          />
+                                                        ) : (
+                                                          order?.total
+                                                        )}
+                                                      </h6>
+                                                    </div>
+                                                  );
+                                                }
+                                              }
+                                            )}
+                                          {viewOrderDetails?.status == "0" &&
+                                            viewOrderDetails?.items?.map(
+                                              (order, ind) => (
+                                                <div
+                                                  className="products-row d-flex align-items-center justify-content-between flex-wrap mt-2"
+                                                  key={ind}
+                                                >
+                                                  <img
+                                                    src={
                                                       order?.product_details
-                                                        ?.name
+                                                        ?.img_1
                                                     }
-                                                  </h6>
-                                                  <p className="order-date justify-content-center d-flex align-items-center">
-                                                    <span className="text-muted">
-                                                      Qty :{" "}
-                                                    </span>{" "}
-                                                    <span className="text-dark">
-                                                      {order?.qty}
-                                                    </span>{" "}
-                                                    <span className="mx-1">
-                                                      |
-                                                    </span>
-                                                    <span className="text-muted">
-                                                      Price :{" "}
-                                                    </span>{" "}
-                                                    <span className="text-dark">
+                                                    className="img-thumbnail"
+                                                    width="75px"
+                                                    alt=""
+                                                  />
+                                                  <div className="">
+                                                    <h6 className="mb-1 text-[#424242] !font-bold truncate max-w-[135px] lg:max-w-[100%]">
+                                                      {
+                                                        order?.product_details
+                                                          ?.name
+                                                      }
+                                                    </h6>
+                                                    <p className="order-date justify-content-center d-flex align-items-center">
+                                                      <span className="text-muted">
+                                                        Qty :{" "}
+                                                      </span>{" "}
+                                                      <span className="text-dark">
+                                                        {order?.qty}
+                                                      </span>{" "}
+                                                      <span className="mx-1">
+                                                        |
+                                                      </span>
+                                                      <span className="text-muted">
+                                                        Price :{" "}
+                                                      </span>{" "}
+                                                      <span className="text-dark">
+                                                        {viewOrderDetails?.currency ===
+                                                        "INR"
+                                                          ? "₹"
+                                                          : "$"}
+                                                        {order?.price}
+                                                      </span>
+                                                    </p>
+                                                  </div>
+                                                  <h6 className="!font-bold text-lg">
+                                                    <small>
                                                       {viewOrderDetails?.currency ===
                                                       "INR"
                                                         ? "₹"
                                                         : "$"}
-                                                      {order?.price}
-                                                    </span>
-                                                  </p>
+                                                    </small>
+                                                    {order?.total}
+                                                  </h6>
                                                 </div>
-                                                <h6 className="!font-bold text-lg">
-                                                  <small>
-                                                    {viewOrderDetails?.currency ===
-                                                    "INR"
-                                                      ? "₹"
-                                                      : "$"}
-                                                  </small>
-                                                  {order?.total}
-                                                </h6>
-                                              </div>
-                                            )
-                                          )}
+                                              )
+                                            )}
 
                                           <hr className="!mt-[1rem] !mb-[1rem]" />
                                           <div className="row addresses px-2 mb-3">
                                             <div className="col-12 col-lg-6 text-left">
-                                              <h6 className="mb-1 capitalize !font-bold ">
+                                              <h6 className="mb-1 capitalize !font-bold !text-sm">
                                                 Billing Address
                                               </h6>
-                                              <p className="mb-0 order-date capitalize">
+                                              <p className="mb-0 order-date capitalize !text-xs">
                                                 {
                                                   viewOrderDetails?.invoice
                                                     ?.address_1
                                                 }
                                               </p>
-                                              <p className="mb-0 order-date capitalize">
+                                              <p className="mb-0 order-date capitalize !text-xs">
                                                 {
                                                   viewOrderDetails?.invoice
                                                     ?.address_2
                                                 }
                                               </p>
-                                              <p className="mb-0 order-date capitalize">
+                                              <p className="mb-0 order-date capitalize !text-xs">
                                                 {
                                                   viewOrderDetails?.invoice
                                                     ?.billing_city
@@ -939,7 +1586,7 @@ export default function ViewOrders() {
                                                     ?.billing_state
                                                 }
                                               </p>
-                                              <p className="mb-0 order-date capitalize">
+                                              <p className="mb-0 order-date capitalize !text-xs">
                                                 {
                                                   viewOrderDetails?.invoice
                                                     ?.billing_country
@@ -952,20 +1599,20 @@ export default function ViewOrders() {
                                               </p>
                                             </div>
                                             <div className="col-12 col-lg-6 text-right capitalize">
-                                              <h6 className="mb-1 !font-bold">
+                                              <h6 className="mb-1 !font-bold text-sm">
                                                 Shipping Address
                                               </h6>
-                                              <p className="mb-0 order-date capitalize">
+                                              <p className="mb-0 order-date capitalize !text-xs">
                                                 {
                                                   viewOrderDetails?.shipping_add1
                                                 }
                                               </p>
-                                              <p className="mb-0 order-date capitalize">
+                                              <p className="mb-0 order-date capitalize !text-xs">
                                                 {
                                                   viewOrderDetails?.shipping_add2
                                                 }
                                               </p>
-                                              <p className="mb-0 order-date capitalize">
+                                              <p className="mb-0 order-date capitalize !text-xs">
                                                 {
                                                   viewOrderDetails?.shipping_city
                                                 }
@@ -974,7 +1621,7 @@ export default function ViewOrders() {
                                                   viewOrderDetails?.shipping_state
                                                 }
                                               </p>
-                                              <p className="mb-0 order-date capitalize">
+                                              <p className="mb-0 order-date capitalize !text-xs">
                                                 {viewOrderDetails?.country} -{" "}
                                                 {viewOrderDetails?.shipping_zip}{" "}
                                               </p>
@@ -1045,10 +1692,7 @@ export default function ViewOrders() {
                   </div>
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`https://tradingmaterials.com/contact`}
-                    className="btn btn-white fw-semiBold"
-                  >
+                  <a href={`/contactus`} className="btn btn-white fw-semiBold">
                     {t("Contact_support")}
                   </a>
                 </div>
@@ -1059,7 +1703,7 @@ export default function ViewOrders() {
       </main>
       <Footer />
       {/* <!--Paid modal -->								 */}
-      <div
+      {/* <div
         id="popup1"
         className={`popup-container text-left !ease-in-out ${
           showModal ? "show-popup " : ""
@@ -1073,7 +1717,6 @@ export default function ViewOrders() {
             &times;
           </a>
           <div className="pricing-tables turquoise">
-            {/* <!-- Table Head --> */}
             <div className="pricing-labels">
               {viewOrderDetails?.order_number}
             </div>
@@ -1097,7 +1740,6 @@ export default function ViewOrders() {
                 }
               </small>
             </h5>
-            {/* <!-- Features --> */}
             <div className="pricing-features">
               <div className="feature">
                 Payment 1:{" "}
@@ -1153,17 +1795,10 @@ export default function ViewOrders() {
                 </span>
               </div>
             </div>
-            {/* <!-- Price --> */}
-            {/* <!--<div class="price-tag">
-               <span class="symbol">₹</span>
-               <span class="amount">500.00</span>
-               <span class="after">/month</span>
-            </div>-->
-            <!-- Button -->
-            <!--<a class="price-button" href="#">Get Started</a>--> */}
+
           </div>
         </div>
-      </div>
+      </div> */}
       {/* <!-- Paid Modal Ends--> */}
     </>
   );

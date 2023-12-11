@@ -10,8 +10,11 @@ import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import axios from "axios";
 import {  Divider } from "@mui/material";
 import { FaDownload } from "react-icons/fa6";
+import { Table } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 export default function ViewInvoice() {
-    const params = useParams()
+  const params = useParams()
+   const { t } = useTranslation();
     const [viewOrderDetails, setViewOrderDetails] = useState();
     const dispatch = useDispatch();
 
@@ -88,9 +91,9 @@ export default function ViewInvoice() {
                       >
                         <td>
                           <div className="equalHW eq logo-block border-none">
-                            <a href="">
-                              <img src="https://gtechwebservice.com/TradingMaterial/assets/images/logo/tm-logo.png" />
-                            </a>
+                            {/* <a href=""> */}
+                            <img src="/images/tm-logo-1.webp" />
+                            {/* </a> */}
                           </div>
                         </td>
                         <td style={{ textAlign: "right", float: "right" }}>
@@ -207,7 +210,7 @@ export default function ViewInvoice() {
                                   fontSize: "14px",
                                 }}
                               >
-                                No.3 FC, 401, level-4 RAGHAVA
+                                3rd Floor, 31, Door No 301
                               </p>
                               <p
                                 style={{
@@ -215,7 +218,7 @@ export default function ViewInvoice() {
                                   fontSize: "14px",
                                 }}
                               >
-                                BUILDING, 4Th Floor, Ramamurthy Nagar,
+                                Maina Apartments, Thillai Nagar,
                               </p>
                               <p
                                 style={{
@@ -223,7 +226,8 @@ export default function ViewInvoice() {
                                   fontSize: "14px",
                                 }}
                               >
-                                Bengaluru, Karnataka - 560016.
+                                Vadakuthu, Neyveli, Cuddalore Tamil Nadu,
+                                607803.
                               </p>
                               <p
                                 style={{
@@ -231,7 +235,7 @@ export default function ViewInvoice() {
                                   fontSize: "14px",
                                 }}
                               >
-                                Phone : 971 568030111
+                                Phone : 080-68493342
                               </p>
                               <p
                                 style={{
@@ -261,6 +265,7 @@ export default function ViewInvoice() {
                             </div>
                           </td>
                           <td
+                            className="max-w-[50%] w-[50%]"
                             style={{
                               fontFamily:
                                 "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
@@ -337,338 +342,505 @@ export default function ViewInvoice() {
                         </tr>
                       </table>
                     </div>
-                    <table className="table mt-0 responsive">
-                      <tr
-                        className="titles border-none"
-                        style={{
-                          fontFamily:
-                            "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                          color: "#fff",
-                          lineHeight: "1.5",
-                          background: "#5c5c5c",
-                        }}
-                      >
-                        <th
-                          style={{
-                            fontFamily:
-                              "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#fff",
-                            lineHeight: "1.5",
-                          }}
-                        >
-                          #
-                        </th>
-                        <th
-                          style={{
-                            fontFamily:
-                              "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#fff",
-                            lineHeight: "1.5",
-                          }}
-                        >
-                          Item
-                        </th>
-                        <th
-                          style={{
-                            fontFamily:
-                              "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#fff",
-                            lineHeight: "1.5",
-                          }}
-                        >
-                          Qty
-                        </th>
-                        <th
-                          style={{
-                            fontFamily:
-                              "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#fff",
-                            lineHeight: "1.5",
-                          }}
-                        >
-                          Rate
-                        </th>
-                        <th
-                          style={{
-                            fontFamily:
-                              "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#fff",
-                            lineHeight: "1.5",
-                            width: "160px",
-                          }}
-                        >
-                          Tax
-                        </th>
-                        <th
-                          style={{
-                            fontFamily:
-                              "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#fff",
-                            lineHeight: "1.5",
-                            width: "70px",
-                          }}
-                        >
-                          Amount
-                        </th>
-                      </tr>
-                      {viewOrderDetails?.items?.map((item, ind) => (
+                    <div className="!px-0">
+                      <Table responsive className="table mt-0 responsive !px-0">
                         <tr
-                          key={ind}
-                          className="item border-none "
+                          className="titles border-none"
                           style={{
                             fontFamily:
                               "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#333447",
+                            color: "#fff",
                             lineHeight: "1.5",
-                            borderBottom: "1px solid #DDD",
+                            background: "#5c5c5c",
                           }}
                         >
-                          <td
-                            className="!py-[10px]"
+                          <th
                             style={{
                               fontFamily:
                                 "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                              color: "#333447",
+                              color: "#fff",
                               lineHeight: "1.5",
-                              borderBottom: "1px solid #DDD",
                             }}
                           >
-                            {ind + 1}
-                          </td>
-                          <td
+                            #
+                          </th>
+                          <th
                             style={{
                               fontFamily:
                                 "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                              color: "#333447",
+                              color: "#fff",
                               lineHeight: "1.5",
-                              border: "none",
                             }}
                           >
-                            {" "}
-                            <b className="border-none">
-                              {item?.product_details?.name}
-                            </b>
-                          </td>
-                          <td
+                            Item
+                          </th>
+                          <th
                             style={{
                               fontFamily:
                                 "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                              color: "#333447",
+                              color: "#fff",
                               lineHeight: "1.5",
                             }}
                           >
-                            {item?.qty}
-                          </td>
-                          <td
+                            Qty
+                          </th>
+                          <th
                             style={{
                               fontFamily:
                                 "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                              color: "#333447",
+                              color: "#fff",
                               lineHeight: "1.5",
-                              borderBottom: "1px solid #DDD",
                             }}
                           >
-                            ₹{item?.price}
-                          </td>
-                          <td
+                            Rate
+                          </th>
+                          <th
                             style={{
                               fontFamily:
                                 "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                              color: "#333447",
+                              color: "#fff",
                               lineHeight: "1.5",
-                              borderBottom: "1px solid #DDD",
+                              width: "160px",
                             }}
                           >
-                            0%
-                          </td>
-                          <td
+                            Tax
+                          </th>
+                          <th
                             style={{
                               fontFamily:
                                 "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                              color: "#333447",
+                              color: "#fff",
                               lineHeight: "1.5",
-                              borderBottom: "1px solid #DDD",
+                              width: "70px",
                             }}
                           >
-                            ₹{item?.total}
-                          </td>
+                            Amount
+                          </th>
                         </tr>
-                      ))}
-                      <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td className="text-right border-0">
-                          <span
+                        {viewOrderDetails?.items?.map((item, ind) => (
+                          <tr
+                            key={ind}
+                            className="item border-none "
                             style={{
-                              display: "inline-block",
                               fontFamily:
                                 "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
                               color: "#333447",
-                              lineHeight: "1",
-                            }}
-                            className="border-none py-0"
-                          >
-                            <strong>Subtotal:</strong>
-                          </span>
-                        </td>
-                        <td className="text-right border-0">
-                          <span id="InvoiceCurrency1" className="border-0 py-0">
-                            ₹{viewOrderDetails?.sub_total}
-                          </span>
-                          <br />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td className="text-right border-0 mr-0">
-                          <span
-                            className="border-0 py-0"
-                            style={{
-                              display: "inline-block",
-                              fontFamily:
-                                "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                              color: "#333447",
-                              lineHeight: "1",
+                              lineHeight: "1.5",
+                              borderBottom: "1px solid #DDD",
                             }}
                           >
-                            <strong>Discount:</strong>
-                          </span>
-                        </td>
-                        <td className="text-right border-0">
-                          <span id="InvoiceCurrency1" className="border-0 py-0">
-                            ₹{viewOrderDetails?.discount_amount}
-                          </span>
-                          <br />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td className="text-right border-0">
-                          <span
-                            className="border-0 py-0"
-                            style={{
-                              display: "inline-block",
-                              fontFamily:
-                                "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                              color: "#333447",
-                              lineHeight: "1",
-                            }}
-                          >
-                            <strong>Total:</strong>
-                          </span>
-                        </td>
-                        <td className="text-right border-0">
-                          <span id="InvoiceCurrency2" className="border-0">
-                            ₹{viewOrderDetails?.total}
-                          </span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td className="text-right border-0">
-                          <span
-                            className="border-0 py-0"
-                            style={{
-                              display: "inline-block",
-                              fontFamily:
-                                "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                              color: "#333447",
-                              lineHeight: "1",
-                            }}
-                          >
-                            <strong>Total Paid:</strong>
-                          </span>
-                        </td>
-                        <td className="text-right border-0">
-                          <span id="InvoiceCurrency3" className="border-0 py-0">
-                            ₹{viewOrderDetails?.amount_paid}
-                          </span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td className="text-right border-0">
-                          <span
-                            className="border-0"
-                            style={{
-                              display: "inline-block",
-                              fontFamily:
-                                "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                              color: "#333447",
-                              lineHeight: "1",
-                            }}
-                          >
-                            <strong>Amount Due:</strong>
-                          </span>
-                        </td>
-                        <td className="text-right border-0">
-                          <span id="InvoiceCurrency3" className="border-0 py-0">
-                            ₹{viewOrderDetails?.balance}
-                          </span>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                  {/* <div className="row ">
-                    <table className="table">
-                      <tr
-                        className="item"
-                        style={{ background: "transparent", border: "none" }}
-                      >
-                        <td
-                          style={{
-                            fontFamily:
-                              "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#333447",
-                            lineHeight: "1.5",
-                          }}
-                        >
-                          <div className="equalHW eq infoblock to-block border-none">
-                            <span>
-                              <b></b>
+                            <td
+                              className="!py-[10px]"
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1.5",
+                                borderBottom: "1px solid #DDD",
+                              }}
+                            >
+                              {ind + 1}
+                            </td>
+                            <td
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1.5",
+                                border: "none",
+                              }}
+                            >
+                              {" "}
+                              <b className="border-none">
+                                {item?.product_details?.name}
+                              </b>
+                            </td>
+                            <td
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1.5",
+                              }}
+                            >
+                              {item?.qty}
+                            </td>
+                            <td
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1.5",
+                                borderBottom: "1px solid #DDD",
+                              }}
+                            >
+                              ₹{item?.price}
+                            </td>
+                            <td
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1.5",
+                                borderBottom: "1px solid #DDD",
+                              }}
+                            >
+                              0%
+                            </td>
+                            <td
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1.5",
+                                borderBottom: "1px solid #DDD",
+                              }}
+                            >
+                              ₹{item?.total}
+                            </td>
+                          </tr>
+                        ))}
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td className="text-right border-0">
+                            <span
+                              style={{
+                                display: "inline-block",
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1",
+                              }}
+                              className="border-none py-0"
+                            >
+                              <strong>Subtotal:</strong>
+                            </span>
+                          </td>
+                          <td className="text-right border-0">
+                            <span
+                              id="InvoiceCurrency1"
+                              className="border-0 py-0"
+                            >
+                              ₹{viewOrderDetails?.sub_total}
                             </span>
                             <br />
-                            <span></span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td className="text-right border-0 mr-0">
+                            <span
+                              className="border-0 py-0"
+                              style={{
+                                display: "inline-block",
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1",
+                              }}
+                            >
+                              <strong>Discount:</strong>
+                            </span>
+                          </td>
+                          <td className="text-right border-0">
+                            <span
+                              id="InvoiceCurrency1"
+                              className="border-0 py-0"
+                            >
+                              ₹{viewOrderDetails?.discount_amount}
+                            </span>
                             <br />
-                            <span></span> <span id="CustomerCity"></span>
-                            <br />
-                            <span></span>
-                            <br />
-                          </div>
-                        </td>
-                        <td
-                          style={{
-                            fontFamily:
-                              "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
-                            color: "#333447",
-                            lineHeight: "1.5",
-                            textAlign: "right",
-                          }}
-                        >
-                          <div className="equalHW eq infoblock info-block border-none">
-                            <table
-                              className=""
-                              style={{ textAlign: "right", float: "right" }}
-                            ></table>
-                          </div>
-                        </td>
-                      </tr>
-                    </table>
-                  </div> */}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td className="text-right border-0">
+                            <span
+                              className="border-0 py-0"
+                              style={{
+                                display: "inline-block",
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1",
+                              }}
+                            >
+                              <strong>Total:</strong>
+                            </span>
+                          </td>
+                          <td className="text-right border-0">
+                            <span id="InvoiceCurrency2" className="border-0">
+                              ₹{viewOrderDetails?.total}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td className="text-right border-0">
+                            <span
+                              className="border-0 py-0"
+                              style={{
+                                display: "inline-block",
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1",
+                              }}
+                            >
+                              <strong>Total Paid:</strong>
+                            </span>
+                          </td>
+                          <td className="text-right border-0">
+                            <span
+                              id="InvoiceCurrency3"
+                              className="border-0 py-0"
+                            >
+                              ₹{viewOrderDetails?.amount_paid}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td className="text-right border-0">
+                            <span
+                              className="border-0"
+                              style={{
+                                display: "inline-block",
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1",
+                              }}
+                            >
+                              <strong>Amount Due:</strong>
+                            </span>
+                          </td>
+                          <td className="text-right border-0">
+                            <span
+                              id="InvoiceCurrency3"
+                              className="border-0 py-0"
+                            >
+                              ₹{viewOrderDetails?.balance}
+                            </span>
+                          </td>
+                        </tr>
+                      </Table>
+                    </div>
+                  </div>
+                  {viewOrderDetails?.payments?.length > 0 && (
+                    <div className="row">
+                      <div className=" !px-0 !w-[100%] !max-w-[100%] table-responsive">
+                        <table className="table mt-0 responsive">
+                          <tr
+                            className="titles border-none"
+                            style={{
+                              fontFamily:
+                                "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                              color: "#fff",
+                              lineHeight: "1.5",
+                              background: "#5c5c5c",
+                            }}
+                          >
+                            <th
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#fff",
+                                lineHeight: "1.5",
+                              }}
+                            >
+                              #
+                            </th>
+                            <th
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#fff",
+                                lineHeight: "1.5",
+                              }}
+                            >
+                              Payment Type
+                            </th>
+                            <th
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#fff",
+                                lineHeight: "1.5",
+                              }}
+                            >
+                              Payment Id
+                            </th>
+                            <th
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#fff",
+                                lineHeight: "1.5",
+                              }}
+                            >
+                              Transaction Id
+                            </th>
+                            <th
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#fff",
+                                lineHeight: "1.5",
+                                width: "160px",
+                              }}
+                            >
+                              Amount
+                            </th>
+                            <th
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#fff",
+                                lineHeight: "1.5",
+                                width: "70px",
+                              }}
+                            >
+                              Status
+                            </th>
+                            <th
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#fff",
+                                lineHeight: "1.5",
+                                width: "70px",
+                              }}
+                            >
+                              Date
+                            </th>
+                          </tr>
+                          {viewOrderDetails?.payments?.map((item, ind) => (
+                            <tr
+                              key={ind}
+                              className="item border-none "
+                              style={{
+                                fontFamily:
+                                  "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                color: "#333447",
+                                lineHeight: "1.5",
+                                borderBottom: "1px solid #DDD",
+                              }}
+                            >
+                              <td
+                                className="!py-[10px]"
+                                style={{
+                                  fontFamily:
+                                    "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                  color: "#333447",
+                                  lineHeight: "1.5",
+                                  borderBottom: "1px solid #DDD",
+                                }}
+                              >
+                                {ind + 1}
+                              </td>
+                              <td
+                                style={{
+                                  fontFamily:
+                                    "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                  color: "#333447",
+                                  lineHeight: "1.5",
+                                  border: "none",
+                                }}
+                              >
+                                {" "}
+                                <b className="border-none">
+                                  {item?.payment_type}
+                                </b>
+                              </td>
+                              <td
+                                style={{
+                                  fontFamily:
+                                    "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                  color: "#333447",
+                                  lineHeight: "1.5",
+                                }}
+                              >
+                                {item?.payment_id}
+                              </td>
+                              <td
+                                style={{
+                                  fontFamily:
+                                    "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                  color: "#333447",
+                                  lineHeight: "1.5",
+                                  borderBottom: "1px solid #DDD",
+                                }}
+                              >
+                                {item?.transaction_id != null
+                                  ? item?.transaction_id
+                                  : "-"}
+                              </td>
+                              <td
+                                style={{
+                                  fontFamily:
+                                    "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                  color: "#333447",
+                                  lineHeight: "1.5",
+                                  borderBottom: "1px solid #DDD",
+                                }}
+                              >
+                                ₹{item?.paid_amount}
+                              </td>
+                              <td
+                                style={{
+                                  fontFamily:
+                                    "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                  color: "#333447",
+                                  lineHeight: "1.5",
+                                  borderBottom: "1px solid #DDD",
+                                }}
+                              >
+                                {item?.status == "0"
+                                  ? "Pending"
+                                  : item?.status == "2"
+                                  ? "Failed"
+                                  : "Success"}
+                              </td>
+                              <td
+                                style={{
+                                  fontFamily:
+                                    "Lato, Helvetica Neue, Helvetica, Helvetica, Arial, sans-serif",
+                                  color: "#333447",
+                                  lineHeight: "1.5",
+                                  borderBottom: "1px solid #DDD",
+                                }}
+                              >
+                                {new Date(item?.updated_at).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                  }
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </table>
+                      </div>
+                    </div>
+                  )}
                   <div className="row">
                     <div
                       className=""
@@ -703,12 +875,11 @@ export default function ViewInvoice() {
                         lineHeight: "1.25",
                       }}
                     >
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Quisque in ultricies arcu. Suspendisse tincidunt lacus a
-                      diam ornare fermentum. Sed non dolor a magna fermentum
-                      dapibus vel vitae ante. Fusce lobortis nulla eu eleifend
-                      efficitur. Lorem ipsum dolor sit amet, consectetur
-                      adipiscing elit.
+                      All payments information from fetched from payment
+                      providers are recorded for our customer future reference
+                      any details regarding cards or wallets or account are not
+                      shared by the payment providers for the customer privacy
+                      and security in transaction.
                     </p>
                   </div>
                   <p style={{ pageBreakAfter: "always" }}></p>
@@ -717,6 +888,42 @@ export default function ViewInvoice() {
             </div>
           </div>
         </div>
+        <section className="nk-section nk-cta-section nk-section-content-1">
+          <div className="container">
+            <div
+              className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
+              <div
+                className="row g-gs align-items-center"
+                data-aos="fade-up"
+                data-aos-delay="100"
+              >
+                <div className="col-lg-8">
+                  <div className="media-group flex-column flex-lg-row align-items-center">
+                    <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                      <em className="icon ni ni-chat-fill"></em>
+                    </div>
+                    <div className="text-center text-lg-start">
+                      <h3 className="text-capitalize m-0 !text-3xl !font-bold">
+                        {t("Chat_With_Our_Support_Team")}
+                      </h3>
+                      <p className="fs-16 opacity-75 !text-lg mt-1">
+                        {t("chat_team_desc")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-lg-4 text-center text-lg-end">
+                  <a href={`/contactus`} className="btn btn-white fw-semiBold">
+                    {t("Contact_support")}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
         <Footer />
       </div>
     </>

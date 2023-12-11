@@ -12,7 +12,6 @@ export const clientTypeSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     updateclientType : (state, action)  =>{
-        console.log(action.payload)
         state.value = action?.payload
     }
   },

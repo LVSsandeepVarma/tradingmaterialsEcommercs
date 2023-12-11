@@ -10,13 +10,11 @@ export const productsSlice = createSlice({
   initialState,
   reducers: {
     fetchAllProducts: (state,action) => {
-        console.log(action.payload)
 
       state.value = action.payload 
     },
 
     updatingProducts : (state, action) =>{
-      console.log(action.payload)
       const filteredProducts = state.value?.products?.products?.filter((product) =>{
         action.payload?.subIds?.includes(product?.subcat_id)
       })
@@ -34,14 +32,9 @@ export const { fetchAllProducts, updatingProducts } = productsSlice.actions;
 export const products = (state) => state.products.value;
 
 export const filteredProductsByIds = (state , ids) => {
-  console.log(ids)
-  const filteredObject = Object.values(state?.products)?.filter( product => ids?.includes(product?.subcat_id))
-  console.log(filteredObject)
-  // state?.products[0].push(filteredObject)
   
-  // Object.values(state.products?.products) = filteredObject
+  const filteredObject = Object.values(state?.products)?.filter( product => ids?.includes(product?.subcat_id))
 
-  console.log(filteredObject);
   return filteredObject
 
 }

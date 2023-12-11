@@ -19,6 +19,7 @@ import CryptoJS from "crypto-js";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
 import Dashboard from "../../commonDashboard/Dashboard";
+import urlConstants from "../../../constants.json";
 
 export default function Checkout() {
   const dispatch = useDispatch();
@@ -229,7 +230,7 @@ export default function Checkout() {
   // }, [allProducts, quantities]);
 
   const handleCvvChange = (e) => {
-    e.target.value = e.target.value.trim()
+    e.target.value = e.target.value.trim();
     const addCvv = e.target.value;
     setCVV(addCvv);
     console.log(addCvv.match(/^[0-9]+$/), addCvv);
@@ -539,7 +540,7 @@ export default function Checkout() {
           cvc: cvv,
           name_on_card: nameOnCard,
           currency: "INR",
-          call_back_url: "https://client.tradingmaterials.com/payment-status/",
+          call_back_url: `${urlConstants.client}/payment-status/`,
         };
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/product/checkout/create-order",
@@ -1297,10 +1298,7 @@ export default function Checkout() {
                   </div>
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`https://tradingmaterials.com/contact`}
-                    className="btn btn-white fw-semiBold"
-                  >
+                  <a href={`/contactus`} className="btn btn-white fw-semiBold">
                     Contact Support
                   </a>
                 </div>

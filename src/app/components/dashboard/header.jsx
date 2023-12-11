@@ -203,6 +203,7 @@ export default function Header() {
       }
     } catch (err) {
       console.log("err", err);
+      navigate(`/login`);
     } finally {
       dispatch(hideLoader());
     }

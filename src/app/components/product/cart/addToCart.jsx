@@ -26,7 +26,7 @@ export default function AddToCart() {
   const userData = useSelector((state) => state?.user?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
   const userLang = useSelector((state) => state?.lang?.value);
-  const clientType = useSelector((state) => state?.clientType?.value);
+  // const clientType = useSelector((state) => state?.clientType?.value);
   const addressStatus = useSelector((state) => state?.addressStatus?.value);
 
   const [showModal, setShowModal] = useState(false);
@@ -37,6 +37,7 @@ export default function AddToCart() {
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
   const [promocode, setPromocode] = useState("");
+  const [promocodeApplied, setPromocodeApplied] = useState(false);
   const [apiErr, setApiErr] = useState([]);
   const [activeShippingAddress, setActiveShippingAddress] = useState(
     userData?.client?.address[0]
@@ -161,7 +162,7 @@ export default function AddToCart() {
     try {
       const token = localStorage.getItem("client_token");
       const response = await axios.get(
-        "https://admin.tradingmaterials.com/api/lead/product/apply-register-promo-code",
+        "https://admin.tradingmaterials.com/api/client/product/apply-register-promo-code",
         {
           params: {
             client_id: userData?.client_id,
@@ -182,6 +183,7 @@ export default function AddToCart() {
             ? response?.data?.data?.percentage
             : 0
         );
+        setPromocodeApplied(true);
       }
     } catch (err) {
       console.log(err, "err");
@@ -655,7 +657,7 @@ export default function AddToCart() {
                       </table>
                     ) : (
                       <div className="text-center font-bold text-gray-700 ">
-                        <p>no products found in cart</p>
+                        <p>No products found in cart</p>
                         <p
                           className="nav-link text-green-900 cursor-pointer"
                           onClick={() => navigate("/products")}
@@ -973,7 +975,7 @@ export default function AddToCart() {
                       <div className="pt-0 mb-3">
                         {/* <!-- <h6 className="fs-18 mb-0">Promocode</h6> --> */}
                         <div className="d-flex w-75">
-                          {clientType === "client" && (
+                          {!promocodeApplied && (
                             <input
                               type="text"
                               className="form-control rounded-0 py-0 px-2"
@@ -983,7 +985,7 @@ export default function AddToCart() {
                               onChange={handlePromoCodeChange}
                             />
                           )}
-                          {clientType === "client" && (
+                          {!promocodeApplied && (
                             <button
                               type="button"
                               className="btn btn-success rounded-0 px-3 py-1 fs-14 bg-[rgba(34,197,94,1)]"
@@ -992,7 +994,7 @@ export default function AddToCart() {
                               Apply
                             </button>
                           )}
-                          {clientType !== "client" && (
+                          {promocodeApplied && (
                             <p className="text-green-900 font-semibold">
                               Promocode applied{" "}
                               {discountPercentage !== null
@@ -1089,35 +1091,32 @@ export default function AddToCart() {
             </div>
           </div>
         </section>
-        <section class="nk-section nk-cta-section">
-          <div class="container">
+        <section className="nk-section nk-cta-section">
+          <div className="container">
             <div
-              class="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+              className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
               data-aos="fade-up"
               data-aos-delay="100"
             >
-              <div class="row g-gs align-items-center">
-                <div class="col-lg-8">
-                  <div class="media-group flex-column flex-lg-row align-items-center">
-                    <div class="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
-                      <em class="icon ni ni-chat-fill"></em>
+              <div className="row g-gs align-items-center">
+                <div className="col-lg-8">
+                  <div className="media-group flex-column flex-lg-row align-items-center">
+                    <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                      <em className="icon ni ni-chat-fill"></em>
                     </div>
-                    <div class="text-center text-lg-start">
-                      <h3 class="text-capitalize m-0">
+                    <div className="text-center text-lg-start">
+                      <h3 className="text-capitalize m-0">
                         Chat with our support team!
                       </h3>
-                      <p class="fs-16 opacity-75">
+                      <p className="fs-16 opacity-75">
                         Get in touch with our support team if you still can’t
                         find your answer.
                       </p>
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`https://tradingmaterials.com/contact`}
-                    class="btn btn-white fw-semiBold"
-                  >
+                <div className="col-lg-4 text-center text-lg-end">
+                  <a href={`/contactus`} className="btn btn-white fw-semiBold">
                     Contact Support
                   </a>
                 </div>

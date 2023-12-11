@@ -5,7 +5,6 @@ import { Modal } from "react-bootstrap";
 import AddressForm from "../forms/addressform";
 
 const ShippingAddressModal = ({ show, onHide, data, addressType, type }) => {
-  console.log(data)
   return (
     <Modal className="reduceModalSize" show={show} onHide={onHide} centered size="lg">
       <Modal.Header closeButton={true} className="py-1">

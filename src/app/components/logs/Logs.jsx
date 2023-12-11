@@ -7,11 +7,12 @@ import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import axios from "axios";
 import moment from "moment";
 import { FaClockRotateLeft } from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
 export default function Logs() {
   const [logs, setLogs] = useState();
   const dispatch = useDispatch();
   const loaderState = useSelector((state) => state?.loader?.value);
-
+ const { t } = useTranslation();
   useEffect(() => {
     const viewOrderDetails = async () => {
       try {
@@ -87,28 +88,70 @@ export default function Logs() {
                         </div>
                       </div>
                       <div className="card-body max-h-[75vh] overflow-y-auto">
-                                              <div className="timeline text-left">
-                                                  {logs?.map((logInfo, ind) => (
-                                                      
-                                                  
-                          <div className="timeline-container primary" key={ind}>
-                            <div className="timeline-icon flex items-center justify-center">
-                              <FaClockRotateLeft className="fa-solid fa-clock-rotate-left"/>
+                        <div className="timeline text-left">
+                          {logs?.map((logInfo, ind) => (
+                            <div
+                              className="timeline-container primary"
+                              key={ind}
+                            >
+                              <div className="timeline-icon flex items-center justify-center">
+                                <FaClockRotateLeft className="fa-solid fa-clock-rotate-left" />
+                              </div>
+                              <div className="timeline-body">
+                                <h4 className="timeline-title">
+                                  <span className="badge">
+                                    {logInfo?.action}
+                                  </span>
+                                </h4>
+                                <p>{logInfo?.result}</p>
+                                <p className="timeline-subtitle">
+                                  {TimeAgo(logInfo?.created_at)}
+                                </p>
+                              </div>
                             </div>
-                            <div className="timeline-body">
-                              <h4 className="timeline-title">
-                                                                  <span className="badge">{ logInfo?.action}</span>
-                              </h4>
-                              <p>
-                                                                  { logInfo?.result}
-                              </p>
-                                                              <p className="timeline-subtitle">{ TimeAgo(logInfo?.created_at)}</p>
-                            </div>
-                                                      </div>
-                                                  ))}
-                          {logs?.length ==0 && <p>No logs found</p>}
+                          ))}
+                          {logs?.length == 0 && <p>No logs found</p>}
                         </div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section className="nk-section nk-cta-section nk-section-content-1">
+              <div className="container">
+                <div
+                  className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+                  data-aos="fade-up"
+                  data-aos-delay="100"
+                >
+                  <div
+                    className="row g-gs align-items-center"
+                    data-aos="fade-up"
+                    data-aos-delay="100"
+                  >
+                    <div className="col-lg-8">
+                      <div className="media-group flex-column flex-lg-row align-items-center">
+                        <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                          <em className="icon ni ni-chat-fill"></em>
+                        </div>
+                        <div className="text-center text-lg-start">
+                          <h3 className="text-capitalize m-0 !text-3xl !font-bold">
+                            {t("Chat_With_Our_Support_Team")}
+                          </h3>
+                          <p className="fs-16 opacity-75 !text-lg mt-1">
+                            {t("chat_team_desc")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-lg-4 text-center text-lg-end">
+                      <a
+                        href={`/contactus`}
+                        className="btn btn-white fw-semiBold"
+                      >
+                        {t("Contact_support")}
+                      </a>
                     </div>
                   </div>
                 </div>

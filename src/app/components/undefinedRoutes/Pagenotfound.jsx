@@ -33,7 +33,10 @@ export default function Pagenotfound() {
                             </a>
                           </li>
                           <li>
-                            <a href="/products" className="btn btn-outline-primary">
+                            <a
+                              href="/products"
+                              className="btn btn-outline-primary"
+                            >
                               Try Again
                             </a>
                           </li>
@@ -116,7 +119,7 @@ export default function Pagenotfound() {
                     </div>
                     <div className="col-lg-4 text-center text-lg-end">
                       <a
-                        href={`https://tradingmaterials.com/contact`}
+                        href={`/contactus`}
                         className="btn btn-white fw-semiBold"
                       >
                         Contact Support

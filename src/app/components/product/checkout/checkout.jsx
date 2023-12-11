@@ -1295,10 +1295,7 @@ export default function Checkout() {
                   </div>
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`https://tradingmaterials.com/contact`}
-                    className="btn btn-white fw-semiBold"
-                  >
+                  <a href={`/contactus`} className="btn btn-white fw-semiBold">
                     Contact Support
                   </a>
                 </div>

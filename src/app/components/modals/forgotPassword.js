@@ -51,7 +51,8 @@ const ForgotPasswordModal = ({ show, onHide }) => {
     emailValidaiton(e?.target?.value);
   };
 
-  async function handleFormSubmission() {
+  async function handleFormSubmission(e) {
+    e.preventDefault()
     setApiError([]);
     setEmailSentMsg("");
     console.log(email);
@@ -182,7 +183,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                   .
                 </p> */}
               </div>
-              <Form>
+              <Form onSubmit={handleFormSubmission}>
                 <div className="row gy-4">
                   <div className="col-12">
                     <div className="form-group text-left">
@@ -208,7 +209,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                     <div className="form-group">
                       <button
                         className="btn btn-block btn-primary"
-                        type="button"
+                        type="submit"
                         onClick={handleFormSubmission}
                       >
                         Send Reset Link

@@ -48073,3 +48073,23 @@ font-weight: 600!important;
 .paymentPending a.collapsed:after{
     content: "\2304";
 }
+
+.css-o4b71y-MuiAccordionSummary-content {
+  margin: 12px 0 !important;
+}
+
+.MuiAccordionSummary-content .Mui-expanded {
+  margin: 0;
+}
+
+.css-1uig4yw-MuiPaper-root-MuiAccordion-root{
+    box-shadow: none !important; 
+}
+
+.css-nay213-MuiPaper-root-MuiAccordion-root{
+    box-shadow: none !important; 
+}
+
+.cdd-1jy569b-MuiFormLabel-root-MuiInputLabel-root.Mui-focused{
+    color: violet !important;
+ }

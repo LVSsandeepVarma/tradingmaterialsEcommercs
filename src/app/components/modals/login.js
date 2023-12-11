@@ -1,5 +1,5 @@
 // ShippingAddressModal.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -28,7 +28,7 @@ const LoginModal = ({ show, onHide }) => {
   const loaderState = useSelector((state) => state.loader?.value);
   const [showPassword, setShowPassword] = useState(false);
   const [saveCredentials, setSavecredentials] = useState(false);
-
+  const submitRef = useRef()
   console.log(loginStatus);
 
   const dispatch = useDispatch();
@@ -42,6 +42,7 @@ const LoginModal = ({ show, onHide }) => {
       setEmail(localStorage.getItem("email"));
       setPassword(localStorage.getItem("phone"));
       setSavecredentials(true);
+      submitRef.current.focus()
     }
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
@@ -83,7 +84,8 @@ const LoginModal = ({ show, onHide }) => {
     passwordValidation(e?.target?.value);
   }
 
-  async function handleFormSubmission() {
+  async function handleFormSubmission(e) {
+    e.preventDefault()
     setApiError([]);
     setLoginsuccessMsg("");
     console.log(email, password);
@@ -263,7 +265,7 @@ const LoginModal = ({ show, onHide }) => {
                   .
                 </p> */}
               </div>
-              <Form>
+              <Form onSubmit={handleFormSubmission}>
                 <div className="row gy-4 !text-left">
                   <div className="col-12">
                     <div className="form-group">
@@ -363,8 +365,9 @@ const LoginModal = ({ show, onHide }) => {
                     <div className="form-group">
                       <button
                         className="btn btn-block btn-primary"
-                        type="button"
+                        type="submit"
                         onClick={handleFormSubmission}
+                        ref={submitRef}
                       >
                         Login to Your Account
                       </button>

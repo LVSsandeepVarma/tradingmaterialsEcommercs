@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import Header from "../../header/header";
 import Footer from "../../footer/footer";
@@ -23,13 +24,13 @@ import PendingActionsSharpIcon from "@mui/icons-material/PendingActionsSharp";
 import ListAltSharpIcon from "@mui/icons-material/ListAltSharp";
 import AssignmentTurnedInSharpIcon from "@mui/icons-material/AssignmentTurnedInSharp";
 import CryptoJS from "crypto-js";
-import { Button, Modal } from "react-bootstrap";
 import CustomizedSteppers from "./orderTrackerStepper";
+import { MdTimeline } from "react-icons/md";
+import { FaClock } from "react-icons/fa";
 
 export default function OrderTacker() {
   const [orderData, setOrderData] = useState([]);
   const [orderDetails, setOrderDetails] = useState();
-  const [orderId, setOrderId] = useState("");
   const [showModal, setShowModal] = useState(false);
   const userLang = useSelector((state) => state?.lang?.value);
   const userData = useSelector((state) => state?.user?.value);
@@ -47,7 +48,7 @@ export default function OrderTacker() {
     //   "Delivered",
   ];
 
-  const clientId = userData?.client?.id;
+  // const clientId = userData?.client?.id;
   const { order_id } = useParams();
   const descryptedId = CryptoJS.AES.decrypt(
     order_id.replace(/_/g, "/").replace(/-/g, "+"),
@@ -61,12 +62,13 @@ export default function OrderTacker() {
   }, []);
 
   //fetching order details
+  // https://admin.tradingmaterials.com/api/client/product/checkout/view-order?id=${descryptedId}&client_id=${clientId}
   const fetchOrderData = async () => {
     try {
       console.log(userData?.client?.id, "ttttttttt");
       dispatch(showLoader());
       const response = await axios.get(
-        `https://admin.tradingmaterials.com/api/client/product/checkout/view-order?order_id=${descryptedId}&client_id=${clientId}`,
+        `https://admin.tradingmaterials.com/api/client/view-order?id=${descryptedId}`,
         {
           headers: {
             Authorization: `Bearer ` + localStorage.getItem("client_token"),
@@ -89,47 +91,8 @@ export default function OrderTacker() {
     fetchOrderData();
   }, [userData]);
 
-  const handleOrderIdInput = async (e) => {
-    setOrderId(e.target.value);
-    console.log(e.target.value);
-    // trackign with bluedart api
-    // const response = await axios.get(`https://api.bluedart.com/v1/tracking/?waybillNumber=${orderId}`)
-  };
-
   return (
     <>
-      <Modal
-        show={showModal}
-        onHide={() => setShowModal(false)}
-        centered
-        className="!backdrop-blur-[2px]"
-      >
-        <Modal.Header closeButton>Track your Order</Modal.Header>
-        <Modal.Body>
-          <>
-            <div className="text-left">
-              <label>Enter your Order id</label>
-              <input
-                className="form-control mt-2 mb-2"
-                placeholder="your order id"
-                value={orderId}
-                onChange={handleOrderIdInput}
-              />
-              <Button
-                variant="primary"
-                onClick={() => {
-                  if (orderId !== "" || orderId !== undefined) {
-                    fetchOrderData();
-                    setShowModal(false);
-                  }
-                }}
-              >
-                Track My Order
-              </Button>
-            </div>
-          </>
-        </Modal.Body>
-      </Modal>
       {loaderState && (
         <div className="preloader !backdrop-blur-[1px]">
           <div className="loader"></div>
@@ -145,7 +108,7 @@ export default function OrderTacker() {
                 <div className="mb-2">
                   <h2 className="text-xl !font-bold ">My Orders / Tracking</h2>
                   <Divider />
-                  <div
+                  {/* <div
                     className={`flex ${
                       orderDetails?.consignment?.tracking_url ||
                       orderDetails?.consignment?.consignment_id
@@ -189,37 +152,21 @@ export default function OrderTacker() {
                         </Tooltip>
                       </p>
                     )}
-                  </div>
+                  </div> */}
 
                   <div className="p-2 border-1 border mb-2">
                     <div className="flex justify-between flex-wrap">
-                      {/* <div className="text-left">
-                        <p className="!font-bold"> {orderDetails?.order?.status > 3 ? "Delivered Date" :  "Estimated Delivery Date"}:</p>
-                        <span>{orderDetails?.order?.delivered_date != null ? new Date(
-                        orderDetails?.order?.delivered_date
-                      ).toLocaleDateString("en", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }) : null}</span>
-                      </div> */}
                       <div className="text-left">
                         <p className="!font-bold"> Shipping By:</p>
                         <span>Trading Materials</span>
                       </div>
                       <div className="text-left">
-                        <p className="!font-bold"> Status:</p>
-                        <span>
-                          {
-                            steps[
-                              orderDetails?.order?.status == "0"
-                                ? 0
-                                : orderDetails?.order?.status >= 4
-                                ? 3
-                                : orderDetails?.order?.status - 1
-                            ]
-                          }{" "}
-                        </span>
+                        <p className="!font-bold"> Order No:</p>
+                        <span>{orderDetails?.order?.order_number}</span>
+                      </div>
+                      <div className="text-left">
+                        <p className="!font-bold uppercase"> Payment Type:</p>
+                        <span>{orderDetails?.order?.payment_type}</span>
                       </div>
                       {/* <div className="text-left">
                         <p className="!font-bold"> Tracking #:</p>
@@ -355,67 +302,226 @@ export default function OrderTacker() {
                         />{" "}
                         Order Items
                       </p>
-                      {orderData?.map((product, ind) => (
-                        <CardActionArea
-                          key={ind}
-                          onClick={() =>
-                            navigate(
-                              `${userLang}/product-detail/${
-                                product?.product?.slug
-                              }/${CryptoJS?.AES?.encrypt(
-                                `${product?.product?.id}`,
-                                "trading_materials"
-                              )
-                                ?.toString()
-                                .replace(/\//g, "_")
-                                .replace(/\+/g, "-")}`
-                            )
-                          }
-                        >
-                          <div className="flex w-full  items-center justify-between p-3 flex-wrap">
-                            <div className="flex items-center px-4">
-                              <p className="font-bold mr-1">{ind + 1}.</p>
-                              <img
-                                src={product?.product?.img_1}
-                                alt="product_img"
-                                width={"100"}
-                                height={"100"}
-                              />
-                              <div>
-                                <p className="font-bold ml-2 truncate w-[100px] sm:w-[90%]  md:w-[99%]">
-                                  {product?.product?.name}
-                                </p>
+                      {orderDetails?.order?.items?.map((product, ind) => {
+                        if (orderDetails?.order?.shiprocketorders?.length > 0) {
+                          const shItem =
+                            orderDetails?.order?.shiprocketorders?.find(
+                              (item) => item?.product_id == product?.product_id
+                            );
+                          return (
+                            <CardActionArea
+                              key={ind}
+                              // onClick={() =>
+                              //   navigate(
+                              //     `${userLang}/product-detail/${product?.product?.slug
+                              //     }/${CryptoJS?.AES?.encrypt(
+                              //       `${product?.product?.id}`,
+                              //       "trading_materials"
+                              //     )
+                              //       ?.toString()
+                              //       .replace(/\//g, "_")
+                              //       .replace(/\+/g, "-")}`
+                              //   )
+                              // }
+                            >
+                              <div className="grid grid-cols-1">
+                                <div className="row mx-2 mt-2 hover:drop-shadow-lg ">
+                                  <div className="row ">
+                                    {/* <div className=" w-full min-w-full"> */}
+                                    <div className="col-1 sm:col">
+                                      <img
+                                        src={product?.product_details?.img_1}
+                                        alt="product_img"
+                                        width={"100"}
+                                        height={"100"}
+                                        // style={{ objectFit: "contain" }}
+                                      />
+                                    </div>
+                                    <div className="col gap-2">
+                                      <p className="font-bold ml-2 truncate w-[100px] sm:w-[90%]  md:w-[99%]">
+                                        {product?.product_details?.name}
+                                      </p>
+
+                                      <p className="text-sm font-bold ml-2">
+                                        <b className="text-sm text-black font-semibold">
+                                          {orderDetails?.order?.currency}{" "}
+                                          {parseFloat(product?.price)?.toFixed(
+                                            2
+                                          )}
+                                        </b>
+                                        <span className="font-normal"> | </span>
+                                        qty:{" "}
+                                        <b className="text-black font-semibold">
+                                          {product?.qty}
+                                        </b>
+                                      </p>
+                                    </div>
+                                    <div className="col gap-2">
+                                      <b className="text-sm  font-semibold">
+                                        Measurements
+                                      </b>
+                                      <p className="text-sm font-bold ">
+                                        {shItem?.orderstatus?.package?.length}x
+                                        {shItem.orderstatus?.package?.breadth}x
+                                        {shItem?.orderstatus?.package?.height}
+                                        (cm)
+                                      </p>
+                                    </div>
+
+                                    <div className="col gap-2">
+                                      <b className="text-sm  font-semibold">
+                                        Weight
+                                      </b>
+                                      <p className="text-sm font-bold ">
+                                        {shItem?.orderstatus?.package?.weight}
+                                        kg
+                                      </p>
+                                    </div>
+                                    <div className="col gap-2">
+                                      <b className="text-sm  font-semibold">
+                                        Order&nbsp;Status
+                                      </b>
+                                      <p className="flex items-center gap-1 mb-0">
+                                        <img
+                                          src="/images/order-status.png"
+                                          className="w-6 h-6 hidden sm:block"
+                                          alt="ord-status"
+                                        />
+                                        <span className="text-xs sm:text-sm text-black font-semibold">
+                                          {shItem?.orderstatus?.status}
+                                        </span>
+                                      </p>
+                                    </div>
+                                    <div className="col">
+                                      <b className="text-sm  font-semibold">
+                                        Consignment No
+                                      </b>
+                                      <p className={`text-sm font-bold `}>
+                                        {shItem?.orderstatus?.awd_code
+                                          ? shItem?.orderstatus?.awd_code
+                                          : "Not Available"}
+                                      </p>
+                                    </div>
+                                    {/* </div> */}
+                                    {shItem?.orderstatus?.timeline?.timeline
+                                      ?.scans?.length > 0 && (
+                                      <div className="flex justify-start gap-1 flex-wrap mt-2">
+                                        <b className="flex items-center gap-1">
+                                          <MdTimeline />
+                                          Status :
+                                        </b>
+                                        {shItem?.orderstatus?.timeline?.timeline?.scans?.map(
+                                          (timeline, ind) => {
+                                            if (ind < 5) {
+                                              return (
+                                                <div
+                                                  className="flex items-center flex-wrap"
+                                                  key={ind}
+                                                >
+                                                  &#x2022;
+                                                  <div>
+                                                    {timeline?.activity?.replaceAll(
+                                                      "_",
+                                                      " "
+                                                    )}
+
+                                                    <p className="flex items-center gap-1 text-xs">
+                                                      <FaClock color="gray" />
+                                                      {new Date(
+                                                        timeline?.date
+                                                      ).toLocaleString(
+                                                        "en-US",
+                                                        {
+                                                          day: "numeric",
+                                                          month: "short",
+                                                          year: "numeric",
+                                                          hour: "numeric",
+                                                          minute: "numeric",
+                                                          hour12: true,
+                                                        }
+                                                      )}
+                                                    </p>
+                                                  </div>
+                                                </div>
+                                              );
+                                            }
+                                          }
+                                        )}
+                                      </div>
+                                    )}
+                                    {/* logs */}
+                                  </div>
+                                  {orderDetails?.order?.shiprocketorders
+                                    ?.length !=
+                                    ind + 1 && <Divider className="mt-1" />}
+                                </div>
                               </div>
-                            </div>
-                            <div className=" justify-end text-right">
-                              <b className="text-sm text-black font-semibold">
-                                {orderDetails?.order?.currency}{" "}
-                                {parseFloat(product?.price)?.toFixed(2)}
-                              </b>
-                              <p className="text-sm font-bold ">
-                                qty:{" "}
-                                <b className="text-black font-semibold">
-                                  {product?.qty}
-                                </b>
-                              </p>
-                            </div>
-                          </div>
-                        </CardActionArea>
-                      ))}
+                            </CardActionArea>
+                          );
+                        } else {
+                          return (
+                            <CardActionArea
+                              key={ind}
+                              onClick={() =>
+                                navigate(
+                                  `${userLang}/product-detail/${
+                                    product?.product?.slug
+                                  }/${CryptoJS?.AES?.encrypt(
+                                    `${product?.product?.id}`,
+                                    "trading_materials"
+                                  )
+                                    ?.toString()
+                                    .replace(/\//g, "_")
+                                    .replace(/\+/g, "-")}`
+                                )
+                              }
+                            >
+                              <div className="flex w-full  items-center justify-between p-3 flex-wrap">
+                                <div className="flex items-center px-4">
+                                  <p className="font-bold mr-1">{ind + 1}.</p>
+                                  <img
+                                    src={product?.product_details?.img_1}
+                                    alt="product_img"
+                                    width={"100"}
+                                    height={"100"}
+                                  />
+                                  <div>
+                                    <p className="font-bold ml-2 truncate w-[100px] sm:w-[90%]  md:w-[99%]">
+                                      {product?.product_details?.name}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className=" justify-end text-right">
+                                  <b className="text-sm text-black font-semibold">
+                                    {orderDetails?.order?.currency}{" "}
+                                    {parseFloat(product?.price)?.toFixed(2)}
+                                  </b>
+                                  <p className="text-sm font-bold ">
+                                    qty:{" "}
+                                    <b className="text-black font-semibold">
+                                      {product?.qty}
+                                    </b>
+                                  </p>
+                                </div>
+                              </div>
+                            </CardActionArea>
+                          );
+                        }
+                      })}
                     </div>
 
                     <Divider />
                     <h3 className="!font-bold p-2 pb-0">Order Summary</h3>
                     <div className="p-2">
                       <div className="flex !w-full justify-between">
-                        <p className="font-bold">
+                        <p className="font-bold px-2 pb-2">
                           <RequestQuoteIcon
                             className="mr-1"
                             style={{ width: "20px" }}
                           />{" "}
                           SubTotal
                         </p>
-                        <p className="text-black font-semibold">
+                        <p className="text-black font-semibold ">
                           {orderDetails?.order?.currency}{" "}
                           {parseFloat(orderDetails?.order?.sub_total)?.toFixed(
                             2
@@ -423,7 +529,7 @@ export default function OrderTacker() {
                         </p>
                       </div>
                       <div className="flex !w-full justify-between">
-                        <p className="font-bold">
+                        <p className="font-bold px-2 pb-2">
                           {" "}
                           <CorporateFareIcon
                             className="mr-1"
@@ -439,7 +545,7 @@ export default function OrderTacker() {
                         </p>
                       </div>
                       <div className="flex !w-full justify-between">
-                        <p className="font-bold">
+                        <p className="font-bold px-2">
                           <DiscountIcon
                             className="mr-1"
                             style={{ width: "20px" }}
@@ -455,8 +561,8 @@ export default function OrderTacker() {
                       </div>
                     </div>
                     <Divider />
-                    <div className="flex justify-between p-3">
-                      <p className="font-bold">
+                    <div className="flex justify-between p-2">
+                      <p className="font-bold px-2">
                         <AssignmentTurnedInSharpIcon
                           className="mr-1"
                           style={{ width: "20px" }}
@@ -470,8 +576,8 @@ export default function OrderTacker() {
                         )}{" "}
                       </p>
                     </div>
-                    <div className="flex justify-between p-3 pt-0">
-                      <p className="font-bold">
+                    <div className="flex justify-between p-2 pt-0">
+                      <p className="font-bold px-2">
                         <PendingActionsSharpIcon
                           className="mr-1"
                           style={{ width: "20px" }}

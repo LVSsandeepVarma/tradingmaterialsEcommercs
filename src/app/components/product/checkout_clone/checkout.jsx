@@ -1,3 +1,4 @@
+/* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,8 +13,10 @@ import ShippingAddressModal from "../../modals/address";
 import { Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import Form from "react-bootstrap/Form";
+import { VscWorkspaceTrusted } from "react-icons/vsc";
 import { FaCreditCard, FaCalendarAlt, FaLock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
+import urlConstants from "../../../constants.json";
 import {
   Accordion,
   AccordionDetails,
@@ -107,8 +110,14 @@ export default function Checkout() {
   useEffect(() => {
     if (userData?.client?.payment_types?.length > 0) {
       setActivePaymentMethod(userData?.client?.payment_types[0]?.name);
+
+      if (paymentType != "cod") {
+        setActivePaymentMethodAccordion(
+          userData?.client?.payment_types[0]?.name
+        );
+      }
     }
-  }, []);
+  }, [userData, paymentType]);
 
   // useEffect(() => {
   //   if (paymentStatus === "success") {
@@ -611,7 +620,7 @@ export default function Checkout() {
           cvc: cvv,
           name_on_card: nameOnCard,
           currency: "INR",
-          call_back_url: "http://localhost:3001/payment-status/",
+          call_back_url: `${urlConstants.client}/payment-status/`,
         };
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/product/checkout/create-order",
@@ -660,6 +669,132 @@ export default function Checkout() {
       } finally {
         // dispatch(hideLoader());
       }
+    }
+  }
+
+  // create order with phonepe
+  async function createOrderWithPhonePe(id, total, client_id) {
+    console.log("in phonepe function");
+    setApiError([]);
+    try {
+      dispatch(showLoader());
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/client/product/checkout/create-order",
+        {
+          payment_type: "Phonepe",
+          payment_mode: paymentType,
+          client_id: client_id,
+          order_id: id,
+          total: total,
+          call_back_url: `${urlConstants.client}/payment-status/phonepe`,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+          },
+        }
+      );
+
+      if (response?.data?.status) {
+        console.log(response?.data);
+        window.location.href = response?.data?.redirect_url;
+        sessionStorage.setItem("phonepeOrdId", response?.data?.data?.order_id);
+        localStorage.setItem("orderID", decryptedId);
+        // console.log(response?.data);
+        localStorage.setItem("id", encryptedrderId);
+      }
+    } catch (err) {
+      console.log(err);
+      if (err?.response?.data?.errors) {
+        setApiError([Object.values(err?.response?.data?.errors)]);
+      } else {
+        setApiError([err?.response?.data?.message]);
+      }
+    } finally {
+      dispatch(hideLoader());
+    }
+  }
+
+  //place order for cod
+  async function codPlaceOrder(
+    id,
+    total,
+    client_id,
+    city,
+    state,
+    country,
+    zipcode,
+    address
+  ) {
+    try {
+      console.log(orderData?.order, "orderData", "p");
+      dispatch(showLoader());
+      const paymentData = {
+        payment_mode: paymentType,
+        payment_type: paymentType,
+        client_id: client_id,
+        order_id: id,
+        total: total,
+        amount: total,
+        city: orderData?.order?.city,
+        state: orderData?.order?.state,
+        address_1: orderData?.order?.address_1,
+        zipcode: orderData?.order?.zip,
+        country: orderData?.order?.country,
+        currency: "INR",
+        // call_back_url: `${urlConstants.client}/payment-status/phonepe`,
+      };
+
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/client/product/checkout/create-order",
+        paymentData,
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+          },
+        }
+      );
+
+      if (response?.data?.status) {
+        console.log(response, "response");
+        localStorage.setItem("orderID", decryptedId);
+        localStorage.setItem("id", encryptedrderId);
+        if (paymentType != "cod") {
+          if (activePaymentMethodAccordion == "Phonepe") {
+            sessionStorage.setItem(
+              "phonepeOrdId",
+              response?.data?.data?.order_id
+            );
+          }
+          window.location.href = response?.data?.redirect_url;
+        } else {
+          window.location.href = `/place-order/${CryptoJS?.AES?.encrypt(
+            `${orderID}`,
+            "trading_materials_order"
+          )
+            ?.toString()
+            .replace(/\//g, "_")
+            .replace(/\+/g, "-")}`;
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      if (err?.response?.data?.errors) {
+        setApiError([...Object?.values(err?.response?.data?.errors)]);
+        setTimeout(() => {
+          setApiError([]);
+        }, 1500);
+      } else {
+        if (err?.response?.data?.message?.includes("unknown")) {
+          setApiError([
+            "Payment unsuccessful. Kindly consider an alternative Indian card for your transaction.",
+          ]);
+        } else {
+          setApiError([err?.response?.data?.message]);
+        }
+      }
+    } finally {
+      dispatch(hideLoader());
     }
   }
 
@@ -745,6 +880,39 @@ export default function Checkout() {
         <section className="nk-section pt-0">
           <div className="nk-mask blur-1 left center"></div>
           <div className="container">
+            <div className="row">
+              <div className=" text-left">
+                <div>
+                  <a
+                    onClick={() => {
+                      if (paymentStatus !== "success") {
+                        navigate(`${userLang}/`);
+                      }
+                    }}
+                    className="btn-link mb-2 !inline-flex !items-center !text-large !font-semibold"
+                  >
+                    <em className="icon ni ni-arrow-left  !inline-flex !items-center !text-large !font-semibold"></em>
+                    <span>Back to Home</span>
+                  </a>
+                  <h1 className="mb-3 font-bold w-full !text-4xl">
+                    Order Summary
+                  </h1>
+                  <div className="flex items-center text-sm px-2 gap-1 text-black border rounded shadow-sm hover:drop-shadow-lg animate-gradientChange">
+                    <VscWorkspaceTrusted
+                      fontSize="25"
+                      className="text-black"
+                      fill="orange"
+                    />
+                    <p className="container shodow-sm">
+                      Feel secure when you purchase from TradingMaterials, as
+                      their Purchase Protection programme ensures that you will
+                      be fully refunded if your item does not arrive, arrives
+                      damaged, or isn&apos;t as described.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="row mt-1">
               <div className="col-lg-12">
                 <div className="card">
@@ -894,7 +1062,7 @@ export default function Checkout() {
                               </>
                             ) : (
                               <div className="text-center font-bold text-gray-700 ">
-                                <p>no products found in cart</p>
+                                <p>No products found in cart</p>
                                 <p
                                   className="nav-link text-green-900 cursor-pointer"
                                   onClick={() => navigate("/products")}
@@ -1088,6 +1256,7 @@ export default function Checkout() {
                                   onChange={() => {
                                     setActiveAccordion("cod"),
                                       setPaymentType("cod");
+                                    setActivePaymentMethodAccordion("");
                                   }}
                                 >
                                   <AccordionSummary
@@ -1139,243 +1308,270 @@ export default function Checkout() {
                               </RadioGroup>
 
                               {/* Payment Type if online */}
-                              <h4 className="!font-bold">Payment Gateway</h4>
-                              <RadioGroup
-                                // defaultValue={paymentType}
-                                aria-labelledby="payment_type"
-                                name="payment_type"
-                              >
-                                {userData?.client?.payment_types?.map(
-                                  (payment, ind) => (
-                                    <Accordion
-                                      key={ind}
-                                      expanded={
-                                        activePaymentMethodAccordion ==
-                                        payment?.name
-                                      }
-                                      onChange={() => {
-                                        // if payment type is online only
-                                        // if(paymentType == "online"){
-                                        setActivePaymentMethod(payment?.name);
-                                        setActivePaymentMethodAccordion(
-                                          payment?.name
-                                        ),
-                                          setActivePAymentType(payment?.name);
-                                        // }
-                                      }}
-                                    >
-                                      <AccordionSummary
-                                        // expandIcon={<ExpandMoreIcon />}
-                                        aria-controls="panel4bh-content"
-                                        id="panel4bh-header"
-                                        className={`${
-                                          activePaymentMethodAccordion ==
-                                          payment?.name
-                                            ? "bg-gray-600 drop-shadow-lg"
-                                            : ""
-                                        }`}
-                                      >
-                                        <Typography
-                                          sx={{ width: "100%", flexShrink: 0 }}
-                                        >
-                                          <div
-                                            className={`flex "justify-around
-                              `}
-                                          >
-                                            <FormControlLabel
-                                              className="!w-full text-sm"
-                                              value={payment?.name}
-                                              checked={
-                                                activePaymentMethodAccordion ==
+                              {paymentType == "online" && (
+                                <>
+                                  <h4 className="!font-bold">
+                                    Payment Gateway
+                                  </h4>
+                                  <RadioGroup
+                                    // defaultValue={paymentType}
+                                    aria-labelledby="payment_type"
+                                    name="payment_type"
+                                  >
+                                    {userData?.client?.payment_types?.map(
+                                      (payment, ind) => (
+                                        <Accordion
+                                          key={ind}
+                                          expanded={
+                                            activePaymentMethodAccordion ==
+                                            payment?.name
+                                          }
+                                          onChange={() => {
+                                            // if payment type is online only
+                                            // if(paymentType == "online"){
+                                            setActivePaymentMethod(
+                                              payment?.name
+                                            );
+                                            setActivePaymentMethodAccordion(
+                                              payment?.name
+                                            ),
+                                              setActivePAymentType(
                                                 payment?.name
-                                                  ? true
-                                                  : false
-                                              }
-                                              control={<Radio size="sm" />}
-                                              label={payment?.name}
-                                            />
+                                              );
+                                            // }
+                                          }}
+                                        >
+                                          <AccordionSummary
+                                            // expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel4bh-content"
+                                            id="panel4bh-header"
+                                            className={`${
+                                              activePaymentMethodAccordion ==
+                                              payment?.name
+                                                ? "bg-gray-600 drop-shadow-lg"
+                                                : ""
+                                            }`}
+                                          >
+                                            <Typography
+                                              sx={{
+                                                width: "100%",
+                                                flexShrink: 0,
+                                              }}
+                                            >
+                                              <div
+                                                className={`flex "justify-around
+                              `}
+                                              >
+                                                <FormControlLabel
+                                                  className="!w-full text-sm"
+                                                  value={payment?.name}
+                                                  checked={
+                                                    activePaymentMethodAccordion ==
+                                                    payment?.name
+                                                      ? true
+                                                      : false
+                                                  }
+                                                  control={<Radio size="sm" />}
+                                                  label={payment?.name}
+                                                />
 
-                                            <img
-                                              src={
-                                                payment?.name == "Stripe"
-                                                  ? `/images/stripe.webp`
-                                                  : payment?.image
-                                              }
-                                              className="ml-2"
-                                              width={"12%"}
-                                              alt={`${paymentType?.name}`}
-                                            />
-                                          </div>
-                                        </Typography>
-                                      </AccordionSummary>
-                                      <AccordionDetails>
-                                        {activePaymentMethodAccordion ==
-                                        "Stripe" ? (
-                                          <>
-                                            <Divider className="mt-2" />
-                                            {payment?.name == "Stripe" && (
-                                              <Form onSubmit={handleSubmit}>
-                                                <Form.Group>
-                                                  <label className="font-bold !text-sm mt-3 m-0">
-                                                    Card Number
-                                                    <sup className="text-red-600 !font-bold">
-                                                      *
-                                                    </sup>
-                                                  </label>
-                                                  <div className="relative m-0">
-                                                    <input
-                                                      maxLength={19}
-                                                      type="text"
-                                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                                      placeholder="Enter card number"
-                                                      value={cardNumber}
-                                                      onChange={
-                                                        handleCardNumberChange
-                                                      }
-                                                      required
-                                                      // onInvalid={
-                                                      //   !validateCardNumber(cardNumber)
-                                                      // }
-                                                    />
-                                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                                      <FaCreditCard
-                                                        size={15}
-                                                        color="gray"
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                  {cardNumberError ? (
-                                                    <p className="nk-message-error !text-xs !m-0 !p-0 !text-left">
-                                                      {cardNumberError}
-                                                    </p>
-                                                  ) : (
-                                                    ""
-                                                  )}
-                                                </Form.Group>
-                                                <Form.Group>
-                                                  <label className="font-bold !text-sm mt-3 m-0 ">
-                                                    Expiry date
-                                                    <sup className="text-red-600 !font-bold">
-                                                      *
-                                                    </sup>
-                                                  </label>
-                                                  <div className="relative">
-                                                    <input
-                                                      type="text"
-                                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                                      placeholder="MM/YY"
-                                                      value={expiry}
-                                                      onChange={
-                                                        handleExpiryChange
-                                                      }
-                                                      required
-                                                      maxLength={5}
-                                                      // onInvalid={!validateExpiry(expiry)}
-                                                    />
-                                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                                      <FaCalendarAlt
-                                                        size={15}
-                                                        color="gray"
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                  {expiryError ? (
-                                                    <p className="nk-message-error !text-left !text-xs !m-0 !p-0">
-                                                      {expiryError}
-                                                    </p>
-                                                  ) : (
-                                                    ""
-                                                  )}
-                                                </Form.Group>
-                                                <Form.Group>
-                                                  <label className="font-bold !text-sm mt-3 m-0">
-                                                    CVV
-                                                    <sup className="text-red-600 !font-bold">
-                                                      *
-                                                    </sup>
-                                                  </label>
-                                                  <div className="relative">
-                                                    <input
-                                                      type="password"
-                                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                                      placeholder="Enter CVV"
-                                                      value={cvv}
-                                                      onChange={handleCvvChange}
-                                                      required
-                                                      maxLength={3}
-                                                      // onInvalid={!validateCVV(cvv)}
-                                                    />
-                                                    <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                                      <FaLock
-                                                        size={15}
-                                                        color="gray"
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                  {cvvError ? (
-                                                    <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
-                                                      {cvvError}
-                                                    </p>
-                                                  ) : (
-                                                    ""
-                                                  )}
-                                                </Form.Group>
-                                                <Form.Group>
-                                                  <label className="font-bold !text-sm mt-3 m-0">
-                                                    Name on the card
-                                                    <sup className="text-red-600 !font-bold">
-                                                      *
-                                                    </sup>
-                                                  </label>
-                                                  <div className="relative">
-                                                    <input
-                                                      className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                                      type="text"
-                                                      placeholder="Enter account holder name"
-                                                      value={nameOnCard}
-                                                      onChange={handleNameChage}
-                                                      // isInvalid={nameOnCard && !validateName(name)}
-                                                    />
-                                                    <div
-                                                      className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400"
-                                                      style={{
-                                                        background: "#f3f3f3",
-                                                        right: "7px",
-                                                        paddingTop: "2px",
-                                                        paddingRight: "2px",
-                                                        top: "15px",
-                                                      }}
-                                                    >
-                                                      <MdOutlineAccountCircle
-                                                        size={20}
-                                                        color="gray"
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                  {nameErr ? (
-                                                    <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
-                                                      {nameErr}
-                                                    </p>
-                                                  ) : (
-                                                    ""
-                                                  )}
-                                                </Form.Group>
-                                              </Form>
+                                                <img
+                                                  src={
+                                                    payment?.name == "Stripe"
+                                                      ? `/images/stripe.webp`
+                                                      : payment?.image
+                                                  }
+                                                  className="ml-2"
+                                                  width={"18%"}
+                                                  alt={`${paymentType?.name}`}
+                                                />
+                                              </div>
+                                            </Typography>
+                                          </AccordionSummary>
+                                          <AccordionDetails>
+                                            {activePaymentMethodAccordion ==
+                                            "Stripe" ? (
+                                              <>
+                                                <Divider className="mt-2" />
+                                                {payment?.name == "Stripe" && (
+                                                  <Form onSubmit={handleSubmit}>
+                                                    <Form.Group>
+                                                      <label className="font-bold !text-sm mt-3 m-0">
+                                                        Card Number
+                                                        <sup className="text-red-600 !font-bold">
+                                                          *
+                                                        </sup>
+                                                      </label>
+                                                      <div className="relative m-0">
+                                                        <input
+                                                          maxLength={19}
+                                                          type="text"
+                                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                                          placeholder="Enter card number"
+                                                          value={cardNumber}
+                                                          onChange={
+                                                            handleCardNumberChange
+                                                          }
+                                                          required
+                                                          // onInvalid={
+                                                          //   !validateCardNumber(cardNumber)
+                                                          // }
+                                                        />
+                                                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                                          <FaCreditCard
+                                                            size={15}
+                                                            color="gray"
+                                                          />
+                                                        </div>
+                                                      </div>
+                                                      {cardNumberError ? (
+                                                        <p className="nk-message-error !text-xs !m-0 !p-0 !text-left">
+                                                          {cardNumberError}
+                                                        </p>
+                                                      ) : (
+                                                        ""
+                                                      )}
+                                                    </Form.Group>
+                                                    <Form.Group>
+                                                      <label className="font-bold !text-sm mt-3 m-0 ">
+                                                        Expiry date
+                                                        <sup className="text-red-600 !font-bold">
+                                                          *
+                                                        </sup>
+                                                      </label>
+                                                      <div className="relative">
+                                                        <input
+                                                          type="text"
+                                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                                          placeholder="MM/YY"
+                                                          value={expiry}
+                                                          onChange={
+                                                            handleExpiryChange
+                                                          }
+                                                          required
+                                                          maxLength={5}
+                                                          // onInvalid={!validateExpiry(expiry)}
+                                                        />
+                                                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                                          <FaCalendarAlt
+                                                            size={15}
+                                                            color="gray"
+                                                          />
+                                                        </div>
+                                                      </div>
+                                                      {expiryError ? (
+                                                        <p className="nk-message-error !text-left !text-xs !m-0 !p-0">
+                                                          {expiryError}
+                                                        </p>
+                                                      ) : (
+                                                        ""
+                                                      )}
+                                                    </Form.Group>
+                                                    <Form.Group>
+                                                      <label className="font-bold !text-sm mt-3 m-0">
+                                                        CVV
+                                                        <sup className="text-red-600 !font-bold">
+                                                          *
+                                                        </sup>
+                                                      </label>
+                                                      <div className="relative">
+                                                        <input
+                                                          type="password"
+                                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                                          placeholder="Enter CVV"
+                                                          value={cvv}
+                                                          onChange={
+                                                            handleCvvChange
+                                                          }
+                                                          required
+                                                          maxLength={3}
+                                                          // onInvalid={!validateCVV(cvv)}
+                                                        />
+                                                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                                          <FaLock
+                                                            size={15}
+                                                            color="gray"
+                                                          />
+                                                        </div>
+                                                      </div>
+                                                      {cvvError ? (
+                                                        <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
+                                                          {cvvError}
+                                                        </p>
+                                                      ) : (
+                                                        ""
+                                                      )}
+                                                    </Form.Group>
+                                                    <Form.Group>
+                                                      <label className="font-bold !text-sm mt-3 m-0">
+                                                        Name on the card
+                                                        <sup className="text-red-600 !font-bold">
+                                                          *
+                                                        </sup>
+                                                      </label>
+                                                      <div className="relative">
+                                                        <input
+                                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                                          type="text"
+                                                          placeholder="Enter account holder name"
+                                                          value={nameOnCard}
+                                                          onChange={
+                                                            handleNameChage
+                                                          }
+                                                          // isInvalid={nameOnCard && !validateName(name)}
+                                                        />
+                                                        <div
+                                                          className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400"
+                                                          style={{
+                                                            background:
+                                                              "#f3f3f3",
+                                                            right: "7px",
+                                                            paddingTop: "2px",
+                                                            paddingRight: "2px",
+                                                            top: "15px",
+                                                          }}
+                                                        >
+                                                          <MdOutlineAccountCircle
+                                                            size={20}
+                                                            color="gray"
+                                                          />
+                                                        </div>
+                                                      </div>
+                                                      {nameErr ? (
+                                                        <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
+                                                          {nameErr}
+                                                        </p>
+                                                      ) : (
+                                                        ""
+                                                      )}
+                                                    </Form.Group>
+                                                  </Form>
+                                                )}
+                                              </>
+                                            ) : activePaymentMethodAccordion ==
+                                              "Phonepe" ? (
+                                              <Typography className="!text-xs">
+                                                After clicking “Pay now”, you
+                                                will be redirected to Phonepay
+                                                Secure to complete your purchase
+                                                securely.
+                                              </Typography>
+                                            ) : (
+                                              <Typography className="!text-xs">
+                                                After clicking “Pay now”, you
+                                                will be redirected to Razorpay
+                                                Secure (UPI, Cards, Wallets,
+                                                NetBanking) to complete your
+                                                purchase securely.
+                                              </Typography>
                                             )}
-                                          </>
-                                        ) : (
-                                          <Typography className="!text-xs">
-                                            After clicking “Pay now”, you will
-                                            be redirected to Razorpay Secure
-                                            (UPI, Cards, Wallets, NetBanking) to
-                                            complete your purchase securely.
-                                          </Typography>
-                                        )}
-                                      </AccordionDetails>
-                                    </Accordion>
-                                  )
-                                )}
-                              </RadioGroup>
+                                          </AccordionDetails>
+                                        </Accordion>
+                                      )
+                                    )}
+                                  </RadioGroup>
+                                </>
+                              )}
 
                               <hr className="mt-3" />
                               <div className="nk-section-blog-details">
@@ -1439,15 +1635,10 @@ export default function Checkout() {
                                     <p className="m-0 fs-12 fw-semibold text-uppercase w-[30%]">
                                       {paymentType == "online"
                                         ? "Delivery Charges:"
-                                        : "Advance:"}
+                                        : ""}
                                     </p>
                                     <p className="m-0 fs-16 fw-semibold text-dark w-[70%]">
-                                      {paymentType == "online"
-                                        ? "₹ 0.00"
-                                        : parseFloat(orderData?.order?.total) <
-                                          500
-                                        ? " 150.00 INR"
-                                        : " 450.00 INR"}
+                                      {paymentType == "online" ? "₹ 0.00" : ""}
                                     </p>
                                   </li>
                                 </ul>
@@ -1470,7 +1661,21 @@ export default function Checkout() {
                                     className="btn btn-primary w-100 !normal-case	"
                                     type="submit"
                                     onClick={() => {
-                                      if (activePaymentMethod === "Razor_Pay") {
+                                      if (paymentType == "cod") {
+                                        codPlaceOrder(
+                                          orderData?.order_id,
+                                          orderData?.order?.total,
+                                          orderData?.client_id,
+                                          orderData?.city,
+                                          orderData?.state,
+                                          orderData?.country,
+                                          orderData?.pincode,
+                                          orderData?.address_1
+                                        );
+                                      } else if (
+                                        activePaymentMethod === "Razor_Pay"
+                                      ) {
+                                        console.log("in razorpay payName");
                                         createOrder(
                                           orderData?.order_id,
                                           orderData?.order?.total,
@@ -1500,20 +1705,25 @@ export default function Checkout() {
                                             orderData?.address_1
                                           );
                                         }
+                                      } else if (
+                                        activePaymentMethod === "Phonepe"
+                                      ) {
+                                        console.log("in Phonepe");
+                                        createOrderWithPhonePe(
+                                          orderData?.order_id,
+                                          orderData?.order?.total,
+                                          orderData?.client_id
+                                        );
                                       }
                                     }}
                                   >
-                                    Proceed to pay{" "}
                                     {paymentType == "online"
-                                      ? " " +
+                                      ? "Proceed to pay " +
                                         parseFloat(
                                           orderData?.order?.total
                                         )?.toFixed(2) +
                                         " INR"
-                                      : parseFloat(orderData?.order?.total) <
-                                        500
-                                      ? "150.00 INR"
-                                      : "450.00 INR"}
+                                      : "Buy Now"}
                                   </button>
                                 )}
                                 {userData?.client?.payment_types?.length ==
@@ -1740,10 +1950,7 @@ export default function Checkout() {
                   </div>
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`https://tradingmaterials.com/contact`}
-                    className="btn btn-white fw-semiBold"
-                  >
+                  <a href={`/contactus`} className="btn btn-white fw-semiBold">
                     {t("Contact_support")}
                   </a>
                 </div>

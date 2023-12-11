@@ -15,70 +15,83 @@ import PaymentDetails from "./PaymentDetails";
 export default function Payments() {
   const userData = useSelector((state) => state?.user?.value);
   const { t } = useTranslation();
-  const [paymentsData, stePaymentsData] = useState()
-  const [paymentsCount, setPaymentsCount] = useState(0)
-  const [activeTab, setActiveTab] = useState(1)
+  const [paymentsData, stePaymentsData] = useState();
+  const [paymentsCount, setPaymentsCount] = useState(0);
+  const [activeTab, setActiveTab] = useState(1);
   // eslint-disable-next-line no-unused-vars
   const [activeOrderId, setActiveOrderId] = useState();
-  const [orderDetails, setOrderDetails] = useState()
+  const [orderDetails, setOrderDetails] = useState();
 
-  useEffect(()=>{
-    if(activeTab == 1){
-      const tempPaymentCount = paymentsData?.filter((payment)=> payment?.status == 1)
-      console.log(tempPaymentCount?.length)
-      setPaymentsCount(tempPaymentCount?.length)
-    } else if(activeTab == 2){
-      const tempPaymentCount = paymentsData?.filter((payment)=> payment?.status == 2)
-      console.log(tempPaymentCount?.length)
-      setPaymentsCount(tempPaymentCount?.length)
-    }else {
-      const tempPaymentCount = paymentsData?.filter((payment)=> payment?.status == 0)
-      console.log(tempPaymentCount?.length)
-      setPaymentsCount(tempPaymentCount?.length)
+  useEffect(() => {
+    if (activeTab == 1) {
+      const tempPaymentCount = paymentsData?.filter(
+        (payment) => payment?.status == 1
+      );
+      console.log(tempPaymentCount?.length);
+      setPaymentsCount(tempPaymentCount?.length);
+    } else if (activeTab == 2) {
+      const tempPaymentCount = paymentsData?.filter(
+        (payment) => payment?.status == 2
+      );
+      console.log(tempPaymentCount?.length);
+      setPaymentsCount(tempPaymentCount?.length);
+    } else {
+      const tempPaymentCount = paymentsData?.filter(
+        (payment) => payment?.status == 0
+      );
+      console.log(tempPaymentCount?.length);
+      setPaymentsCount(tempPaymentCount?.length);
     }
-  },[activeTab])
+  }, [activeTab]);
 
   console.log(userData);
-    const dispatch = useDispatch()
-    const fetchPaymentData = async()=>{
-        try{
-            dispatch(showLoader())
-            const response = await axios.get("https://admin.tradingmaterials.com/api/client/get-payments", {
-                headers: {
-                  Authorization: `Bearer ` + localStorage.getItem("client_token"),
-                  Accept: "application/json",
-                },
-              })
-            if(response?.data?.status){
-                console.log(response?.data?.data?.payments, "ord-")
-                setActiveTab(1)
-                // setActiveOrderId(response?.data?.data?.paments[0]?.order?.id)
-                response.data?.data?.payments?.map((payment, ind)=>{
-                  if(ind == 0){
-                    return  setActiveOrderId(payment?.order_id)
-                  }else{
-                    return
-                  }
-                })
-                stePaymentsData(response?.data?.data?.payments)
-                const tempPaymentCount = response?.data?.data?.payments?.filter((payment)=> payment?.status == 1)
-      console.log(tempPaymentCount?.length)
-      setPaymentsCount(tempPaymentCount?.length)
-                console.log(paymentsData)
-            }
-        }catch(err){console.log(err)}finally{dispatch(hideLoader())}
+  const dispatch = useDispatch();
+  const fetchPaymentData = async () => {
+    try {
+      dispatch(showLoader());
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/client/get-payments",
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
+      if (response?.data?.status) {
+        console.log(response?.data?.data?.payments, "ord-");
+        setActiveTab(1);
+        // setActiveOrderId(response?.data?.data?.paments[0]?.order?.id)
+        response.data?.data?.payments?.map((payment, ind) => {
+          if (ind == 0) {
+            return setActiveOrderId(payment?.order_id);
+          } else {
+            return;
+          }
+        });
+        stePaymentsData(response?.data?.data?.payments);
+        const tempPaymentCount = response?.data?.data?.payments?.filter(
+          (payment) => payment?.status == 1
+        );
+        console.log(tempPaymentCount?.length);
+        setPaymentsCount(tempPaymentCount?.length);
+        console.log(paymentsData);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      dispatch(hideLoader());
     }
+  };
 
-  useEffect(()=>{
-    fetchPaymentData()
-  },[])
+  useEffect(() => {
+    fetchPaymentData();
+  }, []);
 
-
-
-  const memoizedOrderDetails = useMemo(()=>{
-    const getOrderDetails = async()=>{
-      try{
-        dispatch(showLoader())
+  const memoizedOrderDetails = useMemo(() => {
+    const getOrderDetails = async () => {
+      try {
+        dispatch(showLoader());
         const response = await axios.get(
           `https://admin.tradingmaterials.com/api/client/view-order?id=${activeOrderId}`,
           {
@@ -87,24 +100,24 @@ export default function Payments() {
             },
           }
         );
-        
+
         if (response?.data?.status) {
           setOrderDetails(response?.data?.data?.order);
         }
-      }catch(err){console.log(err,"err")}finally{
-        dispatch(hideLoader())
+      } catch (err) {
+        console.log(err, "err");
+      } finally {
+        dispatch(hideLoader());
       }
-    }
+    };
 
-    return getOrderDetails
-  }, [activeOrderId])
+    return getOrderDetails;
+  }, [activeOrderId]);
 
-
-  useEffect(()=>{
-    const Orderdata = memoizedOrderDetails
-    Orderdata()
-  },[activeOrderId])
-
+  useEffect(() => {
+    const Orderdata = memoizedOrderDetails;
+    Orderdata();
+  }, [activeOrderId]);
 
   return (
     <>
@@ -117,7 +130,7 @@ export default function Payments() {
             <div className="nk-mask blur-1 left center"></div>
             <div className="container">
               <PaymentDetails />
-              </div>
+            </div>
           </section>
           <section className="nk-section nk-cta-section nk-section-content-1">
             <div className="container">
@@ -144,7 +157,7 @@ export default function Payments() {
                   </div>
                   <div className="col-lg-4 text-center text-lg-end">
                     <a
-                      href={`https://tradingmaterials.com/contact`}
+                      href={`/contactus`}
                       className="btn btn-white fw-semiBold"
                     >
                       {t("Contact_support")}

@@ -34,6 +34,7 @@ export default function Dashboard() {
       }
     } catch (err) {
       console.log("err", err);
+      navigate("/login")
     } finally {
       dispatch(hideLoader());
     }

@@ -76,25 +76,16 @@ export default function Header() {
 
   //   const { t } = useTranslation();
   const location = useLocation();
-  console.log(location.pathname);
 
   const [toggleNavbar, setToggleNavbar] = useState(false);
 
-  console.log(notifications);
-  console.log;
-
   const navigate = useNavigate();
-
-  console.log(userData);
-  console.log(isLoggedIn);
-  console.log(positions);
 
   useEffect(() => {
     if (localStorage.getItem("client_token")) {
       dispatch(loginUser());
     }
     const lang = localStorage?.getItem("i18nextLng");
-    console.log("lang", lang, userLang);
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
     } else {
@@ -119,66 +110,63 @@ export default function Header() {
   }, [popup]);
 
   const getUserInfo = async () => {
-    console.log(location.pathname.includes("/product-detail"));
-    if (isLoggedIn) {
-      try {
-        const response = await axios.get(
-          "https://admin.tradingmaterials.com/api/client/get-user-info",
-          {
-            headers: {
-              Authorization: `Bearer ` + localStorage.getItem("client_token"),
-              Accept: "application/json",
-            },
-          }
+    // if (isLoggedIn) {
+    try {
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/client/get-user-info",
+        {
+          headers: {
+            Authorization: `Bearer ` + localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (response?.data?.status) {
+        dispatch(updateUsers(response?.data?.data));
+        dispatch(updateCart(response?.data?.data?.client?.cart));
+        dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
+        dispatch(
+          updateWishListCount(response?.data?.data?.client?.wishlist_count)
         );
-
-        if (response?.data?.status) {
-          console.log(response?.data);
-          dispatch(updateUsers(response?.data?.data));
-          dispatch(updateCart(response?.data?.data?.client?.cart));
-          dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
-          dispatch(
-            updateWishListCount(response?.data?.data?.client?.wishlist_count)
-          );
-        } else {
-          console.log(response?.data);
-          if (
-            location.pathname === "/products" ||
-            location.pathname.includes("/product-detail")
-          ) {
-            localStorage.removeItem("client_token");
-            dispatch(logoutUser());
-          } else {
-            setShowSessionExpiry(true);
-          }
-          // navigate("/login")
-        }
-      } catch (err) {
-        console.log(err);
-
-        if (
-          location.pathname === "/products" ||
-          location.pathname.includes("/product-detail") ||
-          location.pathname.includes("/terms") ||
-          location.pathname.includes("/privacy") ||
-          location.pathname.includes("/refund") ||
-          location.pathname.includes("/products")
-        ) {
-          localStorage.removeItem("client_token");
-          dispatch(logoutUser());
-        } else {
-          // dispatch(
-          //   updateNotifications({
-          //     type: "warning",
-          //     message: "Oops!",
-          //   })
-          // );
-          setShowSessionExpiry(true);
-        }
-      } finally {
-        dispatch(hideLoader());
+      } else {
+        // if (
+        //   location.pathname === "/products" ||
+        //   location.pathname.includes("/product-detail")
+        // ) {
+        //   localStorage.removeItem("client_token");
+        //   dispatch(logoutUser());
+        // } else {
+        setShowSessionExpiry(true);
+        // }
+        // navigate("/login")
       }
+    } catch (err) {
+      console.log(err);
+
+      if (
+        location.pathname.includes("/terms") ||
+        location.pathname.includes("/privacy") ||
+        location.pathname.includes("/refund") ||
+        location.pathname.includes("/shipping") ||
+        location.pathname.includes("/disclaimer") ||
+        location.pathname.includes("/return")
+      ) {
+        localStorage.removeItem("client_token");
+        dispatch(logoutUser());
+      } else {
+        // dispatch(
+        //   updateNotifications({
+        //     type: "warning",
+        //     message: "Oops!",
+        //   })
+        // );
+        setShowSessionExpiry(true);
+      }
+    } finally {
+      dispatch(hideLoader());
     }
+    // }
   };
 
   const memoizedFetchProducts = useMemo(() => {
@@ -219,9 +207,9 @@ export default function Header() {
 
   useEffect(() => {
     // dispatch(showLoader());
-    if (isLoggedIn) {
-      getUserInfo();
-    }
+    // if (isLoggedIn) {
+    getUserInfo();
+    // }
   }, [isLoggedIn]);
 
   async function handleLogout() {
@@ -247,6 +235,7 @@ export default function Header() {
       }
     } catch (err) {
       console.log("err", err);
+      navigate(`/login`);
     } finally {
       dispatch(hideLoader());
     }
@@ -420,7 +409,24 @@ export default function Header() {
 
                           <li className="nk-nav-item">
                             <a
-                              href="/view-order/placed"
+                              href={
+                                userData?.client?.order_placed != 0
+                                  ? "/view-order/placed"
+                                  : userData?.client?.order_confirmed != 0
+                                  ? "/view-order/confirmed"
+                                  : userData?.client?.order_dispatched !=
+                                    0
+                                  ? "/view-order/dispatched"
+                                  : userData?.client?.order_completed != 0
+                                  ? "/view-order/delivered"
+                                  : userData?.client?.order_pending != 0
+                                  ? "/view-order/placed"
+                                  : userData?.client?.order_cancelled != 0
+                                  ? "/view-order/confirmed"
+                                  : userData?.client?.order_returned != 0
+                                  ? "/view-order/delivered"
+                                  : "/view-order/placed"
+                              }
                               className={`nk-nav-link  cursor-pointer ${
                                 location.pathname.includes("/view-order")
                                   ? "active"
@@ -580,20 +586,20 @@ export default function Header() {
                             </ul> */}
                           </li>
 
-                          {isLoggedIn && <li className="nk-nav-item">
-                            <a
-                              href={`/profile`}
-                              className={`nk-nav-link ${
-                                location.pathname === "/track-order"
-                                  ? "active"
-                                  : ""
-                              }`}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              <span className="nk-nav-text">Profile</span>
-                            </a>
-                          </li>}
+                          {isLoggedIn && (
+                            <li className="nk-nav-item">
+                              <a
+                                href={`/profile`}
+                                className={`nk-nav-link ${
+                                  location.pathname === "/profile"
+                                    ? "active"
+                                    : ""
+                                }`}
+                              >
+                                <span className="nk-nav-text">Profile</span>
+                              </a>
+                            </li>
+                          )}
                           {/* <li className="nk-nav-item">
                             <a
                               href={`${userLang}/payments`}
@@ -622,9 +628,7 @@ export default function Header() {
                             <a
                               href={`${userLang}/logs`}
                               className={`nk-nav-link ${
-                                location.pathname === "/logs"
-                                  ? "active"
-                                  : ""
+                                location.pathname === "/logs" ? "active" : ""
                               }`}
                             >
                               <span className="nk-nav-text">Logs</span>
@@ -682,16 +686,20 @@ export default function Header() {
                                       </li>
                                       <li className="col-lg-12 p-0">
                                         <a
-                                          // href={`/orders/${CryptoJS?.AES?.encrypt(
-                                          //   `${userData?.client?.id}`,
-                                          //   "order_details"
-                                          // )
-                                          //   ?.toString()
-                                          //   .replace(/\//g, "_")
-                                          //   .replace(/\+/g, "-")}`}
-                                          href="/view-order/placed"
-                                          target="_blank"
-                                          rel="noreferrer"
+                                          href={
+                                            userData?.order_placed_count != 0
+                                              ? "/view-order/placed"
+                                              : userData?.order_confirmed_count !=
+                                                0
+                                              ? "/view-order/confirmed"
+                                              : userData?.order_dispatched_count !=
+                                                0
+                                              ? "/view-order/dispatched"
+                                              : userData?.order_delivered_count !=
+                                                0
+                                              ? "/view-order/delivered"
+                                              : "/view-order/placed"
+                                          }
                                           className="nk-nav-link"
                                         >
                                           Orders
@@ -1007,7 +1015,7 @@ export default function Header() {
               className="nk-sticky-badge-icon nk-sticky-badge-home"
               data-bs-toggle="tooltip"
               data-bs-placement="right"
-              data-bs-custom-class="nk-tooltip"
+              data-bs-custom-className="nk-tooltip"
               data-bs-title="View Demo"
             >
               <em className="icon ni ni-home-fill"></em>
@@ -1032,7 +1040,7 @@ export default function Header() {
               }
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               data-bs-toggle="tooltip"
-              data-bs-custom-class="nk-tooltip"
+              data-bs-custom-className="nk-tooltip"
               data-bs-title="Purchase Now"
               aria-label="Purchase Now"
             >
@@ -1065,7 +1073,7 @@ export default function Header() {
               className="nk-sticky-badge-icon nk-sticky-badge-home"
               data-bs-toggle="tooltip"
               data-bs-placement="right"
-              data-bs-custom-class="nk-tooltip"
+              data-bs-custom-className="nk-tooltip"
               data-bs-title="View Demo"
             >
               <Badge
@@ -1079,12 +1087,12 @@ export default function Header() {
           </li>
           <li>
             <a
-              href="https://wa.me/+919087080999"
+              href="https://wa.me/+918148688639"
               target="_blank"
               rel="noreferrer"
               className="nk-sticky-badge-icon nk-sticky-badge-whatsapp cursor-pointer"
               data-bs-toggle="tooltip"
-              data-bs-custom-class="nk-tooltip"
+              data-bs-custom-className="nk-tooltip"
               data-bs-title="whatsapp"
               aria-label="whatsapp"
             >

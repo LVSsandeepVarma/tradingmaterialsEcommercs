@@ -7,6 +7,7 @@ import axios from "axios";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import OtpInput from "react-otp-input";
 import { Alert } from "@mui/material";
+import { SlQuestion } from "react-icons/sl";
 
 export default function Otp() {
   const [otpError, setotpError] = useState("");
@@ -22,6 +23,7 @@ export default function Otp() {
   const location = useLocation();
   const loaderState = useSelector((state) => state.loader?.value);
   const userLang = useSelector((state) => state?.lang?.value);
+  // eslint-disable-next-line no-unused-vars
   const userData = useSelector((state) => state?.user?.value);
 
   useEffect(() => {
@@ -66,7 +68,8 @@ export default function Otp() {
     }
   }
 
-  async function handleFormSubmission() {
+  async function handleFormSubmission(e) {
+    e.preventDefault();
     setApiError([]);
     setSuccessMessage("");
     console.log(otp);
@@ -108,46 +111,52 @@ export default function Otp() {
   return (
     <>
       {loaderState && (
-        <div className="preloader !bg-[rgba(0,0,0,0.5)]">
+        <div className="preloader !backdrop-blur-[1px]">
           <div className="loader"></div>
         </div>
       )}
       <div className="nk-app-root !text-left">
-        <main className="nk-pages ">
-          <div className="nk-split-page flex-column flex-xl-row">
-            <div className="nk-split-col nk-auth-col justify-content-center">
+        <main className="nk-pages gradient-bg flex flex-col justify-between min-h-[100vh]">
+          <div className="flex justify-between items-center p-2 !w-full">
+            <img
+              className="cursor-pointer"
+              onClick={() => (window.location.href = "/")}
+              src="/images/tm-logo-1.webp"
+              alt="trading_materials_logo"
+            />
+            <p className="text-sm text-right">
+              New to Trading Materials?{" "}
+              <a
+                className="underline hover:text-blue-600"
+                href="https://tradingmaterials.com/signup"
+              >
+                Create a new account
+              </a>
+            </p>
+          </div>
+          <>
+            <div className="flex justify-center items-center mx-4 md:px-0">
               <div
-                className="nk-form-card card  p-0 card-gutter-md nk-auth-form-card mx-lg-9 mx-xl-auto"
+                className="nk-form-card !bg-[#fffff] card rounded-4 card-gutter-md nk-auth-form-card min-w-[100%] max-w-[100%] sm:min-w-[500px] sm:max-w-[500px] "
                 data-aos="fade-up"
               >
-                <div className="card-body">
-                  <div className="nk-form-card-head text-center pb-5">
-                    <div className="form-logo mb-3">
-                      <a href={`/`}>
-                        <img
-                          className="logo-img content-center"
-                          src="/images/tm-logo-1.webp"
-                          alt="logo"
-                        />
-                      </a>
-                    </div>
-                    {/* <h3 className="title mb-2 text-4xl font-semibold">
-                      OTP
-                    </h3> */}
-                    {/* <p className="text">
-                      Shouldn't be here{" "}
-                      <a href={`/login`} className="btn-link text-primary">
-                        Login
-                      </a>
-                      .
-                    </p> */}
+                <div className="card-body  !p-7">
+                  <div className="nk-form-card-head !text-center pb-5">
+                    <h3
+                      className="title mb-2 !font-bold"
+                      style={{ fontSize: "24px" }}
+                    >
+                      OTP{" "}
+                    </h3>
                   </div>
-                  <form action="#">
-                    <div className="row gy-4">
-                      <div className="col-12">
-                        <div className="form-group text-left">
-                          <label className="form-label">Enter your OTP</label>
-                          <div className="form-control-wrap">
+                  <form onSubmit={handleFormSubmission}>
+                    <div className="row gy-2 !text-left">
+                      <div className="col-12 mt-0">
+                        <div className="form-group">
+                          <label className="form-label text-xs !mb-1 font-normal">
+                            Enter your OTP
+                          </label>
+                          <div className="form-control-wrap ">
                             <OtpInput
                               value={otp}
                               onChange={setOtp}
@@ -161,12 +170,24 @@ export default function Otp() {
                                 display: "flex",
                                 justifyContent: "space-around",
                                 marginRight: "15px",
+                                border: "1px solid gray",
+                                borderRadius: "8%",
+
                               }}
                               //   renderSeparator={<span>-</span>}
                               renderInput={(props) => <input {...props} />}
                             />
                             {otpError && (
-                              <p className="text-red-600 font-semibold">
+                              <p className="text-[#fb3048] font-normal !text-xs !px-3 flex items-center gap-1">
+                                <svg
+                                  data-v-059cda41=""
+                                  data-v-4b5d7b40=""
+                                  viewBox="0 0 24 24"
+                                  className="sc-icon sc-icon_16 sc-validation-message__icon w-4 h-4"
+                                  style={{ fill: "#fb3048" }}
+                                >
+                                  <path d="M20.4 16 14.3 5.4a2.6 2.6 0 0 0-4.6 0L3.6 16c-1 1.8.3 4 2.3 4h12.2c2-.1 3.3-2.3 2.3-4zm-9.5-6.4c0-.6.5-1.1 1.1-1.1s1.1.5 1.1 1.1v2.9c0 .6-.5 1.1-1.1 1.1s-1.1-.5-1.1-1.1V9.6zm1.1 7.8c-.6 0-1.2-.5-1.2-1.2S11.4 15 12 15s1.2.5 1.2 1.2-.6 1.2-1.2 1.2z"></path>
+                                </svg>
                                 {otpError}
                               </p>
                             )}
@@ -176,8 +197,9 @@ export default function Otp() {
                       <div className="col-12">
                         <div className="form-group">
                           <button
-                            className="btn btn-block btn-primary"
-                            type="button"
+                            disabled={!otp}
+                            className="btn btn-block btn-primary text-sm"
+                            type="submit"
                             onClick={handleFormSubmission}
                           >
                             Send Reset Link
@@ -214,41 +236,17 @@ export default function Otp() {
                 </div>
               </div>
             </div>
-            <div className="nk-split-col nk-auth-col nk-auth-col-content  bg-primary-gradient is-theme">
-              <div
-                className="nk-mask shape-33"
-                data-aos="fade-in"
-                data-aos-delay="0"
-              ></div>
-              <div className="nk-auth-content mx-md-9 mx-xl-auto">
-                <div className="nk-auth-content-inner">
-                  <div className="media media-lg media-circle media-middle text-bg-cyan-200 mb-5">
-                    <em className="icon ni ni-quote-left text-white"></em>
-                  </div>
-                  <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
-                    Join to all traders community
-                  </h1>
-                  <div className="nk-auth-quote ms-sm-5">
-                    <div className="nk-auth-quote-inner">
-                      <p className="small">
-                        The trading materials is about to have a twist on forum
-                        and community space for all who love to trade and make
-                        their own living.
-                      </p>
-                      <div className="media-group align-items-center pt-3">
-                        <div className="media media-md media-circle media-middle">
-                          <img src="/images/avatar/a.webp" alt="avatar" />
-                        </div>
-                        <div className="media-text">
-                          <div className="h5 mb-0 !font-bold">Founder</div>
-                          <span className="small">3 months ago</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          </>
+          <div className="flex justify-start gap-5 mx-3 py-3 items-center">
+            <span
+              className="flex items-center gap-1 cursor-pointer hover:text-blue-600 !font-bold"
+              onClick={() =>
+                (window.location.href = "/contact")
+              }
+            >
+              <SlQuestion /> Contact us
+            </span>
+            <span></span>
           </div>
         </main>
         <a

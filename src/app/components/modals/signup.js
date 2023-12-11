@@ -129,7 +129,8 @@ const SignupModal = ({ show }) => {
     lastNameVerification(e?.target?.value);
   }
 
-  async function handleFormSubmission() {
+  async function handleFormSubmission(e) {
+    e.preventDefault()
     setApiError([]);
     setSignupSuccessMsg("");
     console.log(email, firstName, lastName, phone);
@@ -301,7 +302,7 @@ const SignupModal = ({ show }) => {
                   .
                 </p>
               </div>
-              <Form>
+              <Form onSubmit={handleFormSubmission}>
                 <div className="row gy-4 !text-left">
                   <div className="col-12">
                     <div className="form-group">
@@ -403,7 +404,7 @@ const SignupModal = ({ show }) => {
                     <div className="form-group">
                       <button
                         className="btn btn-block btn-primary"
-                        type="button"
+                        type="submit"
                         onClick={handleFormSubmission}
                       >
                         Sign Up to Your Account

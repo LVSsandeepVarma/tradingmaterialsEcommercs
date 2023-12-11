@@ -41,18 +41,34 @@ export default function Orders() {
   const [showFavModal, setShowFavModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [showWishlistRemoveMsg, setShowWishlistRemoveMsg] = useState(false);
-  const orderStatus = {"0": "Pending", "1": "Placed", 2: "Confirmed", "3" : "Dispatched" , "4" : "Delivered", "5": "Cancelled", "6" : "Returned"}
-  const orderStatusColorCode = {"0": "primary", "1": "secondary", 2: "info", "3" : "success" , "4" : "warning", "5": "danger", "6" : "success"}
+  const orderStatus = {
+    0: "Pending",
+    1: "Placed",
+    2: "Confirmed",
+    3: "Dispatched",
+    4: "Delivered",
+    5: "Cancelled",
+    6: "Returned",
+  };
+  const orderStatusColorCode = {
+    0: "primary",
+    1: "secondary",
+    2: "info",
+    3: "success",
+    4: "warning",
+    5: "danger",
+    6: "success",
+  };
   const [dateValue, setDateValue] = useState("");
-    const steps = [
-      "Placed ",
-      "Placed",
-      "Confirmed",
-      "Dispatched",
-      "Delivered",
-      "Delivered",
-      "Delivered",
-    ];
+  const steps = [
+    "Placed ",
+    "Placed",
+    "Confirmed",
+    "Dispatched",
+    "Delivered",
+    "Delivered",
+    "Delivered",
+  ];
 
   const userData = useSelector((state) => state?.user?.value);
 
@@ -69,9 +85,9 @@ export default function Orders() {
     setCurrentUserLang(localStorage.getItem("i18nextLng"));
   }, [userLang]);
 
-    useEffect(() => {
-      handleOrderSearchByDate(new Date().toISOString().slice(0, 10));
-    }, [orders]);
+  useEffect(() => {
+    handleOrderSearchByDate(new Date().toISOString().slice(0, 10));
+  }, [orders]);
 
   //function for review stars
   function ratingStars(number) {
@@ -452,46 +468,42 @@ export default function Orders() {
                                 </thead>
                               </table>
                               <div className="">
-                                
-
                                 <div className="grid grid-cols-3 text-left gap-3 drop-shadow-lg mx-2 mb-2">
                                   {/* <tr className="flex justify-around text-left drop-shadow-lg"> */}
-                                    <div className="product-img">
-                                      <img
-                                        src={order?.product?.product?.img_1}
-                                        width={200}
-                                        alt="product image"
-                                      />
-                                    </div>
-                                    <td>
-                                      <table>
-                                        <tr>
-                                          <td className="td-text-1">
-                                            {order?.product?.product?.name}
-                                          </td>
-                                        </tr>
+                                  <div className="product-img">
+                                    <img
+                                      src={order?.product?.product?.img_1}
+                                      width={200}
+                                      alt="product image"
+                                    />
+                                  </div>
+                                  <td>
+                                    <table>
+                                      <tr>
+                                        <td className="td-text-1">
+                                          {order?.product?.product?.name}
+                                        </td>
+                                      </tr>
 
-                                        <tr>
-                                          <td className="td-btn">
-                                            <a
-                                              href={`/checkout/order_id/${CryptoJS?.AES?.encrypt(
-                                                `${order.id}`,
-                                                "trading_materials_order"
-                                              )
-                                                ?.toString()
-                                                .replace(/\//g, "_")
-                                                .replace(/\+/g, "-")}`}
-                                              target="_blank"
-                                              className="btn btn-outline-dark border"
-                                              rel="noreferrer"
-                                            >
-                                              <span
-                                                style={{ fontSize: "12px" }}
-                                              >
-                                                View complete order
-                                              </span>
-                                            </a>
-                                            {/* <div>
+                                      <tr>
+                                        <td className="td-btn">
+                                          <a
+                                            href={`/checkout/order_id/${CryptoJS?.AES?.encrypt(
+                                              `${order.id}`,
+                                              "trading_materials_order"
+                                            )
+                                              ?.toString()
+                                              .replace(/\//g, "_")
+                                              .replace(/\+/g, "-")}`}
+                                            target="_blank"
+                                            className="btn btn-outline-dark border"
+                                            rel="noreferrer"
+                                          >
+                                            <span style={{ fontSize: "12px" }}>
+                                              View complete order
+                                            </span>
+                                          </a>
+                                          {/* <div>
                                               <a
                                                 className={`btn btn-outline-${
                                                   orderStatusColorCode[
@@ -516,56 +528,55 @@ export default function Orders() {
                                                 </span>
                                               </a>
                                             </div> */}
-                                          </td>
-                                        </tr>
-                                      </table>
-                                    </td>
-                                    <td colSpan="3" className="td-btn-center">
-                                      <a
-                                        onClick={() => {
-                                          handleViewAddress([
-                                            {
-                                              add_1: order?.shipping_add1,
-                                              add_2:
-                                                order?.shipping_add2 !== null
-                                                  ? order?.shipping_add2
-                                                  : "",
-                                              city: order?.shipping_city,
-                                              state: order?.shipping_state,
-                                              country: order?.shipping_country,
-                                              zip: order?.shipping_zip,
-                                            },
-                                          ]);
-                                        }}
-                                        className="btn btn-outline-dark border w-100  margin-space"
-                                      >
-                                        <span style={{ fontSize: "12px" }}>
-                                          Shipped To
-                                        </span>
-                                      </a>
-                                      <br />
-                                      
-                                      
-                                      <a
-                                        href="#"
-                                        className="btn btn-outline-dark border w-100 mt-2 margin-space"
-                                      >
-                                        <span style={{ fontSize: "12px" }}>
-                                          Review Product
-                                        </span>
-                                      </a>
-                                      <br />
-                                      <a
-                                        href="https://tradingmaterials.com/contact"
-                                        target="_blank"
-                                        className="btn btn-outline-dark border mt-2 w-100"
-                                        rel="noreferrer"
-                                      >
-                                        <span style={{ fontSize: "12px" }}>
-                                          Contact Support
-                                        </span>
-                                      </a>
-                                    </td>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </td>
+                                  <td colSpan="3" className="td-btn-center">
+                                    <a
+                                      onClick={() => {
+                                        handleViewAddress([
+                                          {
+                                            add_1: order?.shipping_add1,
+                                            add_2:
+                                              order?.shipping_add2 !== null
+                                                ? order?.shipping_add2
+                                                : "",
+                                            city: order?.shipping_city,
+                                            state: order?.shipping_state,
+                                            country: order?.shipping_country,
+                                            zip: order?.shipping_zip,
+                                          },
+                                        ]);
+                                      }}
+                                      className="btn btn-outline-dark border w-100  margin-space"
+                                    >
+                                      <span style={{ fontSize: "12px" }}>
+                                        Shipped To
+                                      </span>
+                                    </a>
+                                    <br />
+
+                                    <a
+                                      href="#"
+                                      className="btn btn-outline-dark border w-100 mt-2 margin-space"
+                                    >
+                                      <span style={{ fontSize: "12px" }}>
+                                        Review Product
+                                      </span>
+                                    </a>
+                                    <br />
+                                    <a
+                                      href="/contactus"
+                                      target="_blank"
+                                      className="btn btn-outline-dark border mt-2 w-100"
+                                      rel="noreferrer"
+                                    >
+                                      <span style={{ fontSize: "12px" }}>
+                                        Contact Support
+                                      </span>
+                                    </a>
+                                  </td>
                                 </div>
                               </div>
                             </div>
@@ -1132,10 +1143,7 @@ export default function Orders() {
                     </div>
                   </div>
                   <div className="col-lg-4 text-center text-lg-end">
-                    <a
-                      href="https://tradingmaterials.com/contact"
-                      className="btn btn-white fw-semiBold"
-                    >
+                    <a href="/contactus" className="btn btn-white fw-semiBold">
                       Contact Support
                     </a>
                   </div>

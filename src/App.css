@@ -3,7 +3,7 @@
 /* WebKit-based browsers (Chrome, Safari) */
 /* Customize the scrollbar track */
 ::-webkit-scrollbar-track {
-  background-color: #ffffffb9;
+  background-color: transparent;
 }
 
 /* Customize the scrollbar thumb */
@@ -35,13 +35,15 @@ html {
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
-  background-color: #e7e7e7;
+  background-color: transparent;
+  /* #e7e7e7; */
 }
 
 .orders-scrollbar::-webkit-scrollbar {
   width: 4px !important;
-  height: 4px !important; 
-  background-color: #e7e7e7 !important;
+  height: 4px !important;
+  background-color: transparent
+  /* #e7e7e7 !important; */
 }
 
 @media only screen and (max-width: 720px) {
@@ -97,7 +99,7 @@ td {
   padding: 2px 5px;
   color: #fff;
   border-radius: 3px;
-  border: 1px solid #ff9800;
+  /* border: 1px solid #ff9800; */
   margin-right: 0.5rem;
 }
 .nk-counter span {
@@ -289,8 +291,8 @@ td {
 .modal-25 {
   /* max-width: 25% !important; */
   right: 0% !important;
-  transform: translateX(100%) !important;
-  transition: transform 2s ease !important;
+  /* transform: translateX(100%) !important; */
+  /* transition: transform 2s ease !important; */
   z-index: 99999;
   /* height: 100vh; */
   /* overflow: hidden; */
@@ -2862,4 +2864,102 @@ small {
 
 .reduceModalSize .modal-lg {
   --bs-modal-width: 700px !important;
+}
+
+.icon-box {
+  color: #fff;
+  position: absolute;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  top: -45px;
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  z-index: 99999999;
+  background: #82ce34;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+}
+
+.human-heart {
+  margin: 5em;
+  animation: 0.8s infinite beatHeart;
+}
+
+@keyframes beatHeart {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1);
+  }
+  40% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.css-o4b71y-MuiAccordionSummary-content {
+  margin: 12px 0 !important;
+}
+
+.MuiAccordionSummary-content .Mui-expanded {
+  margin: 0;
+}
+
+.nav-pills .nav-link {
+  text-align: left;
+  border-radius: 0;
+  font-weight: 600;
+}
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+  color: #2b5cfd;
+  background-color: #e6ebfc;
+}
+.nav-link i {
+  width: 25px;
+  text-align: center;
+}
+
+.client-details {
+  text-align: left;
+}
+
+.client-details p {
+  color: #4aace3;
+}
+
+.bg-light-info {
+  background: #d7fbff;
+  color: #00bcd4;
+  border: 1px solid #d7fbff;
+  cursor: pointer;
+}
+
+.bg-light-info:hover {
+  background: #00bcd4;
+  color: #ffffff;
+  border: 1px solid #00bcd4;
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 600px) {
+  .profile-container {
+    justify-content: center;
+  }
+  .client-details {
+    text-align: center;
+  }
+}
+
+.gradient-bg{
+  background: radial-gradient(49.98% 52.41% at 44.18% 118.79%,rgba(252,120,136,.2) 0,rgba(252,82,102,0) 100%),radial-gradient(38.18% 50.85% at 43.11% -7.92%,rgba(50,138,245,.2) 0,rgba(50,138,245,0) 100%),radial-gradient(32.39% 65.68% at 101.26% 36.34%,rgba(98,57,198,.2) 0,rgba(98,57,198,0) 100%),radial-gradient(25.84% 56.13% at -7.92% 73.21%,rgba(192,16,239,.2) 0,rgba(192,16,239,0) 100%),#f9f8f9;
 }

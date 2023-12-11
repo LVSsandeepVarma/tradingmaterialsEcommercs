@@ -23,10 +23,8 @@ export const loginSlice = createSlice({
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
       state.value = true;
-      console.log(state,"rrrrrr")
     },
     logoutUser: (state) => {
-      console.log(state.value,"fff")
       state.value = false;
     },
 

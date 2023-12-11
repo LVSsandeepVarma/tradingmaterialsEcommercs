@@ -8,7 +8,6 @@ const withAuth = (WrappedComponent) => {
         const navigate = useNavigate();
         const checkAuthentication = async()=>{
             const token = sessionStorage.getItem("client_token")?.length ? sessionStorage.getItem("client_token") : localStorage.getItem("client_token")
-            console.log(token)
             if(token == null){
                 const lsToken = localStorage.getItem("client_token")
                 if(lsToken == null){

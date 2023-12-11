@@ -27,6 +27,11 @@ import ViewInvoice from "./app/components/invoice/ViewInvoice";
 // import Logs from "./app/components/logs/Logs";
 import ProtectedLogs from "./app/components/protectedRoutes/logs";
 import ProtectedInnvoices from "./app/components/protectedRoutes/invoices";
+import PaymentVerifyPhonepe from "./app/components/product/checkout_clone/paymentVerifyPhonepe";
+import CodVerify from "./app/components/product/checkout_clone/CodVerify";
+import AuthenticatedHome from "./app/components/protectedRoutes/home";
+import LoginContactUs from "./app/components/ContactUs/LoginContactUs";
+import Contact from "./app/components/ContactUs/Contactus";
  const UserProfile = lazy(()=>import("./app/components/protectedRoutes/profile"))
 // import OrderProfile from "./app/components/protectedRoutes/viewOrders";
 const OrderProfile = lazy(()=> import("./app/components/protectedRoutes/viewOrders"))
@@ -78,9 +83,9 @@ function App() {
         >
           <Routes>
             <Route path="/" element={<OrderDashboard />}></Route>
-            <Route path="/products" element={<Home />}></Route>
-            {/* <Route path="/about" element={<About />}></Route>
-            <Route path="/contact" element={<Contact />}></Route> */}
+            <Route path="/products" element={<AuthenticatedHome />}></Route>
+            {/* <Route path="/about" element={<About />}></Route>*/}
+            <Route path="/contactus" element={<Contact />}></Route>
             <Route
               path="/product-detail/:slug/:id"
               element={<ProductDetails />}
@@ -107,18 +112,26 @@ function App() {
               path="/auto-login/:access_token"
               element={<AutoLogin />}
             ></Route>
-            <Route path="/view-invoice/:order_id/:pdf_filelink" element={<ViewInvoice />}></Route>
-            <Route path="/invoices" element={<ProtectedInnvoices/>}></Route>
+            <Route
+              path="/view-invoice/:order_id/:pdf_filelink"
+              element={<ViewInvoice />}
+            ></Route>
+            <Route path="/invoices" element={<ProtectedInnvoices />}></Route>
             <Route
               path="/payment-status/:id"
               element={<PaymentVerifyStripe />}
             ></Route>
+            <Route
+              path="/payment-status/phonepe"
+              element={<PaymentVerifyPhonepe />}
+            ></Route>
             <Route path="/orders/:client_id" element={<Orders />}></Route>
-            <Route path="/logs" element={<ProtectedLogs/>}></Route>
+            <Route path="/logs" element={<ProtectedLogs />}></Route>
             <Route
               path="/view-order/:order_type"
               element={<OrderView />}
             ></Route>
+            <Route path="/place-order/:id" element={<CodVerify />}></Route>
             <Route path="/expired" element={<LinkExpired />}></Route>
             <Route path="/dashboard" element={<OrderDashboard />}></Route>
             <Route path="/payments" element={<PaymentsHistory />}></Route>
@@ -128,7 +141,9 @@ function App() {
             <Route path="/shipping-policy" element={<ShippingPolicy />}></Route>
             <Route path="/disclaimer-policy" element={<Disclaimer />} />
             <Route path="/return-policy" element={<Return />} />
+            <Route path="/contact" element={<LoginContactUs />}></Route>
             <Route path="*" element={<PageNotFound />}></Route>
+
             {/* malay */}
 
             <Route path="/ms/products" element={<Home />}></Route>

@@ -1,0 +1,5 @@
+{
+  "root": "https://tradingmaterials.com",
+  "client": "https://client.tradingmaterials.com",
+  "dev": "http://localhost:3000"
+}

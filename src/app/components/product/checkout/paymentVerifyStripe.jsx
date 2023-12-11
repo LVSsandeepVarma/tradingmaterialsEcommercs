@@ -23,8 +23,8 @@ import { BsFillPlayFill } from "react-icons/bs";
 import { useTranslation } from "react-i18next";
 
 export default function PaymentVerifyStripe() {
-    // eslint-disable-next-line no-unused-vars
-    const { t } = useTranslation();
+  // eslint-disable-next-line no-unused-vars
+  const { t } = useTranslation();
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ export default function PaymentVerifyStripe() {
 
   // eslint-disable-next-line no-unused-vars
   const [paymentVerification, setPaymentVerification] = useState(false);
-  const orderID = localStorage.getItem("orderID")
+  const orderID = localStorage.getItem("orderID");
   const [clientToken, setClientToken] = useState("");
   const [time, setTime] = useState(5);
   const [paymentVerifyError, setPaymentVerifyError] = useState(
@@ -90,28 +90,28 @@ export default function PaymentVerifyStripe() {
     }
   };
 
-    useEffect(() => {
-      if (paymentStatus === "success") {
-        console.log(time);
-        const interval = setInterval(() => {
-          setTime(time - 1);
-          if (time === 1) {
-            clearInterval(interval);
-            console.log(clientToken, "actoken");
-            console.log(localStorage.getItem("tmToken"));
-            if (clientToken === undefined || clientToken === "") {
-              window.location.href = `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
-                "client_token"
-              )}`;
-            } else {
-              window.location.href = `https://client.tradingmaterials.com/auto-login/${clientToken}`;
-            }
+  useEffect(() => {
+    if (paymentStatus === "success") {
+      console.log(time);
+      const interval = setInterval(() => {
+        setTime(time - 1);
+        if (time === 1) {
+          clearInterval(interval);
+          console.log(clientToken, "actoken");
+          console.log(localStorage.getItem("tmToken"));
+          if (clientToken === undefined || clientToken === "") {
+            window.location.href = `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
+              "client_token"
+            )}`;
+          } else {
+            window.location.href = `https://client.tradingmaterials.com/auto-login/${clientToken}`;
           }
-        }, 1000);
+        }
+      }, 1000);
 
-        return () => clearInterval(interval);
-      }
-    }, [paymentStatus, time, clientToken]);
+      return () => clearInterval(interval);
+    }
+  }, [paymentStatus, time, clientToken]);
 
   const getUserInfo = async () => {
     try {
@@ -365,7 +365,7 @@ export default function PaymentVerifyStripe() {
                       </table>
                     ) : (
                       <div className="text-center font-bold text-gray-700 ">
-                        <p>no products found in cart</p>
+                        <p>No products found in cart</p>
                         <p
                           className="nav-link text-green-900"
                           onClick={() => navigate("/products")}
@@ -700,10 +700,7 @@ export default function PaymentVerifyStripe() {
                   </div>
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`https://tradingmaterials.com/contact`}
-                    className="btn btn-white fw-semiBold"
-                  >
+                  <a href={`/contactus`} className="btn btn-white fw-semiBold">
                     Contact Support
                   </a>
                 </div>

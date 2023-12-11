@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllProducts, filteredProductsByIds } from "../../../features/products/productsSlice";
+import {
+  fetchAllProducts,
+  filteredProductsByIds,
+} from "../../../features/products/productsSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { loginUser, logoutUser } from "../../../features/login/loginSlice";
@@ -69,9 +72,7 @@ export default function ProductsDisplay() {
   const location = useLocation();
   const navigate = useNavigate();
   const positions = useSelector((state) => state?.position?.value);
-  console.log(positions, positions?.cartTop, positions?.cartRight);
   const dispatch = useDispatch();
-  console.log(location?.search);
 
   useEffect(() => {
     setCurrentUserLang(localStorage.getItem("i18nextLng"));
@@ -108,7 +109,6 @@ export default function ProductsDisplay() {
         }
       );
       if (response?.data?.status) {
-        console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
         dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
@@ -116,8 +116,6 @@ export default function ProductsDisplay() {
           updateWishListCount(response?.data?.data?.client?.wishlist_count)
         );
       } else {
-        console.log(response?.data);
-
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
         // setShowSessionExpiry(true)
@@ -132,7 +130,6 @@ export default function ProductsDisplay() {
   useEffect(() => {
     setShowPlaceHolderLoader(true);
     setAllProducts(products);
-    console.log("inside 2");
     setSubCatProducts(products?.products);
     let totalCount = 0;
     let bundleCount = 0;
@@ -146,14 +143,11 @@ export default function ProductsDisplay() {
     });
     setBundleProductCount(bundleCount);
     setSingleProductsCount(totalCount);
-    console.log(totalCount);
 
     products?.sub_categories?.map((product) => {
-      console.log(product);
       productsFilter[product?.name] = false;
     });
     productsFilter["all"] = true;
-    console.log(productsFilter);
     setFilteredProducts({ ...productsFilter });
     setFilteredSubcatproducts({ ...productsFilter });
     setAllProducts(products?.products);
@@ -164,18 +158,16 @@ export default function ProductsDisplay() {
       dispatch(logoutUser());
     }
     setShowPlaceHolderLoader(false);
-    
   }, [products]);
 
   useEffect(() => {
-    fetchProducts()
-  },[])
+    fetchProducts();
+  }, []);
 
   //useEffect for filtering products from the header (global scope)
   useEffect(() => {
     setSubCategoryIds([]);
     if (subId?.id) {
-      console.log("inside");
       setSubCategoryIds([subId?.id]);
       if (subId?.type === "single") {
         addFilterProducts(subId?.name, subId?.id);
@@ -211,42 +203,40 @@ export default function ProductsDisplay() {
   }
 
   // sorting products based on prices
-    const fetchProducts = async () => {
-      // Fetch the data from the API.
-      try {
-        const response = await axios.get(
-          "https://admin.tradingmaterials.com/api/get/products",
-          {
-            headers: {
-              "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-              Accept: "application/json",
-              "access-token": localStorage.getItem("client_token"),
-            },
-          }
-        );
-        response.data.data.products.sort((a, b) => {
-          // Convert prices to numbers and compare them
-          const priceA = a.prices[0].INR;
-          const priceB = b.prices[0].INR;
-          return parseInt(priceA) - parseInt(priceB);
-        });
+  const fetchProducts = async () => {
+    // Fetch the data from the API.
+    try {
+      const response = await axios.get(
+        "https://admin.tradingmaterials.com/api/get/products",
+        {
+          headers: {
+            "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+            Accept: "application/json",
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+      response.data.data.products.sort((a, b) => {
+        // Convert prices to numbers and compare them
+        const priceA = a.prices[0].INR;
+        const priceB = b.prices[0].INR;
+        return parseInt(priceA) - parseInt(priceB);
+      });
 
-        dispatch(fetchAllProducts(response.data.data));
-        return response.data.data;
-      } catch (err) {
-        console.log(err);
-      }
-    };
+      dispatch(fetchAllProducts(response.data.data));
+      return response.data.data;
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   // function for filtering single products
   function addFilterProducts(subCategoryName, subCategoryId) {
     setStockCount("inStock");
     setFilteredResult(true);
     setShowPlaceHolderLoader(true);
-    console.log(subCategoryName, subCategoryId, subCategoryIds, subId);
     const subIDs = [...subCategoryIds];
     let filterProducts = { ...filteredProducts };
-    console.log(subIDs, filterProducts, subId?.name);
 
     // toggles checked or not
     filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
@@ -254,39 +244,31 @@ export default function ProductsDisplay() {
       : true;
 
     const ind = subIDs.indexOf(subCategoryId);
-    console.log(ind);
     if (ind !== -1) {
       subIDs?.splice(ind, 1);
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
 
       setAllProducts(fp);
     }
 
     if (filterProducts[subCategoryName]) {
-      console.log(subCategoryName, filterProducts);
       subIDs.push(subCategoryId);
 
-      console.log(subIDs);
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
       setAllProducts(fp);
       // }
     } else {
       // subIDs
       const ind = subIDs.indexOf(subCategoryId);
-      console.log(ind);
       if (ind !== -1) {
         subIDs?.splice(ind, 1);
         const fp = filteredProductsByIds(products, subIDs);
-        console.log(fp);
 
         setAllProducts(fp);
       }
     }
 
     setSubCategoryIds([...subIDs]);
-    console.log(filterProducts);
     // checks if all the filter options are false
     if (Object.values(filterProducts).every((value) => value === false)) {
       filterProducts["all"] = true;
@@ -296,13 +278,9 @@ export default function ProductsDisplay() {
       filterProducts["all"] = false;
 
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
       setSubCategoryIds(subIDs);
       setAllProducts(fp);
-      console.log(subIDs, subCategoryId);
     }
-    console.log(filterProducts);
-    console.log(subCategoryName);
     if (subCategoryName === "all") {
       const keys = Object.keys(filterProducts);
       // Iterate through the keys and set all values to false except for the "all" key
@@ -313,7 +291,6 @@ export default function ProductsDisplay() {
       setFilteredResult(false);
       setAllProducts(products?.products);
     }
-    console.log(filterProducts);
     setFilteredProducts({ ...filterProducts });
     setShowPlaceHolderLoader(false);
   }
@@ -324,10 +301,8 @@ export default function ProductsDisplay() {
     setFilteredBundleResults(true);
     setFilteredResult(false);
     setShowPlaceHolderLoader(true);
-    console.log(subCategoryName, subCategoryId);
     const subIDs = [...bundleSubCategoryIDs];
     let filterProducts = { ...filteredSubcatProducts };
-    console.log(subIDs);
     // toggles checked or not
     filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
       ? false
@@ -337,7 +312,6 @@ export default function ProductsDisplay() {
     if (ind !== -1) {
       subIDs?.splice(ind, 1);
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
 
       setSubCatProducts(fp);
     }
@@ -345,18 +319,14 @@ export default function ProductsDisplay() {
     if (filterProducts[subCategoryName]) {
       subIDs.push(subCategoryId);
 
-      console.log(subIDs);
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
       setSubCatProducts(fp);
     } else {
       // subIDs
       const ind = subIDs.indexOf(subCategoryId);
-      console.log(ind);
       if (ind !== -1) {
         subIDs?.splice(ind, 1);
         const fp = filteredProductsByIds(products, subIDs);
-        console.log(fp);
 
         setSubCatProducts(fp);
       }
@@ -374,10 +344,8 @@ export default function ProductsDisplay() {
       filterProducts["all"] = false;
 
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
       setBundleSubCategoryIds(subIDs);
       setSubCatProducts(fp);
-      console.log(subIDs, subCategoryId);
     }
     if (subCategoryName === "all") {
       const keys = Object.keys(filterProducts);
@@ -397,21 +365,22 @@ export default function ProductsDisplay() {
   }
 
   //function for handling filtering based on in stock or out stock
-  function filterstockProducts() {
-    filtersubcatProducts("all", 0);
-    addFilterProducts("all", 0);
+  //function for handling filtering based on in stock or out stock
+  function filterstockProducts(stock) {
+    filtersubcatProducts("all", 0, false, "stock");
+    addFilterProducts("all", 0, false);
     let currentActiveCheckbox;
-    if (stockCount === "inStock") {
-      setStockCount("outStock");
-      currentActiveCheckbox = "outStock";
-    } else {
+    if (stock === "inStock") {
       setStockCount("inStock");
       currentActiveCheckbox = "inStock";
+    } else {
+      setStockCount("outStock");
+      currentActiveCheckbox = "outStock";
     }
 
     const completeProducts = products?.products;
-    const outOfStockBundleProducts = products?.sub_categories;
-    console.log(completeProducts, typeof completeProducts);
+    const outOfStockBundleProducts = products?.products;
+
     const res =
       currentActiveCheckbox === "inStock"
         ? completeProducts?.filter((product) => product?.stock?.stock > 0)
@@ -434,8 +403,6 @@ export default function ProductsDisplay() {
             (product) => product?.stock?.stock == "0" && product?.combo == "1"
           );
     setSubCatProducts(bundleRes);
-
-    console.log(res);
   }
   // function for handling products search
   function handlesearchProducts(e) {
@@ -451,7 +418,6 @@ export default function ProductsDisplay() {
       const res = completeProducts?.filter((product) =>
         product?.name?.toLowerCase()?.includes(searchText?.toLowerCase())
       );
-      console.log(res);
       setResultsCount(res?.length);
       setAllProducts(res);
       if (res?.length === 0) {
@@ -468,13 +434,6 @@ export default function ProductsDisplay() {
     setSorting(value);
     // eslint-disable-next-line no-unsafe-optional-chaining
     const combinedProducts = [...products?.products];
-    console.log(combinedProducts[0], typeof combinedProducts);
-    console.log(combinedProducts, value, "comb-prods");
-
-    // const res = combinedProducts?.sort((a, b) => new Date(a.added_at) - new Date(b.added_at));
-
-    // console.log(res);
-    // Output: Sorted array in ascending order based on 'created_at'
 
     // Sort in descending order based on the 'created_at' property
     if (value === "Oldest") {
@@ -483,19 +442,16 @@ export default function ProductsDisplay() {
         (b, a) => new Date(a.added_at) - new Date(b.added_at)
       );
       setAllProducts(res);
-      console.log(res, "comb-prods");
     } else if (value === "Newest") {
       const res = combinedProducts?.sort(
         (b, a) => new Date(b.added_at) - new Date(a.added_at)
       );
       setAllProducts(res);
-      console.log(res);
     }
     setShowPlaceHolderLoader(false);
   }
 
   async function handleAddToWishList(id, productImg) {
-    console.log(id);
     setShowWishlistRemoveMsg(false);
     try {
       dispatch(showLoader());
@@ -562,7 +518,6 @@ export default function ProductsDisplay() {
             (item) => item?.product_id
           );
           const isPresent = ids?.includes(productId);
-          console.log(isPresent, ids, productId, "prest");
           if (isPresent) {
             dispatch(
               updateWishListCount(userData?.client?.wishlist?.length - 1)
@@ -1308,7 +1263,7 @@ export default function ProductsDisplay() {
                                   >
                                     <div className="nk-card overflow-hidden rounded-3  border text-left ">
                                       <div
-                                        className={`nk-card-img border rounded-md p-3   relative`}
+                                        className={`nk-card-img border-b  p-3   relative`}
                                       >
                                         <a
                                           href={`${userLang}/product-detail/${
@@ -1928,7 +1883,7 @@ export default function ProductsDisplay() {
                             data-aos-delay="100"
                           >
                             <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
-                              <div className="nk-card-img relative">
+                              <div className="nk-card-img border-b    relative">
                                 <a
                                   href={`${userLang}/product-detail/${
                                     product?.slug
@@ -2687,10 +2642,7 @@ export default function ProductsDisplay() {
                   </div>
                 </div>
                 <div className="col-lg-4 text-center text-lg-end">
-                  <a
-                    href={`https://tradingmaterials.com/contact`}
-                    className="btn btn-white fw-semiBold"
-                  >
+                  <a href={`/contactus`} className="btn btn-white fw-semiBold">
                     {t("Contact_support")}
                   </a>
                 </div>

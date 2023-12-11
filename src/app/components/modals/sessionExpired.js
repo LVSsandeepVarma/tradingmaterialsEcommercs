@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
     Button,
     Dialog,
@@ -24,39 +25,20 @@ import {
           <DialogContent>
             <DialogContentText>
               <div className="">
-                  
-      <p>
-      <QueryBuilderIcon fontSize="medium"/>Your session has been expired. Click here to{" "}
-              <b
-                className="!text-blue-500 cursor-pointer"
-                onClick={() => {
-                  handleClose();
-                  window?.location?.reload();
-                  dispatch(
-                    usersignupinModal({
-                      showSignupModal: false,
-                      showLoginModal: true,
-                      showforgotPasswordModal: false,
-                      showOtpModal: false,
-                      showNewPasswordModal: false,
-                      showSignupBuyModal: false,
-                    })
-                  );
-                }}
-              >
-                Login{" "}
-              </b>
-              </p>
+                <p>
+                  <QueryBuilderIcon fontSize="medium" />
+                  Your session has been expired. Please Login again
+                </p>
               </div>
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button
               onClick={() => {
-                window.location.href = "/products";
+                window.location.href = "/login";
               }}
             >
-              Go to Home
+              Login
             </Button>
           </DialogActions>
         </Dialog>

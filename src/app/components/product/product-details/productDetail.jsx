@@ -525,7 +525,7 @@ export default function ProductDetails() {
           />
           {isLoggedIn && <Dashboard />}
           <main className="nk-pages">
-            <section className="nk-section nk-section-product-details pb-lg-7 pt-120 pt-lg-180">
+            <section className="nk-section nk-section-product-details pb-lg-7 pt-20 pt-lg-80">
               <div className="container">
                 <div className="nk-section-content">
                   <div className="row gy-5 gy-md-7 gy-lg-0 justify-content-lg-between">
@@ -1169,7 +1169,10 @@ export default function ProductDetails() {
                   </div>
                   <div className="nk-nav-tabs nav-tabs-s2 py-5 py-lg-7">
                     <ul className="nav nav-tabs">
-                      <li className="nav-item" onClick={() => setTabValue(1)}>
+                      <li
+                        className="nav-item cursor-pointer"
+                        onClick={() => setTabValue(1)}
+                      >
                         <a
                           className={`${
                             tabValue === 1 ? "nav-link active" : "nav-link"
@@ -1181,7 +1184,10 @@ export default function ProductDetails() {
                           Product Details{" "}
                         </a>
                       </li>
-                      <li className="nav-item" onClick={() => setTabValue(2)}>
+                      <li
+                        className="nav-item cursor-pointer"
+                        onClick={() => setTabValue(2)}
+                      >
                         <a
                           className={`${
                             tabValue === 2 ? "nav-link active" : "nav-link"
@@ -1337,9 +1343,10 @@ export default function ProductDetails() {
                                         <div className="flex items-center">
                                           <Avatar
                                             alt="customer-profile"
+                                            sx={{ width: 25, height: 25 }}
                                             src={review?.client?.profile_img}
                                           />
-                                          <p className="ml-2 font-bold capitalize">
+                                          <p className="ml-2 text-sm font-bold capitalize">
                                             {review?.client?.first_name}{" "}
                                             {review?.client?.last_name}{" "}
                                           </p>
@@ -1352,7 +1359,7 @@ export default function ProductDetails() {
                                               : "title"}
                                           </label>
                                         </div>
-                                        <span className="text-sm flex items-center">
+                                        <span className="text-xs flex items-center">
                                           Reviewed on{" "}
                                           <b className="ml-2 mr-2">
                                             {new Date(
@@ -1371,7 +1378,7 @@ export default function ProductDetails() {
                                           </span>{" "}
                                         </span>
                                         <div>
-                                          <p className="text-black text-clip max-h-[125px] overflow-y-auto max-w-[900px] mb-2">
+                                          <p className="text-black text-clip text-sm max-h-[125px] overflow-y-auto max-w-[900px] mb-2">
                                             {review?.description}
                                           </p>
                                           <Button
@@ -2086,7 +2093,7 @@ export default function ProductDetails() {
                     </div>
                     <div className="col-lg-4 text-center text-lg-end">
                       <a
-                        href={`https://tradingmaterials.com/contact`}
+                        href={`/contactus`}
                         className="btn btn-white fw-semiBold"
                       >
                         {t("Contact_support")}

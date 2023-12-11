@@ -8,10 +8,13 @@ import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { FaDownload, FaEye, FaMagnifyingGlass } from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
 export default function InvoiceList() {
   const [viewInvoiceDetails, setViewInvoiceDetails] = useState();
   const [invoiceData, setInvoiceData] = useState()
   const dispatch = useDispatch();
+   const { t } = useTranslation();
+
   const loaderState = useSelector((state) => state?.loader?.value);
 
   useEffect(() => {
@@ -48,7 +51,6 @@ export default function InvoiceList() {
       setInvoiceData(viewInvoiceDetails)
     } else {
       const filteredData = viewInvoiceDetails?.filter((invoice) => String(invoice?.number)?.startsWith(value))
-      console.log(filteredData, value, "texxxt")
       setInvoiceData([...filteredData])
     }
   }
@@ -74,17 +76,17 @@ export default function InvoiceList() {
                       <div className="card-header px-3 py-1 d-flex align-items-center justify-content-between flex-wrap">
                         <div className="d-flex align-items-center">
                           <h5 className="text-muted mb-0">Invoices</h5>
-                          <span className="badge badge-custom ms-2">
+                          <span className="badge badge-custom text-xs ms-2">
                             {invoiceData?.length}
                           </span>
                         </div>
                         <div
-                          className="input-group mb-0"
-                          style={{ width: "350px" }}
+                          className="input-group max-w-[350px] mb-0 !my-2 sm:!my-0"
+                          
                         >
                           <input
                             type="text"
-                            className="form-control px-2 py-1 sm:my-0"
+                            className="form-control !py-0 sm:px-2 sm:py-1 sm:my-0"
                             placeholder="Invoice no"
                             aria-label="Recipient's username"
                             aria-describedby="basic-addon2"
@@ -180,7 +182,27 @@ export default function InvoiceList() {
                                     >
                                       <td
                                         style={{ padding: "10px" }}
-                                        className="text-primary border-none"
+                                        className="text-primary border-none cursor-pointer"
+                                        onClick={() => {
+                                          window.open(
+                                            `/view-invoice/${CryptoJS?.AES?.encrypt(
+                                              `${invoice?.order_id}`,
+                                              "trading_materials_order"
+                                            )
+                                              ?.toString()
+                                              .replace(/\//g, "_")
+                                              .replace(
+                                                /\+/g,
+                                                "-"
+                                              )}/${CryptoJS?.AES?.encrypt(
+                                              `${invoice?.invoice_pdf}`,
+                                              "trading_materials_invoice_pdf"
+                                            )
+                                              ?.toString()
+                                              .replace(/\//g, "_")
+                                              .replace(/\+/g, "-")}`
+                                          );
+                                        }}
                                       >
                                         {invoice?.prefix}
                                         {invoice?.number}
@@ -271,6 +293,45 @@ export default function InvoiceList() {
                       </div>
 
                       <p style={{ pageBreakAfter: "always" }}></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section className="nk-section nk-cta-section nk-section-content-1">
+              <div className="container">
+                <div
+                  className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+                  data-aos="fade-up"
+                  data-aos-delay="100"
+                >
+                  <div
+                    className="row g-gs align-items-center"
+                    data-aos="fade-up"
+                    data-aos-delay="100"
+                  >
+                    <div className="col-lg-8">
+                      <div className="media-group flex-column flex-lg-row align-items-center">
+                        <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                          <em className="icon ni ni-chat-fill"></em>
+                        </div>
+                        <div className="text-center text-lg-start">
+                          <h3 className="text-capitalize m-0 !text-3xl !font-bold">
+                            {t("Chat_With_Our_Support_Team")}
+                          </h3>
+                          <p className="fs-16 opacity-75 !text-lg mt-1">
+                            {t("chat_team_desc")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-lg-4 text-center text-lg-end">
+                      <a
+                        href={`/contactus`}
+                        className="btn btn-white fw-semiBold"
+                      >
+                        {t("Contact_support")}
+                      </a>
                     </div>
                   </div>
                 </div>

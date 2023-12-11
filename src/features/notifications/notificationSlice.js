@@ -15,7 +15,6 @@ export const notificationSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     updateNotifications : (state, action)  =>{
-        console.log(action.payload)
         state.value = action?.payload
     }
   },
