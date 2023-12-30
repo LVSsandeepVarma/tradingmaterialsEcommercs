@@ -72,7 +72,7 @@ const AddressForm = ({ type, data, closeModal }) => {
   });
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all")
+    fetch("https://restcountries.com/v3.1/name/india?fullText=true")
       .then((response) => response.json())
       .then((data) => {
         const countryNames = data.map((country) => country.name.common);
@@ -95,6 +95,28 @@ const AddressForm = ({ type, data, closeModal }) => {
     setCountries(countryFilteredArr);
     console.log("country", countryFilteredArr, countryInput, countryArray);
   }, [countryInput, countryArray]);
+
+  const fetchStateAndCountry = async (setFieldValue, value) => {
+    try {
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/fetch/postacode/info",
+        { zipcode: value },
+        {
+          headers: {
+            "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+            Accept: "application/json",
+          },
+        }
+      );
+      if (response?.data?.status) {
+        console.log(response?.data, "zipdata");
+        setFieldValue("state", response?.data?.data?.info?.state);
+        setFieldValue("city", response?.data?.data?.info?.district);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const handleSubmit = async (values, { setFieldError }) => {
     // setIsSuccess(false);
@@ -202,6 +224,7 @@ const AddressForm = ({ type, data, closeModal }) => {
   function cleanAndSetPostalcodeValue(fieldName, value, setFieldValue) {
     // Use regex to replace non-letter characters with an empty string
     const cleanedValue = value.replace(/[^0-9]/g, "");
+    fetchStateAndCountry(setFieldValue, cleanedValue);
     setFieldValue(fieldName, cleanedValue);
   }
 
@@ -328,6 +351,40 @@ const AddressForm = ({ type, data, closeModal }) => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4 ">
                 <div className="form-group mt-3 ">
+                  <label className="font-semibold" htmlFor="zip">
+                    Postal code<sup className="text-red-600 !font-bold">*</sup>
+                  </label>
+                  {type === "view" ? (
+                    <Field
+                      type="text"
+                      name="zip"
+                      className="form-control addressInput"
+                      placeholder="Postal code"
+                      disabled
+                    />
+                  ) : (
+                    <Field
+                      type="text"
+                      name="zip"
+                      // pattern = "/^[0-9]{5,10}$|^[0-9]{3}\s[0-9]{3}$/"
+                      className="form-control addressInput"
+                      placeholder="Postal code"
+                      onChange={(e) =>
+                        cleanAndSetPostalcodeValue(
+                          "zip",
+                          e.target.value,
+                          setFieldValue
+                        )
+                      }
+                    />
+                  )}
+                  <ErrorMessage
+                    name="zip"
+                    component="div"
+                    className="nk-message-error text-xs"
+                  />
+                </div>
+                <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="city">
                     City<sup className="text-red-600 !font-bold">*</sup>
                   </label>
@@ -360,6 +417,8 @@ const AddressForm = ({ type, data, closeModal }) => {
                     className="nk-message-error text-xs"
                   />
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="state">
                     State<sup className="text-red-600 !font-bold">*</sup>
@@ -393,8 +452,6 @@ const AddressForm = ({ type, data, closeModal }) => {
                     className="nk-message-error text-xs"
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4">
                 <div className="form-group mt-3 ">
                   <label className="font-semibold" htmlFor="country">
                     Country<sup className="text-red-600 !font-bold">*</sup>
@@ -452,40 +509,6 @@ const AddressForm = ({ type, data, closeModal }) => {
                   )}
                   <ErrorMessage
                     name="country"
-                    component="div"
-                    className="nk-message-error text-xs"
-                  />
-                </div>
-                <div className="form-group mt-3 ">
-                  <label className="font-semibold" htmlFor="zip">
-                    Postal code<sup className="text-red-600 !font-bold">*</sup>
-                  </label>
-                  {type === "view" ? (
-                    <Field
-                      type="text"
-                      name="zip"
-                      className="form-control addressInput"
-                      placeholder="Postal code"
-                      disabled
-                    />
-                  ) : (
-                    <Field
-                      type="text"
-                      name="zip"
-                      // pattern = "/^[0-9]{5,10}$|^[0-9]{3}\s[0-9]{3}$/"
-                      className="form-control addressInput"
-                      placeholder="Postal code"
-                      onChange={(e) =>
-                        cleanAndSetPostalcodeValue(
-                          "zip",
-                          e.target.value,
-                          setFieldValue
-                        )
-                      }
-                    />
-                  )}
-                  <ErrorMessage
-                    name="zip"
                     component="div"
                     className="nk-message-error text-xs"
                   />

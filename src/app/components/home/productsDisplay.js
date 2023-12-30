@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import Countdown from "./countdown";
 import { useDispatch, useSelector } from "react-redux";
@@ -40,7 +41,9 @@ import moment from "moment";
 // import ChatForm from "../Chatbot/chatbot";
 import AddToFav from "../modals/addToFav";
 
-import { FaRegHeart } from "react-icons/fa";
+import { FaRegHandPointRight, FaRegHeart } from "react-icons/fa6";
+import { MdKeyboardDoubleArrowRight } from "react-icons/md";
+
 import { updateNotifications } from "../../../features/notifications/notificationSlice";
 import SessionExpired from "../modals/sessionExpired";
 import { Dropdown } from "react-bootstrap";
@@ -97,25 +100,20 @@ export default function ProductsDisplay() {
     localStorage.getItem("i18nextLng")
   );
 
-  console.log(sugnupAddtoCartModal, "sugnupAddtoCartModal");
   const location = useLocation();
   const navigate = useNavigate();
   const positions = useSelector((state) => state?.position?.value);
   const userData = useSelector((state) => state?.user?.value);
-  console.log(positions, positions?.cartTop, positions?.cartRight);
   const dispatch = useDispatch();
-  console.log(location?.search);
 
   useEffect(() => {
     const incrementDate = () => {
       setShowMiniLoader(true);
       const today = new Date();
       const targetDate = localStorage.getItem("targetDate");
-      console.log(targetDate, "ttttt");
       if (targetDate == null || moment(today).isAfter(moment(targetDate))) {
         const nextDate = moment(today).add(5, "days");
         localStorage.setItem("targetDate", nextDate);
-        console.log(today.toISOString(), megaDealTime, "ttttt");
         // if (today.toISOString().split("T")[0] >= megaDealTime.toString().split("T")[0]) {
         //   console.log(nextDate, "datee")
         setMegaDealTime(nextDate);
@@ -136,7 +134,6 @@ export default function ProductsDisplay() {
     const productData = JSON.parse(localStorage.getItem("productData"));
     const qty = localStorage.getItem("prodcutQty");
     if (productData?.name && qty) {
-      console.log(productData, "productdata", qty);
       const initialQuantities = {};
       initialQuantities[productData?.id] = localStorage.getItem("productQty");
       // setQuantities(initialQuantities);
@@ -242,6 +239,18 @@ export default function ProductsDisplay() {
           showSignupBuyModal: false,
         })
       );
+    } else if (location.search == "?register") {
+      dispatch(
+        usersignupinModal({
+          showSignupModal: true,
+          showLoginModal: false,
+          showforgotPasswordModal: false,
+          showOtpModal: false,
+          showNewPasswordModal: false,
+          showSignupCartModal: false,
+          showSignupBuyModal: false,
+        })
+      );
     }
   }, [location, window]);
 
@@ -271,7 +280,6 @@ export default function ProductsDisplay() {
 
       const response = await axios.get(url, headerData);
       if (response?.data?.status) {
-        console.log(response?.data, "prest");
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
         dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
@@ -279,7 +287,6 @@ export default function ProductsDisplay() {
           updateWishListCount(response?.data?.data?.client?.wishlist_count)
         );
       } else {
-        console.log(response?.data);
 
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
@@ -310,7 +317,6 @@ export default function ProductsDisplay() {
   useEffect(() => {
     setShowPlaceHolderLoader(true);
     setAllProducts(products);
-    console.log("inside 2");
     setSubCatProducts(products?.products);
     let totalCount = 0;
     let bundleCount = 0;
@@ -324,14 +330,11 @@ export default function ProductsDisplay() {
     });
     setBundleProductCount(bundleCount);
     setSingleProductsCount(totalCount);
-    console.log(totalCount);
 
     products?.sub_categories?.map((product, ind) => {
-      console.log(product, ind);
       productsFilter[product?.name] = false;
     });
     productsFilter["all"] = true;
-    console.log(productsFilter);
     setFilteredProducts({ ...productsFilter });
     setFilteredSubcatproducts({ ...productsFilter });
     setFilteredResult(false);
@@ -350,7 +353,6 @@ export default function ProductsDisplay() {
   useEffect(() => {
     setSubCategoryIds([]);
     if (subId?.id) {
-      console.log("inside");
       // eslint-disable-next-line no-unsafe-optional-chaining
       setSubCategoryIds([subId?.id]);
       if (subId?.type === "single") {
@@ -395,7 +397,6 @@ export default function ProductsDisplay() {
     setStockCount("inStock");
     setFilteredResult(true);
     setShowPlaceHolderLoader(true);
-    console.log(subCategoryName, subCategoryId, subCategoryIds, subId);
     let subIDs;
     let filterProducts;
     if (showSingleProduct) {
@@ -405,7 +406,6 @@ export default function ProductsDisplay() {
       subIDs = [...subCategoryIds];
       filterProducts = { ...filteredProducts };
     }
-    console.log(subIDs, filterProducts, subId?.name);
 
     // toggles checked or not
     filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
@@ -413,39 +413,31 @@ export default function ProductsDisplay() {
       : true;
 
     const ind = subIDs.indexOf(subCategoryId);
-    console.log(ind);
     if (ind !== -1) {
       subIDs?.splice(ind, 1);
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
 
       setAllProducts(fp);
     }
 
     if (filterProducts[subCategoryName]) {
-      console.log(subCategoryName, filterProducts);
       subIDs.push(subCategoryId);
 
-      console.log(subIDs);
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
       setAllProducts(fp);
       // }
     } else {
       // subIDs
       const ind = subIDs.indexOf(subCategoryId);
-      console.log(ind);
       if (ind !== -1) {
         subIDs?.splice(ind, 1);
         const fp = filteredProductsByIds(products, subIDs);
-        console.log(fp);
 
         setAllProducts(fp);
       }
     }
 
     setSubCategoryIds([...subIDs]);
-    console.log(filterProducts);
     // checks if all the filter options are false
     if (Object.values(filterProducts).every((value) => value === false)) {
       filterProducts["all"] = true;
@@ -456,13 +448,9 @@ export default function ProductsDisplay() {
       filterProducts["all"] = false;
 
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
       setSubCategoryIds(subIDs);
       setAllProducts(fp);
-      console.log(subIDs, subCategoryId);
     }
-    console.log(filterProducts);
-    console.log(subCategoryName);
     if (subCategoryName === "all") {
       const keys = Object.keys(filterProducts);
       // Iterate through the keys and set all values to false except for the "all" key
@@ -473,7 +461,6 @@ export default function ProductsDisplay() {
       setFilteredResult(false);
       setAllProducts(products?.products);
     }
-    console.log(filterProducts);
     setFilteredProducts({ ...filterProducts });
     setShowPlaceHolderLoader(false);
   }
@@ -489,7 +476,6 @@ export default function ProductsDisplay() {
     setStockCount("inStock");
     setFilteredBundleResults(true);
     setShowPlaceHolderLoader(true);
-    console.log(subCategoryName, subCategoryId);
     let subIDs;
     let filterProducts;
     if (showSingleProduct) {
@@ -499,7 +485,6 @@ export default function ProductsDisplay() {
       subIDs = [...bundleSubCategoryIDs];
       filterProducts = { ...filteredSubcatProducts };
     }
-    console.log(subIDs);
     // toggles checked or not
     filterProducts[`${subCategoryName}`] = filterProducts[`${subCategoryName}`]
       ? false
@@ -509,7 +494,6 @@ export default function ProductsDisplay() {
     if (ind !== -1) {
       subIDs?.splice(ind, 1);
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
 
       setSubCatProducts(fp);
     }
@@ -517,18 +501,14 @@ export default function ProductsDisplay() {
     if (filterProducts[subCategoryName]) {
       subIDs.push(subCategoryId);
 
-      console.log(subIDs);
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
       setSubCatProducts(fp);
     } else {
       // subIDs
       const ind = subIDs.indexOf(subCategoryId);
-      console.log(ind);
       if (ind !== -1) {
         subIDs?.splice(ind, 1);
         const fp = filteredProductsByIds(products, subIDs);
-        console.log(fp);
 
         setSubCatProducts(fp);
       }
@@ -546,10 +526,8 @@ export default function ProductsDisplay() {
       filterProducts["all"] = false;
 
       const fp = filteredProductsByIds(products, subIDs);
-      console.log(fp);
       setBundleSubCategoryIds(subIDs);
       setSubCatProducts(fp);
-      console.log(subIDs, subCategoryId);
     }
     if (subCategoryName === "all") {
       const keys = Object.keys(filterProducts);
@@ -586,8 +564,6 @@ export default function ProductsDisplay() {
 
     const completeProducts = products?.products;
     const outOfStockBundleProducts = products?.products;
-    console.log(completeProducts, typeof completeProducts);
-    console.log(outOfStockBundleProducts, products);
     const res =
       currentActiveCheckbox === "inStock"
         ? completeProducts?.filter((product) => product?.stock?.stock > 0)
@@ -611,7 +587,6 @@ export default function ProductsDisplay() {
           );
     setSubCatProducts(bundleRes);
 
-    console.log(res);
   }
   // function for handling products search
   function handlesearchProducts(e) {
@@ -627,7 +602,6 @@ export default function ProductsDisplay() {
       const res = completeProducts?.filter((product) =>
         product?.name?.toLowerCase()?.includes(searchText?.toLowerCase())
       );
-      console.log(res);
       setResultsCount(res?.length);
       setAllProducts(res);
       if (res?.length === 0) {
@@ -644,33 +618,22 @@ export default function ProductsDisplay() {
     setSorting(value);
     // eslint-disable-next-line no-unsafe-optional-chaining
     const combinedProducts = [...products?.products];
-    console.log(combinedProducts[0], typeof combinedProducts);
-
-    // const res = combinedProducts?.sort((a, b) => new Date(a.added_at) - new Date(b.added_at));
-
-    // console.log(res);
-    // Output: Sorted array in ascending order based on 'created_at'
-
-    // Sort in descending order based on the 'created_at' property
     if (value === "Oldest") {
       setShowPlaceHolderLoader(true);
       const res = combinedProducts?.sort(
         (b, a) => new Date(a.added_at) - new Date(b.added_at)
       );
       setAllProducts(res);
-      console.log(res);
     } else if (value === "Newest") {
       const res = combinedProducts?.sort(
         (b, a) => new Date(b.added_at) - new Date(a.added_at)
       );
       setAllProducts(res);
-      console.log(res);
     }
     setShowPlaceHolderLoader(false);
   }
 
   async function handleAddToWishList(id, productImg) {
-    console.log(id);
     try {
       dispatch(showLoader());
       const url =
@@ -748,7 +711,6 @@ export default function ProductsDisplay() {
             (item) => item?.product_id
           );
           const isPresent = ids?.includes(productId);
-          console.log(isPresent, ids, productId, "prest");
           if (isPresent) {
             // dispatch(updateWishListCount(userData?.client?.wishlist_count))/
             setShowWishlistRemoveMsg(true);
@@ -909,10 +871,8 @@ export default function ProductsDisplay() {
                           alt="discount-img"
                           className="mx-auto"
                         />
-                        <p className="m-0 text-gray-1000  text-wrap">
-                          {" "}
-                          Use this coupon code on your purchase:{" "}
-                          <span className="box123">DIWALI2023</span>
+                        <p className="m-0 text-gray-1000 uppercase  text-center">
+                          On your <b>first purchase</b>
                         </p>
                       </div>
 
@@ -1681,7 +1641,6 @@ export default function ProductsDisplay() {
                                             alt="product-image"
                                             className=" !w-full group-hover:scale-105 transition duration-500 rounded-md backdrop-blur-xl bg-white/10"
                                           />
-                                          
                                         </a>
                                       </div>
                                       <div className="nk-card-info  bg-white p-4 pt-1">
@@ -1756,7 +1715,6 @@ export default function ProductsDisplay() {
                                                                 ""
                                                               )?.split(".")[0]
                                                             }
-                                                            
                                                             .
                                                             {
                                                               (
@@ -1816,7 +1774,6 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                              
                                                               .
                                                               {
                                                                 (
@@ -1876,7 +1833,6 @@ export default function ProductsDisplay() {
                                                                   .toString()
                                                                   .split(".")[0]
                                                               }
-                                                              
                                                               .
                                                               {
                                                                 (
@@ -1937,7 +1893,6 @@ export default function ProductsDisplay() {
                                                                 .toString()
                                                                 .split(".")[0]
                                                             }
-                                                            
                                                             .
                                                             {
                                                               (
@@ -1963,7 +1918,6 @@ export default function ProductsDisplay() {
                                                                 .toString()
                                                                 .split(".")[0]
                                                             }
-                                                            
                                                             .
                                                             {
                                                               (
@@ -2117,7 +2071,7 @@ export default function ProductsDisplay() {
                                             </>
                                           ))}
                                           <div className="flex justify-start items-center">
-                                            <button
+                                            {/* <button
                                               className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center  !text-right"
                                               style={{
                                                 display: "flex",
@@ -2144,10 +2098,13 @@ export default function ProductsDisplay() {
                                               }}
                                             >
                                               <FaRegHeart size={18} />
-                                            </button>
-
+                                            </button> */}
+                                            <MdKeyboardDoubleArrowRight
+                                              size={20}
+                                              className="group-hover:animate-shake"
+                                            />
                                             <button
-                                              className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right  group-hover:animate-shake"
+                                              className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:drop-shadow-lg group-hover:scale-125 "
                                               onClick={(event) => {
                                                 return isLoggedIn
                                                   ? (handleAddToCart(
@@ -2165,7 +2122,7 @@ export default function ProductsDisplay() {
                                                   className="max-w-[45px]"
                                                 />
                                               ) : (
-                                                <em className="icon ni ni-cart text-2xl"></em>
+                                                <em className="icon ni ni-cart text-2xl "></em>
                                               )}
                                             </button>
                                           </div>
@@ -2271,7 +2228,6 @@ export default function ProductsDisplay() {
                                     className="w-100 group-hover:scale-105 p-3 rounded-md transition duration-500"
                                     // loading="lazy"
                                   />
-                                  
                                 </a>
                               </div>
                               <div className="nk-card-info bg-white p-4 pt-1">
@@ -2341,7 +2297,6 @@ export default function ProductsDisplay() {
                                                         )?.toFixed(2) + ""
                                                       )?.split(".")[0]
                                                     }
-                                                    
                                                     .
                                                     {
                                                       (
@@ -2396,7 +2351,6 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      
                                                       .
                                                       {
                                                         (
@@ -2450,7 +2404,6 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      
                                                       .
                                                       {
                                                         (
@@ -2506,7 +2459,6 @@ export default function ProductsDisplay() {
                                                         .toString()
                                                         .split(".")[0]
                                                     }
-                                                    
                                                     .
                                                     {
                                                       (
@@ -2530,7 +2482,6 @@ export default function ProductsDisplay() {
                                                         .toString()
                                                         .split(".")[0]
                                                     }
-                                                  
                                                     .
                                                     {
                                                       (
@@ -2583,7 +2534,6 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      
                                                       .
                                                       {
                                                         (
@@ -2637,7 +2587,6 @@ export default function ProductsDisplay() {
                                                           .toString()
                                                           .split(".")[0]
                                                       }
-                                                      
                                                       .
                                                       {
                                                         (
@@ -2659,7 +2608,7 @@ export default function ProductsDisplay() {
                                     </>
                                   ))}
                                   <div className="flex justify-start items-center">
-                                    <button
+                                    {/* <button
                                       className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center  !text-right"
                                       style={{
                                         display: "flex",
@@ -2686,10 +2635,14 @@ export default function ProductsDisplay() {
                                       }}
                                     >
                                       <FaRegHeart size={18} />
-                                    </button>
+                                    </button> */}
+                                    <MdKeyboardDoubleArrowRight
+                                      size={20}
+                                      className="group-hover:animate-shake"
+                                    />
 
                                     <button
-                                      className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:animate-shake"
+                                      className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:drop-shadow-lg group-hover:scale-125  "
                                       onClick={(event) => {
                                         return isLoggedIn
                                           ? (handleAddToCart(

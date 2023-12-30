@@ -130,7 +130,7 @@ export default function Orders() {
             (item) => item?.product_id
           );
           const isPresent = ids?.includes(productId);
-          console.log(isPresent, ids, productId, "prest");
+
           if (isPresent) {
             dispatch(
               updateWishListCount(userData?.client?.wishlist?.length - 1)
@@ -148,7 +148,7 @@ export default function Orders() {
     }
   }
 
-  console.log(decryptedId);
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -164,8 +164,8 @@ export default function Orders() {
           }
         );
         if (response?.data?.status) {
-          console.log(response?.data);
 
+          
           const data = response?.data?.data?.order;
           // Sort the array in descending order based on 'created_at'
           data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -194,12 +194,12 @@ export default function Orders() {
       } else {
         setIsSearching(false);
       }
-      console.log(order_number?.target?.value);
+
       const filteredOrders = orders?.filter((order) => {
         return order?.order_number == order_number?.target?.value;
       });
       setFilteredOrders(filteredOrders);
-      console.log(filteredOrders, "ttttt");
+
     } catch (err) {
       console.log(err);
     } finally {
@@ -216,12 +216,12 @@ export default function Orders() {
       dispatch(showLoader());
       setDateValue(order_date);
       if (order_date !== "") {
-        console.log(order_date, "datettt");
+
         setIsSearching(true);
       } else {
         setIsSearching(false);
       }
-      console.log(order_date?.replaceAll("-", `/`), orders, "ttttt");
+
       const date = new Date(order_date);
       const formattedDate = `${(date.getMonth() + 1)
         .toString()
@@ -230,15 +230,7 @@ export default function Orders() {
         .toString()
         .padStart(2, "0")}/${date.getFullYear()}`;
       const filterOrders = orders?.filter((order) => {
-        console.log(
-          new Date(order?.created_at).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          }),
-          formattedDate,
-          "ttttt"
-        );
+        
         return (
           new Date(order?.created_at).toLocaleDateString("en-US", {
             year: "numeric",
@@ -248,13 +240,44 @@ export default function Orders() {
         );
       });
       setFilteredOrders(filterOrders);
-      console.log(filterOrders, "ttttt");
     } catch (err) {
       console.log(err);
     } finally {
       dispatch(hideLoader());
     }
   };
+
+    const handleDeleteOrder = async (clientId, orderId) => {
+      try {
+        dispatch(showLoader());
+        const response = await axios.post(
+          "https://admin.tradingmaterials.com/api/lead/product/checkout/remove-order",
+          {
+            client_id: clientId,
+            order_id: orderId,
+          },
+          {
+            headers: {
+              "access-token": localStorage.getItem("client_token"),
+            },
+          }
+        );
+        if (response?.data?.status) {
+          if (response?.data?.message == "No orders found") {
+            setOrders([])
+          } else {
+            setOrders(response?.data?.data?.order);
+          }
+          
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        dispatch(hideLoader());
+      }
+    };
+
+
 
   const closeModal = () => {
     setShowFavModal(false);
@@ -345,8 +368,6 @@ export default function Orders() {
                         />
                       </div>
                     </div>
-                    {/* <input type='search' onChange={handleOrderSearchByNumber} className='w-[65%]  form-control  !py-2 !ps-10 border' placeholder='Search your orders with order number'/> */}
-                    {/* <input type='search' onChange={handleOrderSearchByDate} className='w-[30%] form-control  !py-2 !ps-10 border' placeholder='Search your orders with order date'/> */}
                   </div>
                 </div>
               </div>
@@ -361,12 +382,16 @@ export default function Orders() {
                   <div className="nk-entry pe-lg-5 py-lg-1">
                     {filteredOrders?.length === 0 && (
                       <p className="flex !items-center justify-start md:!justify-center mt-5 text-xl  !w-full">
-                        No Orders found on {" "}
-                        <b> &#160;{new Date(dateValue).toLocaleDateString("en-us", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}</b>
+                        No Orders found on{" "}
+                        <b>
+                          {" "}
+                          &#160;
+                          {new Date(dateValue).toLocaleDateString("en-us", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </b>
                       </p>
                     )}
 
@@ -423,86 +448,93 @@ export default function Orders() {
 
                                 <div className="grid grid-cols-3 text-left gap-3 drop-shadow-lg mx-2 mb-2 ">
                                   {/* <tr className="flex justify-around text-left drop-shadow-lg"> */}
-                                    <div className="product-img">
-                                      <img
-                                        src={order?.product?.product?.img_1}
-                                        width={200}
-                                        alt="product image"
-                                      />
-                                    </div>
-                                    <div>
-                                      <table>
-                                        <tr>
-                                          <td className="td-text-1">
-                                            {order?.product?.product?.name}
-                                          </td>
-                                        </tr>
+                                  <div className="product-img">
+                                    <img
+                                      src={order?.product?.product?.img_1}
+                                      width={200}
+                                      alt="product image"
+                                    />
+                                  </div>
+                                  <div>
+                                    <table>
+                                      <tr>
+                                        <td className="td-text-1">
+                                          {order?.product?.product?.name}
+                                        </td>
+                                      </tr>
 
-                                        <tr>
-                                          <td className="td-btn">
-                                            <a
-                                              href={`/checkout/order_id/${CryptoJS?.AES?.encrypt(
-                                                `${order.id}`,
-                                                "trading_materials_order"
-                                              )
-                                                ?.toString()
-                                                .replace(/\//g, "_")
-                                                .replace(/\+/g, "-")}`}
-                                              target="_blank"
-                                              className="btn px-1 btn-outline-dark border"
-                                              rel="noreferrer"
-                                            >
-                                              <span
-                                                style={{ fontSize: "12px" }}
-                                              >
-                                                View complete order
+                                      <tr>
+                                        <td className="td-btn">
+                                          <a
+                                            href={`/checkout/order_id/${CryptoJS?.AES?.encrypt(
+                                              `${order.id}`,
+                                              "trading_materials_order"
+                                            )
+                                              ?.toString()
+                                              .replace(/\//g, "_")
+                                              .replace(/\+/g, "-")}`}
+                                            target="_blank"
+                                            className="btn px-1 btn-outline-dark border"
+                                            rel="noreferrer"
+                                          >
+                                            <span style={{ fontSize: "12px" }}>
+                                              View complete order
+                                            </span>
+                                          </a>
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td className="td-btn">
+                                          <a className="btn px-1 btn-outline-danger border" onClick={()=>handleDeleteOrder(userData?.client?.id, order?.id)}>
+                                            <span className="" style={{fontSize: "12px"}}>
+                                              Delete Order
                                               </span>
-                                            </a>
-                                          </td>
-                                        </tr>
-                                      </table>
-                                    </div>
-                                    <div colSpan="3" className="td-btn-center">
-                                      <a
-                                        onClick={() => {
-                                          handleViewAddress([
-                                            {
-                                              add_1: order?.shipping_add1,
-                                              add_2: order?.shipping_add2,
-                                              city: order?.shipping_city,
-                                              state: order?.shipping_state,
-                                              country: order?.shipping_country,
-                                              zip: order?.shipping_zip,
-                                            },
-                                          ]);
-                                        }}
-                                        className="btn btn-outline-dark border w-100  margin-space"
-                                      >
-                                        <span style={{ fontSize: "12px" }}>
-                                          Shipped To
-                                        </span>
-                                      </a>
-                                      <br />
-                                      {/* <a href={`/track-order/${order?.id}`} target="_blank" className="btn btn-outline-dark border w-100 mt-2 margin-space"><span style={{fontSize:"12px"}}>Track Order</span></a><br/> */}
-                                      <a
-                                        href="#"
-                                        className="btn btn-outline-dark border w-100 mt-2 margin-space"
-                                      >
-                                        <span style={{ fontSize: "12px" }}>
-                                          Review Product
-                                        </span>
-                                      </a>
-                                      <br />
-                                      <a
-                                        href="/contact"
-                                        target="_blank"
-                                        className="btn btn-outline-dark border mt-2 w-100"
-                                      >
-                                        <span style={{ fontSize: "12px" }}>
-                                          Contact Support
-                                        </span>
-                                      </a>
-                                    </div>
+                                          </a>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </div>
+                                  <div colSpan="3" className="td-btn-center">
+                                    <a
+                                      onClick={() => {
+                                        handleViewAddress([
+                                          {
+                                            add_1: order?.shipping_add1,
+                                            add_2: order?.shipping_add2,
+                                            city: order?.shipping_city,
+                                            state: order?.shipping_state,
+                                            country: order?.shipping_country,
+                                            zip: order?.shipping_zip,
+                                          },
+                                        ]);
+                                      }}
+                                      className="btn btn-outline-dark border w-100  margin-space"
+                                    >
+                                      <span style={{ fontSize: "12px" }}>
+                                        Shipped To
+                                      </span>
+                                    </a>
+                                    <br />
+                                    {/* <a href={`/track-order/${order?.id}`} target="_blank" className="btn btn-outline-dark border w-100 mt-2 margin-space"><span style={{fontSize:"12px"}}>Track Order</span></a><br/> */}
+                                    <a
+                                      href="#"
+                                      className="btn btn-outline-dark border w-100 mt-2 margin-space"
+                                    >
+                                      <span style={{ fontSize: "12px" }}>
+                                        Review Product
+                                      </span>
+                                    </a>
+                                    <br />
+                                    <a
+                                      href="/contact"
+                                      target="_blank"
+                                      className="btn btn-outline-dark border mt-2 w-100"
+                                    >
+                                      <span style={{ fontSize: "12px" }}>
+                                        Contact Support
+                                      </span>
+                                    </a>
+                                  </div>
                                   {/* </tr> */}
                                 </div>
                               </div>
@@ -548,7 +580,7 @@ export default function Orders() {
                     </div>
                   )} */}
                 </div>
-                <Divider className="my-2 col-lg-7 lg:hidden"/>
+                <Divider className="my-2 col-lg-7 lg:hidden" />
                 <div className="col-lg-5 ps-lg-0 ">
                   <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
                     <div className="nk-section-blog-details">
@@ -643,13 +675,14 @@ export default function Orders() {
                                                               "super",
                                                           }}
                                                         > */}
-                                                          .{
-                                                            (
-                                                              Number.parseFloat(
-                                                                price?.INR
-                                                              )?.toFixed(2) + ""
-                                                            )?.split(".")[1]
-                                                          }
+                                                        .
+                                                        {
+                                                          (
+                                                            Number.parseFloat(
+                                                              price?.INR
+                                                            )?.toFixed(2) + ""
+                                                          )?.split(".")[1]
+                                                        }
                                                         {/* </sub> */}
                                                       </>
                                                     )
@@ -704,19 +737,19 @@ export default function Orders() {
                                                                 "super",
                                                             }}
                                                           > */}
-                                                            .{
-                                                              (
-                                                                parseFloat(
-                                                                  price?.INR *
-                                                                    (100 /
-                                                                      (100 -
-                                                                        product?.discount))
-                                                                )?.toFixed(2) +
-                                                                ""
-                                                              )
-                                                                .toString()
-                                                                .split(".")[1]
-                                                            }
+                                                          .
+                                                          {
+                                                            (
+                                                              parseFloat(
+                                                                price?.INR *
+                                                                  (100 /
+                                                                    (100 -
+                                                                      product?.discount))
+                                                              )?.toFixed(2) + ""
+                                                            )
+                                                              .toString()
+                                                              .split(".")[1]
+                                                          }
                                                           {/* </sub> */}
                                                         </del>
                                                       </>

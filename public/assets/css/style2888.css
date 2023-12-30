@@ -2898,7 +2898,7 @@ textarea.form-control-lg {
 
 .form-check {
   display: block;
-  min-height: 2.2rem;
+  /* min-height: 2.2rem; */
   padding-left: 1.25rem;
   margin-bottom: 0.125rem;
 }
@@ -50370,4 +50370,33 @@ g rect {
 .customise-checkout-input{
 font-size: small;
     padding-left: 13px !important;
+}
+
+.human-heart {
+  margin: 5em;
+  animation: .8s infinite beatHeart;
+}
+
+@keyframes beatHeart {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1);
+  }
+  40% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+.css-1ami7lv-MuiTimelineConnector-root{
+  background-color: white !important;
+  border: 1px dashed #bdbdbd !important
 }

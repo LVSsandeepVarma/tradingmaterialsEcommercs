@@ -1650,7 +1650,7 @@ export default function CheckoutLead() {
               fill="orange"
             />
             <p className=" shodow-sm text-xs md:text-xs text-gray-800">
-              Feel secure when you purchase from TradingMaterials, as we ensure
+              Feel secure when you purchase from Trading Materials, as we ensure
               that you will be fully refunded if your item does not arrive,
               arrives damaged, or isn&apos;t as described.
             </p>
@@ -1971,7 +1971,7 @@ export default function CheckoutLead() {
                   id="panel1d-header"
                   className="border w-full text-start bg-blue-300 !border-blue-700 !rounded-t-lg chk_accordion_expanded !min-h-[40px]"
                 >
-                  <Typography>Stripe (Secure Online Payment)</Typography>
+                  <Typography>Online Payments</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                   <Typography>
@@ -1984,7 +1984,8 @@ export default function CheckoutLead() {
                       </div>
                       <small>
                         After clicking “Pay now”, you will be redirected to
-                        Stripe Secure to complete your purchase securely.
+                        Secured Payment gateways to complete your purchase
+                        securely.
                       </small>
                     </div>
                   </Typography>

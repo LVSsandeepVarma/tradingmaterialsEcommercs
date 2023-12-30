@@ -44,11 +44,11 @@ const ForgotPasswordModal = ({ show, onHide }) => {
     }
   }, []);
 
-  function emailValidaiton(email) {
+  function emailValidaiton(UserEmail) {
     const emailRegex = /^[a-zA-Z0-9_%+-.]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,3}$/;
-    if (email === "") {
+    if (UserEmail === "") {
       setEmailError("Email is required");
-    } else if (!emailRegex.test(email)) {
+    } else if (!emailRegex.test(UserEmail)) {
       setEmailError("Invalid email format");
     } else {
       setEmailError("");
@@ -61,7 +61,8 @@ const ForgotPasswordModal = ({ show, onHide }) => {
     emailValidaiton(e?.target?.value);
   };
 
-  async function handleFormSubmission() {
+  async function handleFormSubmission(e) {
+    e.preventDefault()
     setApiError([]);
     setEmailSentMsg("");
     console.log(email);
@@ -194,7 +195,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                   .
                 </p> */}
               </div>
-              <Form>
+              <Form onSubmit={handleFormSubmission}>
                 <div className="row gy-4">
                   <div className="col-12">
                     <div className="form-group text-left">
@@ -220,7 +221,7 @@ const ForgotPasswordModal = ({ show, onHide }) => {
                     <div className="form-group">
                       <button
                         className="btn btn-block btn-primary"
-                        type="button"
+                        type="submit"
                         onClick={handleFormSubmission}
                       >
                         Request Reset Link

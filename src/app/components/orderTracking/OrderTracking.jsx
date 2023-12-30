@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
-
+import CryptoJS from "crypto-js";
 import Header from "../header/header";
 import Footer from "../footer/footer";
-import { Button, TextField, ThemeProvider, createTheme } from "@mui/material";
+import { Button, Checkbox, FormControlLabel, TextField, ThemeProvider, createTheme } from "@mui/material";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
 import { FaBoxOpen, FaBoxes, FaWindowClose } from "react-icons/fa";
 import { TbTruckDelivery } from "react-icons/tb";
@@ -22,12 +22,13 @@ import { usersignupinModal } from "../../../features/signupinModals/signupinSlic
 export default function OrderTacker() {
   const loaderState = useSelector((state) => state?.loader?.value);
   const [email, setEmail] = useState("");
-  const [orderNo, setOrderNo] = useState("");
+  const [awbNo, setAwbNo] = useState("");
   const isLoggedIn = useSelector((state) => state.login?.value);
   // eslint-disable-next-line no-unused-vars
   const [submitted, setSubmitted] = useState(false);
   const [emailErr, setEmailErr] = useState("");
-  const [orderNoErr, setOrderNoErr] = useState("");
+  const [awbNoErr, setAwbNoErr] = useState("");
+  const [trackMethod, setTrackMethod] = useState("AWB")
   // eslint-disable-next-line no-unused-vars
   const [orderData, setOrderData] = useState();
   const steps = [
@@ -147,25 +148,25 @@ export default function OrderTacker() {
     }
   }
 
-  function orderNoValidation(ordNo) {
+  function awbNoValidation(ordNo) {
     if (ordNo == "") {
-      setOrderNoErr("Order No is required");
+      setAwbNoErr("AWB number is required");
       return false;
     } else if (ordNo?.length < 6 || ordNo?.length > 20) {
-      setOrderNoErr("Invalid Order no");
+      setAwbNoErr("Invalid AWB number");
       return false;
     } else {
-      setOrderNoErr("");
+      setAwbNoErr("");
       return true;
     }
   }
 
-  const handleOrderNoChange = (ordNo) => {
-    ordNo = ordNo.replace(/[^0-9]/g, "");
+  const handleawbNoChange = (ordNo) => {
+    // ordNo = ordNo.replace(/[^0-9]/g, "");
     setSubmitted(false);
-    setOrderNo(ordNo);
+    setAwbNo(ordNo);
     console.log(ordNo);
-    orderNoValidation(ordNo);
+    awbNoValidation(ordNo);
   };
 
   const handleEmailChange = (mail) => {
@@ -177,15 +178,13 @@ export default function OrderTacker() {
   async function handleSubmit() {
     emailValidaiton(email);
     setApiErr("");
-    orderNoValidation(orderNo);
-    if (orderNo != "" && emailErr == "" && orderNoErr == "") {
+    awbNoValidation(awbNo);
+    if (awbNo != "" && emailErr == "" && awbNoErr == "") {
       try {
         dispatch(showLoader());
-        console.log(orderNo, "ordNO");
+        console.log(awbNo, "ordNO");
         const url =
-          email != ""
-            ? `https://admin.tradingmaterials.com/api/track-order?order_number=${orderNo}&email=${email}`
-            : `https://admin.tradingmaterials.com/api/track-order?order_number=${orderNo}`;
+          `https://admin.tradingmaterials.com/api/shiprocket/awb/order-track?awb_number=${awbNo}`;
         const response = await axios.get(url, {
           headers: {
             "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
@@ -195,16 +194,20 @@ export default function OrderTacker() {
         if (response?.data?.status) {
           setSubmitted(true);
           setOrderData(response?.data?.data?.order);
-          console.log(
-            response?.data?.data?.order,
-            response?.data?.message,
-            "tttttt"
-          );
+          const resp = JSON.stringify(response?.data?.data)
+          sessionStorage.setItem("ordData", resp)
+          window.location.href = `/tracking/${CryptoJS?.AES?.encrypt(
+            `${awbNo}`,
+            "awd_no"
+          )
+            ?.toString()
+            .replace(/\//g, "_")
+            .replace(/\+/g, "-")}`;
         }
       } catch (err) {
         console.log(err);
         if (err?.response?.data?.errors) {
-          setOrderNoErr(
+          setAwbNoErr(
             Object.values(err?.response?.data?.errors["order_number"])
           );
           setEmailErr(Object.values(err?.response?.data?.errors["email"]));
@@ -235,37 +238,24 @@ export default function OrderTacker() {
                 <div className={`col-12 col-md-12 col-lg-6 `}>
                   <div className="w-full  ">
                     {(!submitted || (orderData == null && submitted)) && (
-                      <p className="text-2xl text-center md: text-start">
+                      <p className="text-2xl text-center md:text-start">
                         Book and track orders anytime, anywhere
                       </p>
                     )}
-                    {submitted &&
-                      // windowWidth == "vertical" &&
-                      orderData != null && (
-                        <p className="text-2xl text-center md: text-start">
-                          Your Order-<b>{orderData?.order_number} </b> is{" "}
-                          <b className="">{steps[orderData?.status]}</b>
-                        </p>
-                      )}
+                    {submitted && orderData != null && (
+                      <p className="text-2xl text-center md:text-start">
+                        Your Order-<b>{orderData?.order_number} </b> is{" "}
+                        <b className="">{steps[orderData?.status]}</b>
+                      </p>
+                    )}
                     <div className="flex justify-center">
                       {
-                        // ((
-                        // !submitted
-                        // orderData == nul)
-                        // windowWidth == "horizontal"
-                        // )) && (
                         <img
                           src="/images/gifs/truck-tm1.gif"
                           alt="delvery"
                           className="w-[44%] "
                         />
-                        // )
                       }
-                      {/* {windowWidth == "vertical" && icons[orderData?.status == "0"
-                            ? "1"
-                            : orderData?.status >= 4
-                            ? "4"
-                            : orderData?.status]} */}
                     </div>
                     <div
                       className="mt-5 p-3 "
@@ -282,13 +272,12 @@ export default function OrderTacker() {
                     </div>
                   </div>
                 </div>
-                {
+                {/* {
                   submitted && orderData != null && (
-                    // windowWidth == "horizontal" && (
                     <div className="col-md-12 col-lg-6 mb-6 pt-5 sm:pt-0 grid place-items-center !pr-0 !pl-0">
                       <div className="flex justify-around items-center w-full mb-[16px]">
                         <div className="ml-0 md:ml-4 lg:ml-8">
-                          <p className="mb-2 text-start md:text-left text-xs md:text-sm lg:text-xl !mb-3">
+                          <p className=" text-start md:text-left text-xs md:text-sm lg:text-xl !mb-3">
                             Your Order:{" "}
                             <b className="!text-blue-600 text-xs md:text-sm lg:text-xl">
                               {orderData?.order_number}{" "}
@@ -342,7 +331,7 @@ export default function OrderTacker() {
                           className="text-center cursor-pointer hover:!text-blue-600 !mt-8 sm:mt-[auto]"
                           onClick={() => {
                             if (orderData?.status != "0") {
-                              window.location.href = `https://tradingmaterials.com/?login`;
+                              window.location.href = `/login`;
                             } else {
                               dispatch(
                                 usersignupinModal({
@@ -363,71 +352,116 @@ export default function OrderTacker() {
                       )}
                     </div>
                   )
-                  // )
-                }
+                } */}
 
-                {!submitted && (
-                  <div className="col-12 col-md-12 col-lg-6 card bg-white drop-shadow-lg shadow-lg  p-10">
-                    <h1 className="!text-xl  lg:!text-4xl  text-center ">
-                      <b>Track your order</b>
-                    </h1>
-                    <div className="flex justify-center w-full">
-                      <div className="form-control-wrap hover:drop-shadow-lg w-[100%]  mt-3">
-                        <TextField
-                          fullWidth
-                          label="Email"
-                          type="email"
-                          value={email}
-                          onChange={(e) => handleEmailChange(e.target.value)}
-                          id="fullWidth"
-                        />
-                        <p className="nk-message-error text-xs font-semibold !inline">
-                          {emailErr}
+                {/* {!submitted && ( */}
+                  <div className="col-12 col-md-12 col-lg-6 card bg-white drop-shadow-lg shadow-lg  px-10 py-5 flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[#0B0757]  text-lg font-semibold">
+                          {" "}
+                          Track By:
                         </p>
-                      </div>
+                        <div>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                disabled
+                                checked={trackMethod == "Email"}
+                                onChange={() => setTrackMethod("Email")}
+                              />
+                            }
+                            label="Email"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={trackMethod == "AWB"}
+                                onChange={() => setTrackMethod("AWB")}
+                              />
+                            }
+                            label="AWB Number"
+                          />
+                        </div>
                     </div>
-                    <div className="form-control-wrap hover:drop-shadow-lg w-[100%]  mt-3">
-                      <ThemeProvider theme={theme}>
-                        <TextField
-                          value={orderNo}
-                          onChange={(e) => handleOrderNoChange(e.target.value)}
-                          className=""
-                          required
-                          fullWidth
-                          label="Order No"
-                          variant="outlined"
-                        />
-                      </ThemeProvider>
-                      <p
-                        className="nk-message-error text-xs font-semibold !inline"
-                        style={
-                          orderNoErr
-                            ? { visibility: "visible" }
-                            : { visibility: "hidden" }
-                        }
+                    <div>
+                      {trackMethod == "Email" && (
+                        <div className="flex justify-center w-full">
+                          <div className="form-control-wrap hover:drop-shadow-lg w-[100%]  mt-3">
+                            <TextField
+                              fullWidth
+                              label="Email"
+                              type="email"
+                              value={email}
+                              onChange={(e) =>
+                                handleEmailChange(e.target.value)
+                              }
+                              id="fullWidth"
+                            />
+                            <p className="nk-message-error text-xs font-semibold !inline">
+                              {emailErr}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {trackMethod == "AWB" && (
+                        <div className="form-control-wrap hover:drop-shadow-lg w-[100%]  mt-3">
+                          <ThemeProvider theme={theme}>
+                            <TextField
+                              value={awbNo}
+                              onChange={(e) =>
+                                handleawbNoChange(e.target.value)
+                              }
+                              className=""
+                              required
+                              fullWidth
+                              label="AWB No"
+                              variant="outlined"
+                            />
+                          </ThemeProvider>
+                          <p
+                            className="nk-message-error text-xs font-semibold !inline"
+                            style={
+                              awbNoErr
+                                ? { visibility: "visible" }
+                                : { visibility: "hidden" }
+                            }
+                          >
+                            {awbNoErr}
+                          </p>
+                        </div>
+                      )}
+
+                      <Button
+                        className="mt-5 p-3 w-full"
+                        variant="contained"
+                        onClick={handleSubmit}
                       >
-                        {orderNoErr}
-                      </p>
-                    </div>
-                    <Button
-                      className="mt-5 p-3"
-                      variant="contained"
-                      onClick={handleSubmit}
-                    >
-                      Track Order
-                    </Button>
-                    {apiErr && (
-                      <p className="nk-message-error font-bold !text-xs mt-2">
-                        {apiErr}
-                      </p>
-                    )}
+                        Track Order
+                      </Button>
+
+                      {apiErr && (
+                        <p className="nk-message-error font-bold !text-xs mt-2">
+                          {apiErr}
+                        </p>
+                      )}
+                      </div>
+                      <div className="mt-5">
+                        <p className="capitalize text-[#0B0757] font-semibold">
+                          {" "}
+                          Can&apos;t find your order details?
+                        </p>
+                        <span className="text-sm text-gray-800 ml-1">
+                          We sent your AWB tracking number to you via Email upon
+                          order confirmation.
+                        </span>
+                      </div>
                   </div>
-                )}
-                {submitted && orderData == null && (
+                {/* )} */}
+                {/* {submitted && orderData == null && (
                   <div className="p-10 col-12 col-md-6 ">
                     <div className="flex justify-center">
                       <img
-                        src="/images/orderNotFound.webp"
+                        src="/images/awbNotFound.webp"
                         className="!w-[34%]"
                         alt="ord_not_found"
                       />
@@ -445,12 +479,8 @@ export default function OrderTacker() {
                       </Button>
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
-
-              {/* {submitted && <div className="card w-full drop-shadow-lg shadow-lg text-center">
-                    <p className="capitalize font-semibold text-lg text-center hover:drop-shadow-xl">Order number not found</p>
-                </div>} */}
             </div>
           </div>
         </section>

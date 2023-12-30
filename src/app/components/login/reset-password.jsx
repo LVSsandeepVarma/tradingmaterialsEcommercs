@@ -4,30 +4,22 @@ import React, { useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-// import { loginUser } from "../../../features/login/loginSlice";
 import { hideLoader, showLoader } from "../../../features/loader/loaderSlice";
-// import { updateUsers } from "../../../features/users/userSlice";
-// import { updateNotifications } from "../../../features/notifications/notificationSlice";
-// import { useTranslation } from "react-i18next";
 import { userLanguage } from "../../../features/userLang/userLang";
-// import { updateclientType } from "../../../features/clientType/clientType";
 import { Alert } from "@mui/material";
 import { Helmet } from "react-helmet-async";
+import { SlQuestion } from "react-icons/sl";
 
 export default function NewPassword() {
-  // const { t } = useTranslation();
-
   const [confirmPassword, setconfirmPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPasswordError, setconfirmPasswordError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [apiError, setApiError] = useState([]);
   const [loginSuccessMsg, setLoginsuccessMsg] = useState("");
-  const loginStatus = useSelector((state) => state?.login?.value);
   const loaderState = useSelector((state) => state.loader?.value);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  console.log(loginStatus);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -69,12 +61,6 @@ export default function NewPassword() {
     const hasAlpha = /[A-Za-z]/;
     const hasNumaricals = /\d/;
     const hasSpecialCharecters = /[^A-Za-z0-9]/;
-    console.log(
-      hasAlpha.test(password),
-      hasNumaricals.test(password),
-      hasSpecialCharecters.test(password),
-      "tessst"
-    );
     if (password?.length === 0) {
       setPasswordError("Password is required");
     } else if (password?.length <= 7 || password?.length > 15) {
@@ -86,7 +72,6 @@ export default function NewPassword() {
     } else if (password?.length >= 8 && password?.length <= 15) {
       if (!hasAlpha.test(password)) {
         setPasswordError("Atleast one alphabet is required ");
-        console.log("tessst");
         if (confirmPassword != "" && confirmPassword !== password) {
           // console.log(password, confirmPassword, "confm")
           setconfirmPasswordError("Password does not match");
@@ -144,7 +129,8 @@ export default function NewPassword() {
     passwordValidation(e?.target?.value);
   }
 
-  async function handleFormSubmission() {
+  async function handleFormSubmission(e) {
+    e.preventDefault();
     setApiError([]);
     setLoginsuccessMsg("");
     console.log(confirmPassword, password);
@@ -211,69 +197,83 @@ export default function NewPassword() {
         </div>
       )}
       <div className="nk-body !text-left">
-        <div className="nk-body-root">
-          <div className="nk-split-page flex-column flex-xl-row">
-            <div className="nk-split-col nk-auth-col">
+        <div className="nk-pages gradient-bg flex flex-col justify-between min-h-[100vh]">
+          <div className="flex justify-between items-center p-2 !w-full">
+            <img
+              className="cursor-pointer"
+              onClick={() => (window.location.href = "/")}
+              src="/images/tm-logo-1.webp"
+              alt="trading_materials_logo"
+            />
+            <p className="text-sm text-right">
+              New to Trading Materials?{" "}
+              <a
+                className="underline hover:text-blue-600"
+                href="https://tradingmaterials.com/signup"
+              >
+                Create a new account
+              </a>
+            </p>
+          </div>
+          <>
+            <div className="flex justify-center items-center mx-4 md:px-0">
               <div
-                className="nk-form-card card rounded-3 card-gutter-md nk-auth-form-card mx-md-9 mx-xl-auto"
+                className="nk-form-card !bg-[#fffff] card rounded-4 card-gutter-md nk-auth-form-card min-w-[100%] max-w-[100%] sm:min-w-[500px] sm:max-w-[500px] "
                 data-aos="fade-up"
               >
-                <div className="card-body p-5">
+                <div className="card-body  !p-7">
                   <div className="nk-form-card-head !text-center pb-5">
-                    <div className="flex w-full form-logo mb-3">
-                      <a
-                        className="w-full flex justify-center"
-                        href={`${userLang}/`}
-                      >
-                        <img
-                          className="logo-img justify-center"
-                          src="/images/tm-logo-1.webp"
-                          alt="logo"
-                        />
-                      </a>
-                    </div>
                     <h3
-                      className="title mb-2 font-semibold !font-bold"
-                      style={{ fontSize: "2rem" }}
+                      className="title mb-2 !font-bold"
+                      style={{ fontSize: "24px" }}
                     >
                       Reset Password
                     </h3>
                   </div>
-                  <Form>
+                  <Form onSubmit={handleFormSubmission}>
                     <div className="row gy-4 !text-left">
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label">
-                            New Password
-                            <sup className="text-red-600 !font-bold">*</sup>
+                          <label className="form-label text-xs !mb-1 font-normal">
+                            Password
+                            <sup className="text-[#fb3048] !font-bold">*</sup>
                           </label>
                           <div className="form-control-wrap">
                             <a
                               // href="show-hide-password.html"
-                              className="form-control-icon end bg-white border-y password-toggle"
+                              className="form-control-icon end password-toggle"
                               title="Toggle show/hide password"
                             >
                               <em
-                                className={`on icon ni cursor-pointer bg-white w-[15%]  ${
+                                className={`on icon ni cursor-pointer ${
                                   showPassword
                                     ? "ni-eye-off-fill"
                                     : "ni-eye-fill"
                                 } text-primary`}
                                 onClick={() => setShowPassword(!showPassword)}
                               ></em>
-                              <em className="off icon  ni ni-eye-off-fill text-primary"></em>
+                              <em className="off icon ni ni-eye-off-fill text-primary"></em>
                             </a>
                             <input
                               id="show-hide-password"
                               type={showPassword ? "text" : "password"}
-                              className="form-control"
+                              className="form-control !py-2 !px-3 placeholder:!font-semibold placeholder:!text-[#cac7cf]"
                               maxLength={15}
                               placeholder="Enter your password"
                               onChange={handlePasswordChange}
                             />
                           </div>
                           {passwordError && (
-                            <p className="nk-message-error text-xs mt-1">
+                            <p className="text-[#fb3048] font-normal !text-xs !px-3 flex items-center gap-1">
+                              <svg
+                                data-v-059cda41=""
+                                data-v-4b5d7b40=""
+                                viewBox="0 0 24 24"
+                                className="sc-icon sc-icon_16 sc-validation-message__icon w-4 h-4"
+                                style={{ fill: "#fb3048" }}
+                              >
+                                <path d="M20.4 16 14.3 5.4a2.6 2.6 0 0 0-4.6 0L3.6 16c-1 1.8.3 4 2.3 4h12.2c2-.1 3.3-2.3 2.3-4zm-9.5-6.4c0-.6.5-1.1 1.1-1.1s1.1.5 1.1 1.1v2.9c0 .6-.5 1.1-1.1 1.1s-1.1-.5-1.1-1.1V9.6zm1.1 7.8c-.6 0-1.2-.5-1.2-1.2S11.4 15 12 15s1.2.5 1.2 1.2-.6 1.2-1.2 1.2z"></path>
+                              </svg>
                               {passwordError}
                             </p>
                           )}
@@ -281,14 +281,14 @@ export default function NewPassword() {
                       </div>
                       <div className="col-12">
                         <div className="form-group">
-                          <label className="form-label ">
+                          <label className="form-label text-xs !mb-1 font-normal">
                             Confirm Password
-                            <sup className="text-red-600 !font-bold">*</sup>
+                            <sup className="text-[#fb3048] !font-bold">*</sup>
                           </label>
                           <div className="form-control-wrap">
                             <a
                               // href="show-hide-password.html"
-                              className="form-control-icon end bg-white border-y password-toggle"
+                              className="form-control-icon end password-toggle"
                               title="Toggle show/hide password"
                             >
                               <em
@@ -305,49 +305,34 @@ export default function NewPassword() {
                             </a>
                             <input
                               type={showConfirmPassword ? "text" : "password"}
-                              className="form-control"
+                              className="form-control !py-2 !px-3 placeholder:!font-semibold placeholder:!text-[#cac7cf]"
                               maxLength={15}
                               placeholder="Enter confirm Password"
                               onChange={handleconfirmPasswordChange}
                             />
                           </div>
                           {confirmPasswordError && (
-                            <p className="nk-message-error text-xs mt-1">
+                            <p className="text-[#fb3048] font-normal !text-xs !px-3 flex items-center gap-1">
+                              <svg
+                                data-v-059cda41=""
+                                data-v-4b5d7b40=""
+                                viewBox="0 0 24 24"
+                                className="sc-icon sc-icon_16 sc-validation-message__icon w-4 h-4"
+                                style={{ fill: "#fb3048" }}
+                              >
+                                <path d="M20.4 16 14.3 5.4a2.6 2.6 0 0 0-4.6 0L3.6 16c-1 1.8.3 4 2.3 4h12.2c2-.1 3.3-2.3 2.3-4zm-9.5-6.4c0-.6.5-1.1 1.1-1.1s1.1.5 1.1 1.1v2.9c0 .6-.5 1.1-1.1 1.1s-1.1-.5-1.1-1.1V9.6zm1.1 7.8c-.6 0-1.2-.5-1.2-1.2S11.4 15 12 15s1.2.5 1.2 1.2-.6 1.2-1.2 1.2z"></path>
+                              </svg>
                               {confirmPasswordError}
                             </p>
                           )}
                         </div>
                       </div>
-                      {/* <div className="col-12">
-                        <div className="d-flex flex-wrap align-items-center  justify-content-between text-center">
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              value=""
-                              id="rememberMe"
-                            />
-                            <label
-                              className="form-check-label"
-                              for="rememberMe"
-                            >
-                              {" "}
-                              Remember Me{" "}
-                            </label>
-                          </div>
-                          <a
-                            href={`${userLang}/reset-password/forgot-password`}
-                            className="d-inline-block fs-16"
-                          >
-                            Forgot Password?
-                          </a>
-                        </div>
-                      </div> */}
                       <div className="col-12">
                         <div className="form-group">
                           <button
-                            className="btn btn-block btn-primary"
-                            type="button"
+                            disabled={!password || !confirmPassword}
+                            className="btn btn-block btn-primary text-sm"
+                            type="submit"
                             onClick={handleFormSubmission}
                           >
                             Reset Password
@@ -375,7 +360,7 @@ export default function NewPassword() {
                                 >
                                   <p
                                     key={ind}
-                                    className="nk-message-error text-xs"
+                                    className="text-red-600 font-semibold"
                                   >
                                     {err}
                                   </p>
@@ -386,48 +371,20 @@ export default function NewPassword() {
                       </div>
                     </div>
                   </Form>
-                  {/* <!--<div className="pt-4 text-center">
-                                <div className="small overline-title-sep"><span className="bg-white px-2 text-base">or login with</span></div>
-                            </div>
-                            <div className="pt-4"><a href="#" className="btn btn-outline-gray-50 text-dark w-100"><img src="/images/icon/a.png" alt="" className="icon"/><span>Login with Google</span></a></div>--> */}
                 </div>
               </div>
             </div>
-            <div className="nk-split-col nk-auth-col nk-auth-col-content  bg-primary-gradient is-theme">
-              <div
-                className="nk-mask shape-33"
-                data-aos="fade-in"
-                data-aos-delay="0"
-              ></div>
-              <div className="nk-auth-content mx-md-9 mx-xl-auto">
-                <div className="nk-auth-content-inner">
-                  <div className="media media-lg media-circle media-middle text-bg-cyan-200 mb-5">
-                    <em className="icon ni ni-quote-left text-white"></em>
-                  </div>
-                  <h1 className="mb-5 !text-5xl !font-bold !leading-normal">
-                    Join to all traders community
-                  </h1>
-                  <div className="nk-auth-quote ms-sm-5">
-                    <div className="nk-auth-quote-inner">
-                      <p className="small">
-                        The trading materials is about to have a twist on forum
-                        and community space for all who love to trade and make
-                        their own living.
-                      </p>
-                      <div className="media-group align-items-center pt-3">
-                        <div className="media media-md media-circle media-middle">
-                          <img src="/images/avatar/a.webp" alt="avatar" />
-                        </div>
-                        <div className="media-text">
-                          <div className="h5 mb-0 !font-bold">Founder</div>
-                          <span className="small">3 months ago</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          </>
+          <div className="flex justify-start gap-5 mx-3 py-3 items-center">
+            <span
+              className="flex items-center gap-1 cursor-pointer hover:text-blue-600 !font-bold"
+              onClick={() =>
+                (window.location.href = "https://tradingmaterials.com/contact")
+              }
+            >
+              <SlQuestion /> Contact us
+            </span>
+            <span></span>
           </div>
         </div>
       </div>

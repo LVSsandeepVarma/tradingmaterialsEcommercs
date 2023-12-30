@@ -3,12 +3,12 @@
 /* WebKit-based browsers (Chrome, Safari) */
 /* Customize the scrollbar track */
 ::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
+  background-color: transparent;
 }
 
 /* Customize the scrollbar thumb */
 ::-webkit-scrollbar-thumb {
-  background-color: #888;
+  background-color: #0736d0;
   border-radius: 10px;
 }
 
@@ -21,7 +21,7 @@
 /* Add any other desired styles */
 html {
   scrollbar-width: thin;
-  scrollbar-color: #f1f1f1 #888;
+  /* scrollbar-color: #fff #dfd8d8; */
 }
 
 /* For a better cross-browser experience, you can add the following */
@@ -33,20 +33,28 @@ html {
 /* This may not be supported in the future, so always test thoroughly */
 /* For best results, consider using a library or plugin that provides better cross-browser support */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-  background-color: #f1f1f1;
+  width: 4px;
+  height: 4px;
+  background-color: transparent;
+  /* #e7e7e7; */
+}
+
+.orders-scrollbar::-webkit-scrollbar {
+  width: 4px !important;
+  height: 4px !important;
+  background-color: transparent
+  /* #e7e7e7 !important; */
 }
 
 @media only screen and (max-width: 720px) {
   ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    width: 2px;
+    height: 2px;
   }
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #888;
+  background-color: #cecece;
   border-radius: 10px;
 }
 
@@ -283,8 +291,8 @@ td {
 .modal-25 {
   /* max-width: 25% !important; */
   right: 0% !important;
-  transform: translateX(100%) !important;
-  transition: transform 2s ease !important;
+  /* transform: translateX(100%) !important; */
+  /* transition: transform 2s ease !important; */
   z-index: 99999;
   /* height: 100vh; */
   /* overflow: hidden; */
@@ -2014,4 +2022,114 @@ iframe {
   height: 100%;
   /* ...and bring it back again */
   margin-left: -100%;
+}
+
+.icon-box {
+    color: #fff;
+    position: absolute;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    top: -45px;
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    z-index: 99999999;
+    background: #82ce34;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+}
+
+.human-heart {
+  margin: 5em;
+  animation: .8s infinite beatHeart;
+}
+
+@keyframes beatHeart {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1);
+  }
+  40% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+
+/*==============bread-header===============*/
+.sbreadcrumb {
+  margin: 2%;
+  width: 96%;
+  border-radius: 5px;
+  padding: 15px;
+  background-image: linear-gradient(-120deg, #fdfbfb 0%, #f5f5f5 100%);
+}
+
+.sbreadcrumb .lcard {
+  position: relative;
+  float: left;
+}
+.sbreadcrumb .lcard img {
+  position: relative;
+  display: inline;
+  text-align: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50px;
+}
+.sbreadcrumb .lcard span {
+  font-size: 15px;
+  margin-left: 20px;
+}
+.s-color {
+  font-size: 12px !important;
+  font-weight: 300;
+  color: #818181;
+}
+/*.sbreadcrumb .lcard h5 {
+	font-size: 13px;
+	font-weight: 300;
+	color: #6d6d6d;
+}*/
+.sbreadcrumb .rcard {
+  text-align: right !important;
+  position: relative;
+  float: right !important;
+}
+
+.gradient-bg{
+  background: radial-gradient(49.98% 52.41% at 44.18% 118.79%,rgba(252,120,136,.2) 0,rgba(252,82,102,0) 100%),radial-gradient(38.18% 50.85% at 43.11% -7.92%,rgba(50,138,245,.2) 0,rgba(50,138,245,0) 100%),radial-gradient(32.39% 65.68% at 101.26% 36.34%,rgba(98,57,198,.2) 0,rgba(98,57,198,0) 100%),radial-gradient(25.84% 56.13% at -7.92% 73.21%,rgba(192,16,239,.2) 0,rgba(192,16,239,0) 100%),#f9f8f9;
+}
+
+.grayImage{
+  filter: grayscale(100%);
+}
+
+.grayImage:not(:hover){
+  filter: grayscale(0)
+}
+
+.fadein{
+  animation: opac 0.8s;
+}
+
+@keyframes opac {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

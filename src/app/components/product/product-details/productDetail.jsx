@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,6 +43,9 @@ import { logoutUser } from "../../../../features/login/loginSlice";
 import { usersignupinModal } from "../../../../features/signupinModals/signupinSlice";
 import AddToFav from "../../modals/addToFav";
 import { FaRegHeart } from "react-icons/fa";
+import { MdKeyboardDoubleArrowRight } from "react-icons/md";
+
+import { FaRegHandPointRight } from "react-icons/fa6";
 
 // import { delay } from "@reduxjs/toolkit/dist/utils";
 
@@ -79,7 +83,6 @@ export default function ProductDetails() {
   const [reviewId, setReviewId] = useState("");
   // eslint-disable-next-line no-unused-vars
   const [previewImage, setPreviewImage] = useState("/images/logo");
-  console.log(cartProducts, params, params?.slug?.replaceAll("_", " "));
 
   useEffect(() => {
     const timoeOut = setTimeout(() => {
@@ -138,7 +141,6 @@ export default function ProductDetails() {
 
       const response = await axios.get(url, headerData);
       if (response?.data?.status) {
-        console.log(response?.data, "prest");
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
         dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
@@ -146,7 +148,6 @@ export default function ProductDetails() {
           updateWishListCount(response?.data?.data?.client?.wishlist_count)
         );
       } else {
-        console.log(response?.data);
 
         dispatch(logoutUser());
         localStorage.removeItem("client_token");
@@ -185,17 +186,13 @@ export default function ProductDetails() {
     return <ul className="d-flex align-items-center">{elemetns}</ul>;
   }
 
-  console.log(products);
-
   const { id } = useParams();
   const decryptedId = CryptoJS.AES.decrypt(
     id.replace(/_/g, "/").replace(/-/g, "+"),
     "trading_materials"
   ).toString(CryptoJS.enc.Utf8);
-  console.log(decryptedId);
 
   async function fetchProductdetails() {
-    console.log(id);
     try {
       dispatch(showLoader());
       const response = await axios.get(
@@ -281,7 +278,6 @@ export default function ProductDetails() {
             (item) => item?.product_id
           );
           const isPresent = ids?.includes(parseInt(productId));
-          console.log(isPresent, ids, parseInt(productId), "prest");
           if (isPresent) {
             // dispatch(updateWishListCount(userData?.client?.wishlist_count))/
             setShowWishlistRemoveMsg(true);
@@ -301,7 +297,6 @@ export default function ProductDetails() {
   }
 
   async function handleAddToWishList(id, productImg) {
-    console.log(id);
     try {
       dispatch(showLoader());
       const url =
@@ -375,7 +370,6 @@ export default function ProductDetails() {
               (item) => item?.product_id
             );
             const isPresent = ids?.includes(productId);
-            console.log(isPresent, ids, productId, "prest");
             if (isPresent) {
               dispatch(
                 updateWishListCount(userData?.client?.wishlist?.length - 1)
@@ -407,7 +401,6 @@ export default function ProductDetails() {
   }
 
   async function reviewHelpfulReport(id) {
-    console.log(id);
     setApiError([]);
     setReviewIdErr("");
     try {
@@ -1449,9 +1442,10 @@ export default function ProductDetails() {
                                         <div className="flex items-center">
                                           <Avatar
                                             alt="customer-profile"
+                                            sx={{ width: 25, height: 25 }}
                                             src={review?.client?.profile_img}
                                           />
-                                          <p className="ml-2 font-bold capitalize">
+                                          <p className="ml-2 text-sm font-bold capitalize">
                                             {review?.client?.first_name}{" "}
                                             {review?.client?.last_name}{" "}
                                           </p>
@@ -1464,7 +1458,7 @@ export default function ProductDetails() {
                                               : "title"}
                                           </label>
                                         </div>
-                                        <span className="text-sm flex items-center">
+                                        <span className="text-xs flex items-center">
                                           Reviewed on{" "}
                                           <b className="ml-2 mr-2">
                                             {new Date(
@@ -1483,7 +1477,7 @@ export default function ProductDetails() {
                                           </span>{" "}
                                         </span>
                                         <div>
-                                          <p className="text-black text-clip max-h-[125px] overflow-y-auto max-w-[900px] mb-2">
+                                          <p className="text-black text-clip text-sm max-h-[125px] overflow-y-auto max-w-[900px] mb-2">
                                             {review?.description}
                                           </p>
                                           <Button
@@ -2087,7 +2081,7 @@ export default function ProductDetails() {
                                           )}
                                       </>
                                     ))}
-                                    <button
+                                    {/* <button
                                       className="p-0 !flex !flex-row	 border-0 outline-none bg-transparent text-primary !content-center w-full !text-right"
                                       style={{
                                         display: "flex",
@@ -2114,9 +2108,13 @@ export default function ProductDetails() {
                                       }}
                                     >
                                       <FaRegHeart size={18} />
-                                    </button>
+                                    </button> */}
+                                    <MdKeyboardDoubleArrowRight
+                                      size={20}
+                                      className="group-hover:animate-shake"
+                                    />
                                     <button
-                                      className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right"
+                                      className="p-0 border-0 outline-none bg-transparent text-primary !content-right text-right group-hover:drop-shadow-lg group-hover:scale-125"
                                       onClick={(event) => {
                                         return isLoggedIn
                                           ? (handleAddToCart(

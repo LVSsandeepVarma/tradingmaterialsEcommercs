@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Modal } from "react-bootstrap";
 // import Register from "../register/register";
 // import { useTranslation } from "react-i18next";
@@ -33,6 +33,8 @@ const LoginModal = ({ show, onHide }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [saveCredentials, setSavecredentials] = useState(false);
 
+  const submitRef = useRef()
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,6 +46,7 @@ const LoginModal = ({ show, onHide }) => {
       setEmail(localStorage.getItem("email"));
       setPassword(localStorage.getItem("phone"));
       setSavecredentials(true);
+      submitRef.current.focus()
     }
     const lang = localStorage?.getItem("i18nextLng");
     console.log("lang", lang, userLang);
@@ -74,7 +77,7 @@ const LoginModal = ({ show, onHide }) => {
       setPasswordError("");
     }
   }
-  onkeydown;
+
   function handleEmailChange(e) {
     e.target.value = e.target.value.trim();
     setEmail(e?.target?.value);
@@ -86,10 +89,10 @@ const LoginModal = ({ show, onHide }) => {
     passwordValidation(e?.target?.value);
   }
 
-  async function handleFormSubmission() {
+  async function handleFormSubmission(e) {
+    e.preventDefault()
     setApiError([]);
     setLoginsuccessMsg("");
-    console.log(email, password);
     emailValidaiton(email);
     passwordValidation(password);
     // console.log(emailError, phoneError, firstNameError)
@@ -125,7 +128,6 @@ const LoginModal = ({ show, onHide }) => {
           localStorage.removeItem("client_token");
           localStorage.setItem("client_token", response?.data?.token);
           // localStorage
-          console.log(response?.data?.first_name);
           dispatch(
             updateUsers({
               first_name: response?.data?.first_name,
@@ -138,19 +140,14 @@ const LoginModal = ({ show, onHide }) => {
           localStorage.setItem("client_type", response?.data?.type);
           dispatch(loginUser());
           if (response?.data?.type === "client") {
-            window.open(
-              `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
-                "client_token"
-              )}`,
-              "_blank"
-            );
+            window.location.href = `https://client.tradingmaterials.com/auto-login/${response.data.token}`;
           } else {
             console.log(window.location.pathname);
             if (window.location.pathname.includes("orders")) {
               // window.location.reload()
               onHide();
             } else {
-              navigate(`${userLang}/profile`);
+              navigate(`/profile`);
             }
           }
           handleHide();
@@ -165,7 +162,6 @@ const LoginModal = ({ show, onHide }) => {
         if (err?.response?.data?.errors) {
           setEmailError(err?.response?.data?.errors["email"]);
           setPasswordError(err?.response?.data?.errors["password"]);
-          // setApiError([...Object?.values(err?.response?.data?.errors)]);
         } else {
           console.log(err?.response);
           setApiError([err?.response?.data?.message]);
@@ -288,7 +284,8 @@ const LoginModal = ({ show, onHide }) => {
                     .
                   </p>
                 </div>
-                <Form>
+
+                <Form onSubmit={handleFormSubmission}>
                   <div className="row gy-4 !text-left">
                     <div className="col-12">
                       <div className="form-group">
@@ -393,7 +390,8 @@ const LoginModal = ({ show, onHide }) => {
                       <div className="form-group">
                         <button
                           className="btn btn-block btn-primary"
-                          type="button"
+                          type="submit"
+                          ref={submitRef}
                           onClick={handleFormSubmission}
                         >
                           Login to Your Account

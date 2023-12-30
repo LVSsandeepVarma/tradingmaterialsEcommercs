@@ -43,6 +43,10 @@ export default function Home() {
             const priceB = b.prices[0].INR;
             return parseInt(priceA) - parseInt(priceB);
           });
+          [response.data.data.products[0], response.data.data.products[5]] = [
+            response.data.data.products[5],
+            response.data.data.products[0],
+          ];
           dispatch(fetchAllProducts(response?.data?.data));
           const data = response?.data?.data;
           localStorage.setItem("allProducts", JSON.stringify(data));

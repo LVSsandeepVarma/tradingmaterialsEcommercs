@@ -56,28 +56,27 @@ export default function CodVerify({props}) {
 
   console.log(cartProducts, "gggggggg");
 
-//   useEffect(() => {
-//     if (paymentStatus === "success") {
-//       console.log(time);
-//       const interval = setInterval(() => {
-//         setTime(time - 1);
-//         if (time === 1) {
-//           clearInterval(interval);
-//           console.log(clientToken, "actoken");
-//           console.log(localStorage.getItem("tmToken"));
-//           if (clientToken === undefined || clientToken === "") {
-//             window.location.href = `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
-//               "client_token"
-//             )}`;
-//           } else {
-//             window.location.href = `https://client.tradingmaterials.com/auto-login/${clientToken}`;
-//           }
-//         }
-//       }, 1000);
+  useEffect(() => {
+    if (paymentStatus === "success") {
+      const interval = setInterval(() => {
+        setTime(time - 1);
+        if (time === 1) {
+          clearInterval(interval);
+          console.log(clientToken, "actoken");
+          console.log(localStorage.getItem("tmToken"));
+          const cliToken = localStorage.getItem("tmToken");
+          if (clientToken) {
+            window.location.href = `https://client.tradingmaterials.com/auto-login/${clientToken}`;
+          } else {
+            window.location.href = `https://client.tradingmaterials.com/auto-login/${cliToken}`;
+          }
+        }
+      }, 1000);
 
-//       return () => clearInterval(interval);
-//     }
-//   }, [paymentStatus, time, clientToken]);
+      return () => clearInterval(interval);
+    }
+  }, [paymentStatus, time, clientToken]);
+
 
   const fetchOrderdetails = async () => {
     try {
@@ -111,6 +110,8 @@ export default function CodVerify({props}) {
           setPaymentStatus("success");
       },1500)
     fetchOrderdetails();
+    setClientToken(localStorage.getItem("tmToken"))
+    localStorage.setItem("client_type", "client");
   }, []);
 
 
@@ -152,15 +153,7 @@ export default function CodVerify({props}) {
           <div className="container">
             <div className="nk-section-content row px-lg-5">
               <div className="col-12 text-center flex justify-center h-fit  sm:py-2 container">
-                {paymentStatus == "failed" && (
-                  <p
-                    className="flex items-center capitalize text-xl"
-                    data-aos="fade-left"
-                  >
-                    <IoMdRemoveCircle className="text-red-600 mr-1  text-xl" />{" "}
-                    payment failed
-                  </p>
-                )}
+                
               </div>
               <div className="col-lg-8 h-fit">
                 <div className="nk-entry pe-lg-5 !pt-1 max-h-[50%] overflow-y-auto">
@@ -417,7 +410,7 @@ export default function CodVerify({props}) {
                     </p>
                     <p className="text-center text-sm">
                       Your order has been placed, and is scheduled for delivery
-                      within 4 to 5 days
+                      within 4 to 5 working days
                     </p>
                     {/* <div className="flex justify-center items-center my-2">
                       <Button

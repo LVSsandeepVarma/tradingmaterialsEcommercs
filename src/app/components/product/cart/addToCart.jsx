@@ -83,8 +83,6 @@ export default function AddToCart() {
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
   const [optionalNotes, setOptionalNotes] = useState("");
 
-  console.log(cartProducts, "gggggggg");
-
   useEffect(() => {
     if (localStorage.getItem("shipAdd")) {
       handleShippingAddressChange(parseInt(localStorage.getItem("shipAdd")));
@@ -116,7 +114,6 @@ export default function AddToCart() {
 
       const response = await axios.get(url, headerData);
       if (response?.data?.status) {
-        console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
         setAllProducts(response?.data?.data?.client?.cart);
@@ -147,14 +144,12 @@ export default function AddToCart() {
 
   useEffect(() => {
     applyPromoCode();
-    console.log(activeBillingAddress, activeShippingAddress, userData);
   }, []);
 
   useEffect(() => {
     const productData = JSON.parse(localStorage.getItem("productData"));
     const qty = localStorage.getItem("prodcutQty");
     if (productData?.name && qty) {
-      console.log(productData, "productdata", qty);
       const initialQuantities = {};
       initialQuantities[productData?.id] = localStorage.getItem("productQty");
       setQuantities(initialQuantities);
@@ -297,7 +292,6 @@ export default function AddToCart() {
         }
       );
       if (response?.data?.status) {
-        console.log(response?.data?.data);
         setSubTotal(response?.data?.data?.subtotal);
         if (response?.data?.data?.discount !== undefined) {
           setDiscount(response?.data?.data?.discount);
@@ -327,7 +321,6 @@ export default function AddToCart() {
   const handleShippingAddressChange = (ind) => {
     setActiveShippingAddress(userData?.client?.address[ind]?.id);
     setActiveShippingaddressChecked(ind);
-    console.log(ind, "shpadd");
   };
 
   useEffect(() => {
@@ -337,10 +330,8 @@ export default function AddToCart() {
   // Set initial quantity for all products to 1 in the useEffect hook
   useEffect(() => {
     if (allProducts?.length) {
-      console.log(allProducts);
       const initialQuantities = {};
       allProducts.forEach((product) => {
-        console.log(product?.total, "ttttttt");
         initialQuantities[product.product_id] = product?.qty;
       });
       setQuantities(initialQuantities);
@@ -362,7 +353,6 @@ export default function AddToCart() {
       }
     });
     setPrices(updatedPrices);
-    console.log(updatedPrices, "uuuuuuuuuuuuuuuuu");
     // Calculate the subTotal by summing up the individual product prices
     const totalPriceArray = Object.values(updatedPrices).map(Number);
     const updatedSubTotal = totalPriceArray.reduce(
@@ -405,7 +395,6 @@ export default function AddToCart() {
         setAllProducts(response?.data?.data?.cart_details);
         applyPromoCode();
       } else {
-        console.log(response?.data);
         setShowSessionExpiry(true);
         // navigate("/login")
       }
@@ -463,7 +452,6 @@ export default function AddToCart() {
     try {
       dispatch(showLoader());
       setApiErr([]);
-      console.log(billingSameAsShipping);
       if (!billingSameAsShipping && activeShippingAddressChecked == 0) {
         setApiErr(["Please select shipping address"])
       } else {
@@ -490,7 +478,6 @@ export default function AddToCart() {
               note: optionalNotes,
             };
 
-        console.log(data);
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/lead/product/checkout/place-order",
           data,
@@ -549,7 +536,6 @@ export default function AddToCart() {
 
   const handleCloseDeleteAlert = (agreeStatus) => {
     setShowDeleteAlert(false);
-    console.log(agreeStatus, "afree");
   };
 
   function handleSessionExpiryClose() {
@@ -1037,7 +1023,6 @@ export default function AddToCart() {
                             <ul className="d-flex flex-column gap-2 pb-0">
                               {userData?.client?.address?.length > 0 &&
                                 userData?.client?.address?.map((add, ind) => {
-                                  // console.log(add?.id, activeBillingAddress)
                                   if (add?.id !== activeBillingAddress) {
                                     return (
                                       <div className="" key={ind}>

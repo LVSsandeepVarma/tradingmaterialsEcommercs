@@ -22,6 +22,11 @@ import CodVerify from "./app/components/product/checkoutLead/codVerify";
 import CheckoutLeadWordline from "./app/components/product/checkoutLead/wordlineCheckout";
 import Disclaimer from "./app/components/policies/Disclaimer";
 import Return from "./app/components/policies/Return";
+import PaymentVerifyPhonepe from "./app/components/product/checkout/PaymentVerifyPhonepe";
+import ClientCheckout from "./app/components/product/checkout/clientcheckout/ClientCheckout";
+import ClientPaymentVerifyPhonepe from "./app/components/product/checkout/clientcheckout/ClientPhonepayVerify";
+import ClientCodVerify from "./app/components/product/checkoutLead/clientCodVerify";
+import ShipmentTracking from "./app/components/orderTracking/ShipmentTracking";
 const About = lazy(() => import("./app/components/about-us/about"));
 // import About from "./app/components/about-us/about";
 const Contact = lazy(() => import("./app/components/contact-us/contact"));
@@ -32,9 +37,9 @@ const ProductDetails = lazy(() =>
 // import ProductDetails from "./app/components/product/product-details/productDetail";
 const AddToCart = lazy(() => import("./app/components/product/cart/addToCart"));
 // import AddToCart from "./app/components/product/cart/addToCart";
-// const Login = lazy(() => import("./app/components/login/login"));
+const Login = lazy(() => import("./app/components/login/login"));
 // import Login from "./app/components/login/login";
-// const Register = lazy(() => import("./app/components/register/register"));
+const Register = lazy(() => import("./app/components/register/register"));
 // import Register from "./app/components/register/register";
 const Checkout = lazy(() =>
   import("./app/components/product/checkout/checkout")
@@ -74,8 +79,8 @@ function App() {
               path="/product-detail/:slug/:id"
               element={<ProductDetails />}
             ></Route>
-            {/* <Route path="/login" element={<Login />}></Route> */}
-            {/* <Route path="/signup" element={<Register />}></Route> */}
+            <Route path="/login" element={<Login />}></Route>
+            <Route path="/signup" element={<Register />}></Route>
             <Route
               path="/reset-password/forgot-password"
               element={<ForgotPassword />}
@@ -87,6 +92,7 @@ function App() {
             ></Route>
 
             <Route path="/tracking" element={<OrderTacker />}></Route>
+            <Route path="/tracking/:awd" element={<ShipmentTracking/> }></Route>
             <Route path="/faq" element={<Faq />}></Route>
             <Route path="/expired" element={<LinkExpired />}></Route>
             {/* protected routes  */}
@@ -124,6 +130,14 @@ function App() {
               }
             ></Route>
             <Route
+              path="/payment-status/phonepe/"
+              element={
+                <ProtectedRoute>
+                  <PaymentVerifyPhonepe />
+                </ProtectedRoute>
+              }
+            ></Route>
+            <Route
               path="/orders/:client_id"
               element={
                 <ProtectedRoute>
@@ -140,10 +154,19 @@ function App() {
             <Route path="/careers" element={<Career />}></Route>
             <Route path="/checkout/wl/:id" element={<CheckoutLead />}></Route>
             <Route
+              path="/client/checkout/:id/:token/:client_id"
+              element={<ClientCheckout />}
+            ></Route>
+            <Route
+              path="/client/payment-status/phonepe"
+              element={<ClientPaymentVerifyPhonepe />}
+            ></Route>
+            <Route
               path="/checkout/wl-worldline/:id"
               element={<CheckoutLeadWordline />}
             ></Route>
             <Route path="/place-order/:id" element={<CodVerify />}></Route>
+            <Route path="/client/place-order/:id" element={<ClientCodVerify />}></Route>
             <Route path="/disclaimer-policy" element={<Disclaimer />} />
             <Route path="/return-policy" element={<Return />} />
             {/* malay */}

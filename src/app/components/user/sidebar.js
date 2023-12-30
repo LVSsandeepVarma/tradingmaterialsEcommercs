@@ -207,7 +207,7 @@ export default function SideBar() {
       dispatch(showLoader());
       const url =
         clientType === "client"
-          ? "https://admin.tradingmaterials.com/api/auth/logout"
+          ? "https://admin.tradingmaterials.com/api/client/auth/logout"
           : "https://admin.tradingmaterials.com/api/lead/auth/logout";
       const headerData =
         clientType === "client"

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../header/header";
 import Footer from "../../footer/footer";
+import urlConstants from "../../../constants.json";
 import {
   hideLoader,
   showLoader,
@@ -17,7 +18,7 @@ import { FaCreditCard, FaCalendarAlt, FaLock } from "react-icons/fa";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
-import {VscWorkspaceTrusted} from "react-icons/vsc"
+import { VscWorkspaceTrusted } from "react-icons/vsc";
 import {
   Accordion,
   AccordionDetails,
@@ -42,7 +43,6 @@ export default function Checkout() {
   const userData = useSelector((state) => state?.user?.value);
   const cartProducts = useSelector((state) => state?.cart?.value);
   const userLang = useSelector((state) => state?.lang?.value);
-
   const [showModal, setShowModal] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   // eslint-disable-next-line no-unused-vars
@@ -55,11 +55,13 @@ export default function Checkout() {
   const [nameOnCard, setNameOnCard] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [paymentType, setPaymentType] = useState("online");
-
   const [cardNumberError, setCardNumberError] = useState("");
   const [expiryError, setExpiryError] = useState("");
   const [cvvError, setCVVError] = useState("");
   const [nameErr, setNameErr] = useState("");
+  const [subpaisaSubmitUrl, setSubpaisaSubmitUrl] = useState("");
+  const [encData, setEncData] = useState();
+  const [clientCode, setClientCode] = useState();
   const [activeShippingAddress, setActiveShippingAddress] = useState(
     userData?.client?.address[0]
   );
@@ -80,9 +82,20 @@ export default function Checkout() {
   const [clientToken, setClientToken] = useState("");
   const [time, setTime] = useState(5);
   const [apiError, setApiError] = useState([]);
+  const [codSuccessMessage, setCodSuccessMessage] = useState("");
   const [activeAccordion, setActiveAccordion] = useState("online");
   const [activePaymentMethodAccordion, setActivePaymentMethodAccordion] =
     useState("");
+  const [userIp, setUserIp] = useState("");
+
+  useEffect(() => {
+    fetch("https://api.ipify.org?format=json")
+      .then((response) => response.json())
+      .then((data) => setUserIp(data.ip));
+  }, []);
+  if (userIp) {
+    console.log(userIp, "ip");
+  }
 
   // State variable to store prices for each product
   const [subTotal, setSubTotal] = useState(0);
@@ -94,18 +107,15 @@ export default function Checkout() {
     id.replace(/_/g, "/").replace(/-/g, "+"),
     "trading_materials_order"
   ).toString(CryptoJS.enc.Utf8);
-  console.log(decryptedId);
-
-  console.log(cartProducts, id, "gggggggg");
 
   useEffect(() => {
     localStorage.removeItem("shipAdd");
-  },[])
+  }, []);
 
   useEffect(() => {
     if (userData?.client?.payment_types?.length > 0) {
       setActivePaymentMethod(userData?.client?.payment_types[0]?.name);
-      // setActivePaymentMethodAccordion(userData?.client?.payment_types[0]?.name)
+      setActivePaymentMethodAccordion(userData?.client?.payment_types[0]?.name);
     }
   }, [userData]);
 
@@ -114,6 +124,12 @@ export default function Checkout() {
       // setActivePaymentMethodAccordion("");
     }
   }, [paymentType]);
+
+  useEffect(() => {
+    if (subpaisaSubmitUrl != "" && clientCode != "" && encData != "") {
+      document.getElementById("submitButton").click();
+    }
+  }, [subpaisaSubmitUrl, clientCode, encData]);
 
   // useEffect(()=>{
   //   setPaymentStatus("Stripe")
@@ -143,29 +159,13 @@ export default function Checkout() {
     },
   });
 
-  // Inspired by blueprintjs
-  // function BpRadio(props) {
-  //   return (
-  //     <Radio
-  //       disableRipple
-  //       color="default"
-  //       value={props?.value}
-  //       checkedIcon={<BpCheckedIcon />}
-  //       icon={<BpIcon />}
-  //       {...props}
-  //     />
-  //   );
-  // }
-
   useEffect(() => {
     if (paymentStatus === "success") {
-      console.log(time);
       const interval = setInterval(() => {
         setTime(time - 1);
         if (time === 1) {
           clearInterval(interval);
-          console.log(clientToken, "actoken");
-          console.log(localStorage.getItem("tmToken"));
+
           if (clientToken === undefined || clientToken === "") {
             window.location.href = `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
               "client_token"
@@ -182,7 +182,6 @@ export default function Checkout() {
 
   const fetchOrderdetails = async () => {
     try {
-      console.log(localStorage.getItem("client_token"));
       dispatch(showLoader());
       const response = await axios.get(
         `https://admin.tradingmaterials.com/api/lead/product/checkout/view-order?order_id=${decryptedId}`,
@@ -205,56 +204,15 @@ export default function Checkout() {
   };
 
   useEffect(() => {
-    // setActiveShippingAddress(userData?.client?.address[0]);
-    // setActivebillingAddress(userData?.client?.primary_address[0]);
-    // getUserInfo();
     fetchOrderdetails();
   }, []);
-
-  // Set initial quantity for all products to 1 in the useEffect hook
-  // useEffect(() => {
-  //   if (allProducts?.length) {
-  //     console.log(allProducts);
-  //     const initialQuantities = {};
-  //     allProducts.forEach((product) => {
-  //       console.log(product?.total, "ttttttt");
-  //       initialQuantities[product.product_id] = product?.qty;
-  //     });
-  //     setQuantities(initialQuantities);
-  //   }
-  // }, [allProducts, userData, products]);
-
-  // Calculate the total price for each product based on the quantity
-  // useEffect(() => {
-  //   dispatch(showLoader());
-  //   const updatedPrices = {};
-
-  //   allProducts?.forEach((product) => {
-  //     const quantity = quantities[product.product_id] || 1;
-  //     const price = parseInt(product?.price);
-  //     if (price) {
-  //       const totalPrice = quantity * price;
-  //       updatedPrices[product.product_id] = totalPrice.toFixed(2);
-  //     }
-  //   });
-  //   setPrices(updatedPrices);
-  //   // Calculate the subTotal by summing up the individual product prices
-  //   const totalPriceArray = Object.values(updatedPrices).map(Number);
-  //   const updatedSubTotal = totalPriceArray.reduce(
-  //     (acc, price) => acc + price,
-  //     0
-  //   );
-  //   setSubTotal(updatedSubTotal);
-
-  //   dispatch(hideLoader());
-  // }, [allProducts, quantities]);
 
   const handleCvvChange = (e) => {
     e.target.value = e.target.value.trim();
     const addCvv = e.target.value.replace(/[^0-9]/g, "");
 
     setCVV(addCvv);
-    console.log(addCvv.match(/^[0-9]+$/), addCvv);
+
     if (addCvv == "") {
       setCVVError("CVV is required");
     } else if (addCvv?.length > 3 || addCvv?.length < 3) {
@@ -277,7 +235,7 @@ export default function Checkout() {
     }
   };
 
-  const handleNameChage = (e) => {
+  const handleNameChange = (e) => {
     e.target.value = e.target.value.trimStart();
     e.target.value = e.target.value.replace(/[^A-Za-z ]/g, "");
     const addName = e.target.value;
@@ -313,8 +271,6 @@ export default function Checkout() {
   };
 
   const validateExpiry = (value) => {
-    // Implement your expiry date validation logic here
-    // For example, you can check if the expiry date is in the future and in the valid format
     // Return true if the expiry date is valid, otherwise false
 
     if (!value.match(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/)) {
@@ -324,19 +280,6 @@ export default function Checkout() {
       const month = value.split("/")[0];
       const currentYear = moment().year().toString();
       const currentMonth = new Date().getMonth();
-      console.log(
-        parseInt(currentYear.slice(2, 4)) >= parseInt(year),
-        parseInt(currentYear.slice(2, 4)),
-        parseInt(year),
-        "yeeeer"
-      );
-      console.log(
-        parseInt(currentMonth) + 1 >= parseInt(month),
-        parseInt(currentMonth) + 1,
-        parseInt(month),
-        "curMon",
-        parseInt(currentYear.slice(2, 4)) == parseInt(year)
-      );
       if (parseInt(currentYear.slice(2, 4)) > parseInt(year)) {
         return false;
       } else if (
@@ -354,18 +297,16 @@ export default function Checkout() {
   };
 
   const validateCardNumber = (value) => {
-    // Implement your card number validation logic here
-    // For example, you can use a library like 'card-validator'
     // Return true if the card number is valid, otherwise false
     return value?.length >= 17 && value?.length <= 19;
   };
 
   const validateCVV = (value) => {
-    // Implement your CVV validation logic here
-    // For example, you can check if the CVV is a 3 or 4 digit number
     // Return true if the CVV is valid, otherwise false
-    if (cardNumber?.length == 18) { return value?.length === 4 } else {
-      return value?.length === 3
+    if (cardNumber?.length == 18) {
+      return value?.length === 4;
+    } else {
+      return value?.length === 3;
     }
   };
 
@@ -408,7 +349,6 @@ export default function Checkout() {
 
   const validateName = (value) => {
     value = value.trimStart();
-    console.log(value.match(/^[a-zA-Z ]+$/), value);
 
     return value.match(/^[a-zA-Z ]+$/);
   };
@@ -419,21 +359,19 @@ export default function Checkout() {
     const isCardNumberValid = validateCardNumber(cardNumber);
     const isExpiryValid = validateExpiry(expiry);
     const isCVVValid = validateCVV(cvv);
-    console.log(nameErr, cardNumberError, cvvError, expiryError);
+
     if (
       nameErr === "" &&
       cardNumberError === "" &&
       expiryError === "" &&
       cvvError === ""
     ) {
-      console.log(isCVVValid, isCardNumberValid, isExpiryValid, isNameValid);
       if (
         isNameValid !== null &&
         isCardNumberValid !== false &&
         isExpiryValid !== null &&
         isCVVValid !== false
       ) {
-        console.log("all fields are validated and are valid");
         // setIsSuccess(true)
       } else {
         if (isNameValid === null) {
@@ -485,15 +423,12 @@ export default function Checkout() {
 
   // function for updating choosen payment method
   const handlePaymentMethod = (paymentType) => {
-    console.log(paymentType, "paymentType");
     setActivePaymentMethod(paymentType);
   };
 
   //payment verification razorpay
   async function handleBookingPaymentResponse(res) {
-    console.log(res);
     const token = localStorage.getItem("client_token");
-    console.log(token);
     // setRid(res.razorpay_order_id);
     sessionStorage.setItem("order_id", res.razorpay_order_id);
     try {
@@ -513,11 +448,11 @@ export default function Checkout() {
         }
       );
       if (response.data.status) {
-        console.log(response?.data?.token, "actoken");
         setClientToken(response?.data?.token);
         localStorage.setItem("tmToken", response?.data?.token);
         setPaymentStatus("success");
         localStorage.setItem("client_type", "client");
+
         // timerRedirect(response?.data?.token)
 
         // sendDetails();
@@ -525,6 +460,7 @@ export default function Checkout() {
     } catch (error) {
       console.log(error);
       setPaymentStatus("failed");
+      localStorage.setItem("client_type", "lead");
     } finally {
       setPaymentVerification(false);
     }
@@ -532,7 +468,6 @@ export default function Checkout() {
 
   //razorpay window
   function handleRazorpayPayment(res) {
-    console.log(res);
     var options = {
       key_id: res?.client_id,
       amount: res?.total,
@@ -581,7 +516,6 @@ export default function Checkout() {
       );
 
       if (response?.data?.status) {
-        console.log(response?.data);
         handleRazorpayPayment(response?.data?.data);
       }
     } catch (err) {
@@ -620,7 +554,6 @@ export default function Checkout() {
       apiError !== ""
     ) {
       try {
-        console.log(orderData?.order, "orderData");
         dispatch(showLoader());
         const paymentData = {
           payment_type: "Stripe",
@@ -639,7 +572,7 @@ export default function Checkout() {
           cvc: cvv,
           name_on_card: nameOnCard,
           currency: "INR",
-          call_back_url: `https://tradingmaterials.com/payment-status/`,
+          call_back_url: `${urlConstants.root}/payment-status/`,
         };
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
@@ -652,9 +585,7 @@ export default function Checkout() {
         );
 
         if (response?.data?.status) {
-          console.log(response, "response");
           localStorage.setItem("orderID", decryptedId);
-          // console.log(response?.data);
           localStorage.setItem("id", encryptedrderId);
           window.location.href = response?.data?.redirect_url;
           // handleStripePayment(response?.data?.data);
@@ -675,6 +606,170 @@ export default function Checkout() {
       } finally {
         dispatch(hideLoader());
       }
+    }
+  }
+
+  // create order with phonepe
+  async function createOrderWithPhonePe(id, total, client_id) {
+    setApiError([]);
+    try {
+      dispatch(showLoader());
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
+        {
+          payment_type: "Phonepe",
+          payment_mode: paymentType,
+          client_id: client_id,
+          order_id: id,
+          total: total,
+          call_back_url: `${urlConstants.root}/payment-status/phonepe`,
+        },
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+
+      if (response?.data?.status) {
+        window.location.href = response?.data?.redirect_url;
+        sessionStorage.setItem("phonepeOrdId", response?.data?.data?.order_id);
+        localStorage.setItem("orderID", decryptedId);
+        localStorage.setItem("id", encryptedrderId);
+      }
+    } catch (err) {
+      console.log(err);
+      if (err?.response?.data?.errors) {
+        setApiError([Object.values(err?.response?.data?.errors)]);
+      } else {
+        setApiError([err?.response?.data?.message]);
+      }
+    } finally {
+      dispatch(hideLoader());
+    }
+  }
+
+  // create order with subpaisa
+  async function createOrderWithSubPaisa(id, total, client_id) {
+    setApiError([]);
+    try {
+      dispatch(showLoader());
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
+        {
+          payment_type: "Subpaisa",
+          payment_mode: paymentType,
+          order_id: id,
+          total: total,
+        },
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+
+      if (response?.data?.status) {
+        try {
+          setSubpaisaSubmitUrl(response?.data?.pay_data?.url);
+          setClientCode(response?.data?.pay_data?.clientCode);
+          setEncData(response?.data?.pay_data?.encData);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      if (err?.response?.data?.errors) {
+        setApiError([Object.values(err?.response?.data?.errors)]);
+      } else {
+        setApiError([err?.response?.data?.message]);
+      }
+    } finally {
+      dispatch(hideLoader());
+    }
+  }
+
+  //place order for cod
+  async function codPlaceOrder(
+    id,
+    total,
+    client_id,
+    city,
+    state,
+    country,
+    zipcode,
+    address
+  ) {
+    try {
+      dispatch(showLoader());
+      const paymentData = {
+        payment_type: paymentType,
+        payment_mode: paymentType,
+        client_id: client_id,
+        order_id: id,
+        total: total,
+        amount: total,
+        city: orderData?.order?.city,
+        state: orderData?.order?.state,
+        address_1: orderData?.order?.address_1,
+        zipcode: orderData?.order?.zip,
+        country: orderData?.order?.country,
+        currency: "INR",
+      };
+
+      const response = await axios.post(
+        "https://admin.tradingmaterials.com/api/lead/product/checkout/create-order",
+        paymentData,
+        {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+          },
+        }
+      );
+
+      if (response?.data?.status) {
+        localStorage.setItem("orderID", decryptedId);
+        localStorage.setItem("tmToken", response?.data?.token);
+        localStorage.setItem("id", encryptedrderId);
+        if (activePaymentMethodAccordion == "Phonepe") {
+          sessionStorage.setItem(
+            "phonepeOrdId",
+            response?.data?.data?.order_id
+          );
+        }
+        // window.location.href = `/place-order/${CryptoJS?.AES?.encrypt(
+        //   `${orderId}`,
+        //   "trading_materials_order"
+        // )
+        //   ?.toString()
+        //   .replace(/\//g, "_")
+        //   .replace(/\+/g, "-")}`;
+        setCodSuccessMessage("Order Placed successfully");
+        setTimeout(() => {
+          setCodSuccessMessage("");
+          // const cliToken = localStorage.getItem("tmToken");
+          window.location.href = `https://client.tradingmaterials.com/auto-login/${response?.data?.token}`;
+        }, 2000);
+      }
+    } catch (err) {
+      console.log(err);
+      if (err?.response?.data?.errors) {
+        setApiError([...Object?.values(err?.response?.data?.errors)]);
+        setTimeout(() => {
+          setApiError([]);
+        }, 1500);
+      } else {
+        if (err?.response?.data?.message?.includes("unknown")) {
+          setApiError([
+            "Payment unsuccessful. Kindly consider an alternative Indian card for your transaction.",
+          ]);
+        } else {
+          setApiError([err?.response?.data?.message]);
+        }
+      }
+    } finally {
+      dispatch(hideLoader());
     }
   }
   return (
@@ -772,7 +867,7 @@ export default function Checkout() {
                         fill="orange"
                       />
                       <p className="container shodow-sm">
-                        Feel secure when you purchase from TradingMaterials, as
+                        Feel secure when you purchase from Trading Materials, as
                         their Purchase Protection programme ensures that you
                         will be fully refunded if your item does not arrive,
                         arrives damaged, or isn&apos;t as described.
@@ -1068,7 +1163,7 @@ export default function Checkout() {
                           <Typography>
                             <ol className="text-xs">
                               <li>- Order With Comfort</li>
-                              <li>- Pay when you receive the the order</li>
+                              <li>- Pay when you receive the order</li>
                               <li className="text-xs">
                                 - Delivery charges applicable
                               </li>
@@ -1079,229 +1174,265 @@ export default function Checkout() {
                     </RadioGroup>
 
                     {/* Payment Type if online */}
-                    <h4 className="!font-bold">Payment Gateway</h4>
-                    <RadioGroup
-                      // defaultValue={paymentType}
-                      aria-labelledby="payment_type"
-                      name="payment_type"
-                    >
-                      {userData?.client?.payment_types?.map((payment, ind) => (
-                        <Accordion
-                          key={ind}
-                          expanded={
-                            activePaymentMethodAccordion == payment?.name
-                          }
-                          onChange={() => {
-                            // if payment type is online only
-                            // if(paymentType == "online"){
-                            console.log(payment?.name, "payName");
-                            setActivePaymentMethodAccordion(payment?.name),
-                              setActivePAymentType(payment?.name);
-                            setActivePaymentMethod(payment?.name);
-                            // }
-                          }}
+                    {paymentType == "online" && (
+                      <>
+                        <h4 className="!font-bold">Payment Gateway</h4>
+                        <RadioGroup
+                          // defaultValue={paymentType}
+                          aria-labelledby="payment_type"
+                          name="payment_type"
                         >
-                          <AccordionSummary
-                            // expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel4bh-content"
-                            id="panel4bh-header"
-                            className={`${
-                              activePaymentMethodAccordion == payment?.name
-                                ? "bg-gray-600 drop-shadow-lg"
-                                : ""
-                            }`}
-                          >
-                            <Typography sx={{ width: "100%", flexShrink: 0 }}>
-                              <div
-                                className={`flex "justify-around
-                              `}
+                          {userData?.client?.payment_types?.map(
+                            (payment, ind) => (
+                              <Accordion
+                                key={ind}
+                                expanded={
+                                  activePaymentMethodAccordion == payment?.name
+                                }
+                                onChange={() => {
+                                  setActivePaymentMethodAccordion(
+                                    payment?.name
+                                  ),
+                                    setActivePAymentType(payment?.name);
+                                  setActivePaymentMethod(payment?.name);
+                                  // }
+                                }}
                               >
-                                <FormControlLabel
-                                  className="!w-full text-sm"
-                                  value={payment?.name}
-                                  checked={
+                                <AccordionSummary
+                                  // expandIcon={<ExpandMoreIcon />}
+                                  aria-controls="panel4bh-content"
+                                  id="panel4bh-header"
+                                  className={`${
                                     activePaymentMethodAccordion ==
                                     payment?.name
-                                      ? true
-                                      : false
-                                  }
-                                  control={<Radio size="sm" />}
-                                  label={payment?.name}
-                                />
+                                      ? "bg-gray-600 drop-shadow-lg"
+                                      : ""
+                                  }`}
+                                >
+                                  <Typography
+                                    sx={{ width: "100%", flexShrink: 0 }}
+                                  >
+                                    <div
+                                      className={`flex "justify-around
+                              `}
+                                    >
+                                      <FormControlLabel
+                                        className="!w-full text-sm"
+                                        value={payment?.name}
+                                        checked={
+                                          activePaymentMethodAccordion ==
+                                          payment?.name
+                                            ? true
+                                            : false
+                                        }
+                                        control={<Radio size="sm" />}
+                                        label={payment?.name}
+                                      />
 
-                                <img
-                                  src={
-                                    payment?.name == "Stripe"
-                                      ? `/images/stripe.webp`
-                                      : payment?.image
-                                  }
-                                  className="ml-2"
-                                  width={"12%"}
-                                  alt={`${paymentType?.name}`}
-                                />
-                              </div>
-                            </Typography>
-                          </AccordionSummary>
-                          <AccordionDetails>
-                            {activePaymentMethod == "Stripe" ? (
-                              <>
-                                <Divider className="mt-2" />
-                                {payment?.name == "Stripe" && (
-                                  <Form onSubmit={handleSubmit}>
-                                    <Form.Group>
-                                      <label className="font-bold !text-sm mt-3 m-0">
-                                        Card Number
-                                        <sup className="text-red-600 !font-bold">
-                                          *
-                                        </sup>
-                                      </label>
-                                      <div className="relative m-0">
-                                        <input
-                                          maxLength={19}
-                                          type="text"
-                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                          placeholder="Enter card number"
-                                          value={cardNumber}
-                                          onChange={handleCardNumberChange}
-                                          required
-                                          // onInvalid={
-                                          //   !validateCardNumber(cardNumber)
-                                          // }
-                                        />
-                                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                          <FaCreditCard
-                                            size={15}
-                                            color="gray"
-                                          />
-                                        </div>
-                                      </div>
-                                      {cardNumberError ? (
-                                        <p className="nk-message-error !text-xs !m-0 !p-0 !text-left">
-                                          {cardNumberError}
-                                        </p>
-                                      ) : (
-                                        ""
+                                      <img
+                                        src={
+                                          payment?.name == "Stripe"
+                                            ? `/images/stripe.webp`
+                                            : payment?.image
+                                        }
+                                        className="ml-2"
+                                        width={
+                                          payment?.name == "Subpaisa"
+                                            ? "30%"
+                                            : payment?.name == "Phonepe"
+                                            ? "22%"
+                                            : "18%"
+                                        }
+                                        alt={`${paymentType?.name}`}
+                                      />
+                                    </div>
+                                  </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                  {activePaymentMethod == "Stripe" ? (
+                                    <>
+                                      <Divider className="mt-2" />
+                                      {payment?.name == "Stripe" && (
+                                        <Form onSubmit={handleSubmit}>
+                                          <Form.Group>
+                                            <label className="font-bold !text-sm mt-3 m-0">
+                                              Card Number
+                                              <sup className="text-red-600 !font-bold">
+                                                *
+                                              </sup>
+                                            </label>
+                                            <div className="relative m-0">
+                                              <input
+                                                maxLength={19}
+                                                type="text"
+                                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                                placeholder="Enter card number"
+                                                value={cardNumber}
+                                                onChange={
+                                                  handleCardNumberChange
+                                                }
+                                                required
+                                                // onInvalid={
+                                                //   !validateCardNumber(cardNumber)
+                                                // }
+                                              />
+                                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                                <FaCreditCard
+                                                  size={15}
+                                                  color="gray"
+                                                />
+                                              </div>
+                                            </div>
+                                            {cardNumberError ? (
+                                              <p className="nk-message-error !text-xs !m-0 !p-0 !text-left">
+                                                {cardNumberError}
+                                              </p>
+                                            ) : (
+                                              ""
+                                            )}
+                                          </Form.Group>
+                                          <Form.Group>
+                                            <label className="font-bold !text-sm mt-3 m-0 ">
+                                              Expiry date
+                                              <sup className="text-red-600 !font-bold">
+                                                *
+                                              </sup>
+                                            </label>
+                                            <div className="relative">
+                                              <input
+                                                type="text"
+                                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                                placeholder="MM/YY"
+                                                value={expiry}
+                                                onChange={handleExpiryChange}
+                                                required
+                                                maxLength={5}
+                                                // onInvalid={!validateExpiry(expiry)}
+                                              />
+                                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                                <FaCalendarAlt
+                                                  size={15}
+                                                  color="gray"
+                                                />
+                                              </div>
+                                            </div>
+                                            {expiryError ? (
+                                              <p className="nk-message-error !text-left !text-xs !m-0 !p-0">
+                                                {expiryError}
+                                              </p>
+                                            ) : (
+                                              ""
+                                            )}
+                                          </Form.Group>
+                                          <Form.Group>
+                                            <label className="font-bold !text-sm mt-3 m-0">
+                                              CVV
+                                              <sup className="text-red-600 !font-bold">
+                                                *
+                                              </sup>
+                                            </label>
+                                            <div className="relative">
+                                              <input
+                                                type="password"
+                                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                                placeholder="Enter CVV"
+                                                value={cvv}
+                                                onChange={handleCvvChange}
+                                                required
+                                                maxLength={
+                                                  cardNumber?.length == 18
+                                                    ? 4
+                                                    : 3
+                                                }
+                                                // onInvalid={!validateCVV(cvv)}
+                                              />
+                                              <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
+                                                <FaLock
+                                                  size={15}
+                                                  color="gray"
+                                                />
+                                              </div>
+                                            </div>
+                                            {cvvError ? (
+                                              <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
+                                                {cvvError}
+                                              </p>
+                                            ) : (
+                                              ""
+                                            )}
+                                          </Form.Group>
+                                          <Form.Group>
+                                            <label className="font-bold !text-sm mt-3 m-0">
+                                              Name on the card
+                                              <sup className="text-red-600 !font-bold">
+                                                *
+                                              </sup>
+                                            </label>
+                                            <div className="relative">
+                                              <input
+                                                className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
+                                                type="text"
+                                                placeholder="Enter account holder name"
+                                                value={nameOnCard}
+                                                onChange={handleNameChange}
+                                                // isInvalid={nameOnCard && !validateName(name)}
+                                              />
+                                              <div
+                                                className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400"
+                                                style={{
+                                                  background: "#f3f3f3",
+                                                  right: "7px",
+                                                  paddingTop: "2px",
+                                                  paddingRight: "2px",
+                                                  top: "15px",
+                                                }}
+                                              >
+                                                <MdOutlineAccountCircle
+                                                  size={20}
+                                                  color="gray"
+                                                />
+                                              </div>
+                                            </div>
+                                            {nameErr ? (
+                                              <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
+                                                {nameErr}
+                                              </p>
+                                            ) : (
+                                              ""
+                                            )}
+                                          </Form.Group>
+                                        </Form>
                                       )}
-                                    </Form.Group>
-                                    <Form.Group>
-                                      <label className="font-bold !text-sm mt-3 m-0 ">
-                                        Expiry date
-                                        <sup className="text-red-600 !font-bold">
-                                          *
-                                        </sup>
-                                      </label>
-                                      <div className="relative">
-                                        <input
-                                          type="text"
-                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                          placeholder="MM/YY"
-                                          value={expiry}
-                                          onChange={handleExpiryChange}
-                                          required
-                                          maxLength={5}
-                                          // onInvalid={!validateExpiry(expiry)}
-                                        />
-                                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                          <FaCalendarAlt
-                                            size={15}
-                                            color="gray"
-                                          />
-                                        </div>
-                                      </div>
-                                      {expiryError ? (
-                                        <p className="nk-message-error !text-left !text-xs !m-0 !p-0">
-                                          {expiryError}
-                                        </p>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </Form.Group>
-                                    <Form.Group>
-                                      <label className="font-bold !text-sm mt-3 m-0">
-                                        CVV
-                                        <sup className="text-red-600 !font-bold">
-                                          *
-                                        </sup>
-                                      </label>
-                                      <div className="relative">
-                                        <input
-                                          type="password"
-                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                          placeholder="Enter CVV"
-                                          value={cvv}
-                                          onChange={handleCvvChange}
-                                          required
-                                          maxLength={
-                                            cardNumber?.length == 18 ? 4 : 3
-                                          }
-                                          // onInvalid={!validateCVV(cvv)}
-                                        />
-                                        <div className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400">
-                                          <FaLock size={15} color="gray" />
-                                        </div>
-                                      </div>
-                                      {cvvError ? (
-                                        <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
-                                          {cvvError}
-                                        </p>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </Form.Group>
-                                    <Form.Group>
-                                      <label className="font-bold !text-sm mt-3 m-0">
-                                        Name on the card
-                                        <sup className="text-red-600 !font-bold">
-                                          *
-                                        </sup>
-                                      </label>
-                                      <div className="relative">
-                                        <input
-                                          className="p-1 !text-sm !rounded-none !bg-[#f3f3f3] w-full"
-                                          type="text"
-                                          placeholder="Enter account holder name"
-                                          value={nameOnCard}
-                                          onChange={handleNameChage}
-                                          // isInvalid={nameOnCard && !validateName(name)}
-                                        />
-                                        <div
-                                          className="absolute right-3 top-2/4 transform -translate-y-2/4 text-gray-400"
-                                          style={{
-                                            background: "#f3f3f3",
-                                            right: "7px",
-                                            paddingTop: "2px",
-                                            paddingRight: "2px",
-                                            top: "15px",
-                                          }}
-                                        >
-                                          <MdOutlineAccountCircle
-                                            size={20}
-                                            color="gray"
-                                          />
-                                        </div>
-                                      </div>
-                                      {nameErr ? (
-                                        <p className="nk-message-error !text-xs !text-left !m-0 !p-0">
-                                          {nameErr}
-                                        </p>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </Form.Group>
-                                  </Form>
-                                )}
-                              </>
-                            ) : (
-                              <Typography className="!text-xs">
-                                After clicking “Pay now”, you will be redirected
-                                to Razorpay Secure (UPI, Cards, Wallets,
-                                NetBanking) to complete your purchase securely.
-                              </Typography>
-                            )}
-                          </AccordionDetails>
-                        </Accordion>
-                      ))}
-                    </RadioGroup>
+                                    </>
+                                  ) : activePaymentMethodAccordion ==
+                                    "Phonepe" ? (
+                                    <Typography className="!text-xs">
+                                      After clicking “Pay now”, you will be
+                                      redirected to Phonepe Secure to complete
+                                      your purchase securely.
+                                    </Typography>
+                                  ) : activePaymentMethodAccordion ==
+                                    "Subpaisa" ? (
+                                    <Typography className="!text-xs">
+                                      After clicking “Pay now”, you will be
+                                      redirected to Subpaisa Secure to complete
+                                      your purchase securely.
+                                    </Typography>
+                                  ) : (
+                                    <Typography className="!text-xs">
+                                      After clicking “Pay now”, you will be
+                                      redirected to Razorpay Secure (UPI, Cards,
+                                      Wallets, NetBanking) to complete your
+                                      purchase securely.
+                                    </Typography>
+                                  )}
+                                </AccordionDetails>
+                              </Accordion>
+                            )
+                          )}
+                        </RadioGroup>
+                      </>
+                    )}
                     <hr className="mt-3" />
                     <div className="nk-section-blog-details">
                       <h4 className="mb-3 !font-bold">Order Summary</h4>
@@ -1357,16 +1488,10 @@ export default function Checkout() {
                         </li>
                         <li className="d-flex align-items-center gap-5 text-gray-1200">
                           <p className="m-0 fs-12 fw-semibold text-uppercase w-[30%]">
-                            {paymentType == "online"
-                              ? "Delivery Charges:"
-                              : "Advance:"}
+                            {paymentType == "online" ? "Delivery Charges:" : ""}
                           </p>
                           <p className="m-0 fs-16 fw-semibold text-dark w-[70%]">
-                            {paymentType == "online"
-                              ? "₹ 0.00"
-                              : parseFloat(orderData?.order?.total) < 500
-                              ? " 150.00 INR"
-                              : " 450.00 INR"}
+                            {paymentType == "online" ? "₹ 0.00" : ""}
                           </p>
                         </li>
                       </ul>
@@ -1386,8 +1511,18 @@ export default function Checkout() {
                           className="btn btn-primary w-100 !normal-case	"
                           type="submit"
                           onClick={() => {
-                            if (activePaymentMethod === "Razor_Pay") {
-                              console.log("in razorpay payName");
+                            if (paymentType == "cod") {
+                              codPlaceOrder(
+                                orderData?.order_id,
+                                orderData?.order?.total,
+                                orderData?.client_id,
+                                orderData?.city,
+                                orderData?.state,
+                                orderData?.country,
+                                orderData?.pincode,
+                                orderData?.address_1
+                              );
+                            } else if (activePaymentMethod === "Razor_Pay") {
                               createOrder(
                                 orderData?.order_id,
                                 orderData?.order?.total,
@@ -1413,17 +1548,35 @@ export default function Checkout() {
                                   orderData?.address_1
                                 );
                               }
+                            } else if (activePaymentMethod === "Phonepe") {
+                              if (userIp == "106.51.73.212") {
+                                createOrderWithPhonePe(
+                                  orderData?.order_id,
+                                  orderData?.order?.total,
+                                  orderData?.client_id
+                                );
+                              } else {
+                                createOrderWithPhonePe(
+                                  orderData?.order_id,
+                                  orderData?.order?.total,
+                                  orderData?.client_id
+                                );
+                              }
+                            } else if (activePaymentMethod === "Subpaisa") {
+                              createOrderWithSubPaisa(
+                                orderData?.order_id,
+                                orderData?.order?.total,
+                                orderData?.client_id
+                              );
                             }
                           }}
                         >
-                          Proceed to pay{" "}
+                          {" "}
                           {paymentType == "online"
-                            ? " " +
+                            ? "Proceed to pay " +
                               parseFloat(orderData?.order?.total)?.toFixed(2) +
                               " INR"
-                            : parseFloat(orderData?.order?.total) < 500
-                            ? "150.00 INR"
-                            : "450.00 INR"}
+                            : "Buy Now"}
                         </button>
                       )}
                       {userData?.client?.payment_types?.length == 0 && (
@@ -1434,6 +1587,17 @@ export default function Checkout() {
                         >
                           Online Payment Not Available
                         </button>
+                      )}
+                      {codSuccessMessage && (
+                        <Alert
+                          variant="outlined"
+                          severity="success"
+                          className="!mt-2"
+                        >
+                          <p className="!text-green-600 text-xs">
+                            {codSuccessMessage}
+                          </p>
+                        </Alert>
                       )}
                       {apiError?.length > 0 &&
                         apiError?.map((err, ind) => {
@@ -1461,8 +1625,8 @@ export default function Checkout() {
                         <div className="w-full flex justify-end">
                           <img
                             className=" "
-                            src="/images/stripe.webp"
-                            width={"22%"}
+                            src="/images/securepay.png"
+                            width={"15%"}
                           ></img>
                         </div>
                       </div>
@@ -1605,6 +1769,23 @@ export default function Checkout() {
             </div>
           </div>
         </section>
+        <>
+          <form action={subpaisaSubmitUrl} method="post">
+            <input type="hidden" name="encData" value={encData} id="frm1" />
+            <input
+              type="hidden"
+              name="clientCode"
+              value={clientCode}
+              id="frm2"
+            />
+            <input
+              className="hidden"
+              type="submit"
+              id="submitButton"
+              name="submit"
+            />
+          </form>
+        </>
       </div>
       <Footer />
     </>

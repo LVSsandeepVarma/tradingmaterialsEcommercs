@@ -140,7 +140,8 @@ const SignupModal = ({ show, onHide }) => {
     lastNameVerification(e?.target?.value);
   }
 
-  async function handleFormSubmission() {
+  async function handleFormSubmission(e) {
+    e.preventDefault();
     setApiError([]);
     setSignupSuccessMsg("");
     firstNameVerification(firstName);
@@ -164,7 +165,6 @@ const SignupModal = ({ show, onHide }) => {
       // The URL didn't start with "http://" or "https://"
       updatedUrl = currentUrl;
     }
-    // console.log(emailError, phoneError, firstNameError)
 
     if (
       emailError === "" &&
@@ -349,7 +349,7 @@ const SignupModal = ({ show, onHide }) => {
                     .
                   </p>
                 </div>
-                <Form>
+                <Form onSubmit={handleFormSubmission}>
                   <div className="row gy-4 !text-left">
                     <div className="col-12">
                       <div className="form-group">
@@ -451,7 +451,7 @@ const SignupModal = ({ show, onHide }) => {
                       <div className="form-group">
                         <button
                           className="btn btn-block btn-primary"
-                          type="button"
+                          type="submit"
                           onClick={handleFormSubmission}
                         >
                           Sign Up to Your Account

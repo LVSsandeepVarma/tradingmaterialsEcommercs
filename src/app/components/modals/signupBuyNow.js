@@ -793,7 +793,7 @@ const SignupBuyNowModal = ({ show, onHide }) => {
                 </div>
                 <ul className="text-sm pl-2">
                   <li>- Order With Comfort</li>
-                  <li>- Pay when you receive the the order</li>
+                  <li>- Pay when you receive the order</li>
                   <li className="">- Delivery charges applicable </li>
                 </ul>
               </div>

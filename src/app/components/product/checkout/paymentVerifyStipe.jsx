@@ -11,7 +11,7 @@ import axios from "axios";
 import { Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Divider } from "@mui/material";
+import { Divider, LinearProgress } from "@mui/material";
 import CryptoJS from "crypto-js";
 import ClearIcon from "@mui/icons-material/Clear";
 import CheckIcon from "@mui/icons-material/Check";
@@ -19,6 +19,7 @@ import { TbMoodSad2 } from "react-icons/tb";
 import { BsFillPlayFill } from "react-icons/bs";
 import {IoMdRemoveCircle} from "react-icons/io"
 import { useTranslation } from "react-i18next";
+import { FaCheck } from "react-icons/fa";
 
 export default function PaymentVerifyStripe() {
   const { t } = useTranslation();
@@ -69,13 +70,13 @@ export default function PaymentVerifyStripe() {
           clearInterval(interval);
           console.log(clientToken, "actoken");
           console.log(localStorage.getItem("tmToken"));
-          if (clientToken === undefined || clientToken === "") {
-            window.location.href = `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
-              "client_token"
-            )}`;
-          } else {
-            window.location.href = `https://client.tradingmaterials.com/auto-login/${clientToken}`;
-          }
+            if (clientToken != "") {
+              window.location.href = `https://client.tradingmaterials.com/auto-login/${clientToken}`;
+            } else {
+              window.location.href = `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
+                "tmToken"
+              )}`;
+            }
         }
       }, 1000);
 
@@ -447,12 +448,7 @@ export default function PaymentVerifyStripe() {
                     <h2 className="!font-bold text-lg text-center">
                       Sorry, payment failed!
                     </h2>
-                    <p className="text-center">
-                      Payment failed from gateway: The payment attempted for the
-                      purchase did not go through due to an issue with the
-                      payment gateway. Please contact your payment provider for
-                      more information.
-                    </p>
+                    <p className="text-center">{paymentVerifyError}</p>
                     <div className="flex justify-center items-center my-2">
                       <Button
                         variant="contained"
@@ -492,141 +488,46 @@ export default function PaymentVerifyStripe() {
                 )}
                 {paymentStatus !== "loading" && paymentStatus != "failed" && (
                   <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
-                    <div className="paper-container !text-center ">
-                      <div className="printer-bottom"></div>
-
-                      <div className={`paper drop-shadow-lg `}>
-                        <div
-                          className={`main-contents ${
-                            paymentStatus === "failed"
-                              ? "!bg-gradient-to-tr from-red-600 to-red-200"
-                              : paymentStatus === "success"
-                              ? "!bg-gradient-to-tr from-green-600 to-green-200"
-                              : ""
-                          }`}
-                        >
-                          <div
-                            className={`flex items-center justify-center ${
-                              paymentStatus === "success"
-                                ? "success-icon "
-                                : "fail-icon"
-                            }`}
-                          >
-                            {paymentStatus === "success" && (
-                              <CheckIcon fontSize="large" />
-                            )}
-                            {paymentStatus === "failed" && (
-                              <ClearIcon
-                                fontSize="large"
-                                className="!font-bold"
-                              />
-                            )}
-                          </div>
-                          <div
-                            className={`success-title !text-xl ${
-                              paymentStatus === "loading" ? "" : "!text-white"
-                            }`}
-                          >
-                            {paymentStatus === "success"
-                              ? "Payment Successful"
-                              : "Payment Failure"}
-                          </div>
-
-                          <div
-                            className={`success-description ${
-                              paymentStatus === "loading" ? "" : "!text-white"
-                            }`}
-                          >
-                            {paymentStatus === "success"
-                              ? `Thank you for your payment made on ${new Date().toLocaleDateString(
-                                  "en-GB"
-                                )} `
-                              : paymentVerifyError}
-                          </div>
-                          <div className="order-details"></div>
-                          {paymentStatus === "success" ? (
-                            <>
-                              <div
-                                className={`order-footer text-gray-700  ${
-                                  paymentStatus === "loading"
-                                    ? ""
-                                    : "!text-white"
-                                }`}
-                              >
-                                Thankyou
-                              </div>
-                              <small
-                                className={`cursor-pointer hover:text-green-600  font-bold  ${
-                                  paymentStatus === "loading"
-                                    ? ""
-                                    : "!text-white"
-                                }`}
-                                onClick={() =>
-                                  navigate(`/order-tracking/${orderID}`)
-                                }
-                              >
-                                Do not Refresh the page, we will redirect to
-                                your orders in {time}
-                              </small>
-                            </>
-                          ) : (
-                            <div className="order-footer">
-                              <Button
-                                variant="contained"
-                                href={`/checkout/order_id/${CryptoJS?.AES?.encrypt(
-                                  `${orderID}`,
-                                  "trading_materials_order"
-                                )
-                                  ?.toString()
-                                  .replace(/\//g, "_")
-                                  .replace(/\+/g, "-")}`}
-                                target="_blank"
-                                type="button"
-                                className="!bg-red-600 !border-red-600 drop-shadow-lg text-white w-[50%] p-2 mr-1 !rounded-none"
-                              >
-                                Retry
-                              </Button>
+                    <div className=" !text-center ">
+                      <div data-aos="fade-down">
+                        <div className="card !rounded">
+                          <div className="">
+                            <div className="icon-box flex !justify-center !items-center">
+                              <FaCheck className="text-4xl " />
                             </div>
-                          )}
+                          </div>
+                          <div className="card-body mt-4">
+                            <p className="text-md">Payment Successful</p>
+                            <br />
+                            <p>
+                              Thank you for your payment made on{" "}
+                              <span className="text-[#22c55e] ">{`${new Date().toLocaleDateString(
+                                "en-GB"
+                              )} `}</span>
+                            </p>
+                            <br />
+                            <p
+                              className={`cursor-pointer text-sm  hover:text-green-600 animate-beatHeart `}
+                              // onClick={() =>
+                              //   navigate(`/order-tracking/${orderID}`)
+                              // }
+                            >
+                              Do not Refresh the page, we will redirect to your
+                              orders.
+                            </p>
+                          </div>
                         </div>
-                        <div
-                          className={`jagged-edge ${
-                            paymentStatus === "success"
-                              ? "jagged-edge-success"
-                              : paymentStatus === "failed"
-                              ? "jagged-edge-failed"
-                              : "jagged-edge-loading"
-                          }`}
-                        ></div>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {paymentStatus === "loading" && (
-                  <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5 ">
-                    <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5">
-                      <div className="paper-container !text-center ">
-                        <div className="printer-bottom"></div>
-
-                        <div className="paper !h-full">
-                          <div className="main-contents h-[40vh] flex items-center justify-center text-2xl">
-                            <div className="payment-loading drop-shadow-lg ">
-                              <span className="v">V</span>
-                              <span className="e">e</span>
-                              <span className="r">r</span>
-                              <span className="f">f</span>
-                              <span className="y">y</span>
-                              <span className="i">i</span>
-                              <span className="n">n</span>
-                              <span className="g">g</span>
-                              <span className="d1">.</span>
-                              <span className="d2">.</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                  <div className="nk-section-blog-sidebar ps-lg-5 py-lg-5 !mt-20">
+                    <div>
+                      <LinearProgress />
                     </div>
+                    <p className="text-center">Verifying your payment</p>
                   </div>
                 )}
               </div>

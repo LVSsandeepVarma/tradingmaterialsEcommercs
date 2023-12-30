@@ -100,28 +100,17 @@ export default function Header() {
       const offerPhone = sessionStorage.getItem("offerPhone");
       const phone = userData?.client?.phone;
       const email = localStorage.getItem("offerEmail");
-      console.log(phone, userData, "off--");
       // const expiry = sessionStorage.getItem("expiry");
       if (isLoggedIn == false) {
-        console.log(offerPhone, "off--");
         if (offerPhone != undefined || offerPhone != null) {
-          console.log("inside, off--");
           setShowOffer(false);
-          console.log("emmmmm");
           setBottomOfferDisplay("none");
         } else {
           setShowOffer(true);
-          console.log("emmmmm");
         }
       } else if (isLoggedIn == true && userData?.client?.email != undefined) {
         if (email == userData?.client?.email) {
           setShowOffer(false);
-          console.log(
-            email,
-            userData?.client?.email,
-            email == userData?.client?.email,
-            "emmmmm"
-          );
           // if (moment(expiry) > Date.now()) {
           //   setShowOffer(false);
           //   setBottomOfferDisplay("none");
@@ -136,21 +125,6 @@ export default function Header() {
       dispatch(hideLoader());
     }
   }, [isLoggedIn, userData]);
-
-  // useEffect(() => {
-  //   const offerPhone = sessionStorage.getItem("offerPhone");
-  //   const phone = userData?.client?.phone;
-  //   console.log(phone, userData, "off--");
-  //   if (isLoggedIn == false) {
-  //     console.log(offerPhone, "off--");
-  //     if (offerPhone != undefined || offerPhone != null) {
-  //       console.log("inside, off--");
-  //       setShowOffer(false);
-  //     } else {
-  //       setShowOffer(true);
-  //     }
-  //   }
-  // }, []);
 
   useEffect(() => {
     function updateGreeting() {
@@ -175,16 +149,11 @@ export default function Header() {
 
   const navigate = useNavigate();
 
-  console.log(userData);
-  console.log(isLoggedIn);
-  console.log(positions);
-
   useEffect(() => {
     if (localStorage.getItem("client_token")) {
       dispatch(loginUser());
     }
     const lang = localStorage?.getItem("i18nextLng");
-    console.log("lang", lang, userLang);
     if (lang === "/ms" || location.pathname.includes("/ms")) {
       dispatch(userLanguage("/ms"));
     } else {
@@ -213,33 +182,19 @@ export default function Header() {
   };
 
   const getUserInfo = async () => {
-    console.log(location.pathname.includes("/product-detail"));
     if (isLoggedIn) {
       try {
-        const url =
-          clientType === "client"
-            ? "https://admin.tradingmaterials.com/api/get-user-info"
-            : "https://admin.tradingmaterials.com/api/lead/get-user-info";
-        const headerData =
-          clientType === "client"
-            ? {
-                headers: {
-                  Authorization:
-                    `Bearer ` + localStorage.getItem("client_token"),
-                  Accept: "application/json",
-                },
-              }
-            : {
-                headers: {
-                  "access-token": localStorage.getItem("client_token"),
-                  Accept: "application/json",
-                },
-              };
+        const url = "https://admin.tradingmaterials.com/api/lead/get-user-info";
+        const headerData = {
+          headers: {
+            "access-token": localStorage.getItem("client_token"),
+            Accept: "application/json",
+          },
+        };
 
         const response = await axios.get(url, headerData);
 
         if (response?.data?.status) {
-          console.log(response?.data);
           dispatch(updateUsers(response?.data?.data));
           dispatch(updateCart(response?.data?.data?.client?.cart));
           dispatch(updateCartCount(response?.data?.data?.client?.cart_count));
@@ -247,7 +202,6 @@ export default function Header() {
             updateWishListCount(response?.data?.data?.client?.wishlist_count)
           );
         } else {
-          console.log(response?.data);
           if (
             location.pathname === "/" ||
             location.pathname.includes("/product-detail") ||
@@ -346,36 +300,39 @@ export default function Header() {
   //   };
   //   return fetchProducts;
   // }, []);
+      const fetchProducts = async () => {
+        // Fetch the data from the API.
+        try {
+          const response = await axios.get(
+            "https://admin.tradingmaterials.com/api/get/products",
+            {
+              headers: {
+                "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
+                Accept: "application/json",
+                "access-token": localStorage.getItem("client_token"),
+              },
+            }
+          );
+          response.data.data.products.sort((a, b) => {
+            // Convert prices to numbers and compare them
+            const priceA = a.prices[0].INR;
+            const priceB = b.prices[0].INR;
+            return parseInt(priceA) - parseInt(priceB);
+          });
+          [response.data.data.products[0], response.data.data.products[5]] = [
+            response.data.data.products[5],
+            response.data.data.products[0],
+          ];
+          dispatch(fetchAllProducts(response?.data?.data));
+          return response.data.data;
+        } catch (err) {
+          console.log(err);
+        }
+      };
 
   useEffect(() => {
-        const fetchProducts = async () => {
-          // Fetch the data from the API.
-          try {
-            const response = await axios.get(
-              "https://admin.tradingmaterials.com/api/get/products",
-              {
-                headers: {
-                  "x-api-secret": "XrKylwnTF3GpBbmgiCbVxYcCMkNvv8NHYdh9v5am",
-                  Accept: "application/json",
-                  "access-token": localStorage.getItem("client_token"),
-                },
-              }
-            );
-            response.data.data.products.sort((a, b) => {
-              // Convert prices to numbers and compare them
-              const priceA = a.prices[0].INR;
-              const priceB = b.prices[0].INR;
-              return parseInt(priceA) - parseInt(priceB);
-            });
-
-            dispatch(fetchAllProducts(response.data.data));
-            return response.data.data;
-          } catch (err) {
-            console.log(err);
-          }
-        };
-        fetchProducts();
-  }, [sugnupAddtoCartModal]);
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     // dispatch(showLoader());
@@ -392,7 +349,6 @@ export default function Header() {
       !localStorage.getItem("client_token") &&
       modals?.showLoginModal === false
     ) {
-      console.log("closed", modals?.showLoginModal);
       //
 
       //
@@ -437,7 +393,7 @@ export default function Header() {
       dispatch(showLoader());
       const url =
         clientType === "client"
-          ? "https://admin.tradingmaterials.com/api/auth/logout"
+          ? "https://admin.tradingmaterials.com/api/client/auth/logout"
           : "https://admin.tradingmaterials.com/api/lead/auth/logout";
       const headerData =
         clientType === "client"
@@ -466,7 +422,7 @@ export default function Header() {
       }
     } catch (err) {
       console.log("err", err);
-      setShowSessionExpiry(true);
+      window.location.href = "/login"
     } finally {
       dispatch(hideLoader());
     }
@@ -796,9 +752,9 @@ export default function Header() {
                                                 />
                                               </div>
                                               {/* <div className="media-text d-flex align-items-center sm"> */}
-                                                {/* <h2 className=" fs-14 text-capitalize m-0 !font-bold "> */}
-                                                  {product?.name}
-                                                {/* </h2> */}
+                                              {/* <h2 className=" fs-14 text-capitalize m-0 !font-bold "> */}
+                                              {product?.name}
+                                              {/* </h2> */}
                                               {/* </div> */}
                                             </div>
                                           </a>
@@ -968,8 +924,6 @@ export default function Header() {
                                           ?.toString()
                                           .replace(/\//g, "_")
                                           .replace(/\+/g, "-")}`}
-                                        target="_blank"
-                                        rel="noreferrer"
                                         className="nk-nav-link"
                                       >
                                         Orders
@@ -994,17 +948,18 @@ export default function Header() {
                           <li className="flex items-center cursor-pointer">
                             <a
                               onClick={() => {
-                                dispatch(
-                                  usersignupinModal({
-                                    showSignupModal: false,
-                                    showLoginModal: true,
-                                    showforgotPasswordModal: false,
-                                    showOtpModal: false,
-                                    showNewPasswordModal: false,
-                                    showSignupCartModal: false,
-                                    showSignupBuyModal: false,
-                                  })
-                                );
+                                // dispatch(
+                                //   usersignupinModal({
+                                //     showSignupModal: false,
+                                //     showLoginModal: true,
+                                //     showforgotPasswordModal: false,
+                                //     showOtpModal: false,
+                                //     showNewPasswordModal: false,
+                                //     showSignupCartModal: false,
+                                //     showSignupBuyModal: false,
+                                //   })
+                              // );
+                              window.location.href = "/login"
                               }}
                             >
                               <span className="nk-nav-text nk-nav-link">
@@ -1060,7 +1015,7 @@ export default function Header() {
                   </nav>
                   <div className="nk-header-action">
                     <ul className="nk-btn-group sm justify-content-center">
-                      <li className="flex items-center">
+                      {/* <li className="flex items-center">
                         <button
                           onClick={() => {
                             if (isLoggedIn) {
@@ -1116,7 +1071,7 @@ export default function Header() {
                             {cartCounts?.wishLishCount}
                           </div>
                         </button>
-                      </li>
+                      </li> */}
 
                       <li className="flex items-center">
                         <button
@@ -1179,7 +1134,7 @@ export default function Header() {
                             ></path>
                           </svg>
                           <span className="sr-only">Notifications</span>
-                          <div className="absolute inline-flex items-center justify-center w-6 h-6 text-sm font-bold text-white bg-black border-2 border-white rounded-full -top-2 -right-3 dark:border-gray-900">
+                          <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -right-3 dark:border-gray-900">
                             {cartCounts?.cartCount}
                           </div>
                         </button>
@@ -1234,17 +1189,7 @@ export default function Header() {
               onClick={() =>
                 isLoggedIn
                   ? navigate(`/cart`)
-                  : dispatch(
-                      usersignupinModal({
-                        showSignupModal: false,
-                        showLoginModal: true,
-                        showforgotPasswordModal: false,
-                        showOtpModal: false,
-                        showNewPasswordModal: false,
-                        showSignupCartModal: false,
-                        showSignupBuyModal: false,
-                      })
-                    )
+                  : navigate("/login")
               }
               className="nk-sticky-badge-icon nk-sticky-badge-purchase"
               data-bs-toggle="tooltip"
@@ -1261,7 +1206,7 @@ export default function Header() {
               </Badge>
             </a>
           </li>
-          <li>
+          {/* <li>
             <a
               onClick={() =>
                 isLoggedIn
@@ -1292,10 +1237,10 @@ export default function Header() {
                 <em className="icon ni ni-heart"></em>
               </Badge>
             </a>
-          </li>
+          </li> */}
           <li>
             <a
-              href="https://wa.me/+919087080999"
+              href="https://wa.me/+918148688639"
               target="_blank"
               rel="noreferrer"
               className="nk-sticky-badge-icon nk-sticky-badge-whatsapp cursor-pointer"

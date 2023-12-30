@@ -225,12 +225,7 @@ export default function Offer() {
         localStorage.setItem("client_type", response?.data?.type);
         dispatch(loginUser());
         if (response?.data?.type === "client") {
-          window.open(
-            `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
-              "client_token"
-            )}`,
-            "_blank"
-          );
+          window.location.href = `https://client.tradingmaterials.com/auto-login/${response.data.token}`;
         }
         dispatch(hidePopup());
       }

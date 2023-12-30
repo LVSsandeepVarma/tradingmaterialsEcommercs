@@ -476,27 +476,7 @@ export default function Contact() {
                   </div>
                   <div className="col-lg-4">
                     <div className="card-list">
-                      {/* <div className="card rounded-2">
-                        <div className="card-body !text-left">
-                          <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-5">
-                            <em className="icon ni ni-sign-usd"></em>
-                          </div>
-                          <h5 className="!font-bold text-xl">
-                            Plans &amp; Pricing
-                          </h5>
-                          <p className="line-clamp-6">
-                            Choose from our flexible plans and competitive
-                            pricing options to find the best fit for your
-                            business needs and budget.
-                          </p>
-                          <div className="pt-2">
-                            <a href="#" className="btn-link text-primary">
-                              <span>See Pricing</span>
-                              <em className="icon ni ni-arrow-right"></em>
-                            </a>
-                          </div>
-                        </div>
-                      </div> */}
+                      
                       <div className="card rounded-2">
                         <div className="card-body !text-left">
                           <div className="media media-lg media-middle media-circle text-bg-primary-soft mb-5">

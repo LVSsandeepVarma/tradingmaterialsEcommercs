@@ -179,6 +179,14 @@ const steps = [
 // eslint-disable-next-line react/prop-types
 export default function CustomizedSteppers({ orderStatus }) {
   console.log(orderStatus);
+  alert(orderStatus)
+  if (orderStatus == 5) {
+    steps[3] = "Cancelled"
+  } else if (orderStatus == 6) {
+    steps[3] = "Returned"
+  } else {
+    steps[3] = "Delivered"
+  }
 
 
   return (
