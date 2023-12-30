@@ -27,6 +27,7 @@ import CryptoJS from "crypto-js";
 import CustomizedSteppers from "./orderTrackerStepper";
 import { MdTimeline } from "react-icons/md";
 import { FaClock } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 export default function OrderTacker() {
   const [orderData, setOrderData] = useState([]);
@@ -36,6 +37,7 @@ export default function OrderTacker() {
   const userData = useSelector((state) => state?.user?.value);
   const loaderState = useSelector((state) => state?.loader?.value);
   const dispatch = useDispatch();
+    const { t } = useTranslation();
   const navigate = useNavigate();
   const params = useParams();
   const steps = [
@@ -592,129 +594,48 @@ export default function OrderTacker() {
                     </div>
 
                     <Divider />
-                    {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-5">
-                {orderData?.map((product, ind) => (
-                  <Card className="mt-5 " sx={{ maxWidth: 345 }}>
-                    <CardActionArea>
-                          <CardMedia
-                            component="img"
-                            height="140"
-                            image={product?.product?.img_1}
-                            alt="green iguana"
-                            className="sm:!h-[300px]"
-                            onClick={() =>
-                              navigate(
-                                `${userLang}/product-detail/${
-                                  product?.product?.slug
-                                }/${CryptoJS?.AES?.encrypt(
-                                  `${product?.product?.id}`,
-                                  "trading_materials"
-                                )
-                                  ?.toString()
-                                  .replace(/\//g, "_")
-                                  .replace(/\+/g, "-")}`
-                              )
-                            }
-                          />
-                          <CardContent>
-                            <Typography
-                              gutterBottom
-                              variant="h5"
-                              component="div"
-                            >
-                              <div className="nk-card-info bg-white p-4">
-                                <a
-                                  href={`${userLang}/product-detail/${
-                                    product?.slug
-                                  }/${CryptoJS?.AES?.encrypt(
-                                    `${product?.product?.id}`,
-                                    "trading_materials"
-                                  )
-                                    ?.toString()
-                                    .replace(/\//g, "_")
-                                    .replace(/\+/g, "-")}`}
-                                  className="d-inline-block mb-1 line-clamp-1 h5 !font-bold text-left"
-                                  style={{
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    width: "90%",
-                                  }}
-                                >
-                                  {product?.product?.name}
-                                  <br />
-                                  {/* <span className="text-xs !mt-1">
-                                    <p
-                                      onClick={() => {
-                                        navigate(
-                                          `${userLang}/product-detail/${
-                                            item?.product?.slug
-                                          }/${CryptoJS?.AES?.encrypt(
-                                            `${item?.product?.id}`,
-                                            "trading_materials"
-                                          )
-                                            ?.toString()
-                                            .replace(/\//g, "_")
-                                            .replace(/\+/g, "-")}`
-                                        );
-                                        dispatch(showLoader());
-                                      }}
-                                      className="!mt-5 text-gray-700  truncate"
-                                      dangerouslySetInnerHTML={{
-                                        __html:
-                                          product?.product?.description?.length > 55
-                                            ? `${product?.product?.description?.slice(
-                                                0,
-                                                55
-                                              )}...`
-                                            : product?.product?.description,
-                                      }}
-                                    />
-                                  </span> */}
-                    {/* </a>
-                                <div className="d-flex align-items-center justify-content-start">
-                                  <p className="fs-16 m-0 text-gray-900 font-semibold text-start !mr-2 ">
-                                    Amount : <b className="text-black">₹{product?.price}</b>
-                                  </p>
-                                  </div>
-                                  <div className="d-flex align-items-center justify-content-start">
-                                  <p
-                                    className="fs-16 m-0 text-gray-900 font-semibold text-start !mr-2 "
-                                    
-                                  > */}
-                    {/* <span className="text-base text-black font-semibold flex !items-left"> */}
-                    {/* Qty: <b className="text-black">{product?.qty}</b> */}
-                    {/* </span> */}
-
-                    {/* </p>
-                                  </div>
-                                  <div className="d-flex align-items-center justify-content-start">
-                                  <p
-                                    className="fs-16 m-0 text-gray-900 font-semibold text-start !mr-2 "
-                                  > */}
-                    {/* <span className="text-base text-black font-semibold flex !items-center"> */}
-                    {/* Total:<b className="text-black">{product?.total}</b> */}
-                    {/* </span> */}
-
-                    {/* </p>
-                                </div>
-                              </div> */}
-                    {/* </Typography> */}
-                    {/* </CardContent> */}
-
-                    {/* </CardActionArea> */}
-                    {/* </Card> */}
-                    {/* ))} */}
-                    {/* </div> */}
                   </Box>
                 </div>
               </div>
             </div>
           </div>
         </section>
-      </div>
 
-      <Footer />
+        <section className="nk-section nk-cta-section nk-section-content-1">
+          <div className="container">
+            <div
+              className="nk-cta-wrap bg-primary-gradient rounded-3 is-theme p-5 p-lg-7"
+              data-aos="fade-up"
+              data-aos-delay="100"
+            >
+              <div className="row g-gs align-items-center">
+                <div className="col-lg-8">
+                  <div className="media-group flex-column flex-lg-row align-items-center">
+                    <div className="media media-lg media-circle media-middle text-bg-white text-primary mb-2 mb-lg-0 me-lg-2">
+                      <em className="icon ni ni-chat-fill"></em>
+                    </div>
+                    <div className="text-center text-lg-start">
+                      <h3 className="text-capitalize m-0 !text-3xl !font-bold">
+                        {t("Chat_With_Our_Support_Team")}
+                      </h3>
+                      <p className="fs-16 opacity-75 !text-lg mt-1">
+                        {t("chat_team_desc")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-lg-4 text-center text-lg-end">
+                  <a href={`/contactus`} className="btn btn-white fw-semiBold">
+                    {t("Contact_support")}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <Footer />
+      </div>
     </>
   );
 }

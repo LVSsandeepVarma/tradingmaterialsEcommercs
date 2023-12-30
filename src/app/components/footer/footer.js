@@ -73,11 +73,11 @@ export default function Footer() {
 
                 <div className="col-md-8 col-lg-2 col-xxl-2 ">
                   <div className="nk-footer-info text-start">
-                    <h5 className="title !text-start !font-bold !mb-[2px]">
+                    <h5 className="text-lg !text-start !font-bold !mb-[2px]">
                       Pages
                     </h5>
                     <ul className="row gy-1 gy-sm-4">
-                      <li className="col-12 !mt-[2.25rem]">
+                      <li className="col-12 mt-[1rem] md:!mt-[2.25rem]">
                         <a href="https://tradingmaterials.com/about">
                           About Us
                         </a>
@@ -105,7 +105,7 @@ export default function Footer() {
 
                 <div className="col-md-8 col-lg-3 col-xxl-3">
                   <div className="nk-footer-info ">
-                    <h5 className="title !text-start !font-bold !mb-[24px]">
+                    <h5 className="text-lg !text-start !font-bold !mb-[20px]">
                       Get In Touch
                     </h5>
                     <ul className="row gy-2 gy-sm-4 ">

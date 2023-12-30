@@ -402,7 +402,7 @@ export default function Login() {
               <div className="flex w-full">
                 <span className="min-w-[100%] max-w-[100%] sm:min-w-[450px] sm:max-w-[450px] text-xs   mt-3 mx-auto text-center">
                   By clicking Login to your account above, you acknowledge that
-                  you have read and understood, and agree to Tradingmaterials{" "}
+                  you have read and understood, and agree to Trading materials{" "}
                   <a
                     className="underline hover:text-blue-600"
                     href="terms-and-conditions"

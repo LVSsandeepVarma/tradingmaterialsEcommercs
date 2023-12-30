@@ -145,6 +145,7 @@ export default function NewPassword() {
     setLoginsuccessMsg("");
     console.log(confirmPassword, password);
     confirmPasswordValidaiton(confirmPassword);
+    
     passwordValidation(password);
     try {
       dispatch(showLoader());

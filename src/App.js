@@ -32,6 +32,7 @@ import CodVerify from "./app/components/product/checkout_clone/CodVerify";
 import AuthenticatedHome from "./app/components/protectedRoutes/home";
 import LoginContactUs from "./app/components/ContactUs/LoginContactUs";
 import Contact from "./app/components/ContactUs/Contactus";
+import OrderSuccessLogin from "./app/components/product/orders/OrderSuccessLogin";
  const UserProfile = lazy(()=>import("./app/components/protectedRoutes/profile"))
 // import OrderProfile from "./app/components/protectedRoutes/viewOrders";
 const OrderProfile = lazy(()=> import("./app/components/protectedRoutes/viewOrders"))
@@ -172,6 +173,10 @@ function App() {
             <Route path="/ms/profile" element={<OrderProfile />}></Route>
             <Route path="/ms/track-order" element={<OrderTacker />}></Route>
             <Route path="/ms/dashboard" element={<Dashboard />}></Route>
+            <Route
+              path="/view-order/placed/subpaisa_success"
+              element={<OrderSuccessLogin />}
+            ></Route>
           </Routes>
         </Suspense>
       </BrowserRouter>

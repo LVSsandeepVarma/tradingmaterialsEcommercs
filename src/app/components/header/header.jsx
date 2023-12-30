@@ -189,6 +189,10 @@ export default function Header() {
           const priceB = b.prices[0].INR;
           return parseInt(priceA) - parseInt(priceB);
         });
+        [response.data.data.products[0], response.data.data.products[5]] = [
+          response.data.data.products[5],
+          response.data.data.products[0],
+        ];
 
         dispatch(fetchAllProducts(response.data.data));
         return response?.data?.data;
@@ -412,17 +416,16 @@ export default function Header() {
                               href={
                                 userData?.client?.order_placed != 0
                                   ? "/view-order/placed"
+                                  : userData?.client?.order_pending != 0
+                                  ? "/view-order/placed"
                                   : userData?.client?.order_confirmed != 0
                                   ? "/view-order/confirmed"
-                                  : userData?.client?.order_dispatched !=
-                                    0
+                                  : userData?.client?.order_cancelled != 0
+                                  ? "/view-order/confirmed"
+                                  : userData?.client?.order_dispatched != 0
                                   ? "/view-order/dispatched"
                                   : userData?.client?.order_completed != 0
                                   ? "/view-order/delivered"
-                                  : userData?.client?.order_pending != 0
-                                  ? "/view-order/placed"
-                                  : userData?.client?.order_cancelled != 0
-                                  ? "/view-order/confirmed"
                                   : userData?.client?.order_returned != 0
                                   ? "/view-order/delivered"
                                   : "/view-order/placed"

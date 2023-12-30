@@ -100,12 +100,7 @@ export default function Checkout() {
     id.replace(/_/g, "/").replace(/-/g, "+"),
     "trading_materials_order"
   ).toString(CryptoJS.enc.Utf8);
-  console.log(decryptedId);
   const orderID = localStorage.getItem("orderID");
-
-  console.log(cartProducts, "gggggggg");
-
-  console.log(userData, "ttttttttt");
 
   useEffect(() => {
     if (userData?.client?.payment_types?.length > 0) {
@@ -119,28 +114,6 @@ export default function Checkout() {
     }
   }, [userData, paymentType]);
 
-  // useEffect(() => {
-  //   if (paymentStatus === "success") {
-  //     console.log(time);
-  //     const interval = setInterval(() => {
-  //       setTime(time - 1);
-  //       if (time === 1) {
-  //         clearInterval(interval);
-  //         console.log(clientToken, "actoken");
-  //         console.log(localStorage.getItem("tmToken"));
-  //         if (clientToken === undefined || clientToken === "") {
-  //           window.location.href = `https://client.tradingmaterials.com/auto-login/${localStorage.getItem(
-  //             "client_token"
-  //           )}`;
-  //         } else {
-  //           window.location.href = `https://client.tradingmaterials.com/auto-login/${clientToken}`;
-  //         }
-  //       }
-  //     }, 1000);
-
-  //     return () => clearInterval(interval);
-  //   }
-  // }, [paymentStatus, time, clientToken]);
 
   const fetchOrderdetails = async () => {
     try {
@@ -970,7 +943,7 @@ export default function Checkout() {
                                                       return (
                                                         <div key={ind}>
                                                           <div className="drop-shadow-lg">
-                                                            <div className="grid grid-cols-3 hover:!shadow-lg align-items-center">
+                                                            <div className="grid grid-cols-3 hover:!shadow-lg align-items-center p-[1rem]">
                                                               <div className="w-[75%] lg:w-[50%]">
                                                                 <img
                                                                   src={

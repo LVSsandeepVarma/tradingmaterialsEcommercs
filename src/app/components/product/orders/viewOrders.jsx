@@ -78,6 +78,17 @@ export default function ViewOrders() {
     6: orderDataTwo?.length,
   };
 
+  useEffect(() => {
+    if (
+      (orderDataOne == undefined || orderDataOne?.length == 0) &&
+      orderDataTwo?.length > 0
+    ) {
+      setActiveOrder(orderDataTwo[0]?.order_number);
+      setOrderId(orderDataTwo[0]?.id);
+      setOrderNumber(orderDataTwo[0]?.order_number);
+    }
+  }, [orderDataOne]);
+
   // const loaderState = useSelector((state) => state?.loader?.value);
   useEffect(() => {
     const getOrderTwoDetails = async (type, dataCount) => {
@@ -93,14 +104,15 @@ export default function ViewOrders() {
           }
         );
         if (response?.data?.status) {
-          console.log(response?.data, orderDataOne?.length, "ordone");
+          console.log(response?.data, orderDataOne, "ordone");
           if (
             (orderDataOne == undefined || orderDataOne?.length == 0) &&
-            response?.data?.data?.order?.length > 0
+            response?.data?.data?.orders?.length > 0
           ) {
-            setOrderId(response?.data?.data?.orders[0]?.id);
-            setOrderNumber(response?.data?.data?.orders[0]?.order_number);
-            setActiveOrder(response?.data?.data?.orders[0]?.order_number);
+            console.log("inside", "ordone");
+            // setOrderId(response?.data?.data?.orders[0]?.id);
+            // setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+            // setActiveOrder(response?.data?.data?.orders[0]?.order_number);
           }
           if (dataCount == "one") {
             setOrderDataOne(response?.data?.data?.orders);
@@ -118,6 +130,7 @@ export default function ViewOrders() {
             // );
             if (orderDataOne?.length == 0) {
               console.log(orderNumber, orderDataOne?.length, "orderss");
+              setOrderId(response?.data?.data?.orders[0]?.id);
               setOrderNumber(response?.data?.data?.orders[0]?.order_number);
               setActiveOrder(response?.data?.data?.orders[0]?.order_number);
               // }
@@ -152,7 +165,6 @@ export default function ViewOrders() {
         if (response?.data?.status) {
           console.log(response?.data);
 
-          if (dataCount == "one") {
             setOrderDataOne(response?.data?.data?.orders);
             // setOrders(...orders, response?.data?.data?.orders)
             console.log(
@@ -164,31 +176,13 @@ export default function ViewOrders() {
               setOrderNumber(response?.data?.data?.orders[0]?.order_number);
               setActiveOrder(response?.data?.data?.orders[0]?.order_number);
             }
-          } else if (dataCount == "two") {
-            setOrderDataTwo(response?.data?.data?.orders);
-
-            //                   setOrders(
-            //                     ...orders,
-            //                     response?.data?.data?.orders
-            // );
-            // if (orderDataOne?.length) {
-            //   console.log(orderNumber, orderDataOne?.length ,"orderss");
-            //   setOrderNumber(
-            //     response?.data?.data?.orders[0]?.order_number
-            //   );
-            //   setActiveOrder(
-            //     response?.data?.data?.orders[0]?.order_number
-            //   );
-            // }
-          }
-          // setOrders(response?.data?.data?.orders);
         }
       } catch (err) {
         console.log(err);
       } finally {
-        if (dataCount == "one" && secondType != "") {
-          getOrderTwoDetails(secondType, "two");
-        }
+        // if (dataCount == "one" && secondType != "") {
+        //   getOrderTwoDetails(secondType, "two");
+        // }
         dispatch(hideLoader());
       }
     };
@@ -209,6 +203,78 @@ export default function ViewOrders() {
       getOrderDetails("dispatched", "one", "");
     }
   }, []);
+
+  useEffect(() => {
+        const getOrderTwoDetails = async (type, dataCount) => {
+          console.log("orderss", type);
+          try {
+            dispatch(showLoader());
+            const response = await axios.get(
+              `https://admin.tradingmaterials.com/api/client/get-orders?type=${type}`,
+              {
+                headers: {
+                  Authorization:
+                    "Bearer " + localStorage.getItem("client_token"),
+                },
+              }
+            );
+            if (response?.data?.status) {
+              console.log(response?.data, orderDataOne, "ordone");
+              if (
+                (orderDataOne == undefined || orderDataOne?.length == 0) &&
+                response?.data?.data?.orders?.length > 0
+              ) {
+                console.log("inside", "ordone");
+                // setOrderId(response?.data?.data?.orders[0]?.id);
+                // setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+                // setActiveOrder(response?.data?.data?.orders[0]?.order_number);
+              }
+              if (dataCount == "one") {
+                setOrderDataOne(response?.data?.data?.orders);
+                // setOrders(...orders, response?.data?.data?.orders)
+                console.log(
+                  response?.data?.data?.orders[0]?.order_number,
+                  "orderss"
+                );
+              } else if (dataCount == "two") {
+                setOrderDataTwo(response?.data?.data?.orders);
+
+                //                   setOrders(
+                //                     ...orders,
+                //                     response?.data?.data?.orders
+                // );
+                if (orderDataOne?.length == 0) {
+                  console.log(orderNumber, orderDataOne?.length, "orderss");
+                  setOrderId(response?.data?.data?.orders[0]?.id);
+                  setOrderNumber(response?.data?.data?.orders[0]?.order_number);
+                  setActiveOrder(response?.data?.data?.orders[0]?.order_number);
+                  // }
+                }
+                // setOrders(response?.data?.data?.orders);
+              }
+            }
+          } catch (err) {
+            console.log(err);
+          } finally {
+            dispatch(hideLoader());
+          }
+    };
+    
+    if (params?.order_type == "unpaid" || params?.order_type == "placed") {
+      getOrderTwoDetails("unpaid", "two");
+    } else if (
+      params?.order_type == "confirmed" ||
+      params?.order_type == "cancelled"
+    ) {
+      getOrderTwoDetails("cancelled", "two");
+    } else if (
+      params?.order_type == "delivered" ||
+      params?.order_type == "returned"
+    ) {
+      getOrderTwoDetails("returned", "two");
+    } 
+
+  },[orderDataOne])
 
   useEffect(() => {
     const viewOrderDetails = async () => {
@@ -379,14 +445,14 @@ export default function ViewOrders() {
                       <p
                         className={`h6 text-muted mb-0 !font-bold mb-lg-0
                         ${
-                          (userData?.client?.order_confirmed == 0 &&
-                          userData?.client?.order_cancelled == 0)
+                          userData?.client?.order_confirmed == 0 &&
+                          userData?.client?.order_cancelled == 0
                             ? "!cursor-no-drop"
                             : ""
                         }
                         ${
-                          (userData?.client?.order_confirmed > 0 ||
-                          userData?.client?.order_cancelled > 0)
+                          userData?.client?.order_confirmed > 0 ||
+                          userData?.client?.order_cancelled > 0
                             ? "order-confirmed"
                             : "grayscale"
                         }`}
@@ -482,12 +548,14 @@ export default function ViewOrders() {
                       <div
                         className={`inner-circle timeline-active 
                         ${
-                          (userData?.client?.order_completed == 0 && userData?.client?.order_returned == 0)
+                          userData?.client?.order_completed == 0 &&
+                          userData?.client?.order_returned == 0
                             ? "!cursor-no-drop"
                             : ""
                         }
                         ${
-                          (userData?.client?.order_completed > 0 || userData?.client?.order_returned > 0)
+                          userData?.client?.order_completed > 0 ||
+                          userData?.client?.order_returned > 0
                             ? `${
                                 params?.order_type == "delivered" ||
                                 params?.order_type == "returned"
@@ -497,7 +565,10 @@ export default function ViewOrders() {
                             : "grayscale"
                         }`}
                         onClick={() => {
-                          if (userData?.client?.order_completed > 0 || userData?.client?.order_returned >0) {
+                          if (
+                            userData?.client?.order_completed > 0 ||
+                            userData?.client?.order_returned > 0
+                          ) {
                             window.location.href = "/view-order/delivered";
                           }
                         }}
@@ -516,12 +587,14 @@ export default function ViewOrders() {
                       <p
                         className={`h6 text-muted mb-0 !font-bold mb-lg-0 
                         ${
-                          (userData?.client?.order_completed == 0 && userData?.client?.order_returned == 0)
+                          userData?.client?.order_completed == 0 &&
+                          userData?.client?.order_returned == 0
                             ? "!cursor-no-drop"
                             : ""
                         }
                         ${
-                          (userData?.client?.order_completed > 0 || userData?.client?.order_returned > 0)
+                          userData?.client?.order_completed > 0 ||
+                          userData?.client?.order_returned > 0
                             ? "order-delivered"
                             : "grayscale"
                         } `}
@@ -598,9 +671,9 @@ export default function ViewOrders() {
                                     src={`/images/orders/large/${
                                       orderStatusSmall[viewOrderDetails?.status]
                                     }.png`}
-                                    className="w-22 h-auto"
+                                    className="w-16 h-auto"
                                     alt="orders_large_icons"
-                                    style={{ filter: "blur(3px)" }}
+                                    style={{ filter: "blur(2px)" }}
                                   />
                                 </div>
                                 <div
@@ -1058,7 +1131,7 @@ export default function ViewOrders() {
                                                           className=" !m-0 !pr-2 hover:bg-stone-300 !border-none"
                                                         >
                                                           <div
-                                                            className="products-ro mr-2 d-flex align-items-center justify-content-between flex-wrap w-full "
+                                                            className="products-ro mr-2 d-flex align-items-center justify-content-between flex-wrap-reverse w-full "
                                                             key={ind}
                                                           >
                                                             <img

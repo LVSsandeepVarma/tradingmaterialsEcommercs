@@ -212,6 +212,16 @@ export default function ProductDetails() {
           }
         );
         if (response?.data?.status) {
+          response.data.data.products.sort((a, b) => {
+            // Convert prices to numbers and compare them
+            const priceA = a.prices[0].INR;
+            const priceB = b.prices[0].INR;
+            return parseInt(priceA) - parseInt(priceB);
+          });
+          [response.data.data.products[0], response.data.data.products[5]] = [
+            response.data.data.products[5],
+            response.data.data.products[0],
+          ];
           dispatch(fetchAllProducts(response?.data?.data));
           setSubCatProducts(response?.data?.data?.products);
         }

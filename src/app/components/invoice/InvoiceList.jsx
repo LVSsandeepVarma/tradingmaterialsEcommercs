@@ -81,7 +81,7 @@ export default function InvoiceList() {
                           </span>
                         </div>
                         <div
-                          className="input-group max-w-[350px] mb-0 !my-2 sm:!my-0"
+                          className="input-group max-w-[150px] md:max-w-[350px] mb-0 !my-2 sm:!my-0"
                           
                         >
                           <input

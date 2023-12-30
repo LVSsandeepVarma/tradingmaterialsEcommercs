@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../header/header";
 import Footer from "../../footer/footer";
+import { BsCheck2Circle } from "react-icons/bs";
+
 import {
   hideLoader,
   showLoader,
@@ -49,6 +51,7 @@ export default function AddToCart() {
   const [isSuccess, setIsSuccess] = useState(false);
   // eslint-disable-next-line no-unused-vars
   const [isFailure, setIsFailure] = useState(false);
+  const [disablePromocodeButton, setDisablePromocodeButton] = useState(false);
   const [allProducts, setAllProducts] = useState(cartProducts);
   const [fomrType, setFormType] = useState("add");
   const [promocode, setPromocode] = useState("");
@@ -86,7 +89,6 @@ export default function AddToCart() {
   const [optionalNotes, setOptionalNotes] = useState("");
   const [showSessionExpiry, setShowSessionExpiry] = useState(false);
 
-  console.log(cartProducts, "gggggggg");
   useEffect(() => {
     getUserInfo();
   }, [addressStatus]);
@@ -110,7 +112,6 @@ export default function AddToCart() {
         }
       );
       if (response?.data?.status) {
-        console.log(response?.data);
         dispatch(updateUsers(response?.data?.data));
         dispatch(updateCart(response?.data?.data?.client?.cart));
         setAllProducts(response?.data?.data?.client?.cart);
@@ -121,7 +122,6 @@ export default function AddToCart() {
           setActiveShippingAddress(
             response?.data?.data?.client?.address[0]?.id
           );
-          console.log("shpadd", billingSameAsShipping);
         } else {
           if (userData?.client?.address?.length > 1)
             if (activeShippingAddressChecked != 0) {
@@ -130,16 +130,13 @@ export default function AddToCart() {
                   activeShippingAddressChecked
                 ]?.id
               );
-              console.log("shpadd", activeShippingAddressChecked);
             } else {
               setActiveShippingAddress(
                 response?.data?.data?.client?.address[1]?.id
               );
-              console.log("shpadd", activeShippingAddressChecked);
             }
         }
       } else {
-        console.log(response?.data);
         setShowSessionExpiry(true);
         // navigate("/login")
       }
@@ -219,6 +216,19 @@ export default function AddToCart() {
 
   const applyPromoCode = async () => {
     try {
+      if (promocode == "") {
+        setPromocodeErr("Promocode is required");
+        setTimeout(() => {
+          setPromocodeErr("");
+        }, 2000);
+        return;
+      } else if (promocodeApplied) {
+        setPromocode("");
+        setDiscount(0);
+        setDiscountPercentage(0);
+        setPromocodeApplied(!true);
+        return;
+      }
       const token = localStorage.getItem("client_token");
       const response = await axios.get(
         `https://admin.tradingmaterials.com/api/client/apply-promo-code?amount=${(
@@ -233,10 +243,11 @@ export default function AddToCart() {
       );
       if (response?.data?.status) {
         setPromocodeApplied(true);
-        console.log(response?.data?.data);
         setSubTotal(response?.data?.data?.originalAmount);
         setDiscount(response?.data?.data?.discount);
         setDiscountPercentage(response?.data?.data?.discount_rate);
+        setDisablePromocodeButton(true);
+        setDisablePromocodeButton(false);
       }
     } catch (err) {
       console.log(err, "err");
@@ -257,16 +268,13 @@ export default function AddToCart() {
   const handleShippingAddressChange = (ind) => {
     setActiveShippingAddress(userData?.client?.address[ind]?.id);
     setActiveShippingaddressChecked(ind);
-    console.log(ind, "shpadd");
   };
 
   // Set initial quantity for all products to 1 in the useEffect hook
   useEffect(() => {
     if (allProducts?.length) {
-      console.log(allProducts);
       const initialQuantities = {};
       allProducts.forEach((product) => {
-        console.log(product?.total, "ttttttt");
         initialQuantities[product.product_id] = product?.qty;
       });
       setQuantities(initialQuantities);
@@ -288,7 +296,6 @@ export default function AddToCart() {
       }
     });
     setPrices(updatedPrices);
-    console.log(updatedPrices, "uuuuuuuuuuuuuuuuu");
     // Calculate the subTotal by summing up the individual product prices
     const totalPriceArray = Object.values(updatedPrices).map(Number);
     const updatedSubTotal = totalPriceArray.reduce(
@@ -331,7 +338,6 @@ export default function AddToCart() {
         setAllProducts(response?.data?.data?.cart_details);
         // applyPromoCode();
       } else {
-        console.log(response?.data);
         setShowSessionExpiry(true);
         // navigate("/login")
       }
@@ -386,12 +392,10 @@ export default function AddToCart() {
     setBillingSameAsShipping(!billingSameAsShipping);
     if (!billingSameAsShipping) {
       setActiveShippingAddress(activeBillingAddress);
-      console.log("shpadd", activeShippingAddressChecked);
     } else {
       if (userData?.client?.address?.length > 1)
         setActiveShippingAddress(userData?.client?.address[1]?.id);
       setActiveShippingaddressChecked(1);
-      console.log("shpadd", activeShippingAddressChecked);
     }
   };
 
@@ -399,15 +403,9 @@ export default function AddToCart() {
     try {
       dispatch(showLoader());
       setApiErr([]);
-      console.log(
-        billingSameAsShipping,
-        activeShippingAddressChecked,
-        "checking"
-      );
       if (!billingSameAsShipping && activeShippingAddressChecked == 0) {
         setApiErr(["Please select shipping address"]);
       } else {
-        console.log(billingSameAsShipping);
         const data = billingSameAsShipping
           ? {
               total: (subTotal - discount).toFixed(2),
@@ -433,7 +431,6 @@ export default function AddToCart() {
               client_id: userData?.client?.id,
             };
 
-        console.log(data);
         const response = await axios.post(
           "https://admin.tradingmaterials.com/api/client/product/checkout/place-order",
           data,
@@ -658,7 +655,7 @@ export default function AddToCart() {
                                         >
                                           Update address
                                         </button>
-                                        <div className="form-check">
+                                        <div className="flex justify-start items-center pb-2">
                                           <input
                                             type="checkbox"
                                             checked={
@@ -749,7 +746,6 @@ export default function AddToCart() {
                                             0 &&
                                             userData?.client?.address?.map(
                                               (add, ind) => {
-                                                // console.log(add?.id, activeBillingAddress)
                                                 if (
                                                   add?.id !==
                                                   activeBillingAddress
@@ -882,36 +878,57 @@ export default function AddToCart() {
                               <h4 className="mb-3 !font-bold">Order Summary</h4>
                               <div className="pt-0 mb-3">
                                 {/* <!-- <h6 className="fs-18 mb-0">Promocode</h6> --> */}
-                                <div className="d-flex w-75">
-                                  {!promocodeApplied && (
-                                    <input
-                                      type="text"
-                                      className="form-control rounded-0 py-0 px-2"
-                                      placeholder="Promocode"
-                                      name=""
-                                      value={promocode}
-                                      onChange={handlePromoCodeChange}
-                                    />
-                                  )}
-                                  {!promocodeApplied && (
-                                    <button
-                                      type="submit"
-                                      className="btn btn-success rounded-0 px-3 py-1 fs-14 bg-[rgba(34,197,94,1)]"
-                                      name="button"
-                                      onClick={applyPromoCode}
-                                    >
-                                      Apply
-                                    </button>
-                                  )}
+                                <div
+                                  className={`capitalize ${
+                                    promocodeApplied
+                                      ? "grid grid-cols-1 gap-2"
+                                      : ""
+                                  }`}
+                                >
                                   {promocodeApplied && (
+                                    <p className="text-success font-semibold flex items-center text-sm gap-1 drop-shadow-sm">
+                                      Promocode applied <BsCheck2Circle />
+                                    </p>
+                                  )}
+                                  <>
+                                    <div className="d-flex w-full shadow-sm">
+                                      <input
+                                        type="text"
+                                        className="form-control rounded-0 py-0 px-2"
+                                        placeholder="Promocode"
+                                        name=""
+                                        value={promocode}
+                                        onChange={handlePromoCodeChange}
+                                        disabled={
+                                          disablePromocodeButton ||
+                                          promocodeApplied
+                                        }
+                                      />
+                                      <button
+                                        type="submit"
+                                        className={`btn  rounded-0 px-3 py-1 fs-14 ${
+                                          promocodeApplied
+                                            ? "bg-red-600 btn-danger"
+                                            : "bg-[rgba(34,197,94,1)] btn-success"
+                                        } `}
+                                        name="button"
+                                        onClick={applyPromoCode}
+                                        disabled={disablePromocodeButton}
+                                      >
+                                        {promocodeApplied ? "Clear" : "Apply"}
+                                      </button>
+                                    </div>
+                                  </>
+                                  {/* {promocodeApplied && (
                                     <p className="text-green-900 font-semibold">
                                       Promocode applied{" "}
                                       {discountPercentage !== null
                                         ? discountPercentage + "%"
                                         : ""}
                                     </p>
-                                  )}
+                                  )} */}
                                 </div>
+
                                 <div>
                                   {promocodeErr && (
                                     <p className="text-red-600 text-xs text-start">
@@ -972,12 +989,14 @@ export default function AddToCart() {
 
                               <button
                                 disabled={
-                                  allProducts?.length > 0 &&
+                                  (allProducts?.length > 0 &&
                                   userData?.client?.primary_address?.length !==
                                     0 &&
                                   subTotal > 0
                                     ? false
-                                    : true
+                                    : true ) || 
+                                      (!billingSameAsShipping &&
+                                      userData?.client?.address?.length <2)
                                 }
                                 onClick={handlePlaceOrder}
                                 className="btn btn-primary w-100"

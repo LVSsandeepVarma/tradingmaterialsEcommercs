@@ -118,10 +118,15 @@ export default function PaymentDetails() {
 
   return (
     <>
-      <div className="card" data-aos="fade-in">
+      <div className="card">
         <div className="card-header px-3 py-2">
-          <h5 className="text-muted text-left">
-            { activeTab == "1" ? "Success": activeTab == "2" ? "Failed" : "Pending "} Payments{" "}
+          <h5 className="text-muted text-left !font-bold text-lg">
+            {activeTab == "1"
+              ? "Success"
+              : activeTab == "2"
+              ? "Failed"
+              : "Pending "}{" "}
+            Payments{" "}
             <span className="badge bg-primary ms-2">{paymentsCount}</span>{" "}
           </h5>
         </div>
@@ -130,7 +135,9 @@ export default function PaymentDetails() {
             <div className={`nav nav-tabs mb-3`} id="nav-tab" role="tablist">
               <button
                 onClick={() => setActiveTab(1)}
-                className={`nav-link ${activeTab == 1 ? "active" : ""} `}
+                className={`nav-link ${
+                  activeTab == 1 ? "active shadow-sm" : ""
+                }`}
                 id="nav-payment-success-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#nav-payment-success"
@@ -149,13 +156,17 @@ export default function PaymentDetails() {
                 role="tab"
                 aria-controls="nav-payment-failed"
                 aria-selected="false"
-                className={`nav-link ${activeTab == 2 ? "active" : ""} `}
+                className={`nav-link ${
+                  activeTab == 2 ? "active shadow-sm" : ""
+                } `}
                 onClick={() => setActiveTab(2)}
               >
                 Order Payment Failed
               </button>
               <button
-                className={`nav-link ${activeTab == 3 ? "active" : ""} `}
+                className={`nav-link ${
+                  activeTab == 3 ? "active shadow-sm" : ""
+                } `}
                 onClick={() => setActiveTab(3)}
                 id="nav-payment-pending-tab"
                 data-bs-toggle="tab"
@@ -179,422 +190,419 @@ export default function PaymentDetails() {
             >
               <div className="tab-pane fade active show">
                 <div className="col-lg-12">
-                  {paymentsCount > 0 && (
-                    
-                      paymentsData?.map((payment, ind) => {
-                        if (activeTab == 1 && payment?.status == "1") {
-                          return (
-                            <Accordion
-                              id="accordion"
-                              key={ind}
-                              expanded={paymentId == payment?.payment_id}
+                  {paymentsCount > 0 &&
+                    paymentsData?.map((payment, ind) => {
+                      if (activeTab == 1 && payment?.status == "1") {
+                        return (
+                          <Accordion
+                            id="accordion"
+                            key={ind}
+                            expanded={paymentId == payment?.payment_id}
+                            disabled={payment?.order?.order_number == null}
+                          >
+                            <AccordionSummary
+                              aria-controls="PaymentSuccessOne-content"
+                              id="PaymentSuccessOne"
+                              onClick={() => {
+                                setActiveOrderId(payment?.order_id);
+                                setPaymentId(payment?.payment_id);
+                              }}
                               disabled={payment?.order?.order_number == null}
                             >
-                              <AccordionSummary
-                                aria-controls="PaymentSuccessOne-content"
-                                id="PaymentSuccessOne"
-                                onClick={() => {
-                                  setActiveOrderId(payment?.order_id);
-                                  setPaymentId(payment?.payment_id);
-                                }}
-                                disabled={payment?.order?.order_number == null}
+                              <button
+                                className={`accordion-button accordion-success !px-2 ${
+                                  paymentId != payment?.payment_id
+                                    ? "collapsed"
+                                    : ""
+                                }`}
+                                role="button"
                               >
-                                <button
-                                  className={`accordion-button accordion-success !px-2 ${
-                                    paymentId != payment?.payment_id
-                                      ? "collapsed"
-                                      : ""
-                                  }`}
-                                  role="button"
-                                >
-                                  {payment?.order != null ||
-                                  payment?.order?.order_number != null
-                                    ? "#" + payment?.order?.order_number
-                                    : "#Removed"}
-                                  <span className="fw-normal mx-1">
-                                    |
-                                    <span className="fs-12 fw-normal">
-                                      {new Date(
-                                        payment?.created_at
-                                      ).toLocaleDateString("en-US", {
-                                        day: "2-digit",
-                                        month: "short",
-                                        year: "numeric",
-                                      })}
-                                    </span>
+                                {payment?.order != null ||
+                                payment?.order?.order_number != null
+                                  ? "#" + payment?.order?.order_number
+                                  : "#Removed"}
+                                <span className="fw-normal mx-1">
+                                  |
+                                  <span className="fs-12 fw-normal">
+                                    {new Date(
+                                      payment?.created_at
+                                    ).toLocaleDateString("en-US", {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                    })}
                                   </span>
-                                </button>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                <div id="collapseOne" className="">
-                                  <div>
-                                    <div className="row">
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Payment Status
-                                        </p>
-                                        <span
-                                          className={`badge bg-success fs-12`}
-                                        >
-                                          {payment?.payment_status
-                                            ? payment?.payment_status
-                                            : "Success"}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Payment id
-                                        </p>
-                                        <span className="text-dark block truncate">
-                                          {payment?.payment_id}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Payment Type
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.payment_type}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Total Amount
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.total}
-                                        </span>
-                                      </div>
-                                      <div className="col-lg-12 mb-1"></div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Discount
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.discount_amount}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Sub Total
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.sub_total}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Paid Amount
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.amount_paid}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Balance
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.balance_amount}
-                                        </span>
-                                      </div>
+                                </span>
+                              </button>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <div id="collapseOne" className="">
+                                <div>
+                                  <div className="row">
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Payment Status
+                                      </p>
+                                      <span
+                                        className={`badge bg-success fs-12`}
+                                      >
+                                        {payment?.payment_status
+                                          ? payment?.payment_status
+                                          : "Success"}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Payment id
+                                      </p>
+                                      <span className="text-dark block truncate">
+                                        {payment?.payment_id}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Payment Type
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.payment_type}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Total Amount
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.total}
+                                      </span>
+                                    </div>
+                                    <div className="col-lg-12 mb-1"></div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Discount
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.discount_amount}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Sub Total
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.sub_total}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Paid Amount
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.amount_paid}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Balance
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.balance_amount}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
-                              </AccordionDetails>
-                            </Accordion>
-                          );
-                        } else if (activeTab == 2 && payment?.status == "2") {
-                          
-                          return (
-                            <Accordion
-                              key={ind}
-                              className={`panelone panel-default hover:drop-shadow-lg `}
-                              expanded={paymentId == payment?.payment_id}
-                              disabled={payment?.order?.order_number == null}
+                              </div>
+                            </AccordionDetails>
+                          </Accordion>
+                        );
+                      } else if (activeTab == 2 && payment?.status == "2") {
+                        return (
+                          <Accordion
+                            key={ind}
+                            className={`panelone panel-default hover:drop-shadow-lg `}
+                            expanded={paymentId == payment?.payment_id}
+                            disabled={payment?.order?.order_number == null}
+                          >
+                            <AccordionSummary
+                              id="PaymentSuccessOne"
+                              onClick={() => {
+                                setActiveOrderId(payment?.order_id);
+                                setPaymentId(payment?.payment_id);
+                              }}
                             >
-                              <AccordionSummary
-                                id="PaymentSuccessOne"
-                                onClick={() => {
-                                  setActiveOrderId(payment?.order_id);
-                                  setPaymentId(payment?.payment_id);
-                                }}
+                              <p
+                                className={`accordion-button accordion-failed !px-2 ${
+                                  paymentId != payment?.payment_id
+                                    ? "collapsed"
+                                    : ""
+                                }`}
                               >
-                                <p
-                                  className={`accordion-button accordion-failed !px-2 ${
-                                    paymentId != payment?.payment_id
-                                      ? "collapsed"
-                                      : ""
-                                  }`}
-                                >
-                                  {payment?.order != null ||
-                                  payment?.order?.order_number != null
-                                    ? "#" + payment?.order?.order_number
-                                    : "#Removed"}
-                                  <span className="fw-normal mx-1">
-                                    |
-                                    <span className="fs-12 fw-normal">
-                                      {new Date(
-                                        payment?.created_at
-                                      ).toLocaleDateString("en-US", {
-                                        day: "2-digit",
-                                        month: "short",
-                                        year: "numeric",
-                                      })}
-                                    </span>
+                                {payment?.order != null ||
+                                payment?.order?.order_number != null
+                                  ? "#" + payment?.order?.order_number
+                                  : "#Removed"}
+                                <span className="fw-normal mx-1">
+                                  |
+                                  <span className="fs-12 fw-normal">
+                                    {new Date(
+                                      payment?.created_at
+                                    ).toLocaleDateString("en-US", {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                    })}
                                   </span>
-                                </p>
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                <div id="collapseOne" className="">
-                                  <div>
-                                    <div className="row">
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Payment Status
-                                        </p>
-                                        <span className="badge bg-gradient-to-r from-[#dc0e0e] to-[#a22222] fs-12">
-                                          {payment?.payment_status}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Payment id
-                                        </p>
-                                        <span className="block text-dark truncate">
-                                          {payment?.payment_id}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Payment Type
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.payment_type}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Total Amount
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.total}
-                                        </span>
-                                      </div>
-                                      <div className="col-lg-12 mb-1"></div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Discount
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.discount_amount}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Sub Total
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.sub_total}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Paid Amount
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.amount_paid}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Balance
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.balance_amount}
-                                        </span>
-                                      </div>
+                                </span>
+                              </p>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <div id="collapseOne" className="">
+                                <div>
+                                  <div className="row">
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Payment Status
+                                      </p>
+                                      <span className="badge bg-gradient-to-r from-[#dc0e0e] to-[#a22222] fs-12">
+                                        {payment?.payment_status}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Payment id
+                                      </p>
+                                      <span className="block text-dark truncate">
+                                        {payment?.payment_id}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Payment Type
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.payment_type}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Total Amount
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.total}
+                                      </span>
+                                    </div>
+                                    <div className="col-lg-12 mb-1"></div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Discount
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.discount_amount}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Sub Total
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.sub_total}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Paid Amount
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.amount_paid}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Balance
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.balance_amount}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
-                              </AccordionDetails>
-                            </Accordion>
-                          );
-                        } else if (activeTab == 3 && payment?.status == "0") {
-                          return (
-                            <Accordion
-                              key={ind}
-                              className={`panelone panel-default hover:drop-shadow-lg `}
-                              expanded={paymentId == payment?.payment_id}
-                              disabled={payment?.order?.order_number == null}
+                              </div>
+                            </AccordionDetails>
+                          </Accordion>
+                        );
+                      } else if (activeTab == 3 && payment?.status == "0") {
+                        return (
+                          <Accordion
+                            key={ind}
+                            className={`panelone panel-default hover:drop-shadow-lg `}
+                            expanded={paymentId == payment?.payment_id}
+                            disabled={payment?.order?.order_number == null}
+                          >
+                            <AccordionSummary
+                              id="PaymentSuccessOne"
+                              onClick={() => {
+                                setActiveOrderId(payment?.order_id);
+                                setPaymentId(payment?.payment_id);
+                              }}
                             >
-                              <AccordionSummary
-                                id="PaymentSuccessOne"
-                                onClick={() => {
-                                  setActiveOrderId(payment?.order_id);
-                                  setPaymentId(payment?.payment_id);
-                                }}
+                              {/* <h2 className="panel-title !p-0 !m-0 "> */}
+                              <button
+                                className={`accordion-button accordion-pending !px-2 ${
+                                  paymentId != payment?.payment_id
+                                    ? "collapsed"
+                                    : ""
+                                }`}
+                                role="button"
+                                data-toggle="collapse"
+                                data-parent="#accordion"
+                                // href="#collapseOne"
+                                aria-expanded="false"
+                                aria-controls="collapseOne"
                               >
-                                {/* <h2 className="panel-title !p-0 !m-0 "> */}
-                                <button
-                                  className={`accordion-button accordion-pending !px-2 ${
-                                    paymentId != payment?.payment_id
-                                      ? "collapsed"
-                                      : ""
-                                  }`}
-                                  role="button"
-                                  data-toggle="collapse"
-                                  data-parent="#accordion"
-                                  // href="#collapseOne"
-                                  aria-expanded="false"
-                                  aria-controls="collapseOne"
-                                >
-                                  {payment?.order != null ||
-                                  payment?.order?.order_number != null
-                                    ? "#" + payment?.order?.order_number
-                                    : "#Removed"}
-                                  <span className="fw-normal mx-1">
-                                    |
-                                    <span className="fs-12 fw-normal">
-                                      {new Date(
-                                        payment?.created_at
-                                      ).toLocaleDateString("en-US", {
-                                        day: "2-digit",
-                                        month: "short",
-                                        year: "numeric",
-                                      })}
-                                    </span>
+                                {payment?.order != null ||
+                                payment?.order?.order_number != null
+                                  ? "#" + payment?.order?.order_number
+                                  : "#Removed"}
+                                <span className="fw-normal mx-1">
+                                  |
+                                  <span className="fs-12 fw-normal">
+                                    {new Date(
+                                      payment?.created_at
+                                    ).toLocaleDateString("en-US", {
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                    })}
                                   </span>
-                                </button>
-                                {/* </h2> */}
-                              </AccordionSummary>
-                              <AccordionDetails>
-                                <div id="collapseOne" className="">
-                                  <div>
-                                    <div className="row">
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Payment Status
-                                        </p>
-                                        <span
-                                          className={`badge bg-warning fs-12`}
-                                        >
-                                          {payment?.payment_status
-                                            ? payment?.payment_status
-                                            : "Pending"}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Payment id
-                                        </p>
-                                        <span className="text-dark block truncate">
-                                          {payment?.payment_id}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Payment Type
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.payment_type}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Total Amount
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.total}
-                                        </span>
-                                      </div>
-                                      <div className="col-lg-12 mb-1"></div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Discount
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.discount_amount}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Sub Total
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.order?.sub_total}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Paid Amount
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.paid_amount}
-                                        </span>
-                                      </div>
-                                      <div className="col-6 col-lg-3 mb-1">
-                                        <p className="mb-0 text-muted fw-bold">
-                                          Balance
-                                        </p>
-                                        <span className="text-dark">
-                                          {payment?.order?.currency == "INR"
-                                            ? "₹"
-                                            : "$"}
-                                          {payment?.balance_amount}
-                                        </span>
-                                      </div>
+                                </span>
+                              </button>
+                              {/* </h2> */}
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <div id="collapseOne" className="">
+                                <div>
+                                  <div className="row">
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Payment Status
+                                      </p>
+                                      <span
+                                        className={`badge bg-warning fs-12`}
+                                      >
+                                        {payment?.payment_status
+                                          ? payment?.payment_status
+                                          : "Pending"}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Payment id
+                                      </p>
+                                      <span className="text-dark block truncate">
+                                        {payment?.payment_id}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Payment Type
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.payment_type}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Total Amount
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.total}
+                                      </span>
+                                    </div>
+                                    <div className="col-lg-12 mb-1"></div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Discount
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.discount_amount}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Sub Total
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.order?.sub_total}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Paid Amount
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.paid_amount}
+                                      </span>
+                                    </div>
+                                    <div className="col-6 col-lg-3 mb-1">
+                                      <p className="mb-0 text-muted fw-bold">
+                                        Balance
+                                      </p>
+                                      <span className="text-dark">
+                                        {payment?.order?.currency == "INR"
+                                          ? "₹"
+                                          : "$"}
+                                        {payment?.balance_amount}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
-                              </AccordionDetails>
-                            </Accordion>
-                          );
-                        }
-                      })
-                  )}
+                              </div>
+                            </AccordionDetails>
+                          </Accordion>
+                        );
+                      }
+                    })}
                 </div>
               </div>
               {/* </div> */}

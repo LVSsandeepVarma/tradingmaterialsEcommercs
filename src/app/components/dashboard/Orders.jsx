@@ -62,7 +62,7 @@ export default function ViewOrdersDashboard({ ordType }) {
 
   const params = useParams();
   const orderStatus = [
-    "unpaid",
+    "pending",
     "placed",
     "confirmed",
     "dispatched",
@@ -96,12 +96,9 @@ export default function ViewOrdersDashboard({ ordType }) {
             //                     ...orders,
             //                     response?.data?.data?.orders
             // );
-            
-            if (!orderOneID && response?.data?.data?.orders[0]?.id) {
-              
 
+            if (!orderOneID && response?.data?.data?.orders[0]?.id) {
               if (!orderOneID && response?.data?.data?.orders[0]?.id) {
-                
                 setOrderId(response?.data?.data?.orders[0]?.id);
                 setOrderNumber(response?.data?.data?.orders[0]?.order_number);
                 setActiveOrder(response?.data?.data?.orders[0]?.order_number);
@@ -134,7 +131,6 @@ export default function ViewOrdersDashboard({ ordType }) {
           }
         );
         if (response?.data?.status) {
-
           if (dataCount == "one") {
             setOrderDataOne(response?.data?.data?.orders);
             // setOrders(...orders, response?.data?.data?.orders)
@@ -227,17 +223,17 @@ export default function ViewOrdersDashboard({ ordType }) {
 
   const handleDeleteOrder = async (clientId, orderId) => {
     try {
-      dispatch(showLoader())
+      dispatch(showLoader());
       const response = await axios.post(
-        "https://admin.tradingmaterials.com/api/client/product/checkout/remove-order", 
+        "https://admin.tradingmaterials.com/api/client/product/checkout/remove-order",
         {
           client_id: clientId,
-          order_id: orderId
+          order_id: orderId,
         },
         {
           headers: {
-            Authorization : "bearer " + localStorage.getItem("client_token")
-          }
+            Authorization: "bearer " + localStorage.getItem("client_token"),
+          },
         }
       );
       if (response?.data?.status) {
@@ -531,18 +527,24 @@ export default function ViewOrdersDashboard({ ordType }) {
                       /> */}
                       <h5 className="text-muted text-left capitalize text-xl !font-bold mb-0">
                         {" "}
-                        {orderStatus[statusCode]}
+                        {orderStatus[statusCode]} Orders
                         {(orderDataOne?.length > 0 ||
                           orderDataTwo?.length > 0) && (
                           <span className="badge badge-custom ms-2">
-                            {statusCode == "1"
-                              ? userData?.order_placed_count
+                            {statusCode == "0"
+                              ? userData?.client?.order_pending
+                              : statusCode == "1"
+                              ? userData?.client?.order_placed
                               : statusCode == 2
-                              ? userData?.order_confirmed_count
+                              ? userData?.client?.order_confirmed
                               : statusCode == 3
-                              ? userData?.order_dispatched_count
+                              ? userData?.client?.order_dispatched
                               : statusCode == 4
-                              ? userData?.order_delivered_count
+                              ? userData?.client?.order_completed
+                              : statusCode == 5
+                              ? userData?.client?.order_cancelled
+                              : statusCode == "6"
+                              ? userData?.client?.order_returned
                               : ""}
                           </span>
                         )}
@@ -577,10 +579,10 @@ export default function ViewOrdersDashboard({ ordType }) {
                               <div className="">
                                 <div className="flex justify-center">
                                   <img
-                                    src={`/images/orders/large/${orderStatus[statusCode]}.png`}
-                                    className="w-22 h-auto"
+                                    src={`/images/orders/large/${orderStatus[1]}.png`}
+                                    className="w-16 h-auto"
                                     alt="orders_large_icons"
-                                    style={{ filter: "blur(3px)" }}
+                                    style={{ filter: "blur(2px)" }}
                                   />
                                 </div>
                                 <div

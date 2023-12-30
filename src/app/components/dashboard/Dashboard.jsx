@@ -309,7 +309,7 @@ export default function Dashboard() {
         />
 
         <main className="nk-pages mt-10 sm:mt-40 md:mt-[6rem]">
-          <section className="nk-section ">
+          <section className="nk-section " data-aos="fade-out">
             <div className="nk-mask blur-1 left center"></div>
             <div className="container">
               <div className="row gy-5 gy-xl-0">
@@ -760,8 +760,8 @@ export default function Dashboard() {
                                   {showPlaceHolderLoader === false && (
                                     <div
                                       className="col-xl-4 col-lg-4 col-md-6 !pb-[27px] group hover:drop-shadow-xl"
-                                      data-aos="fade-up"
-                                      data-aos-delay="100"
+                                      // data-aos="fade-up"
+                                      // data-aos-delay="100"
                                     >
                                       <div className="nk-card overflow-hidden rounded-3 border h-100 text-left">
                                         <div className="nk-card-img relative">
